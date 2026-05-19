@@ -232,6 +232,16 @@
                                         <p:password id="confirmaSenha" value="#{cadastroBean.confirmarSenha}" 
                                                     styleClass="w-full custom-input" 
                                                     required="true" requiredMessage="A confirmação de senha é obrigatória"/>
+                                            </div>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" styleClass="form-group full-width">
+                                    <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                        <p:commandButton value="Desativar Minha Conta"
+                                                         icon="fas fa-user-slash"
+                                                         type="button"
+                                                         onclick="PF('dialogDesativarConta').show();"
+                                                         style="background: transparent; color: #f87171; border: 1px solid rgba(248,113,113,0.6); padding: 9px 14px; border-radius: 8px; font-weight: 700;"/>
                                     </div>
                                 </h:panelGroup>
                             </div>
@@ -527,6 +537,29 @@
                         <p:commandButton value="Cancelar" type="button" onclick="PF('dialogTermos').hide();" styleClass="ui-button-secondary font-bold rounded-btn"/>
                         
                         <p:commandButton widgetVar="btnAceitar" value="Eu Li e Aceito" type="button" onclick="confirmarAceite();" disabled="true" styleClass="ui-button-success font-bold rounded-btn" icon="fas fa-check"/>
+                    </div>
+                </f:facet>
+            </p:dialog>
+
+            <p:dialog header="Desativar conta" widgetVar="dialogDesativarConta" modal="true" width="90%" fitViewport="true" responsive="true" style="max-width: 520px;" styleClass="bg-bluegray-900 text-white shadow-6 border-round-xl">
+                <div class="line-height-3 text-gray-300 text-sm">
+                    <p style="margin-top:0;">
+                        Tem certeza que deseja desativar sua conta? Apos confirmar, nao sera mais possivel acessar o sistema com este usuario.
+                    </p>
+                    <p style="margin-bottom:0;">
+                        Para solicitar a reativacao, envie um email para arenamatch.app@gmail.com com o assunto "Ativacao" informando seu CPF e nome do time.
+                    </p>
+                </div>
+
+                <f:facet name="footer">
+                    <div class="flex justify-content-end gap-2">
+                        <p:commandButton value="Cancelar" type="button" onclick="PF('dialogDesativarConta').hide();" styleClass="ui-button-secondary font-bold rounded-btn"/>
+                        <p:commandButton value="Confirmar desativacao"
+                                         action="#{cadastroBean.desativarConta}"
+                                         process="@this"
+                                         update="msgs"
+                                         icon="fas fa-user-slash"
+                                         styleClass="ui-button-danger font-bold rounded-btn"/>
                     </div>
                 </f:facet>
             </p:dialog>

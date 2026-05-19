@@ -260,6 +260,15 @@ public class CadastroService {
             throw new RuntimeException("Erro ao atualizar a conta: " + e.getMessage());
         }
     }    
+
+    @Transactional
+    public void desativarConta(Long idUsuarioLogado) {
+        Usuario user = usuarioRepo.findById(idUsuarioLogado)
+            .orElseThrow(() -> new RuntimeException("Usuario nao encontrado."));
+
+        user.setStatusUsuario(StatusUsuario.INATIVO);
+        usuarioRepo.save(user);
+    }
     
     
     @Transactional(readOnly = true)

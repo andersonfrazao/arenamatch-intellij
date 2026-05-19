@@ -304,6 +304,21 @@ public class CadastroBean implements Serializable {
         }
     }
 
+    public String desativarConta() {
+        if (!sessaoBean.isLogado() || sessaoBean.getUsuarioLogado() == null) {
+            return "/login.xhtml?faces-redirect=true";
+        }
+
+        try {
+            cadastroClient.desativarConta(sessaoBean.getUsuarioLogado().getId());
+            return sessaoBean.logout();
+        } catch (Exception e) {
+            e.printStackTrace();
+            msgErro("Erro ao desativar a conta. Tente novamente.");
+            return null;
+        }
+    }
+
     private void msgErro(String msg) {
         FacesContext.getCurrentInstance().addMessage(null, 
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Atenção", msg));

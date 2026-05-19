@@ -16,7 +16,7 @@
                         <i class="fas fa-headset text-blue-400 text-5xl mb-3"></i>
                         <h2 class="text-white font-bold text-2xl m-0">Fale Conosco</h2>
                         <p class="text-gray-400 text-sm mt-2">
-                            Olá, <strong class="text-white">#{sessaoBean.usuarioLogado.nome}</strong>! Como podemos ajudar o seu time hoje?
+                            Ola, <strong class="text-white">#{sessaoBean.usuarioLogado.nome}</strong>! Como podemos ajudar o seu time hoje?
                         </p>
                     </div>
 
@@ -24,26 +24,54 @@
                         <p:outputLabel for="assunto" value="Assunto" styleClass="text-white font-bold mb-2 block"/>
                         <p:selectOneMenu id="assunto" value="#{faleConoscoBean.assunto}" required="true" requiredMessage="Selecione um assunto" styleClass="w-full custom-input">
                             <f:selectItem itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
-                            <f:selectItem itemLabel="Dúvida" itemValue="DÚVIDA"/>
-                            <f:selectItem itemLabel="Sugestão de Melhoria" itemValue="SUGESTÃO"/>
+                            <f:selectItem itemLabel="Duvida" itemValue="DUVIDA"/>
+                            <f:selectItem itemLabel="Sugestao de Melhoria" itemValue="SUGESTAO"/>
                             <f:selectItem itemLabel="Reportar Erro/Bug" itemValue="ERRO"/>
-                            <f:selectItem itemLabel="Denúncia" itemValue="DENÚNCIA"/>
+                            <f:selectItem itemLabel="Denuncia" itemValue="DENUNCIA"/>
+                            <f:selectItem itemLabel="Exclusao de conta / Direito LGPD" itemValue="EXCLUSÃO"/>
                             <f:selectItem itemLabel="Outros" itemValue="OUTROS"/>
+                            <p:ajax listener="#{faleConoscoBean.onAssuntoChange}" update="@form" oncomplete="if (args.exibirConfirmacaoExclusao) PF('dialogExclusaoConta').show();" />
                         </p:selectOneMenu>
                     </div>
 
-                    <div class="field mb-4">
-                        <p:outputLabel for="mensagem" value="Mensagem" styleClass="text-white font-bold mb-2 block"/>
-                        <p:inputTextarea id="mensagem" value="#{faleConoscoBean.mensagem}" required="true" requiredMessage="Escreva uma mensagem"
-                                         rows="6" maxlength="500" counter="display" counterTemplate="{0} caracteres restantes." 
-                                         autoResize="false" styleClass="w-full custom-input" placeholder="Detalhe aqui a sua situação..."/>
-                        <h:outputText id="display" styleClass="text-xs text-gray-500 mt-1 block text-right" />
-                    </div>
+                    <h:panelGroup id="painelFormularioContato" layout="block" rendered="#{not faleConoscoBean.aguardandoConfirmacaoExclusao}">
+                        <div class="field mb-4">
+                            <p:outputLabel for="mensagem" value="Mensagem" styleClass="text-white font-bold mb-2 block"/>
+                            <p:inputTextarea id="mensagem" value="#{faleConoscoBean.mensagem}" required="true" requiredMessage="Escreva uma mensagem"
+                                             rows="6" maxlength="500" counter="display" counterTemplate="{0} caracteres restantes." 
+                                             autoResize="false" styleClass="w-full custom-input" placeholder="Detalhe aqui a sua situacao..."/>
+                            <h:outputText id="display" styleClass="text-xs text-gray-500 mt-1 block text-right" />
+                        </div>
 
-                    <p:commandButton value="Enviar Mensagem" action="#{faleConoscoBean.enviar}" update="@form" 
-                                     icon="fas fa-paper-plane" styleClass="ui-button-warning w-full font-bold shadow-3 rounded-btn p-2 text-lg" />
+                        <p:commandButton value="Enviar Mensagem" action="#{faleConoscoBean.enviar}" update="@form" 
+                                         icon="fas fa-paper-plane" styleClass="ui-button-warning w-full font-bold shadow-3 rounded-btn p-2 text-lg" />
+                    </h:panelGroup>
                 </div>
             </div>
+
+            <p:dialog header="Exclusao definitiva de conta" widgetVar="dialogExclusaoConta" modal="true" width="90%" fitViewport="true" responsive="true" style="max-width: 520px;" styleClass="bg-bluegray-900 text-white shadow-6 border-round-xl" closable="false">
+                <div class="line-height-3 text-gray-300 text-sm">
+                    A conta sera excluida em definitivo e nao sera mais possivel reativa-la. Deseja continuar com a solicitacao?
+                </div>
+
+                <f:facet name="footer">
+                    <div class="flex justify-content-end gap-2">
+                        <p:commandButton value="Cancelar"
+                                         action="#{faleConoscoBean.cancelarExclusao}"
+                                         process="@this"
+                                         update="@form"
+                                         oncomplete="PF('dialogExclusaoConta').hide();"
+                                         styleClass="ui-button-secondary font-bold rounded-btn"/>
+                        <p:commandButton value="Confirmar"
+                                         action="#{faleConoscoBean.confirmarExclusao}"
+                                         process="@this"
+                                         update="@form"
+                                         oncomplete="PF('dialogExclusaoConta').hide();"
+                                         icon="fas fa-check"
+                                         styleClass="ui-button-danger font-bold rounded-btn"/>
+                    </div>
+                </f:facet>
+            </p:dialog>
         </h:form>
     </ui:define>
 </ui:composition>

@@ -54,8 +54,10 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
                  a.hora_fim as horaFim,
                  a.categoria as categoria                
             FROM time t
+            INNER JOIN usuario u ON u.id = t.id_responsavel
             INNER JOIN agenda a ON a.id_time = t.id
             WHERE t.id != :meuId
+            AND u.status_usuario = 'ATIVO'
             AND a.dia_semana = :diaSemana
             AND t.mando_campo != :minhaCasa
             AND (:nome IS NULL OR LOWER(t.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
@@ -82,7 +84,12 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
     
     Optional<Time> findByResponsavelId(Long idResponsavel);
     
-    List<Time> findByNomeContainingIgnoreCase(String nome);
+    @Query("""
+            SELECT t FROM Time t
+            WHERE LOWER(t.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
+            AND t.responsavel.statusUsuario = br.com.arenamatch.enums.StatusUsuario.ATIVO
+            """)
+    List<Time> buscarAtivosPorNome(@Param("nome") String nome);
     
     @Query("""
             SELECT t FROM Time t

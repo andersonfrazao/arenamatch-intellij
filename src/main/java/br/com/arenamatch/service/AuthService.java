@@ -49,6 +49,14 @@ public class AuthService {
         if (StatusUsuario.PENDENTE_ATIVACAO.equals(usuario.getStatusUsuario())) {
             throw new RuntimeException("Conta pendente de ativacao. Ative sua conta com o codigo enviado para seu e-mail.");
         }
+
+        if (StatusUsuario.INATIVO.equals(usuario.getStatusUsuario())) {
+            throw new RuntimeException("Sua conta foi desativada. Para solicitar a reativacao, envie um email para arenamatch.app@gmail.com com o assunto \"Ativacao\" informando seu cpf e nome do time");
+        }
+
+        if (StatusUsuario.BANIDO.equals(usuario.getStatusUsuario())) {
+            throw new RuntimeException("Esta conta nao pode acessar o sistema. Entre em contato com o suporte.");
+        }
         
 		/*
 		 * if (!usuario.getSenha().equals(login.getSenha())) { // Lembre-se: em produção

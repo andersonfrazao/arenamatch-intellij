@@ -39,4 +39,10 @@ public class CadastroController {
     	service.atualizarConta(idUsuario, dto);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{idUsuario}/desativar")
+    public ResponseEntity<Void> desativarConta(@PathVariable Long idUsuario) {
+        service.desativarConta(idUsuario);
+        return ResponseEntity.ok().build();
+    }
 }

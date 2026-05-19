@@ -24,7 +24,7 @@ public class TimeService {
     }
     
     public List<TimeSimplesDTO> buscarTimesPorNome(String nome){
-	    List<br.com.arenamatch.entity.Time> resultados = timeRepository.findByNomeContainingIgnoreCase(nome);
+	    List<br.com.arenamatch.entity.Time> resultados = timeRepository.buscarAtivosPorNome(nome);
 	    
 	    List<TimeSimplesDTO> dtos = resultados.stream()
 	            .map(t -> new TimeSimplesDTO(t.getId(), t.getNome()))

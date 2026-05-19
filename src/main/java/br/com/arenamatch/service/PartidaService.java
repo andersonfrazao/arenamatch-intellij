@@ -25,6 +25,7 @@ import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPartida;
 import br.com.arenamatch.enums.StatusPlacar;
+import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.AgendaRepository;
 import br.com.arenamatch.repository.MensagemChatRepository;
 import br.com.arenamatch.repository.PartidaRepository;
@@ -183,6 +184,9 @@ public class PartidaService {
         
         Time desafiante = timeRepository.findById(dto.getIdTimeDesafiante()).orElseThrow();
         Time desafiado = timeRepository.findById(dto.getIdTimeDesafiado()).orElseThrow();
+
+        validarTimeAtivo(desafiante, "O seu time nao esta ativo para criar desafios.");
+        validarTimeAtivo(desafiado, "Este time nao esta ativo para receber desafios.");
 
         placarPendenteService.validarSemPlacarPendente(desafiante.getId());
         validarPermissaoParaCriarDesafio(desafiante);
@@ -353,6 +357,13 @@ public class PartidaService {
             String diaTexto = diasRestantes == 1 ? "1 dia" : diasRestantes + " dias";
             throw new RuntimeException("Voce ja tem jogo agendado ou desafio enviado! Seu plano BASICO so permite agendar jogos a cada "
                     + intervaloDias + " dias. Voce podera enviar um novo desafio em " + diaTexto + ".");
+        }
+    }
+
+    private void validarTimeAtivo(Time time, String mensagem) {
+        if (time == null || time.getResponsavel() == null
+                || !StatusUsuario.ATIVO.equals(time.getResponsavel().getStatusUsuario())) {
+            throw new RuntimeException(mensagem);
         }
     }
     
