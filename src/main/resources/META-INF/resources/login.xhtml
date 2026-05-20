@@ -66,6 +66,20 @@
         body .ui-password input {
             width: 100%;
         }
+
+        .mensagem-app-mobile {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mensagem-app-mobile {
+                display: block;
+                margin-top: 20px;
+                text-align: center;
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.85);
+            }
+        }
     </style>
 </h:head>
 
@@ -80,6 +94,9 @@
                     <i class="fas fa-trophy mr-2"></i> ARENA <span class="text-white ml-2">MATCH</span>
                 </div>
                 <div class="text-gray-400 text-sm mt-2">Entre e encontre seu próximo desafio.</div>
+                <div class="mensagem-app-mobile">
+                    Ou acesse www.arenamatch.app.br
+                </div>
             </div>
 
             <div class="field mb-4">
