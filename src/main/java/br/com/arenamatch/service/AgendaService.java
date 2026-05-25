@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.arenamatch.dto.EventoAgendaDTO;
+import br.com.arenamatch.dto.ProximoJogoDTO;
 import br.com.arenamatch.dto.ResumoAgendaDTO;
 import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
@@ -98,6 +99,21 @@ public class AgendaService {
     }
 
  // ... restante do seu código (montarCalendario) ...
+
+    public List<ProximoJogoDTO> buscarJogosAgendadosFuturos(Long timeId) {
+        return partidaRepository.buscarJogosAgendadosAPartirDe(timeId, LocalDate.now().atStartOfDay()).stream()
+                .map(this::converterParaProximoJogo)
+                .collect(Collectors.toList());
+    }
+
+    private ProximoJogoDTO converterParaProximoJogo(Partida partida) {
+        ProximoJogoDTO dto = new ProximoJogoDTO();
+        dto.setIdPartida(partida.getId());
+        dto.setDataHora(horarioJogoService.resolverDataHoraMandante(partida));
+        dto.setNomeTimeMandante(partida.getMandante() != null ? partida.getMandante().getNome() : "Mandante");
+        dto.setNomeTimeVisitante(partida.getVisitante() != null ? partida.getVisitante().getNome() : "Visitante");
+        return dto;
+    }
 
     private EventoAgendaDTO converterParaEvento(Partida p, Long meuTimeId) {
         EventoAgendaDTO dto = new EventoAgendaDTO();

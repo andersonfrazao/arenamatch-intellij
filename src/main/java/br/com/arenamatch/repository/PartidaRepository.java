@@ -100,6 +100,15 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             SELECT p FROM Partida p
             WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
             AND p.status = 'AGENDADO'
+            AND p.dataHora >= :inicio
+            ORDER BY p.dataHora ASC
+        """)
+    List<Partida> buscarJogosAgendadosAPartirDe(@Param("timeId") Long timeId, @Param("inicio") LocalDateTime inicio);
+
+    @Query("""
+            SELECT p FROM Partida p
+            WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
+            AND p.status = 'AGENDADO'
             AND p.statusPlacar = 'PENDENTE'
             AND p.dataHora < CURRENT_TIMESTAMP
             ORDER BY p.dataHora ASC

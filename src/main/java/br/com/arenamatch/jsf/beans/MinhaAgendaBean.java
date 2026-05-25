@@ -12,6 +12,7 @@ import br.com.arenamatch.jsf.client.LigaClient;
 import br.com.arenamatch.jsf.client.PartidaClient;
 import br.com.arenamatch.dto.ConviteLigaDTO;
 import br.com.arenamatch.dto.EventoAgendaDTO;
+import br.com.arenamatch.dto.ProximoJogoDTO;
 import br.com.arenamatch.dto.ResumoAgendaDTO;
 import br.com.arenamatch.dto.TimeResumoDTO;
 import jakarta.annotation.PostConstruct;
@@ -75,6 +76,9 @@ public class MinhaAgendaBean implements Serializable {
     // AQUI: Usando o DTO corretamente para o painel do topo
     @Getter @Setter
     private List<ConviteLigaDTO> convitesLigaPendentes = new ArrayList<>();
+
+    @Getter @Setter
+    private List<ProximoJogoDTO> todosMeusJogos = new ArrayList<>();
     
     @Getter @Setter
     private Integer golsMandanteInformado;
@@ -122,12 +126,44 @@ public class MinhaAgendaBean implements Serializable {
             if (!diasCalendario.isEmpty()) {
                 selecionarDia(diasCalendario.get(0));
             }
+            carregarTodosMeusJogos();
         } catch (Exception e) {
             log.error("Erro ao buscar calendário para a data {}", this.dataBaseCalendario, e);
             msgErro("Erro ao buscar calendário.");
         }
     }
     
+    public void carregarTodosMeusJogos() {
+        if (meuTimeId == null) {
+            this.todosMeusJogos = new ArrayList<>();
+            return;
+        }
+
+        try {
+            this.todosMeusJogos = agendaClient.buscarTodosMeusJogos(meuTimeId);
+            if (this.todosMeusJogos == null) {
+                this.todosMeusJogos = new ArrayList<>();
+            }
+        } catch (Exception e) {
+            log.error("Erro ao buscar todos meus jogos do time {}", meuTimeId, e);
+            this.todosMeusJogos = new ArrayList<>();
+        }
+    }
+
+    public void selecionarDiaDoJogo(ProximoJogoDTO jogo) {
+        if (jogo == null || jogo.getDataHora() == null) {
+            return;
+        }
+
+        LocalDate dataJogo = jogo.getDataHora().toLocalDate();
+        this.dataBaseCalendario = dataJogo;
+        carregarCalendario();
+        this.diasCalendario.stream()
+                .filter(dia -> dia.getData().equals(dataJogo))
+                .findFirst()
+                .ifPresent(this::selecionarDia);
+    }
+
     public void selecionarDia(ResumoAgendaDTO dia) {
         this.diaSelecionado = dia;
         try {

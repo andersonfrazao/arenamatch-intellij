@@ -11,6 +11,7 @@ import org.springframework.web.client.RestClient;
 import br.com.arenamatch.dto.CancelamentoDTO;
 import br.com.arenamatch.dto.EventoAgendaDTO;
 import br.com.arenamatch.dto.PartidaDTO;
+import br.com.arenamatch.dto.ProximoJogoDTO;
 import br.com.arenamatch.dto.RespostaCancelamentoDTO;
 import br.com.arenamatch.dto.ResumoAgendaDTO;
 import br.com.arenamatch.dto.TimeResumoDTO;
@@ -76,6 +77,13 @@ public class AgendaClient {
                         .build())
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<EventoAgendaDTO>>() {});
+    }
+
+    public List<ProximoJogoDTO> buscarTodosMeusJogos(Long timeId) {
+        return restClient.get()
+                .uri("/api/agenda/todos-meus-jogos/{timeId}", timeId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ProximoJogoDTO>>() {});
     }
     
     public void excluirPartida(Long idPartida) {

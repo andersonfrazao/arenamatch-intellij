@@ -26,6 +26,30 @@
                 background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); font-size:.85rem;
                 display:inline-flex; align-items:center; gap:.45rem; 
             }
+
+            .todos-jogos-action {
+                display: inline-flex; align-items: center; justify-content: center;
+                padding: .58rem .85rem; border-radius: 12px;
+                border: 1px solid rgba(56,189,248,0.30); background: rgba(56,189,248,0.10);
+                color: #bae6fd; font-weight: 900; cursor: pointer; transition: background .15s ease, border-color .15s ease;
+            }
+            .todos-jogos-action:hover { background: rgba(56,189,248,0.16); border-color: rgba(56,189,248,0.46); }
+            .todos-jogos-panel { display: none; margin-bottom: 1rem; }
+            .todos-jogos-panel.open { display: block; animation: amFadeIn 0.25s ease; }
+            .todos-jogos-list { display: flex; flex-direction: column; gap: .35rem; }
+            .todos-jogos-row {
+                display: grid; grid-template-columns: 118px 72px 1fr; gap: .65rem; align-items: center;
+                padding: .65rem .75rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.10);
+                background: rgba(255,255,255,0.04); color: white; text-decoration: none !important;
+            }
+            .todos-jogos-row:hover { background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.24); }
+            .todos-jogos-date { color: #bae6fd; font-size: .82rem; font-weight: 900; white-space: nowrap; }
+            .todos-jogos-hour { color: rgba(255,255,255,0.72); font-size: .82rem; font-weight: 800; white-space: nowrap; }
+            .todos-jogos-teams { color: white; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .todos-jogos-empty {
+                padding: .85rem; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.14);
+                color: rgba(255,255,255,0.58); background: rgba(255,255,255,0.03); font-size: .9rem;
+            }
             
             .gridWeek { display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: .55rem; }
             .gridWeek > a { display: block; min-width: 0; text-decoration: none !important; }
@@ -133,6 +157,10 @@
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
+                .todos-jogos-action { width: 100%; }
+                .todos-jogos-row { grid-template-columns: 74px 50px 1fr; gap: .45rem; padding: .58rem; }
+                .todos-jogos-date, .todos-jogos-hour { font-size: .72rem; }
+                .todos-jogos-teams { white-space: normal; overflow-wrap: anywhere; }
                 .gridWeek {
                     display: grid !important;
                     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -193,9 +221,42 @@
             <p:growl id="msgs" showDetail="true" life="4000" />
             <div class="agenda-container">
                 
-                <div class="flex justify-content-between align-items-center mb-4">
+                <div class="flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
                     <h1 class="text-white text-2xl font-bold m-0"><i class="fas fa-calendar-alt text-neon mr-2"></i> Minha Agenda</h1>
+                    <div class="todos-jogos-action" id="todosMeusJogosBtn" title="Ver todos meus jogos">
+                        Todos meus jogos
+                    </div>
                 </div>
+
+                <section class="panel-glass todos-jogos-panel" id="todosMeusJogosPanel">
+                    <div class="text-white font-bold mb-3">Todos meus jogos</div>
+
+                    <h:panelGroup rendered="#{empty minhaAgendaBean.todosMeusJogos}">
+                        <div class="todos-jogos-empty">Nenhum jogo agendado futuro no momento.</div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{not empty minhaAgendaBean.todosMeusJogos}" layout="block" styleClass="todos-jogos-list">
+                        <ui:repeat value="#{minhaAgendaBean.todosMeusJogos}" var="jogo">
+                            <p:commandLink action="#{minhaAgendaBean.selecionarDiaDoJogo(jogo)}"
+                                           process="@this"
+                                           update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav"
+                                           oncomplete="document.getElementById('todosMeusJogosPanel')?.classList.remove('open'); document.getElementById('formAgenda:painelDetalhes')?.scrollIntoView({behavior:'smooth', block:'start'});"
+                                           styleClass="todos-jogos-row">
+                                <span class="todos-jogos-date">
+                                    <h:outputText value="#{jogo.dataHora}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
+                                    </h:outputText>
+                                </span>
+                                <span class="todos-jogos-hour">
+                                    <h:outputText value="#{jogo.dataHora}">
+                                        <f:convertDateTime pattern="HH:mm" type="localDateTime"/>
+                                    </h:outputText>
+                                </span>
+                                <span class="todos-jogos-teams">#{jogo.nomeTimeMandante} x #{jogo.nomeTimeVisitante}</span>
+                            </p:commandLink>
+                        </ui:repeat>
+                    </h:panelGroup>
+                </section>
 
                 <div class="panel-glass">
  					<div class="calendarHeader">
@@ -674,5 +735,26 @@
 
             </div>
         </h:form>
+
+        <script>
+            //<![CDATA[
+            if (!window.todosMeusJogosClickBound) {
+                window.todosMeusJogosClickBound = true;
+                document.addEventListener("click", function(event) {
+                    const trigger = event.target.closest("#todosMeusJogosBtn");
+                    if (!trigger) {
+                        return;
+                    }
+
+                    const panel = document.getElementById("todosMeusJogosPanel");
+                    if (!panel) {
+                        return;
+                    }
+
+                    panel.classList.toggle("open");
+                });
+            }
+            //]]>
+        </script>
     </ui:define>
 </ui:composition>

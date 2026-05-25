@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.arenamatch.dto.CancelamentoDTO;
 import br.com.arenamatch.dto.EventoAgendaDTO;
 import br.com.arenamatch.dto.PartidaDTO;
+import br.com.arenamatch.dto.ProximoJogoDTO;
 import br.com.arenamatch.dto.RespostaCancelamentoDTO;
 import br.com.arenamatch.dto.ResumoAgendaDTO;
 import br.com.arenamatch.dto.TimeResumoDTO;
@@ -75,6 +76,11 @@ public class AgendaController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
         
         return ResponseEntity.ok(agendaService.buscarDetalhesDoDia(timeId, data));
+    }
+
+    @GetMapping("/todos-meus-jogos/{timeId}")
+    public ResponseEntity<List<ProximoJogoDTO>> buscarTodosMeusJogos(@PathVariable Long timeId) {
+        return ResponseEntity.ok(agendaService.buscarJogosAgendadosFuturos(timeId));
     }
     
     @DeleteMapping("/{id}")
