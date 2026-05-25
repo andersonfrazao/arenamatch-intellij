@@ -3,28 +3,36 @@ package br.com.arenamatch.exception;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. ERROS DE REGRA DE NEGÓCIO (Ex: Faltam 3 dias, Time já tem jogo...)
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleResponseStatus(ResponseStatusException ex) {
+        String mensagem = ex.getReason();
+        if (mensagem == null || mensagem.trim().isEmpty()) {
+            mensagem = "Erro na requisicao.";
+        }
+
+        return ResponseEntity.status(ex.getStatusCode()).body(mensagem);
+    }
+
+    // Erros de regra de negocio.
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRegraNegocio(RuntimeException ex) {
-        // Printa no console para você não ficar cego!
-        System.err.println("[REGRA DE NEGÓCIO BARRADA] " + ex.getMessage()); 
-        
+        System.err.println("[REGRA DE NEGOCIO BARRADA] " + ex.getMessage());
+
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
-    // 2. ERROS DE CÓDIGO (IllegalArgumentException do Enum, NullPointer, etc)
+    // Erros inesperados de codigo.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleErrosInesperados(Exception ex) {
-        // Printa a stack trace completa no console para você debugar!
-        System.err.println("[ERRO CRÍTICO INESPERADO]");
-        ex.printStackTrace(); 
-        
-        // Mensagem genérica e amigável para o usuário na tela
+        System.err.println("[ERRO CRITICO INESPERADO]");
+        ex.printStackTrace();
+
         return ResponseEntity.internalServerError()
-                .body("Ocorreu um erro interno no servidor. Nossa equipe já foi notificada.");
+                .body("Ocorreu um erro interno no servidor. Nossa equipe ja foi notificada.");
     }
 }

@@ -36,7 +36,7 @@ public class AuthService {
 
     public UsuarioDTO autenticar(LoginDTO login) {
         Usuario usuario = repository.findByEmail(login.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "E-mail nao encontrado."));
 
         if(!"admin@arena.com".equals(usuario.getEmail())){
         	if (!passwordEncoder.matches(login.getSenha(), usuario.getSenha())) {

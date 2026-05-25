@@ -197,6 +197,6 @@ public class BuscaService {
             return diaSemanaBanco;
         }
 
-        return diaSemanaBanco + " das " + horaInicio.substring(0, 5) + " Ã s " + horaFim.substring(0, 5);
+        return diaSemanaBanco + " das " + horaInicio.substring(0, 5) + " às " + horaFim.substring(0, 5);
     }
 }
