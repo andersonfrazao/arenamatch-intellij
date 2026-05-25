@@ -64,6 +64,16 @@ public class ChatLigaService {
 
         novaMensagem = mensagemLigaRepository.save(novaMensagem);
         mensageiro.convertAndSend("/topic/chat/liga/" + idLiga, toDTO(novaMensagem, idRemetente));
+        liga.getTimes().stream()
+                .map(Time::getId)
+                .filter(idTime -> !idTime.equals(idRemetente))
+                .forEach(idTime -> mensageiro.convertAndSend("/topic/notificacoes/" + idTime, "CHEGOU_CHAT"));
+    }
+
+    @Transactional(readOnly = true)
+    public Long contarNaoLidasGeral(Long meuTimeId) {
+        Long total = mensagemLigaRepository.contarMensagensNaoLidasGeral(meuTimeId);
+        return total != null ? total : 0L;
     }
 
     @Transactional

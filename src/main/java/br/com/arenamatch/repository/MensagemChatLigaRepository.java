@@ -20,6 +20,9 @@ public interface MensagemChatLigaRepository extends JpaRepository<MensagemChatLi
     @Query("SELECT COUNT(m) FROM MensagemChatLiga m WHERE m.liga.id = :idLiga AND m.remetente.id != :meuTimeId AND m.lida = false")
     Long contarNaoLidasPorLiga(@Param("idLiga") Long idLiga, @Param("meuTimeId") Long meuTimeId);
 
+    @Query("SELECT COUNT(m) FROM MensagemChatLiga m JOIN m.liga.times t WHERE t.id = :meuTimeId AND m.remetente.id != :meuTimeId AND m.lida = false")
+    Long contarMensagensNaoLidasGeral(@Param("meuTimeId") Long meuTimeId);
+
     // Marca como lidas
     @Modifying
     @Query("UPDATE MensagemChatLiga m SET m.lida = true WHERE m.liga.id = :idLiga AND m.remetente.id != :meuTimeId AND m.lida = false")

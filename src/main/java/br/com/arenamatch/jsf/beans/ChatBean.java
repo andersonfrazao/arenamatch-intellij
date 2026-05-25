@@ -72,6 +72,8 @@ public class ChatBean implements Serializable {
         
         // 2. Atualiza a bolinha vermelha e recarrega msgs
         sessaoBean.atualizarNotificacoesChat();
+        carregarInbox();
+        atualizarConversaSelecionadaDaInbox();
         recarregarMensagens();
     }
 
@@ -146,8 +148,47 @@ public class ChatBean implements Serializable {
     }
     
     public void chegouMensagemPeloWebSocket() {
+        marcarConversaSelecionadaComoLida();
         recarregarMensagens();
-        carregarInbox(); 
+        carregarInbox();
+        atualizarConversaSelecionadaDaInbox();
+        sessaoBean.atualizarNotificacoesChat();
+    }
+
+    private void marcarConversaSelecionadaComoLida() {
+        if (conversaSelecionada == null) {
+            return;
+        }
+
+        Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
+        if ("JOGO".equals(conversaSelecionada.getTipo())) {
+            chatClient.marcarComoLidas(conversaSelecionada.getIdPartida(), meuTimeId);
+        } else {
+            chatClient.marcarComoLidasLiga(conversaSelecionada.getIdLiga(), meuTimeId);
+        }
+    }
+
+    private void atualizarConversaSelecionadaDaInbox() {
+        if (conversaSelecionada == null) {
+            return;
+        }
+
+        inbox.stream()
+                .filter(this::mesmaConversaSelecionada)
+                .findFirst()
+                .ifPresent(conversa -> this.conversaSelecionada = conversa);
+    }
+
+    private boolean mesmaConversaSelecionada(ConversaInboxDTO conversa) {
+        if (!conversa.getTipo().equals(conversaSelecionada.getTipo())) {
+            return false;
+        }
+
+        if ("JOGO".equals(conversa.getTipo())) {
+            return conversa.getIdPartida().equals(conversaSelecionada.getIdPartida());
+        }
+
+        return conversa.getIdLiga().equals(conversaSelecionada.getIdLiga());
     }
 
     private void selecionarConversaPorParametro() {

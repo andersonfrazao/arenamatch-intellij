@@ -34,7 +34,8 @@ public class ChatService {
     }
 
     public Long contarNaoLidasGeral(Long meuTimeId) {
-        return chatPartidaService.contarNaoLidasGeral(meuTimeId);
+        return chatPartidaService.contarNaoLidasGeral(meuTimeId)
+                + chatLigaService.contarNaoLidasGeral(meuTimeId);
     }
 
     public void marcarComoLidas(Long idPartida, Long meuTimeId) {

@@ -215,11 +215,18 @@
 <h:link outcome="/ranking" styleClass="#{view.viewId eq '/ranking.xhtml' ? 'active' : ''}">
                         <i class="fas fa-list-ol w-2rem text-center text-lg"></i> Ranking
                     </h:link>                    
-					<h:link outcome="/chat" styleClass="#{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
-				        <i class="fas fa-comments w-2rem text-center text-lg"></i> 
-				        Chat 
-				        <p:badge value="#{sessaoBean.qtdMensagensNaoLidas}" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}" severity="danger" styleClass="ml-2"/>
-				    </h:link>				    
+                    <h:panelGroup id="painelChatMenuDesktop" layout="block">
+					    <h:link outcome="/chat" styleClass="#{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
+				            <span class="relative inline-flex">
+                                <i class="fas fa-comments w-2rem text-center text-lg"></i>
+                                <h:panelGroup rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">
+                                    <span class="absolute" style="top:-7px; right:-3px; background:#ef4444; border:2px solid #0f172a; border-radius:50%; width:12px; height:12px;"></span>
+                                </h:panelGroup>
+                            </span>
+				            Chat 
+				            <p:badge value="#{sessaoBean.qtdMensagensNaoLidas}" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}" severity="danger" styleClass="ml-2"/>
+				        </h:link>
+                    </h:panelGroup>
                     <h:link outcome="/cadastro" styleClass="#{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
                         <i class="fas fa-id-card w-2rem text-center text-lg"></i> Meus Dados
                     </h:link>
@@ -284,6 +291,9 @@
                 <p:remoteCommand name="atualizarSininhoAjax" 
                          action="#{notificacaoBean.carregarNotificacoes}" 
                          update="painelNotificacoesGlobais" />
+                <p:remoteCommand name="atualizarChatMenuAjax"
+                         action="#{sessaoBean.atualizarNotificacoesChat}"
+                         update="@([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" />
                 </h:form>
             </h:panelGroup>
 
@@ -494,14 +504,16 @@
 <h:link outcome="/ranking" styleClass="am-b-item #{view.viewId eq '/ranking.xhtml' ? 'active' : ''}">
 		        <i class="fas fa-list-ol text-xl"></i><span>Ranking</span>
 		    </h:link>
-		    <h:link outcome="/chat" styleClass="am-b-item #{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
-		        <i class="fas fa-comments text-xl relative">
-		            <h:panelGroup rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">
-		                <span class="absolute" style="top:-5px; right:-8px; background:red; border-radius:50%; width:10px; height:10px;"></span>
-		            </h:panelGroup>
-		        </i>
-		        <span>Chat</span>
-		    </h:link>		    
+            <h:panelGroup id="painelChatMenuMobile" layout="block" styleClass="flex-1">
+		        <h:link outcome="/chat" styleClass="am-b-item #{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
+		            <i class="fas fa-comments text-xl relative">
+		                <h:panelGroup rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">
+		                    <span class="absolute" style="top:-5px; right:-8px; background:#ef4444; border:2px solid #0f172a; border-radius:50%; width:12px; height:12px;"></span>
+		                </h:panelGroup>
+		            </i>
+		            <span>Chat</span>
+		        </h:link>
+            </h:panelGroup>
 		    <h:link outcome="/cadastro" styleClass="am-b-item #{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
 		        <i class="fas fa-id-card text-xl"></i><span>Dados</span>
 		    </h:link>
@@ -571,6 +583,10 @@
                             
                             // CHAMA O PRIMEFACES PARA ATUALIZAR A TELA (RemoteCommand)
                             atualizarSininhoAjax(); 
+                        }
+
+                        if(mensagem.body === "CHEGOU_CHAT") {
+                            atualizarChatMenuAjax();
                         }
                     });
                 }, function(error) {

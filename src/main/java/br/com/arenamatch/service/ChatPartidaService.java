@@ -69,11 +69,16 @@ public class ChatPartidaService {
 
         novaMensagem = mensagemRepository.save(novaMensagem);
         mensageiro.convertAndSend("/topic/chat/" + idPartida, toDTO(novaMensagem, idPartida, idRemetente));
+        Long idDestinatario = partida.getMandante().getId().equals(idRemetente)
+                ? partida.getVisitante().getId()
+                : partida.getMandante().getId();
+        mensageiro.convertAndSend("/topic/notificacoes/" + idDestinatario, "CHEGOU_CHAT");
     }
 
     @Transactional(readOnly = true)
     public Long contarNaoLidasGeral(Long meuTimeId) {
-        return mensagemRepository.contarMensagensNaoLidasGeral(meuTimeId);
+        Long total = mensagemRepository.contarMensagensNaoLidasGeral(meuTimeId);
+        return total != null ? total : 0L;
     }
 
     @Transactional

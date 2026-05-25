@@ -76,7 +76,7 @@
         </style>
 
         <h:form id="formChat">
-            <p:remoteCommand name="rcAtualizarChat" action="#{chatBean.chegouMensagemPeloWebSocket}" update=":formChat:painelChat :formChat:painelInbox" oncomplete="rolarParaFim();" />
+            <p:remoteCommand name="rcAtualizarChat" action="#{chatBean.chegouMensagemPeloWebSocket}" update=":formChat:painelChat :formChat:painelInbox @([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" oncomplete="rolarParaFim();" />
 
             <div class="chat-container shadow-6">
                 
@@ -91,7 +91,7 @@
                             <!-- O oncomplete foi ajustado para evitar erros se o ID for nulo -->
                             <p:commandLink action="#{chatBean.selecionarConversa(conv)}" 
                                            process="@this"
-                                           update=":formChat:painelChat :formChat:painelInbox"
+                                           update=":formChat:painelChat :formChat:painelInbox @([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])"
                                            oncomplete="conectarWebSocketChat('#{conv.tipo}', '#{conv.tipo eq 'JOGO' ? conv.idPartida : conv.idLiga}'); rolarParaFim();"
                                            styleClass="flex align-items-center p-3 border-bottom-1 border-white-alpha-10 transition-colors hover:bg-white-alpha-5 text-decoration-none 
                                                        #{ (chatBean.conversaSelecionada ne null and 
@@ -237,9 +237,9 @@
                                                  styleClass="w-full custom-input text-lg m-0"
                                                  onkeypress="if (event.keyCode == 13 &amp;&amp; !event.shiftKey) { event.preventDefault(); enviarCmd(); return false; }"/>
                                                  
-                                <p:remoteCommand name="enviarCmd" action="#{chatBean.enviarMensagem}" update=":formChat:painelChat :formChat:painelInbox" oncomplete="rolarParaFim();"/>
+                                <p:remoteCommand name="enviarCmd" action="#{chatBean.enviarMensagem}" update=":formChat:painelChat :formChat:painelInbox @([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" oncomplete="rolarParaFim();"/>
                                 
-                                <p:commandButton action="#{chatBean.enviarMensagem}" update=":formChat:painelChat :formChat:painelInbox" oncomplete="rolarParaFim();"
+                                <p:commandButton action="#{chatBean.enviarMensagem}" update=":formChat:painelChat :formChat:painelInbox @([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" oncomplete="rolarParaFim();"
                                                  icon="fas fa-paper-plane" styleClass="ui-button-success rounded-button p-3 shadow-3" style="height: 50px; width: 50px;"/>
                             </div>
                         </h:panelGroup>

@@ -127,6 +127,8 @@ public class SessaoBean implements Serializable {
         if (context != null) {
             context.getExternalContext().getSessionMap().put("jwtToken", tokenJwt);
         }
+
+        atualizarNotificacoesChat();
     }
     
     public String logout() {
@@ -144,8 +146,14 @@ public class SessaoBean implements Serializable {
     }
 
     public void atualizarNotificacoesChat() {
-        if (isLogado()) {
-            this.qtdMensagensNaoLidas = chatClient.contarNaoLidasGeral(getUsuarioLogado().getIdTime());
+        try {
+            if (isLogado()) {
+                this.qtdMensagensNaoLidas = chatClient.contarNaoLidasGeral(getUsuarioLogado().getIdTime());
+            } else {
+                this.qtdMensagensNaoLidas = 0L;
+            }
+        } catch (Exception e) {
+            this.qtdMensagensNaoLidas = 0L;
         }
     }
     
