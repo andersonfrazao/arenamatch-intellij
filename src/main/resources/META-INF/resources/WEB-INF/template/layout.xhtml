@@ -108,9 +108,10 @@
         .am-topbar-plan-pill { display: inline-flex; }
 
         .am-badge-total {
-            position: absolute; top: -8px; right: -8px; padding: .18rem .45rem; border-radius: 999px;
-            font-size: .75rem; font-weight: 900; border: 1px solid rgba(255,255,255,0.14);
-            background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); color: white;
+            position: absolute; top: -10px; right: -10px; min-width: 20px; height: 20px; padding: 0 .34rem;
+            display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
+            font-size: .72rem; font-weight: 900; line-height: 1; border: 2px solid #0f172a;
+            background: #ef4444; color: white; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25), 0 6px 14px rgba(239, 68, 68, 0.35);
         }
 
         .am-notif-panel {
@@ -327,28 +328,24 @@
                             #{sessaoBean.planoAssinaturaLabel}: <b class="text-white">#{sessaoBean.resumoPlano}</b>
                         </span>
                     
-                        <div class="flex align-items-center justify-content-center cursor-pointer relative transition-colors hover:bg-white-alpha-10 ml-2" 
-                             id="amBellBtn" style="width: 44px; height: 44px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.18);">
-                            <i class="far fa-bell text-white text-xl"></i>
-                            <h:panelGroup rendered="#{notificacaoBean.totalNotificacoes > 0}">
-                                <span class="am-badge-total">#{notificacaoBean.totalNotificacoes}</span>
-                            </h:panelGroup>
-                        </div>                    
-                        
-                        <span class="am-pill">
-                            <i class="fas fa-futbol" style="color: #ffcc00;"></i> Jogos: <b class="text-white">#{notificacaoBean.totalConvitesJogo}</b>
-                        </span>
-               <!--          <span class="am-pill">
-                            <i class="fas fa-trophy" style="color: #3aa0ff;"></i> Ligas: <b class="text-white">#{notificacaoBean.totalConvitesLiga}</b>
-                        </span>
-                         -->
-                        
+                        <div class="am-pill cursor-pointer relative transition-colors hover:bg-white-alpha-10 ml-2"
+                             id="amBellBtn" title="Ver notificações">
+                            <span class="relative inline-flex align-items-center justify-content-center" style="width: 26px; height: 26px;">
+                                <i class="far fa-bell text-white text-xl"></i>
+                                <h:panelGroup rendered="#{notificacaoBean.totalNotificacoes > 0}">
+                                    <span class="am-badge-total">#{notificacaoBean.totalNotificacoes}</span>
+                                </h:panelGroup>
+                            </span>
+                            <span class="font-bold">Notificações</span>
+                            <span style="color: rgba(255,255,255,0.62); font-size: .78rem;">Convites de jogos e placares</span>
+                        </div>
                         <h:form styleClass="md:hidden ml-2"> 
                             <p:commandLink action="#{sessaoBean.logout}" ajax="false" 
-                                           styleClass="flex align-items-center justify-content-center transition-colors hover:bg-red-900 text-white"
-                                           style="width: 44px; height: 44px; border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.2);"
+                                           styleClass="flex align-items-center justify-content-center gap-2 transition-colors hover:bg-red-900 text-white no-underline font-bold"
+                                           style="min-width: 72px; height: 44px; padding: 0 .8rem; border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.2);"
                                            title="Sair do App">
-                                <i class="fas fa-sign-out-alt text-xl"></i>
+                                <i class="fas fa-sign-out-alt text-lg"></i>
+                                <span>Sair</span>
                             </p:commandLink>
                         </h:form>
 
@@ -360,7 +357,7 @@
                     <h:panelGroup rendered="#{sessaoBean.logado}">
                         <section class="am-notif-panel" id="amNotifPanel">
                             <div style="font-weight:900; margin-bottom:.7rem; color: white; font-size: 1.1rem;">
-                                Notificações <span style="color: rgba(255,255,255,0.65); font-weight:600; font-size: 0.9rem;">(convites pendentes)</span>
+                                Notificações <span style="color: rgba(255,255,255,0.65); font-weight:600; font-size: 0.9rem;">(convites de jogos e placares)</span>
                             </div>
 
                             <h:panelGroup rendered="#{empty notificacaoBean.listaNotificacoes}">
