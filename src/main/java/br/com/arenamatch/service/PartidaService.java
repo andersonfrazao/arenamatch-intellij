@@ -1,506 +1,94 @@
 package br.com.arenamatch.service;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import br.com.arenamatch.dto.DesafioDTO;
 import br.com.arenamatch.dto.PartidaDTO;
-import br.com.arenamatch.dto.TimeResumoDTO;
-import br.com.arenamatch.entity.Agenda;
-import br.com.arenamatch.entity.MensagemChat;
-import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
-import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusPartida;
-import br.com.arenamatch.enums.StatusPlacar;
-import br.com.arenamatch.enums.StatusUsuario;
-import br.com.arenamatch.repository.AgendaRepository;
-import br.com.arenamatch.repository.MensagemChatRepository;
 import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
+import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PartidaService {
 
-    @Autowired private PartidaRepository partidaRepository;
-    @Autowired private TimeRepository timeRepository;
-    @Autowired private NotificacaoService notificacaoService;
-    @Autowired private AssinaturaService assinaturaService;
-    @Autowired private ParametroSistemaService parametroSistemaService;
-    @Autowired private PlacarPendenteService placarPendenteService;
-    @Autowired private AgendaRepository agendaRepository;
-    @Autowired private MensagemChatRepository mensagemChatRepository;
-    
+    private final PartidaRepository partidaRepository;
+    private final TimeRepository timeRepository;
+    private final PartidaMapper partidaMapper;
+    private final DesafioPartidaService desafioPartidaService;
+    private final CancelamentoPartidaService cancelamentoPartidaService;
+    private final PlacarService placarService;
+
+    public PartidaService(
+            PartidaRepository partidaRepository,
+            TimeRepository timeRepository,
+            PartidaMapper partidaMapper,
+            DesafioPartidaService desafioPartidaService,
+            CancelamentoPartidaService cancelamentoPartidaService,
+            PlacarService placarService) {
+        this.partidaRepository = partidaRepository;
+        this.timeRepository = timeRepository;
+        this.partidaMapper = partidaMapper;
+        this.desafioPartidaService = desafioPartidaService;
+        this.cancelamentoPartidaService = cancelamentoPartidaService;
+        this.placarService = placarService;
+    }
+
+    @Transactional(readOnly = true)
     public List<PartidaDTO> listarProximosJogos(Long idTime) {
         Time time = timeRepository.findById(idTime)
                 .orElseThrow(() -> new RuntimeException("Time não encontrado com o ID: " + idTime));
 
-        List<Partida> partidas = partidaRepository.buscarPorTime(time);
-
-        return partidas.stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
+        return partidaRepository.buscarPorTime(time).stream()
+                .map(partidaMapper::toDTO)
+                .toList();
     }
 
-    // --- FLUXO 1: SOLICITAR CANCELAMENTO ---
-    @Transactional
-    public void solicitarCancelamento(Long idPartida, Long idTimeSolicitante, String motivo) {
-        Time timeSolicitante = timeRepository.findById(idTimeSolicitante)
-                .orElseThrow(() -> new RuntimeException("Time solicitante não encontrado"));
-
-        solicitarCancelamento(idPartida, timeSolicitante, motivo);
-    }
-
-    @Transactional
-    public void solicitarCancelamento(Long idPartida, Time timeSolicitante, String motivo) {
-        Partida partida = partidaRepository.findById(idPartida)
-                .orElseThrow(() -> new RuntimeException("Partida não encontrada"));
-
-        if (!partida.getMandante().equals(timeSolicitante) && !partida.getVisitante().equals(timeSolicitante)) {
-            throw new RuntimeException("Você não participa deste jogo.");
-        }
-
-        if (partida.getStatus() != StatusPartida.AGENDADO) {
-            throw new RuntimeException("Somente jogos agendados podem ter cancelamento solicitado.");
-        }
-
-        if (motivo == null || motivo.trim().isEmpty()) {
-            throw new RuntimeException("Informe o motivo do cancelamento.");
-        }
-
-        if (motivo.trim().length() > 350) {
-            throw new RuntimeException("O motivo do cancelamento deve ter no maximo 350 caracteres.");
-        }
-
-        int minDiasAntecedencia = parametroSistemaService.buscarMinDiasAntecedenciaCancelamento();
-        long diasAteOJogo = ChronoUnit.DAYS.between(LocalDateTime.now(), partida.getDataHora());
-        
-        if (diasAteOJogo < minDiasAntecedencia) {
-            if (minDiasAntecedencia >= 0) {
-                throw new RuntimeException("Cancelamento nao permitido! Faltam menos de "
-                        + minDiasAntecedencia + " dias para o jogo. Combine via Chat.");
-            }
-            throw new RuntimeException("Cancelamento não permitido! Faltam menos de 3 dias para o jogo. Combine via Chat.");
-        }
-
-        partida.setStatus(StatusPartida.SOLICITACAO_CANCELAMENTO);
-        partida.setSolicitanteCancelamento(timeSolicitante);
-        partida.setMotivoCancelamento(motivo.trim());
-        partida.setDataSolicitacao(LocalDateTime.now());
-        
-        partidaRepository.save(partida);
-        criarMensagemCancelamento(partida, timeSolicitante, motivo.trim());
-    }
-
-    // --- FLUXO 2: RESPONDER SOLICITAÇÃO (ACEITAR/RECUSAR) ---
-    @Transactional
-    public void responderCancelamento(Long idPartida, Long idTimeRespondente, boolean aceitar) {
-        Time timeRespondente = timeRepository.findById(idTimeRespondente)
-                .orElseThrow(() -> new RuntimeException("Time respondente não encontrado"));
-
-        responderCancelamento(idPartida, timeRespondente, aceitar);
-    }
-
-    @Transactional
-    public void responderCancelamento(Long idPartida, Time timeRespondente, boolean aceitar) {
-        Partida partida = partidaRepository.findById(idPartida)
-                .orElseThrow(() -> new RuntimeException("Partida não encontrada"));
-
-        if (partida.getStatus() != StatusPartida.SOLICITACAO_CANCELAMENTO) {
-            throw new RuntimeException("Esta partida nao possui solicitacao de cancelamento pendente.");
-        }
-
-        if (!partida.getMandante().equals(timeRespondente) && !partida.getVisitante().equals(timeRespondente)) {
-            throw new RuntimeException("Voce nao participa deste jogo.");
-        }
-
-        if (partida.getSolicitanteCancelamento() == null) {
-            throw new RuntimeException("Solicitante do cancelamento nao encontrado.");
-        }
-
-        if (partida.getSolicitanteCancelamento().equals(timeRespondente)) {
-            throw new RuntimeException("Você não pode responder sua própria solicitação.");
-        }
-
-        if (aceitar) {
-            partida.setStatus(StatusPartida.CANCELADO);
-            criarMensagemRespostaCancelamento(partida, timeRespondente, true);
-        } else {
-            partida.setStatus(StatusPartida.AGENDADO);
-            criarMensagemRespostaCancelamento(partida, timeRespondente, false);
-            partida.setSolicitanteCancelamento(null);
-            partida.setMotivoCancelamento(null);
-        }
-        
-        partidaRepository.save(partida);
-    }
-    
-    @Transactional
     public void criarDesafio(DesafioDTO dto) {
-        java.time.LocalDate dataJogo = dto.getDataHoraPartida().toLocalDate();
-        int minDiasAntecedencia = parametroSistemaService.buscarInteiro(
-                ParametroSistemaService.MIN_DIAS_ANTECEDENCIA_AGENDAMENTO,
-                3
-        );
-        java.time.LocalDate dataMinimaPermitida = java.time.LocalDate.now().plusDays(minDiasAntecedencia);
-
-        if (dataJogo.isBefore(dataMinimaPermitida)) {
-            throw new RuntimeException("O jogo precisa ser marcado com pelo menos "
-                    + minDiasAntecedencia + " dias de antecedência.");
-        }
-        
-        boolean ocupado = partidaRepository.isTimeOcupadoNoDia(
-            dto.getIdTimeDesafiado(), 
-            dataJogo.atStartOfDay(), 
-            dataJogo.atTime(23, 59, 59), 
-            StatusPartida.AGENDADO
-        );
-        
-        if (ocupado) {
-            throw new RuntimeException("Este time já possui um jogo confirmado para esta data!");
-        }
-        
-        boolean temPendente = partidaRepository.isTimeOcupadoNoDia(
-                dto.getIdTimeDesafiado(), 
-                dataJogo.atStartOfDay(), 
-                dataJogo.atTime(23, 59, 59), 
-                StatusPartida.PENDENTE); 
-
-        if (temPendente) {
-            throw new RuntimeException("Já existe um convite pendente com este time nesta data. Use o chat para negociar!");
-        }        
-        
-        Time desafiante = timeRepository.findById(dto.getIdTimeDesafiante()).orElseThrow();
-        Time desafiado = timeRepository.findById(dto.getIdTimeDesafiado()).orElseThrow();
-
-        validarTimeAtivo(desafiante, "O seu time nao esta ativo para criar desafios.");
-        validarTimeAtivo(desafiado, "Este time nao esta ativo para receber desafios.");
-
-        placarPendenteService.validarSemPlacarPendente(desafiante.getId());
-        validarPermissaoParaCriarDesafio(desafiante);
-
-        // ==========================================
-        // 🚨 TRAVA DE SEGURANÇA: AGENDA DOS TIMES
-        // ==========================================
-        DayOfWeek diaEscolhido = dto.getDataHoraPartida().getDayOfWeek();
-        String diaBanco = traduzirDia(diaEscolhido);
-
-        // Verifica se O SEU TIME joga neste dia
-        boolean desafianteJogaNesseDia = desafiante.getAgendas().stream()
-            .anyMatch(a -> a.getDiaSemana().equalsIgnoreCase(diaBanco));
-        if (!desafianteJogaNesseDia) {
-            throw new RuntimeException("O seu time não possui agenda cadastrada para jogar de " + diaBanco + "!");
-        }
-
-        // Verifica se O ADVERSÁRIO joga neste dia
-        boolean desafiadoJogaNesseDia = desafiado.getAgendas().stream()
-            .anyMatch(a -> a.getDiaSemana().equalsIgnoreCase(diaBanco));
-        if (!desafiadoJogaNesseDia) {
-            throw new RuntimeException("O time " + desafiado.getNome() + " não joga de " + diaBanco + "!");
-        }
-        // ==========================================
-
-        Partida partida = new Partida();
-        Time mandante = definirMandante(desafiante, desafiado);
-        Time visitante = mandante.getId().equals(desafiante.getId()) ? desafiado : desafiante;
-
-        partida.setMandante(mandante);
-        partida.setVisitante(visitante);
-        partida.setStatus(StatusPartida.PENDENTE);
-        partida.setDataHora(definirDataHoraPeloMandante(mandante, diaBanco, dto)); 
-        partida.setDataSolicitacao(LocalDateTime.now()); 
-        
-        partida.setDesafiante(desafiante);
-        partida.setMensagem(dto.getMensagem());
-        
-        partida = partidaRepository.save(partida);
-        criarMensagemInicialDoDesafio(partida, desafiante, dto.getMensagem());
+        desafioPartidaService.criarDesafio(dto);
     }
 
-    private void criarMensagemInicialDoDesafio(Partida partida, Time desafiante, String texto) {
-        if (texto == null || texto.trim().isEmpty()) {
-            return;
-        }
-
-        criarMensagemDaPartida(
-                partida,
-                desafiante,
-                texto.trim(),
-                partida.getDataSolicitacao() != null ? partida.getDataSolicitacao() : LocalDateTime.now()
-        );
-    }
-
-    private void criarMensagemCancelamento(Partida partida, Time solicitante, String motivo) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String dataDoJogo = partida.getDataHora() != null ? partida.getDataHora().format(formatter) : "data indefinida";
-        String texto = "Solicitacao de cancelamento do jogo do dia " + dataDoJogo + ". Motivo: " + motivo;
-        criarMensagemDaPartida(partida, solicitante, texto, LocalDateTime.now());
-    }
-
-    private void criarMensagemRespostaCancelamento(Partida partida, Time respondente, boolean aceitou) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String dataDoJogo = partida.getDataHora() != null ? partida.getDataHora().format(formatter) : "data indefinida";
-        String texto = aceitou
-                ? "Cancelamento do jogo do dia " + dataDoJogo + " aceito."
-                : "Cancelamento do jogo do dia " + dataDoJogo + " recusado. O jogo continua agendado.";
-        criarMensagemDaPartida(partida, respondente, texto, LocalDateTime.now());
-    }
-
-    private void criarMensagemDaPartida(Partida partida, Time remetente, String texto, LocalDateTime dataHora) {
-        MensagemChat mensagem = new MensagemChat();
-        mensagem.setPartida(partida);
-        mensagem.setRemetente(remetente);
-        mensagem.setTexto(texto);
-        mensagem.setDataHora(dataHora);
-        mensagem.setLida(false);
-
-        mensagemChatRepository.save(mensagem);
-    }
-
-    private PartidaDTO converterParaDTO(Partida p) {
-        PartidaDTO dto = new PartidaDTO();
-        dto.setId(p.getId());
-        dto.setDataHora(p.getDataHora());
-        dto.setStatus(p.getStatus());
-        dto.setMotivoCancelamento(p.getMotivoCancelamento());
-        dto.setDataSolicitacao(p.getDataSolicitacao());
-
-        if (p.getMandante() != null) {
-            dto.setMandante(new TimeResumoDTO(
-                p.getMandante().getId(), p.getMandante().getNome(), p.getMandante().getCidade(), 
-                p.getMandante().getUf(), p.getMandante().getRegiao(), p.getMandante().isMandoCampo()
-            ));
-        }
-        
-        if (p.getVisitante() != null) {
-            dto.setVisitante(new TimeResumoDTO(
-                p.getVisitante().getId(), p.getVisitante().getNome(), p.getVisitante().getCidade(), 
-                p.getVisitante().getUf(), p.getVisitante().getRegiao(), p.getVisitante().isMandoCampo()
-            ));
-        }
-        
-        if (p.getSolicitanteCancelamento() != null) {
-            dto.setSolicitanteCancelamento(new TimeResumoDTO(
-                p.getSolicitanteCancelamento().getId(), p.getSolicitanteCancelamento().getNome(), p.getSolicitanteCancelamento().getCidade(), 
-                p.getSolicitanteCancelamento().getUf(), p.getSolicitanteCancelamento().getRegiao(), p.getSolicitanteCancelamento().isMandoCampo()
-            ));
-        }
-
-        return dto;
-    }
-    
-    private Time definirMandante(Time desafiante, Time desafiado) {
-        if (desafiante.isMandoCampo() && !desafiado.isMandoCampo()) {
-            return desafiante;
-        }
-
-        if (desafiado.isMandoCampo() && !desafiante.isMandoCampo()) {
-            return desafiado;
-        }
-
-        return desafiado;
-    }
-
-    private LocalDateTime definirDataHoraPeloMandante(Time mandante, String diaBanco, DesafioDTO dto) {
-        Agenda agendaMandante = null;
-        if (dto.getCategoria() != null) {
-            agendaMandante = agendaRepository
-                    .findFirstByTimeIdAndDiaSemanaAndCategoriaOrderByHoraInicioAsc(mandante.getId(), diaBanco, dto.getCategoria())
-                    .orElse(null);
-        }
-
-        if (agendaMandante == null) {
-            agendaMandante = agendaRepository
-                    .findFirstByTimeIdAndDiaSemanaOrderByHoraInicioAsc(mandante.getId(), diaBanco)
-                    .orElseThrow(() -> new RuntimeException("O time mandante nÃ£o possui horÃ¡rio cadastrado para " + diaBanco + "."));
-        }
-
-        LocalTime horaInicio = LocalTime.parse(agendaMandante.getHoraInicio());
-        return dto.getDataHoraPartida().toLocalDate().atTime(horaInicio);
-    }
-
-    private void validarPermissaoParaCriarDesafio(Time desafiante) {
-        if (assinaturaService.temAcessoCompleto(desafiante.getResponsavel())) {
-            return;
-        }
-
-        if (desafiante.getResponsavel() == null
-                || desafiante.getResponsavel().getPlanoAssinatura() != PlanoAssinatura.BASICO) {
-            assinaturaService.validarAcessoCompleto(desafiante.getResponsavel());
-            return;
-        }
-
-        int intervaloDias = parametroSistemaService.buscarDiasIntervaloAgendamentoPlanoBasico();
-        List<Partida> partidasAtivas = partidaRepository.buscarPartidasFuturasAtivasPorTime(desafiante.getId());
-        if (partidasAtivas.isEmpty()) {
-            return;
-        }
-
-        Partida ultimaPartidaAtiva = partidasAtivas.get(0);
-        LocalDate proximaDataPermitida = ultimaPartidaAtiva.getDataHora().toLocalDate().plusDays(intervaloDias);
-        LocalDate hoje = LocalDate.now();
-
-        if (hoje.isBefore(proximaDataPermitida)) {
-            long diasRestantes = ChronoUnit.DAYS.between(hoje, proximaDataPermitida);
-            String diaTexto = diasRestantes == 1 ? "1 dia" : diasRestantes + " dias";
-            throw new RuntimeException("Voce ja tem jogo agendado ou desafio enviado! Seu plano BASICO so permite agendar jogos a cada "
-                    + intervaloDias + " dias. Voce podera enviar um novo desafio em " + diaTexto + ".");
-        }
-    }
-
-    private void validarTimeAtivo(Time time, String mensagem) {
-        if (time == null || time.getResponsavel() == null
-                || !StatusUsuario.ATIVO.equals(time.getResponsavel().getStatusUsuario())) {
-            throw new RuntimeException(mensagem);
-        }
-    }
-    
-    @Transactional
-    public void excluir(Long idPartida) {
-        Partida partida = partidaRepository.findById(idPartida)
-                .orElseThrow(() -> new RuntimeException("Partida nao encontrada para exclusao."));
-
-        if (partida.getStatus() != StatusPartida.PENDENTE) {
-            throw new RuntimeException("Somente convites pendentes podem ser removidos diretamente.");
-        }
-
-        if (!partidaRepository.existsById(idPartida)) {
-            throw new RuntimeException("Partida não encontrada para exclusão.");
-        }
-        // APAGUE ESTA LINHA:
-        // try { notificacaoService.deletarNotificacaoJogo(idPartida); } catch(Exception e) {}
-        partidaRepository.deleteById(idPartida);
-    }
-    
-    @Transactional
     public void aceitarDesafio(Long idPartida) {
-        Partida p = partidaRepository.findById(idPartida).orElseThrow();
-
-        placarPendenteService.validarSemPlacarPendente(p.getMandante().getId());
-        placarPendenteService.validarSemPlacarPendente(p.getVisitante().getId());
-
-        boolean mandanteOcupado = partidaRepository.existsByTimeIdAndDataAndStatusAgendado(p.getMandante().getId(), p.getDataHora().toLocalDate());
-        boolean visitanteOcupado = partidaRepository.existsByTimeIdAndDataAndStatusAgendado(p.getVisitante().getId(), p.getDataHora().toLocalDate());
-
-        if (mandanteOcupado || visitanteOcupado) {
-            p.setStatus(StatusPartida.CANCELADO); 
-            partidaRepository.save(p);
-            throw new RuntimeException("Não é mais possível aceitar. Um dos times já possui um jogo agendado para esta data!");
-        }
-        p.setStatus(StatusPartida.AGENDADO);
-        partidaRepository.save(p);
+        desafioPartidaService.aceitarDesafio(idPartida);
     }
-    
-    @Transactional
+
+    public void excluir(Long idPartida) {
+        desafioPartidaService.excluirConvitePendente(idPartida);
+    }
+
     public void cancelarConvitePorId(Long idPartida) {
-        excluir(idPartida);
+        desafioPartidaService.excluirConvitePendente(idPartida);
     }
 
-    @Transactional
     public void cancelarConvitePorAdversario(Long meuTimeId, Long adversarioId) {
-        partidaRepository.deletarConvitePendente(meuTimeId, adversarioId);
-    }
-    
-    @Transactional
-    public void informarPlacar(Long idPartida, Integer golsM, Integer golsV, Long idTimeInformante) {
-        Partida partida = partidaRepository.findById(idPartida)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada"));
-
-        partida.setGolsMandante(golsM);
-        partida.setGolsVisitante(golsV);
-        placarPendenteService.registrarInformacaoPlacar(partida, idTimeInformante);
-        
-        partidaRepository.save(partida);
-
-        Long idAdversario = partida.getMandante().getId().equals(idTimeInformante) ? 
-                partida.getVisitante().getId() : partida.getMandante().getId();
-
-        Time timeQueInformou = partida.getMandante().getId().equals(idTimeInformante) ? 
-                           partida.getMandante() : partida.getVisitante();
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String dataDoJogo = partida.getDataHora() != null ? partida.getDataHora().format(formatter) : "Data indefinida";
-        
-        String tituloNotificacao = "Placar: " + timeQueInformou.getNome();
-        String subtituloNotificacao = "Jogo do dia " + dataDoJogo + ". Resultado: " + golsM + " x " + golsV + ". Confirma?";
-        
-        notificacaoService.criarNotificacao(
-            idAdversario,         
-            "PLACAR",             
-            partida.getId(),      
-            tituloNotificacao, 
-            subtituloNotificacao 
-        );
+        desafioPartidaService.cancelarConvitePorAdversario(meuTimeId, adversarioId);
     }
 
-    @Transactional
+    public void solicitarCancelamento(Long idPartida, Long idTimeSolicitante, String motivo) {
+        cancelamentoPartidaService.solicitarCancelamento(idPartida, idTimeSolicitante, motivo);
+    }
+
+    public void solicitarCancelamento(Long idPartida, Time timeSolicitante, String motivo) {
+        cancelamentoPartidaService.solicitarCancelamento(idPartida, timeSolicitante, motivo);
+    }
+
+    public void responderCancelamento(Long idPartida, Long idTimeRespondente, boolean aceitar) {
+        cancelamentoPartidaService.responderCancelamento(idPartida, idTimeRespondente, aceitar);
+    }
+
+    public void responderCancelamento(Long idPartida, Time timeRespondente, boolean aceitar) {
+        cancelamentoPartidaService.responderCancelamento(idPartida, timeRespondente, aceitar);
+    }
+
+    public void informarPlacar(Long idPartida, Integer golsMandante, Integer golsVisitante, Long idTimeInformante) {
+        placarService.informarPlacar(idPartida, golsMandante, golsVisitante, idTimeInformante);
+    }
+
     public void confirmarPlacar(Long idPartida) {
-        Partida partida = partidaRepository.findById(idPartida)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada"));
-
-        if (partida.getStatusPlacar() != StatusPlacar.AGUARDANDO_CONFIRMACAO) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status inválido para confirmação");
-        }
-
-        placarPendenteService.confirmarPlacar(partida);
-        
-        // 🚨 LIMPA O SININHO DE PLACAR AQUI
-        notificacaoService.deletarNotificacaoPlacar(idPartida);
+        placarService.confirmarPlacar(idPartida);
     }
 
-    @Transactional
     public void contestarPlacar(Long idPartida) {
-        Partida partida = partidaRepository.findById(idPartida)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada"));
-
-        partida.setStatusPlacar(StatusPlacar.EM_DISPUTA);
-        partidaRepository.save(partida);
-        
-        // 🚨 LIMPA O SININHO DE PLACAR AQUI
-        notificacaoService.deletarNotificacaoPlacar(idPartida);
-    }
-
-    private void atualizarEstatisticasTime(Time time, Integer golsPro, Integer golsContra) {
-        time.setPartidasJogadas(time.getPartidasJogadas() + 1);
-        time.setGolsPro(time.getGolsPro() + golsPro);
-        time.setGolsContra(time.getGolsContra() + golsContra);
-
-        if (golsPro > golsContra) {
-            time.setVitorias(time.getVitorias() + 1);
-            time.setPontos(time.getPontos() + 3);
-        } else if (golsPro.equals(golsContra)) {
-            time.setEmpates(time.getEmpates() + 1);
-            time.setPontos(time.getPontos() + 1);
-        } else {
-            time.setDerrotas(time.getDerrotas() + 1);
-        }
-        
-        timeRepository.save(time);
-    }
-    
-    // Método auxiliar para traduzir o dia da semana
-    private String traduzirDia(DayOfWeek dia) {
-        switch (dia) {
-            case MONDAY: return "Segunda";
-            case TUESDAY: return "Terça";
-            case WEDNESDAY: return "Quarta";
-            case THURSDAY: return "Quinta";
-            case FRIDAY: return "Sexta";
-            case SATURDAY: return "Sábado";
-            case SUNDAY: return "Domingo";
-            default: return "";
-        }
+        placarService.contestarPlacar(idPartida);
     }
 }
