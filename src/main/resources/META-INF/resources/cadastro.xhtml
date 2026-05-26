@@ -198,7 +198,11 @@
                                                  styleClass="custom-input" 
                                                  required="true" 
                                                  requiredMessage="CPF é obrigatório"
-                                                 disabled="#{sessaoBean.logado}" />
+                                                 rendered="#{not sessaoBean.logado}" />
+                                    <h:outputText value="#{cadastroBean.cpfMascarado}"
+                                                  styleClass="custom-input"
+                                                  style="display:block;"
+                                                  rendered="#{sessaoBean.logado}" />
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Celular</label>
@@ -344,12 +348,16 @@
                                     <label class="form-label">Mando de Campo</label>
                                     <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid #334155;">
                                         <p:selectOneRadio value="#{cadastroBean.dto.mandoCampo}" unselectable="true" style="color:#fff;"
+                                                          rendered="#{not sessaoBean.logado}"
                                                           layout="pageDirection" styleClass="mando-campo-radio"
                                                           required="true" requiredMessage="Selecione se é Mandante ou Visitante.">
                                             <f:selectItem itemValue="true" itemLabel="Mandante" />
                                             <f:selectItem itemValue="false" itemLabel="Visitante" />
                                             <p:ajax update="painelTaxa" event="valueChange" />
                                         </p:selectOneRadio>
+                                        <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" style="color:#fff; font-weight:700;">
+                                            #{cadastroBean.dto.mandoCampo ? 'Mandante' : 'Visitante'}
+                                        </h:panelGroup>
                                     </div>
                                 </div>
                                 

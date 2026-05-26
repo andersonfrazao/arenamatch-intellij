@@ -83,6 +83,14 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             AND p.dataHora > CURRENT_TIMESTAMP
         """)
         boolean existemJogosFuturosPendentesOuAgendados(@Param("timeId") Long timeId);
+
+    @Query("""
+            SELECT COUNT(p) > 0 FROM Partida p
+            WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
+            AND p.status = 'AGENDADO'
+            AND p.dataHora > CURRENT_TIMESTAMP
+        """)
+    boolean existemJogosAgendadosFuturos(@Param("timeId") Long timeId);
     
     @Query("SELECT p FROM Partida p WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId) AND p.status IN ('PENDENTE', 'AGENDADO') ORDER BY p.dataHora ASC")
     List<Partida> findPartidasAtivasPorTime(@Param("timeId") Long timeId);

@@ -68,12 +68,13 @@ public class CadastroService {
     public void atualizarConta(Long idUsuarioLogado, CadastroDTO dto) {
         try {
             Usuario usuario = usuarioRepository.findById(idUsuarioLogado)
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                    .orElseThrow(() -> new RuntimeException("Usuario nao encontrado."));
 
             Time time = timeRepository.findByResponsavelId(idUsuarioLogado)
-                    .orElseThrow(() -> new RuntimeException("Time não encontrado para este usuário."));
+                    .orElseThrow(() -> new RuntimeException("Time nao encontrado para este usuario."));
 
-            validarEdicaoPermitida(time);
+            validarAlteracaoEnderecoPermitida(time, dto);
+            dto.setMandoCampo(time.isMandoCampo());
             validarEmailUnicoNaAtualizacao(usuario, dto);
             cadastroValidacaoService.validarAtualizacao(dto);
 
@@ -97,25 +98,48 @@ public class CadastroService {
     @Transactional(readOnly = true)
     public CadastroDTO buscarDadosParaEdicao(Long idUsuarioLogado) {
         Usuario usuario = usuarioRepository.findById(idUsuarioLogado)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado."));
 
         Time time = timeRepository.findByResponsavelId(idUsuarioLogado)
-                .orElseThrow(() -> new RuntimeException("Time não encontrado."));
+                .orElseThrow(() -> new RuntimeException("Time nao encontrado."));
 
         return cadastroMapper.toDTO(usuario, time);
     }
 
-    private void validarEdicaoPermitida(Time time) {
-        boolean temJogoFuturo = partidaRepository.existemJogosFuturosPendentesOuAgendados(time.getId());
-        if (temJogoFuturo) {
-            throw new RuntimeException("Não é permitido alterar os dados cadastrais. Você possui jogos agendados ou convites pendentes futuros. Cancele-os na sua Agenda primeiro.");
+    private void validarAlteracaoEnderecoPermitida(Time time, CadastroDTO dto) {
+        if (enderecoAlterado(time, dto) && partidaRepository.existemJogosAgendadosFuturos(time.getId())) {
+            throw new RuntimeException("Nao e possivel alterar o endereco, pois existem jogos agendados nesse endereco. Primeiro realize ou cancele os jogos para poder alterar o endereco!");
         }
+    }
+
+    private boolean enderecoAlterado(Time time, CadastroDTO dto) {
+        return diferenteCep(time.getCep(), dto.getCep())
+                || diferente(time.getLogradouro(), dto.getLogradouro())
+                || diferente(time.getNumero(), dto.getNumero())
+                || diferente(time.getComplemento(), dto.getComplemento())
+                || diferente(time.getBairro(), dto.getBairro())
+                || diferente(time.getRegiao(), dto.getRegiao())
+                || diferente(time.getCidade(), dto.getCidade())
+                || diferente(time.getUf(), dto.getUf());
+    }
+
+    private boolean diferente(String atual, String novo) {
+        return !normalizar(atual).equals(normalizar(novo));
+    }
+
+    private boolean diferenteCep(String atual, String novo) {
+        return !normalizar(cadastroValidacaoService.limparMascara(atual))
+                .equals(normalizar(cadastroValidacaoService.limparMascara(novo)));
+    }
+
+    private String normalizar(String valor) {
+        return valor == null ? "" : valor.trim();
     }
 
     private void validarEmailUnicoNaAtualizacao(Usuario usuario, CadastroDTO dto) {
         if (!usuario.getEmail().equalsIgnoreCase(dto.getEmail())) {
             if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
-                throw new RuntimeException("Este E-mail já está em uso por outra conta.");
+                throw new RuntimeException("Este E-mail ja esta em uso por outra conta.");
             }
             usuario.setEmail(dto.getEmail());
         }

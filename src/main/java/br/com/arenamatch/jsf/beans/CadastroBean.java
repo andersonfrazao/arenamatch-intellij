@@ -110,6 +110,21 @@ public class CadastroBean implements Serializable {
         return Categoria.values();
     }
 
+    public String getCpfMascarado() {
+        if (dto == null || dto.getCpf() == null) {
+            return "";
+        }
+
+        String cpfLimpo = dto.getCpf().replaceAll("\\D", "");
+        if (cpfLimpo.length() < 3) {
+            return cpfLimpo;
+        }
+
+        String inicio = cpfLimpo.substring(0, 3);
+        String fim = cpfLimpo.length() > 9 ? cpfLimpo.substring(cpfLimpo.length() - 2) : "";
+        return inicio + ".***.***-" + fim;
+    }
+
     public void buscarCep() {
         if (dto.getCep() != null && !dto.getCep().isEmpty()) {
             String cepLimpo = dto.getCep().replaceAll("\\D", "");
