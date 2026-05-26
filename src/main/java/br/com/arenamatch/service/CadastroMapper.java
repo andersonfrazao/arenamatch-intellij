@@ -27,6 +27,7 @@ public class CadastroMapper {
         dto.setBairro(time.getBairro());
         dto.setCidade(time.getCidade());
         dto.setUf(time.getUf());
+        dto.setEscudo(time.getEscudo());
         dto.setNumero(time.getNumero());
         dto.setComplemento(time.getComplemento());
         dto.setRegiao(time.getRegiao());

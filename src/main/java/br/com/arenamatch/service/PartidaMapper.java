@@ -29,7 +29,7 @@ public class PartidaMapper {
             return null;
         }
 
-        return new TimeResumoDTO(
+        TimeResumoDTO dto = new TimeResumoDTO(
                 time.getId(),
                 time.getNome(),
                 time.getCidade(),
@@ -37,5 +37,7 @@ public class PartidaMapper {
                 time.getRegiao(),
                 time.isMandoCampo()
         );
+        dto.setEscudo(time.getEscudo());
+        return dto;
     }
 }

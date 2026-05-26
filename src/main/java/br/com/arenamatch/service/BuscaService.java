@@ -102,6 +102,7 @@ public class BuscaService {
                     t.get("uf", String.class), t.get("regiao", String.class), valorDistancia,
                     t.get("casa", Boolean.class), valorTaxa, 0L, isPendente, categoriaEnum
                 );
+                dto.setEscudo(t.get("escudo", String.class));
 
                 // --- 🚨 FORMATANDO O HORÁRIO PARA A TELA ---
                 String horarioAgenda = formatarHorarioMandante(meuTime, diaSemanaBanco, categoriaEnum, t);

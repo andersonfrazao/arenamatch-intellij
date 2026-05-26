@@ -12,6 +12,7 @@ public class MensagemChatDTO implements Serializable {
     private Long idPartida;
     private Long idRemetente;
     private String nomeRemetente;
+    private String escudoRemetente;
     private String texto;
     private LocalDateTime dataHora;
     

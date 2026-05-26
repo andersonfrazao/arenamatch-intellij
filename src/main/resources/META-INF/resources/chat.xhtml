@@ -105,7 +105,10 @@
                                                 (conv.tipo eq 'LIGA' and chatBean.conversaSelecionada.idLiga eq conv.idLiga))) 
                                                ? 'bg-blue-600 border-blue-400' : 'bg-bluegray-800 border-bluegray-600'}" 
                                      style="width: 50px; height: 50px; min-width: 50px;">
-                                    <h:panelGroup rendered="#{conv.tipo eq 'JOGO'}"><i class="fas fa-shield-alt text-2xl text-gray-300"></i></h:panelGroup>
+                                    <h:graphicImage value="#{conv.escudoAdversario}"
+                                                    rendered="#{conv.tipo eq 'JOGO' and not empty conv.escudoAdversario}"
+                                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"/>
+                                    <h:panelGroup rendered="#{conv.tipo eq 'JOGO' and empty conv.escudoAdversario}"><i class="fas fa-shield-alt text-2xl text-gray-300"></i></h:panelGroup>
                                     <h:panelGroup rendered="#{conv.tipo eq 'LIGA'}"><i class="fas fa-trophy text-2xl text-purple-400"></i></h:panelGroup>
                                 </div>
 
@@ -181,7 +184,10 @@
                                 <div class="border-circle flex align-items-center justify-content-center border-1 mr-3 shadow-2
                                             #{chatBean.conversaSelecionada.tipo eq 'LIGA' ? 'bg-purple-900 border-purple-400' : 'bg-gray-800 border-gray-600'}" 
                                      style="width: 45px; height: 45px; min-width: 45px;">
-                                    <h:panelGroup rendered="#{chatBean.conversaSelecionada.tipo eq 'JOGO'}"><i class="fas fa-shield-alt text-xl text-white"></i></h:panelGroup>
+                                    <h:graphicImage value="#{chatBean.conversaSelecionada.escudoAdversario}"
+                                                    rendered="#{chatBean.conversaSelecionada.tipo eq 'JOGO' and not empty chatBean.conversaSelecionada.escudoAdversario}"
+                                                    style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;"/>
+                                    <h:panelGroup rendered="#{chatBean.conversaSelecionada.tipo eq 'JOGO' and empty chatBean.conversaSelecionada.escudoAdversario}"><i class="fas fa-shield-alt text-xl text-white"></i></h:panelGroup>
                                     <h:panelGroup rendered="#{chatBean.conversaSelecionada.tipo eq 'LIGA'}"><i class="fas fa-trophy text-xl text-white"></i></h:panelGroup>
                                 </div>
                                 <div>

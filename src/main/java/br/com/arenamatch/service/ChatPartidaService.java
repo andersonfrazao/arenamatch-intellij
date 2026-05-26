@@ -43,6 +43,7 @@ public class ChatPartidaService {
             dto.setIdPartida(idPartida);
             dto.setIdRemetente(mensagem.getRemetente().getId());
             dto.setNomeRemetente(mensagem.getRemetente().getNome());
+            dto.setEscudoRemetente(mensagem.getRemetente().getEscudo());
             dto.setTexto(mensagem.getTexto());
             dto.setDataHora(mensagem.getDataHora());
             dto.setEnviadaPorMim(mensagem.getRemetente().getId().equals(meuTimeId));
@@ -91,6 +92,7 @@ public class ChatPartidaService {
         dto.setId(mensagem.getId());
         dto.setIdPartida(idPartida);
         dto.setIdRemetente(idRemetente);
+        dto.setEscudoRemetente(mensagem.getRemetente().getEscudo());
         dto.setTexto(mensagem.getTexto());
         dto.setDataHora(mensagem.getDataHora());
         return dto;

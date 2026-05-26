@@ -40,6 +40,7 @@ public class ChatLigaService {
             dto.setIdPartida(null);
             dto.setIdRemetente(mensagem.getRemetente().getId());
             dto.setNomeRemetente(mensagem.getRemetente().getNome());
+            dto.setEscudoRemetente(mensagem.getRemetente().getEscudo());
             dto.setTexto(mensagem.getTexto());
             dto.setDataHora(mensagem.getDataHora());
             dto.setEnviadaPorMim(mensagem.getRemetente().getId().equals(meuTimeId));
@@ -87,6 +88,7 @@ public class ChatLigaService {
         dto.setIdPartida(null);
         dto.setIdRemetente(idRemetente);
         dto.setNomeRemetente(mensagem.getRemetente().getNome());
+        dto.setEscudoRemetente(mensagem.getRemetente().getEscudo());
         dto.setTexto(mensagem.getTexto());
         dto.setDataHora(mensagem.getDataHora());
         return dto;

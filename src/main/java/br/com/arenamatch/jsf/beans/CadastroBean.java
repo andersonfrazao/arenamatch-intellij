@@ -8,6 +8,7 @@ import br.com.arenamatch.integracao.GeoClient;
 import br.com.arenamatch.integracao.ViaCepClient;
 import br.com.arenamatch.jsf.client.CadastroClient;
 import br.com.arenamatch.service.CadastroFormularioService;
+import br.com.arenamatch.service.EscudoTimeService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.FlowEvent;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -47,6 +49,7 @@ public class CadastroBean implements Serializable {
     @Inject private GeoClient geoClient;
     @Inject private CadastroClient cadastroClient;
     @Inject private CadastroFormularioService cadastroFormularioService;
+    @Inject private EscudoTimeService escudoTimeService;
     @Inject private SessaoBean sessaoBean;
 
     @Getter
@@ -108,6 +111,16 @@ public class CadastroBean implements Serializable {
 
     public Categoria[] getCategorias() {
         return Categoria.values();
+    }
+
+    public void uploadEscudo(FileUploadEvent event) {
+        try {
+            String escudo = escudoTimeService.salvar(event.getFile());
+            dto.setEscudo(escudo);
+            msgInfo("Escudo enviado com sucesso.");
+        } catch (RuntimeException e) {
+            msgErro(e.getMessage());
+        }
     }
 
     public String getCpfMascarado() {

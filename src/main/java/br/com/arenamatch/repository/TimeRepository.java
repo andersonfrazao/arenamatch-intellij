@@ -39,6 +39,7 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
             SELECT 
                 t.id AS id, 
                 t.nome AS nome, 
+                t.escudo_url AS escudo,
                 t.cidade AS cidade, 
                 t.uf AS uf, 
                 t.regiao as regiao,

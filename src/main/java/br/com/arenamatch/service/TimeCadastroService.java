@@ -43,6 +43,7 @@ public class TimeCadastroService {
         time.setBairro(dto.getBairro());
         time.setCidade(dto.getCidade());
         time.setUf(dto.getUf());
+        time.setEscudo(dto.getEscudo());
         time.setMandoCampo(dto.getMandoCampo());
         time.setNumero(dto.getNumero());
         time.setComplemento(dto.getComplemento());

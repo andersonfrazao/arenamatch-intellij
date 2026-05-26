@@ -16,6 +16,7 @@ public class ConversaInboxDTO implements Serializable {
     private Long idPartida;
     private Long idAdversario;
     private String nomeAdversario; // Reutilizaremos para o Nome da Liga também
+    private String escudoAdversario;
     private LocalDateTime dataJogo;
     private String statusPartida; // PENDENTE, AGENDADO...
     

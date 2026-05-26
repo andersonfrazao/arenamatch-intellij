@@ -144,7 +144,7 @@
             .ui-wizard-navbar { display: none; }
         </style>
 
-        <h:form id="formCadastro">
+        <h:form id="formCadastro" enctype="multipart/form-data">
             <p:growl id="msgs" showDetail="true" life="5000" />
             <h:inputHidden id="geoLat" value="#{cadastroBean.dto.latitude}" />
             <h:inputHidden id="geoLon" value="#{cadastroBean.dto.longitude}" />
@@ -258,10 +258,27 @@
 
                             <div class="input-grid">
                                 <div class="form-group full-width">
-                                    <div class="upload-area">
-                                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 10px;"></i><br/>
-                                        Clique para enviar o Escudo do Time
-                                    </div>
+                                    <h:panelGroup id="painelEscudo" layout="block" styleClass="upload-area">
+                                        <h:panelGroup rendered="#{not empty cadastroBean.dto.escudo}" layout="block" style="margin-bottom: 12px;">
+                                            <h:graphicImage value="#{cadastroBean.dto.escudo}"
+                                                            style="width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25);"/>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{empty cadastroBean.dto.escudo}" layout="block" style="margin-bottom: 12px;">
+                                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem;"></i>
+                                        </h:panelGroup>
+                                        <p:fileUpload listener="#{cadastroBean.uploadEscudo}"
+                                                      mode="advanced"
+                                                      auto="true"
+                                                      dragDropSupport="true"
+                                                      label="Escolher escudo"
+                                                      uploadLabel="Enviar"
+                                                      cancelLabel="Cancelar"
+                                                      allowTypes="/(\.|\/)(jpg|jpeg|png|webp)$/"
+                                                      sizeLimit="2097152"
+                                                      invalidFileMessage="Envie uma imagem JPG, PNG ou WEBP."
+                                                      invalidSizeMessage="O escudo deve ter no maximo 2 MB."
+                                                      update="painelEscudo msgs"/>
+                                    </h:panelGroup>
                                 </div>
 
                                 <div class="form-group full-width">

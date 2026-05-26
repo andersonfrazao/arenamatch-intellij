@@ -243,7 +243,12 @@
                 <div class="am-team-box">
                     <div class="flex align-items-center gap-3 mb-3">
                         <div class="flex align-items-center justify-content-center bg-blue-900 border-circle border-1 border-blue-400" style="width: 42px; height: 42px;">
-                            <i class="fas fa-shield-alt text-xl" style="color: #38bdf8;"></i>
+                            <h:graphicImage value="#{dashboardBean.time.escudo}"
+                                            rendered="#{not empty dashboardBean.time.escudo}"
+                                            style="width: 42px; height: 42px; object-fit: cover; border-radius: 50%;"/>
+                            <h:panelGroup rendered="#{empty dashboardBean.time.escudo}">
+                                <i class="fas fa-shield-alt text-xl" style="color: #38bdf8;"></i>
+                            </h:panelGroup>
                         </div>
                         <div class="flex-grow-1 overflow-hidden">
                             <div class="font-bold text-white text-sm">#{sessaoBean.usuarioLogado.nome}</div>
@@ -307,7 +312,14 @@
                             <ui:insert name="subtituloPagina">Seu painel de controle esportivo</ui:insert>
                         </div>
                         <div class="am-mobile-team">
-                            <div class="am-mobile-team-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div class="am-mobile-team-icon">
+                                <h:graphicImage value="#{dashboardBean.time.escudo}"
+                                                rendered="#{not empty dashboardBean.time.escudo}"
+                                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"/>
+                                <h:panelGroup rendered="#{empty dashboardBean.time.escudo}">
+                                    <i class="fas fa-shield-alt"></i>
+                                </h:panelGroup>
+                            </div>
                             <div class="am-mobile-team-text">
                                 <div class="font-bold text-white text-sm">#{sessaoBean.usuarioLogado.nome}</div>
                                 <div class="font-bold text-xs" style="color: #38bdf8;">#{dashboardBean.time.nome}</div>

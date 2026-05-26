@@ -46,6 +46,7 @@ public class TimeService {
         TimeDTO dto = new TimeDTO();
         dto.setId(time.getId());
         dto.setNome(time.getNome());
+        dto.setEscudo(time.getEscudo());
         
         // Dados do Ranking (usando os campos que criamos na V20)
         dto.setPontos(time.getPontos());
@@ -60,7 +61,7 @@ public class TimeService {
     }
 
     private TimeResumoDTO converterParaResumoDTO(br.com.arenamatch.entity.Time time) {
-        return new TimeResumoDTO(
+        TimeResumoDTO dto = new TimeResumoDTO(
                 time.getId(),
                 time.getNome(),
                 time.getCidade(),
@@ -68,6 +69,8 @@ public class TimeService {
                 time.getRegiao(),
                 time.isMandoCampo()
         );
+        dto.setEscudo(time.getEscudo());
+        return dto;
     }
 
 }

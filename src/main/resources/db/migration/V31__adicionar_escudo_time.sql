@@ -1,0 +1,1 @@
+ALTER TABLE time ADD COLUMN escudo_url VARCHAR(500);

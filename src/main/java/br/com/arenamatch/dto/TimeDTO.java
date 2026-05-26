@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 public class TimeDTO {
     private Long id;
     private String nome;
+    private String escudo;
     private Integer pontos;
     private Integer partidasJogadas;
     private Integer vitorias;

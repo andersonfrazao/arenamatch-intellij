@@ -42,6 +42,8 @@ public class Time {
     private String numero;
     private String complemento;
     private String regiao;
+    @Column(name = "escudo_url")
+    private String escudo;
     private Double latitude;
     private Double longitude;
    

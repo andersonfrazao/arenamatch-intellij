@@ -44,7 +44,7 @@ public class DashboardService {
     }
 
     private TimeResumoDTO converterParaResumoDTO(Time time) {
-        return new TimeResumoDTO(
+        TimeResumoDTO dto = new TimeResumoDTO(
                 time.getId(),
                 time.getNome(),
                 time.getCidade(),
@@ -52,5 +52,7 @@ public class DashboardService {
                 time.getRegiao(),
                 time.isMandoCampo()
         );
+        dto.setEscudo(time.getEscudo());
+        return dto;
     }
 }

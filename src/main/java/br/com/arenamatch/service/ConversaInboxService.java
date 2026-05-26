@@ -75,6 +75,7 @@ public class ConversaInboxService {
                 : partida.getMandante();
         dto.setIdAdversario(adversario.getId());
         dto.setNomeAdversario(adversario.getNome());
+        dto.setEscudoAdversario(adversario.getEscudo());
         dto.setQtdNaoLidas(mensagemRepository.contarNaoLidasPorPartida(partida.getId(), meuTimeId));
 
         MensagemChat ultimaMensagem = mensagemRepository.findFirstByPartidaIdOrderByDataHoraDesc(partida.getId());
