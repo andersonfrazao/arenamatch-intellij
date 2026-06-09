@@ -50,9 +50,9 @@ public class CadastroClient {
                 .toBodilessEntity();
     }
 
-    public void desativarConta(Long idUsuario) {
+    public void desativarConta() {
         restClient.put()
-                .uri("/api/cadastro/" + idUsuario + "/desativar")
+                .uri("/api/cadastro/minha-conta/desativar")
                 .retrieve()
                 .toBodilessEntity();
     }

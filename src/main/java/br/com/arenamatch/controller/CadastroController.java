@@ -40,9 +40,9 @@ public class CadastroController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{idUsuario}/desativar")
-    public ResponseEntity<Void> desativarConta(@PathVariable Long idUsuario) {
-        service.desativarConta(idUsuario);
+    @PutMapping("/minha-conta/desativar")
+    public ResponseEntity<Void> desativarConta() {
+        service.desativarContaAutenticada();
         return ResponseEntity.ok().build();
     }
 }

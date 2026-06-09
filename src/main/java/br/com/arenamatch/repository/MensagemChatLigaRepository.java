@@ -16,7 +16,7 @@ public interface MensagemChatLigaRepository extends JpaRepository<MensagemChatLi
     // Pega a última mensagem para mostrar na lista de conversas
     MensagemChatLiga findFirstByLigaIdOrderByDataHoraDesc(Long idLiga);
 
-    // Conta não lidas para o administrador da Liga ou para o Time convidado
+    // Conta não lidas para o responsável pela liga ou para o time convidado
     @Query("SELECT COUNT(m) FROM MensagemChatLiga m WHERE m.liga.id = :idLiga AND m.remetente.id != :meuTimeId AND m.lida = false")
     Long contarNaoLidasPorLiga(@Param("idLiga") Long idLiga, @Param("meuTimeId") Long meuTimeId);
 

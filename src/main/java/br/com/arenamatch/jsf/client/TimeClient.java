@@ -22,4 +22,11 @@ public class TimeClient {
                 
         return times != null ? Arrays.asList(times) : new ArrayList<>();
     }
+
+    public TimeDTO buscarMeuScout() {
+        return restClient.get()
+                .uri("/api/times/scout")
+                .retrieve()
+                .body(TimeDTO.class);
+    }
 }

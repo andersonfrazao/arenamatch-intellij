@@ -7,8 +7,11 @@ import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import br.com.arenamatch.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CadastroService {
@@ -87,9 +90,18 @@ public class CadastroService {
     }
 
     @Transactional
-    public void desativarConta(Long idUsuarioLogado) {
-        Usuario usuario = usuarioRepository.findById(idUsuarioLogado)
-                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado."));
+    public void desativarContaAutenticada() {
+        String email = SecurityContextHolder.getContext().getAuthentication() != null
+                ? String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                : null;
+
+        if (email == null || email.isBlank() || "null".equals(email)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario nao autenticado.");
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Usuario autenticado nao encontrado."));
 
         usuario.setStatusUsuario(br.com.arenamatch.enums.StatusUsuario.INATIVO);
         usuarioRepository.save(usuario);

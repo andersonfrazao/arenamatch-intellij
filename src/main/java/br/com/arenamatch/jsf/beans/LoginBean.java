@@ -90,7 +90,7 @@ public class LoginBean implements Serializable {
         try {
             LoginResponseDTO response = authClient.confirmarAcessoAdmin(desafioAdmin, codigoAdmin);
             if (response == null || response.getUsuario() == null || response.getToken() == null) {
-                adicionarErro("Nao foi possivel concluir o acesso administrativo.");
+                adicionarErro("Nao foi possivel concluir o acesso.");
                 return null;
             }
 

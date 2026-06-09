@@ -33,4 +33,9 @@ public class TimeController {
         List<TimeDTO> ranking = timeService.buscarRankingGeral();
         return ResponseEntity.ok(ranking);
     }
+
+    @GetMapping("/scout")
+    public ResponseEntity<TimeDTO> buscarScout() {
+        return ResponseEntity.ok(timeService.buscarScoutDoUsuarioAutenticado());
+    }
 }

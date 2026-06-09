@@ -206,8 +206,7 @@ public class AuthService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario nao encontrado."));
 
         if (!Perfil.ADMIN.equals(usuario.getPerfil())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "O segundo fator e exclusivo para administradores.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso nao autorizado.");
         }
 
         return usuario;
@@ -223,8 +222,7 @@ public class AuthService {
                         "Desafio de acesso invalido ou ja utilizado."));
 
         if (!Perfil.ADMIN.equals(usuario.getPerfil())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "O segundo fator e exclusivo para administradores.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso nao autorizado.");
         }
 
         return usuario;

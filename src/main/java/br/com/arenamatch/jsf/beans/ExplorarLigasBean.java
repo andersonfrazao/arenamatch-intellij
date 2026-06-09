@@ -65,7 +65,7 @@ public class ExplorarLigasBean implements Serializable {
             // Atualiza a flag na tela na hora para o botão mudar para "Aguardando"
             liga.setConvitePendente(true); 
             
-            msgInfo("Solicitação enviada! Aguarde a aprovação do administrador.");
+            msgInfo("Solicitação enviada! Aguarde a aprovação do responsável pela liga.");
         } catch (Exception e) {
             msgErro("Não foi possível enviar a solicitação. " + e.getMessage());
         }

@@ -86,7 +86,7 @@ public class AdminUsuarioService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario autenticado nao encontrado."));
 
         if (!Perfil.ADMIN.equals(usuario.getPerfil())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso permitido somente para administradores.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso nao autorizado.");
         }
 
         return usuario;

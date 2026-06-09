@@ -5,8 +5,8 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template/layout.xhtml">
                 
-    <ui:define name="tituloPagina">Ranking Geral</ui:define>
-    <ui:define name="subtituloPagina">Os times mais vitoriosos</ui:define>
+    <ui:define name="tituloPagina">Desempenho</ui:define>
+    <ui:define name="subtituloPagina">Ranking geral e números do seu time</ui:define>
 
     <ui:define name="conteudo">
         
@@ -45,15 +45,68 @@
                 background: rgba(34, 197, 94, 0.1); 
                 border-radius: 8px;
             }
+            .desempenho-tabs {
+                display: flex;
+                gap: .5rem;
+                padding: .75rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .desempenho-tab {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: .5rem;
+                padding: .75rem 1rem;
+                border-radius: 10px;
+                color: #94a3b8;
+                font-weight: 800;
+                text-decoration: none;
+                transition: background .2s, color .2s;
+            }
+            .desempenho-tab:hover {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.06);
+            }
+            .desempenho-tab.active {
+                color: #fff;
+                background: rgba(14, 165, 233, 0.18);
+                border: 1px solid rgba(56, 189, 248, 0.35);
+            }
+            .scout-bloqueado {
+                margin: 1rem;
+                padding: 2rem 1rem;
+                text-align: center;
+                border-radius: 14px;
+                border: 1px solid rgba(250, 204, 21, 0.25);
+                background: rgba(250, 204, 21, 0.06);
+            }
+            @media (max-width: 520px) {
+                .desempenho-tabs { padding: .6rem; }
+                .desempenho-tab { flex: 1; padding: .7rem .45rem; font-size: .82rem; }
+            }
         </style>
 
         <div class="card shadow-4 p-0" style="background: rgba(15, 23, 42, 0.9); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
-            
-            <div class="p-3 border-bottom-1 border-white-alpha-10 text-white font-bold text-lg flex align-items-center gap-2">
-                <i class="fas fa-chart-line text-blue-400"></i> Desempenho
-            </div>
 
-            <div class="table-wrapper">
+            <h:form id="formTabsDesempenho">
+                <div class="desempenho-tabs">
+                    <p:commandLink action="#{rankingBean.exibirRanking}"
+                                   update="@form @([id$=painelDesempenho])"
+                                   styleClass="desempenho-tab #{rankingBean.rankingAtivo ? 'active' : ''}">
+                        <i class="fas #{sessaoBean.acessoCompleto ? 'fa-list-ol' : 'fa-lock'}"></i>
+                        <span>Ranking Geral</span>
+                    </p:commandLink>
+                    <p:commandLink action="#{rankingBean.exibirScout}"
+                                   update="@form @([id$=painelDesempenho])"
+                                   styleClass="desempenho-tab #{rankingBean.scoutAtivo ? 'active' : ''}">
+                        <i class="fas #{sessaoBean.acessoCompleto ? 'fa-chart-bar' : 'fa-lock'}"></i>
+                        <span>Meu Scout</span>
+                    </p:commandLink>
+                </div>
+            </h:form>
+
+            <h:panelGroup id="painelDesempenho" layout="block">
+            <h:panelGroup rendered="#{rankingBean.rankingAtivo and sessaoBean.acessoCompleto}" layout="block" styleClass="table-wrapper">
                 <p:dataTable value="#{rankingBean.ranking}" var="t" 
                              styleClass="tabela-ranking" 
                              rowStyleClass="text-white"
@@ -85,7 +138,38 @@
                     <p:column headerText="GS" width="40" styleClass="text-center text-gray-400">#{t.golsContra}</p:column>
                     <p:column headerText="SG" width="40" styleClass="text-center font-bold text-white">#{t.saldoGols}</p:column>
                 </p:dataTable>
-            </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{rankingBean.scoutAtivo and sessaoBean.acessoCompleto}" layout="block" styleClass="table-wrapper">
+                <p:dataTable value="#{rankingBean.scoutTabela}" var="t"
+                             styleClass="tabela-ranking"
+                             rowStyleClass="text-white"
+                             emptyMessage="Nenhum time está vinculado a este usuário.">
+                    <p:column headerText="Time" style="min-width: 160px;">
+                        <div class="flex align-items-center gap-2">
+                            <div class="flex align-items-center justify-content-center bg-bluegray-800 border-circle border-1 border-bluegray-600"
+                                 style="width: 28px; height: 28px; flex-shrink: 0;">
+                                <i class="fas fa-shield-alt text-blue-400" style="font-size: 0.7rem;"></i>
+                            </div>
+                            <span class="font-bold text-md">#{t.nome}</span>
+                        </div>
+                    </p:column>
+                    <p:column headerText="J" width="55" styleClass="text-center text-gray-300">#{t.partidasJogadas}</p:column>
+                    <p:column headerText="V" width="55" styleClass="text-center text-green-400 font-bold text-lg col-vitorias">#{t.vitorias}</p:column>
+                    <p:column headerText="D" width="55" styleClass="text-center text-red-400">#{t.derrotas}</p:column>
+                    <p:column headerText="GP" width="55" styleClass="text-center text-gray-300">#{t.golsPro}</p:column>
+                    <p:column headerText="GS" width="55" styleClass="text-center text-gray-400">#{t.golsContra}</p:column>
+                </p:dataTable>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block" styleClass="scout-bloqueado">
+                <i class="fas fa-lock text-yellow-400 text-4xl mb-3"></i>
+                <div class="text-white text-xl font-bold mb-2">Desempenho bloqueado</div>
+                <p class="text-gray-300 mt-0 mb-4">Ranking Geral e Meu Scout estão disponíveis para o plano PRO.</p>
+                <p:button outcome="/fale-conosco" value="Conhecer o PRO" icon="fas fa-crown"
+                          styleClass="ui-button-warning font-bold rounded-btn"/>
+            </h:panelGroup>
+            </h:panelGroup>
         </div>
         
     </ui:define> 

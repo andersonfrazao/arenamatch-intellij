@@ -43,7 +43,7 @@ public class LigaService {
     @Transactional
     public LigaDetalheDTO criarLiga(Long idTimeAdmin, String nome, String descricao) {
         Time admin = timeRepository.findById(idTimeAdmin)
-                .orElseThrow(() -> new RuntimeException("Time administrador não encontrado."));
+                .orElseThrow(() -> new RuntimeException("Time responsável pela liga não encontrado."));
 
         placarPendenteService.validarSemPlacarPendente(admin.getId());
 
@@ -82,7 +82,7 @@ public class LigaService {
                 .orElseThrow(() -> new RuntimeException("Time não encontrado."));
 
         if (liga.getAdmin().getId().equals(idTime)) {
-            throw new RuntimeException("O administrador não pode ser removido da liga.");
+            throw new RuntimeException("O responsável pela liga não pode ser removido.");
         }
 
         liga.getTimes().remove(membro);

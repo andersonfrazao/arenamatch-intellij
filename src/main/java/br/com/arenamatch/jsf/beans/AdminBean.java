@@ -153,7 +153,7 @@ public class AdminBean implements Serializable {
         try {
             FacesContext.getCurrentInstance().getExternalContext().redirect("minha-agenda.xhtml");
         } catch (IOException e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Acesso administrativo negado.");
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Acesso negado.");
         }
     }
 }

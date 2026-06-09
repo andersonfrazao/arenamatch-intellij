@@ -2,6 +2,7 @@ package br.com.arenamatch.jsf.beans;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import br.com.arenamatch.jsf.client.ChatClient;
@@ -10,6 +11,7 @@ import br.com.arenamatch.dto.NotificacaoDTO;
 import br.com.arenamatch.dto.UsuarioDTO;
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
+import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
@@ -44,19 +46,27 @@ public class SessaoBean implements Serializable {
         return usuarioLogado != null && Perfil.ADMIN.equals(usuarioLogado.getPerfil());
     }
 
+    public boolean isPossuiTime() {
+        return usuarioLogado != null && usuarioLogado.getIdTime() != null;
+    }
+
     public String getPlanoAssinaturaLabel() {
+        atualizarTrialLocalSeExpirado();
+
         if (usuarioLogado == null || usuarioLogado.getPlanoAssinatura() == null) {
             return "Básico";
         }
 
         return switch (usuarioLogado.getPlanoAssinatura()) {
-            case TRIAL -> "Trial";
+            case TRIAL -> "Período de teste";
             case PRO -> "Pró";
             case BASICO -> "Básico";
         };
     }
 
     public String getResumoPlano() {
+        atualizarTrialLocalSeExpirado();
+
         if (usuarioLogado == null) {
             return "";
         }
@@ -92,6 +102,8 @@ public class SessaoBean implements Serializable {
     }
 
     public String getPlanoCssClass() {
+        atualizarTrialLocalSeExpirado();
+
         if (usuarioLogado == null || usuarioLogado.getPlanoAssinatura() == null) {
             return "basico";
         }
@@ -110,6 +122,41 @@ public class SessaoBean implements Serializable {
             case PRO -> "pro";
             case BASICO -> "basico";
         };
+    }
+
+    public boolean isAcessoCompleto() {
+        atualizarTrialLocalSeExpirado();
+
+        if (usuarioLogado == null) {
+            return false;
+        }
+
+        if (Perfil.ADMIN.equals(usuarioLogado.getPerfil())) {
+            return true;
+        }
+
+        boolean proValido = usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
+                && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO;
+        boolean trialValido = usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.TRIAL
+                && usuarioLogado.getStatusPagamento() == StatusPagamento.TRIAL
+                && usuarioLogado.getDataExpiracao() != null
+                && LocalDateTime.now().isBefore(usuarioLogado.getDataExpiracao());
+
+        return proValido || trialValido;
+    }
+
+    private void atualizarTrialLocalSeExpirado() {
+        if (usuarioLogado == null
+                || usuarioLogado.getPlanoAssinatura() != PlanoAssinatura.TRIAL
+                || usuarioLogado.getDataExpiracao() == null
+                || LocalDateTime.now().isBefore(usuarioLogado.getDataExpiracao())) {
+            return;
+        }
+
+        usuarioLogado.setPlanoAssinatura(PlanoAssinatura.BASICO);
+        usuarioLogado.setStatusPagamento(StatusPagamento.EXPIRADO);
+        usuarioLogado.setStatusAssinatura(StatusAssinatura.VENCIDO);
+        usuarioLogado.setExpirado(true);
     }
 
     // SETTER MANUAL PARA GARANTIR A SEGURANÇA

@@ -223,7 +223,7 @@ public class CadastroBean implements Serializable {
         }
 
         try {
-            cadastroClient.desativarConta(sessaoBean.getUsuarioLogado().getId());
+            cadastroClient.desativarConta();
             return sessaoBean.logout();
         } catch (Exception e) {
             msgErro("Erro ao desativar a conta. Tente novamente.");

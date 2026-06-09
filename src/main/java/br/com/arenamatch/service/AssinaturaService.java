@@ -5,6 +5,7 @@ import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.repository.UsuarioRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,8 +56,14 @@ public class AssinaturaService {
     public void validarAcessoCompleto(Usuario usuario) {
         usuario = atualizarTrialExpirado(usuario);
         if (!temAcessoCompleto(usuario)) {
-            throw new RuntimeException("Recurso disponível apenas para usuários em trial ativo ou assinantes PRO.");
+            throw new RuntimeException("Recurso disponivel no plano PRO.");
         }
+    }
+
+    @Scheduled(fixedDelay = 60000, initialDelay = 0)
+    @Transactional
+    public void converterTrialsExpiradosParaBasico() {
+        usuarioRepository.converterTrialsExpiradosParaBasico(LocalDateTime.now());
     }
 
     private void sincronizarCamposNovos(Usuario usuario) {
