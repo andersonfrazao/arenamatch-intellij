@@ -67,7 +67,6 @@ public class AdminUsuarioService {
             usuario.setPerfil(dto.getPerfil());
             usuario.setStatusUsuario(dto.getStatusUsuario());
             usuario.setPlanoAssinatura(dto.getPlanoAssinatura());
-            usuario.setStatusAssinatura(dto.getStatusAssinatura());
             usuario.setStatusPagamento(dto.getStatusPagamento());
             usuario.setDataExpiracao(adminUsuarioMapper.parseDataExpiracao(dto.getDataExpiracao()));
         } catch (DateTimeParseException e) {

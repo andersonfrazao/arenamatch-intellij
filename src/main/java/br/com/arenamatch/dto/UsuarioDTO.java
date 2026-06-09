@@ -2,7 +2,6 @@ package br.com.arenamatch.dto;
 
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import lombok.Data;
 
@@ -18,7 +17,6 @@ public class UsuarioDTO {
     private Long idTime;
     
     // Novos campos
-    private StatusAssinatura statusAssinatura;
     private PlanoAssinatura planoAssinatura;
     private StatusPagamento statusPagamento;
     private LocalDateTime dataExpiracao;

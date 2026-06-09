@@ -2,7 +2,6 @@ package br.com.arenamatch.entity;
 
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.enums.StatusUsuario;
 import jakarta.persistence.*;
@@ -33,10 +32,6 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private Perfil perfil;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status_assinatura")
-    private StatusAssinatura statusAssinatura;
-
     @Column(name = "data_expiracao")
     private LocalDateTime dataExpiracao;
 

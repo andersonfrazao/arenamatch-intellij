@@ -2,7 +2,6 @@ package br.com.arenamatch.service;
 
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.repository.UsuarioRepository;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,7 +22,7 @@ public class AssinaturaService {
     @Transactional
     public Usuario atualizarTrialExpirado(Usuario usuario) {
         if (usuario.getPlanoAssinatura() == null) {
-            sincronizarCamposNovos(usuario);
+            sincronizarPlanoPeloPagamento(usuario);
         }
 
         if (usuario.getPlanoAssinatura() == PlanoAssinatura.TRIAL
@@ -31,7 +30,6 @@ public class AssinaturaService {
                 && LocalDateTime.now().isAfter(usuario.getDataExpiracao())) {
             usuario.setPlanoAssinatura(PlanoAssinatura.BASICO);
             usuario.setStatusPagamento(StatusPagamento.EXPIRADO);
-            usuario.setStatusAssinatura(StatusAssinatura.VENCIDO);
             return usuarioRepository.save(usuario);
         }
 
@@ -66,16 +64,13 @@ public class AssinaturaService {
         usuarioRepository.converterTrialsExpiradosParaBasico(LocalDateTime.now());
     }
 
-    private void sincronizarCamposNovos(Usuario usuario) {
-        if (usuario.getStatusAssinatura() == StatusAssinatura.ATIVO) {
+    private void sincronizarPlanoPeloPagamento(Usuario usuario) {
+        if (usuario.getStatusPagamento() == StatusPagamento.PAGO) {
             usuario.setPlanoAssinatura(PlanoAssinatura.PRO);
-            usuario.setStatusPagamento(StatusPagamento.PAGO);
-        } else if (usuario.getStatusAssinatura() == StatusAssinatura.TRIAL) {
+        } else if (usuario.getStatusPagamento() == StatusPagamento.TRIAL) {
             usuario.setPlanoAssinatura(PlanoAssinatura.TRIAL);
-            usuario.setStatusPagamento(StatusPagamento.TRIAL);
         } else {
             usuario.setPlanoAssinatura(PlanoAssinatura.BASICO);
-            usuario.setStatusPagamento(StatusPagamento.EXPIRADO);
         }
     }
 }

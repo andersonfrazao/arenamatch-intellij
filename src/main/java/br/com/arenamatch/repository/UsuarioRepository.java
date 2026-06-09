@@ -31,8 +31,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("""
             update Usuario u
                set u.planoAssinatura = br.com.arenamatch.enums.PlanoAssinatura.BASICO,
-                   u.statusPagamento = br.com.arenamatch.enums.StatusPagamento.EXPIRADO,
-                   u.statusAssinatura = br.com.arenamatch.enums.StatusAssinatura.VENCIDO
+                   u.statusPagamento = br.com.arenamatch.enums.StatusPagamento.EXPIRADO
              where u.planoAssinatura = br.com.arenamatch.enums.PlanoAssinatura.TRIAL
                and u.dataExpiracao is not null
                and u.dataExpiracao < :agora

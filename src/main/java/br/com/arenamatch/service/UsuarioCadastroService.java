@@ -4,7 +4,6 @@ import br.com.arenamatch.dto.CadastroDTO;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.UsuarioRepository;
@@ -46,7 +45,6 @@ public class UsuarioCadastroService {
         usuario.setCelular(cadastroValidacaoService.limparMascara(dto.getCelular()));
         usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
         usuario.setPerfil(Perfil.REPRESENTANTE);
-        usuario.setStatusAssinatura(StatusAssinatura.TRIAL);
         usuario.setPlanoAssinatura(PlanoAssinatura.TRIAL);
         usuario.setStatusPagamento(StatusPagamento.TRIAL);
         usuario.setDataInicioAssinatura(LocalDateTime.now());

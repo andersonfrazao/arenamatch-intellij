@@ -185,7 +185,6 @@ public class AuthService {
         dto.setPerfil(usuario.getPerfil());
         
         // Verifica Trial
-        dto.setStatusAssinatura(usuario.getStatusAssinatura());
         dto.setPlanoAssinatura(usuario.getPlanoAssinatura());
         dto.setStatusPagamento(usuario.getStatusPagamento());
         dto.setDataExpiracao(usuario.getDataExpiracao());

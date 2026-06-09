@@ -11,7 +11,6 @@ import br.com.arenamatch.dto.NotificacaoDTO;
 import br.com.arenamatch.dto.UsuarioDTO;
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
@@ -155,7 +154,6 @@ public class SessaoBean implements Serializable {
 
         usuarioLogado.setPlanoAssinatura(PlanoAssinatura.BASICO);
         usuarioLogado.setStatusPagamento(StatusPagamento.EXPIRADO);
-        usuarioLogado.setStatusAssinatura(StatusAssinatura.VENCIDO);
         usuarioLogado.setExpirado(true);
     }
 

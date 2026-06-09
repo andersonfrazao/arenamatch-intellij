@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.repository.UsuarioRepository;
 
@@ -34,7 +33,6 @@ class AssinaturaServiceTest {
         Usuario usuario = new Usuario();
         usuario.setPlanoAssinatura(PlanoAssinatura.TRIAL);
         usuario.setStatusPagamento(StatusPagamento.TRIAL);
-        usuario.setStatusAssinatura(StatusAssinatura.TRIAL);
         usuario.setDataExpiracao(LocalDateTime.now().minusMinutes(1));
 
         when(usuarioRepository.save(usuario)).thenReturn(usuario);
@@ -44,7 +42,6 @@ class AssinaturaServiceTest {
         assertSame(usuario, atualizado);
         assertEquals(PlanoAssinatura.BASICO, atualizado.getPlanoAssinatura());
         assertEquals(StatusPagamento.EXPIRADO, atualizado.getStatusPagamento());
-        assertEquals(StatusAssinatura.VENCIDO, atualizado.getStatusAssinatura());
         verify(usuarioRepository).save(usuario);
     }
 

@@ -20,7 +20,6 @@ public class AdminUsuarioMapper {
         dto.setPerfil(usuario.getPerfil());
         dto.setStatusUsuario(usuario.getStatusUsuario());
         dto.setPlanoAssinatura(usuario.getPlanoAssinatura());
-        dto.setStatusAssinatura(usuario.getStatusAssinatura());
         dto.setStatusPagamento(usuario.getStatusPagamento());
         dto.setDataExpiracao(formatar(usuario.getDataExpiracao()));
         return dto;
@@ -34,7 +33,6 @@ public class AdminUsuarioMapper {
         dto.setPerfil(usuario.getPerfil());
         dto.setStatusUsuario(usuario.getStatusUsuario());
         dto.setPlanoAssinatura(usuario.getPlanoAssinatura());
-        dto.setStatusAssinatura(usuario.getStatusAssinatura());
         dto.setStatusPagamento(usuario.getStatusPagamento());
         dto.setDataExpiracao(formatar(usuario.getDataExpiracao()));
         return dto;
