@@ -30,6 +30,17 @@ public class EmailService {
 
         mailSender.send(mensagem);
     }
+
+    public void enviarCodigoAcessoAdmin(String destinatario, String codigo) {
+        SimpleMailMessage mensagem = new SimpleMailMessage();
+        mensagem.setTo(destinatario);
+        mensagem.setSubject("Arena Match - Codigo de acesso administrativo");
+        mensagem.setText("Ola!\n\nSeu codigo para acessar a area administrativa e: " + codigo
+                + "\n\nEste codigo e valido por 10 minutos e pode ser usado uma unica vez."
+                + "\n\nSe voce nao tentou entrar, altere sua senha imediatamente.");
+
+        mailSender.send(mensagem);
+    }
     
     public void enviarEmailSuporte(FaleConoscoDTO dto) {
     	

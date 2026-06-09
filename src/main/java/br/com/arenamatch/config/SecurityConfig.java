@@ -30,11 +30,13 @@ public class SecurityConfig {
                     "/api/autenticacao/login",
                     "/api/autenticacao/recuperar-senha/**",
                     "/api/autenticacao/ativacao/**",
+                    "/api/autenticacao/admin/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/cadastro").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )

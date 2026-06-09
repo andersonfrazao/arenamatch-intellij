@@ -1,5 +1,7 @@
 package br.com.arenamatch.config;
 
+import br.com.arenamatch.dto.UsuarioDTO;
+import br.com.arenamatch.enums.Perfil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,6 +45,19 @@ public class FiltroAutenticacao implements Filter {
                 || isApiInterna || url.contains("senha") || url.contains("recuperar");
         // 3. VERIFICAÇÃO DE SESSÃO
         boolean isLogado = (session != null && session.getAttribute("usuarioAutenticado") != null);
+        boolean isAdminPage = url.endsWith("admin.xhtml");
+
+        if (isAdminPage && !isUsuarioAdmin(session)) {
+            boolean isAjax = "partial/ajax".equals(req.getHeader("Faces-Request"));
+
+            if (isAjax) {
+                res.setContentType("text/xml");
+                res.getWriter().printf("<?xml version=\"1.0\" encoding=\"UTF-8\"?><partial-response><redirect url=\"%s\"></redirect></partial-response>", path + "/minha-agenda.xhtml");
+            } else {
+                res.sendRedirect(path + "/minha-agenda.xhtml");
+            }
+            return;
+        }
 
         if (isLogado || isPublicPage || isResource) {
             // Se estiver logado ou for página pública/recurso, segue o jogo!
@@ -58,5 +73,14 @@ public class FiltroAutenticacao implements Filter {
                 res.sendRedirect(path + "/login.xhtml");
             }
         }
+    }
+
+    private boolean isUsuarioAdmin(HttpSession session) {
+        if (session == null) {
+            return false;
+        }
+
+        Object usuario = session.getAttribute("usuarioLogado");
+        return usuario instanceof UsuarioDTO dto && Perfil.ADMIN.equals(dto.getPerfil());
     }
 }

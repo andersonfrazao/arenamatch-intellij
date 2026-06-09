@@ -1,0 +1,354 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template/layout.xhtml">
+
+    <ui:define name="tituloPagina">Administracao</ui:define>
+    <ui:define name="subtituloPagina">Usuarios e parametros do sistema</ui:define>
+
+    <ui:define name="conteudo">
+        <style>
+            .admin-shell {
+                display: grid;
+                gap: 1rem;
+            }
+            .admin-panel {
+                background: rgba(15, 23, 42, 0.9);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 1rem;
+            }
+            .admin-search {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: .75rem;
+                align-items: end;
+            }
+            .admin-user-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(320px, .8fr);
+                gap: 1rem;
+                align-items: start;
+            }
+            .admin-list-card {
+                display: none;
+            }
+            .admin-param-row {
+                display: grid;
+                grid-template-columns: minmax(180px, .8fr) minmax(0, 1.2fr) minmax(160px, .8fr) auto;
+                gap: .75rem;
+                align-items: center;
+                padding: .85rem 0;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .admin-param-row:last-child {
+                border-bottom: none;
+            }
+            .admin-label {
+                color: #cbd5e1;
+                font-size: .82rem;
+                font-weight: 800;
+                text-transform: uppercase;
+            }
+            .admin-value {
+                color: white;
+                font-weight: 800;
+                word-break: break-word;
+            }
+            .admin-muted {
+                color: #94a3b8;
+                font-size: .9rem;
+                line-height: 1.35;
+            }
+            .admin-form-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: .85rem;
+            }
+            .admin-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: .5rem;
+                flex-wrap: wrap;
+            }
+            .admin-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .admin-table-wrap .ui-datatable {
+                min-width: 820px;
+            }
+            .admin-table-wrap .ui-datatable table {
+                table-layout: fixed;
+                width: 100%;
+            }
+            .admin-table .ui-datatable-header,
+            .admin-table .ui-state-default {
+                background: rgba(15, 23, 42, 0.65) !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                color: #94a3b8 !important;
+                text-transform: uppercase;
+                font-size: .78rem;
+            }
+            .admin-table .ui-datatable-data > tr {
+                background: transparent !important;
+                border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+                color: white;
+            }
+            .admin-table td {
+                border: none !important;
+                padding: .85rem .5rem !important;
+            }
+            .admin-table .col-usuario {
+                width: auto;
+            }
+            .admin-table .col-compacta {
+                width: 96px;
+                white-space: nowrap;
+                text-align: center;
+            }
+            .admin-table .col-expiracao {
+                width: 138px;
+                white-space: nowrap;
+                text-align: center;
+            }
+            .admin-table .col-acao {
+                width: 58px;
+                text-align: center;
+            }
+            .admin-user-name,
+            .admin-user-email {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            @media (max-width: 980px) {
+                .admin-user-grid {
+                    grid-template-columns: 1fr;
+                }
+                .admin-search {
+                    grid-template-columns: 1fr;
+                }
+                .admin-param-row {
+                    grid-template-columns: 1fr;
+                    gap: .45rem;
+                    padding: 1rem 0;
+                }
+            }
+            @media (max-width: 700px) {
+                .admin-table-wrap {
+                    display: none;
+                }
+                .admin-list-card {
+                    display: grid;
+                    gap: .75rem;
+                }
+                .admin-user-card {
+                    border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.04);
+                    padding: .9rem;
+                }
+            }
+        </style>
+
+        <h:form id="formAdmin">
+            <p:growl id="msgs" showDetail="true" />
+
+            <p:tabView>
+                <p:tab title="Usuarios">
+                    <div class="admin-shell">
+                        <div class="admin-panel">
+                            <div class="admin-search">
+                                <div>
+                                    <p:outputLabel for="termoBusca" value="Buscar por nome ou email" styleClass="admin-label block mb-2"/>
+                                    <p:inputText id="termoBusca"
+                                                 value="#{adminBean.termoBusca}"
+                                                 styleClass="w-full custom-input"
+                                                 placeholder="Digite pelo menos 3 caracteres"/>
+                                </div>
+                                <p:commandButton value="Buscar"
+                                                 icon="fas fa-search"
+                                                 action="#{adminBean.buscarUsuarios}"
+                                                 update="@form"
+                                                 styleClass="ui-button-info font-bold rounded-btn"/>
+                            </div>
+                        </div>
+
+                        <div class="admin-user-grid">
+                            <h:panelGroup id="usuariosPanel" layout="block" styleClass="admin-panel">
+                                <div class="flex align-items-center justify-content-between gap-2 mb-3">
+                                    <div>
+                                        <div class="text-white font-bold text-lg">Resultado da busca</div>
+                                        <div class="admin-muted">Limite de 20 registros por busca.</div>
+                                    </div>
+                                </div>
+
+                                <div class="admin-table-wrap">
+                                    <p:dataTable value="#{adminBean.usuarios}"
+                                                 var="u"
+                                                 styleClass="admin-table"
+                                                 emptyMessage="Nenhum usuario encontrado.">
+                                        <p:column headerText="Nome" styleClass="col-usuario">
+                                            <span class="font-bold text-white admin-user-name" title="#{u.nome}">#{u.nome}</span>
+                                            <span class="admin-muted admin-user-email" title="#{u.email}">#{u.email}</span>
+                                        </p:column>
+                                        <p:column headerText="Perfil" styleClass="col-compacta">#{u.perfil}</p:column>
+                                        <p:column headerText="Status" styleClass="col-compacta">#{u.statusUsuario}</p:column>
+                                        <p:column headerText="Plano" styleClass="col-compacta">#{u.planoAssinatura}</p:column>
+                                        <p:column headerText="Expira em" styleClass="col-expiracao">#{u.dataExpiracao}</p:column>
+                                        <p:column headerText="" styleClass="col-acao">
+                                            <p:commandButton icon="fas fa-pen"
+                                                             title="Editar"
+                                                             action="#{adminBean.selecionarUsuario(u)}"
+                                                             update="@form"
+                                                             styleClass="ui-button-secondary rounded-btn ui-button-sm"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+
+                                <div class="admin-list-card">
+                                    <ui:repeat value="#{adminBean.usuarios}" var="u">
+                                        <div class="admin-user-card">
+                                            <div class="admin-value">#{u.nome}</div>
+                                            <div class="admin-muted mb-2">#{u.email}</div>
+                                            <div class="flex flex-wrap gap-2 mb-3">
+                                                <span class="am-pill">#{u.statusUsuario}</span>
+                                                <span class="am-pill">#{u.planoAssinatura}</span>
+                                                <span class="am-pill">#{u.dataExpiracao}</span>
+                                            </div>
+                                            <p:commandButton value="Editar"
+                                                             icon="fas fa-pen"
+                                                             action="#{adminBean.selecionarUsuario(u)}"
+                                                             update="@form"
+                                                             styleClass="ui-button-secondary rounded-btn ui-button-sm"/>
+                                        </div>
+                                    </ui:repeat>
+                                    <h:panelGroup rendered="#{empty adminBean.usuarios}">
+                                        <div class="admin-muted">Nenhum usuario encontrado.</div>
+                                    </h:panelGroup>
+                                </div>
+                            </h:panelGroup>
+
+                            <h:panelGroup id="usuarioEdicaoPanel" layout="block" styleClass="admin-panel">
+                                <h:panelGroup rendered="#{empty adminBean.usuarioSelecionado}">
+                                    <div class="text-white font-bold text-lg mb-2">Edicao do usuario</div>
+                                    <div class="admin-muted">Selecione um usuario no resultado da busca.</div>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{not empty adminBean.usuarioSelecionado}">
+                                    <div class="mb-3">
+                                        <div class="text-white font-bold text-lg">#{adminBean.usuarioSelecionado.nome}</div>
+                                        <div class="admin-muted">#{adminBean.usuarioSelecionado.email}</div>
+                                    </div>
+
+                                    <div class="admin-form-grid">
+                                        <div>
+                                            <p:outputLabel for="perfil" value="Perfil" styleClass="admin-label block mb-2"/>
+                                            <p:selectOneMenu id="perfil" value="#{adminBean.usuarioSelecionado.perfil}" styleClass="w-full custom-input">
+                                                <f:selectItems value="#{adminBean.perfilOptions}" var="p" itemLabel="#{p}" itemValue="#{p}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+
+                                        <div>
+                                            <p:outputLabel for="statusUsuario" value="Status do usuario" styleClass="admin-label block mb-2"/>
+                                            <p:selectOneMenu id="statusUsuario" value="#{adminBean.usuarioSelecionado.statusUsuario}" styleClass="w-full custom-input">
+                                                <f:selectItems value="#{adminBean.statusUsuarioOptions}" var="s" itemLabel="#{s}" itemValue="#{s}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+
+                                        <div>
+                                            <p:outputLabel for="planoAssinatura" value="Plano" styleClass="admin-label block mb-2"/>
+                                            <p:selectOneMenu id="planoAssinatura" value="#{adminBean.usuarioSelecionado.planoAssinatura}" styleClass="w-full custom-input">
+                                                <f:selectItems value="#{adminBean.planoAssinaturaOptions}" var="p" itemLabel="#{p}" itemValue="#{p}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+
+                                        <div>
+                                            <p:outputLabel for="statusAssinatura" value="Status da assinatura" styleClass="admin-label block mb-2"/>
+                                            <p:selectOneMenu id="statusAssinatura" value="#{adminBean.usuarioSelecionado.statusAssinatura}" styleClass="w-full custom-input">
+                                                <f:selectItems value="#{adminBean.statusAssinaturaOptions}" var="s" itemLabel="#{s}" itemValue="#{s}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+
+                                        <div>
+                                            <p:outputLabel for="statusPagamento" value="Status do pagamento" styleClass="admin-label block mb-2"/>
+                                            <p:selectOneMenu id="statusPagamento" value="#{adminBean.usuarioSelecionado.statusPagamento}" styleClass="w-full custom-input">
+                                                <f:selectItems value="#{adminBean.statusPagamentoOptions}" var="s" itemLabel="#{s}" itemValue="#{s}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+
+                                        <div>
+                                            <p:outputLabel for="dataExpiracao" value="Data de expiracao" styleClass="admin-label block mb-2"/>
+                                            <p:inputText id="dataExpiracao"
+                                                         value="#{adminBean.usuarioSelecionado.dataExpiracao}"
+                                                         styleClass="w-full custom-input"
+                                                         placeholder="dd/MM/yyyy HH:mm"/>
+                                            <div class="admin-muted mt-1">Formato: dd/MM/yyyy HH:mm</div>
+                                        </div>
+
+                                        <div class="admin-actions">
+                                            <p:commandButton value="Salvar usuario"
+                                                             icon="fas fa-save"
+                                                             action="#{adminBean.salvarUsuario}"
+                                                             update="@form"
+                                                             styleClass="ui-button-success font-bold rounded-btn"/>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </div>
+                    </div>
+                </p:tab>
+
+                <p:tab title="Parametros">
+                    <h:panelGroup id="parametrosPanel" layout="block" styleClass="admin-panel">
+                        <div class="flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+                            <div>
+                                <div class="text-white font-bold text-lg">Parametros do sistema</div>
+                                <div class="admin-muted">Somente a coluna valor pode ser alterada.</div>
+                            </div>
+                            <p:commandButton value="Recarregar"
+                                             icon="fas fa-sync"
+                                             action="#{adminBean.carregarParametros}"
+                                             update="@form"
+                                             styleClass="ui-button-secondary rounded-btn"/>
+                        </div>
+
+                        <ui:repeat value="#{adminBean.parametros}" var="parametro">
+                            <div class="admin-param-row">
+                                <div>
+                                    <div class="admin-label">Chave</div>
+                                    <div class="admin-value">#{parametro.chave}</div>
+                                </div>
+                                <div>
+                                    <div class="admin-label">Descricao</div>
+                                    <div class="admin-muted">#{parametro.descricao}</div>
+                                </div>
+                                <div>
+                                    <p:outputLabel value="Valor" styleClass="admin-label block mb-2"/>
+                                    <p:inputText value="#{parametro.valor}" styleClass="w-full custom-input"/>
+                                </div>
+                                <div class="admin-actions">
+                                    <p:commandButton icon="fas fa-save"
+                                                     title="Salvar parametro"
+                                                     action="#{adminBean.salvarParametro(parametro)}"
+                                                     update="@form"
+                                                     styleClass="ui-button-success rounded-btn"/>
+                                </div>
+                            </div>
+                        </ui:repeat>
+
+                        <h:panelGroup rendered="#{empty adminBean.parametros}">
+                            <div class="admin-muted">Nenhum parametro cadastrado.</div>
+                        </h:panelGroup>
+                    </h:panelGroup>
+                </p:tab>
+            </p:tabView>
+        </h:form>
+    </ui:define>
+</ui:composition>

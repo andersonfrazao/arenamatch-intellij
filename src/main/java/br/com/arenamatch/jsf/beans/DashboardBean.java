@@ -37,7 +37,7 @@ public class DashboardBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        if (sessaoBean.isLogado()) {
+        if (sessaoBean.isLogado() && !sessaoBean.isAdmin()) {
             Long userId = sessaoBean.getUsuarioLogado().getId();
 
             try {

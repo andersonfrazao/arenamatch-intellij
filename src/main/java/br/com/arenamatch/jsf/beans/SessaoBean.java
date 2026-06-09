@@ -8,6 +8,7 @@ import br.com.arenamatch.jsf.client.ChatClient;
 import br.com.arenamatch.jsf.client.NotificacaoClient;
 import br.com.arenamatch.dto.NotificacaoDTO;
 import br.com.arenamatch.dto.UsuarioDTO;
+import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import jakarta.enterprise.context.SessionScoped;
@@ -37,6 +38,10 @@ public class SessaoBean implements Serializable {
 
     public boolean isLogado() {
         return usuarioLogado != null;
+    }
+
+    public boolean isAdmin() {
+        return usuarioLogado != null && Perfil.ADMIN.equals(usuarioLogado.getPerfil());
     }
 
     public String getPlanoAssinaturaLabel() {
@@ -116,6 +121,7 @@ public class SessaoBean implements Serializable {
             FacesContext context = FacesContext.getCurrentInstance();
             if (context != null) {
                 context.getExternalContext().getSessionMap().put("usuarioAutenticado", true);
+                context.getExternalContext().getSessionMap().put("usuarioLogado", usuarioLogado);
             }
         }
     }
@@ -147,7 +153,7 @@ public class SessaoBean implements Serializable {
 
     public void atualizarNotificacoesChat() {
         try {
-            if (isLogado()) {
+            if (isLogado() && getUsuarioLogado().getIdTime() != null) {
                 this.qtdMensagensNaoLidas = chatClient.contarNaoLidasGeral(getUsuarioLogado().getIdTime());
             } else {
                 this.qtdMensagensNaoLidas = 0L;

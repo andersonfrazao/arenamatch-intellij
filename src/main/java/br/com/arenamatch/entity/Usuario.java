@@ -84,6 +84,21 @@ public class Usuario {
 
     @Column(name = "validade_codigo_ativacao_email")
     private LocalDateTime validadeCodigoAtivacaoEmail;
+
+    @Column(name = "codigo_acesso_admin", length = 60)
+    private String codigoAcessoAdmin;
+
+    @Column(name = "validade_codigo_acesso_admin")
+    private LocalDateTime validadeCodigoAcessoAdmin;
+
+    @Column(name = "token_desafio_admin", length = 36)
+    private String tokenDesafioAdmin;
+
+    @Column(name = "tentativas_codigo_admin")
+    private Integer tentativasCodigoAdmin = 0;
+
+    @Column(name = "data_envio_codigo_admin")
+    private LocalDateTime dataEnvioCodigoAdmin;
     
     // Método auxiliar
     public boolean isExpirado() {

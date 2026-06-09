@@ -7,6 +7,7 @@ import org.springframework.web.client.RestClient;
 import br.com.arenamatch.dto.LoginDTO;
 import br.com.arenamatch.dto.LoginResponseDTO;
 import br.com.arenamatch.dto.AtivacaoContaDTO;
+import br.com.arenamatch.dto.ConfirmacaoAcessoAdminDTO;
 import br.com.arenamatch.dto.RedefinirSenhaDTO;
 
 @Component
@@ -26,6 +27,28 @@ public class AuthClient {
                 .body(loginDTO)
                 .retrieve()
                 .body(LoginResponseDTO.class);
+    }
+
+    public LoginResponseDTO confirmarAcessoAdmin(String desafio, String codigo) {
+        ConfirmacaoAcessoAdminDTO dto = new ConfirmacaoAcessoAdminDTO();
+        dto.setDesafio(desafio);
+        dto.setCodigo(codigo);
+
+        return restClient.post()
+                .uri("/api/autenticacao/admin/confirmar")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dto)
+                .retrieve()
+                .body(LoginResponseDTO.class);
+    }
+
+    public void reenviarCodigoAcessoAdmin(String desafio) {
+        restClient.post()
+                .uri("/api/autenticacao/admin/reenviar")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(desafio)
+                .retrieve()
+                .toBodilessEntity();
     }
     
     public void solicitarCodigoRecuperacao(String email) {

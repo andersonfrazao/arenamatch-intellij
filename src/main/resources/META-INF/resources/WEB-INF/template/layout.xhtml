@@ -237,6 +237,9 @@
                         <h:link outcome="/fale-conosco" styleClass="#{view.viewId eq '/fale-conosco.xhtml' ? 'active' : ''}">
                             <i class="fas fa-headset w-2rem text-center text-lg text-blue-400"></i> Fale Conosco
                         </h:link>
+                        <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="#{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+                            <i class="fas fa-user-shield w-2rem text-center text-lg text-blue-400"></i> Admin
+                        </h:link>
                     </div>
                 </nav>
 
@@ -529,6 +532,9 @@
             
             <h:link outcome="/fale-conosco" styleClass="am-b-item #{view.viewId eq '/fale-conosco.xhtml' ? 'active' : ''}">
                 <i class="fas fa-headset text-xl"></i><span>Suporte</span>
+            </h:link>
+            <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="am-b-item #{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+                <i class="fas fa-user-shield text-xl"></i><span>Admin</span>
             </h:link>
 		</div>
         

@@ -5,51 +5,47 @@
 
 <h:head>
     <title>Arena Match - Login</title>
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-    <h:outputStylesheet library="css" name="styles.css" />
+    <h:outputStylesheet library="css" name="styles.css"/>
     <link href="https://unpkg.com/primeflex@3.1.2/primeflex.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    
-    <style>
-        body { 
-            display: flex; align-items: center; justify-content: center; 
-            min-height: 100vh; overflow-y: auto; margin: 0; padding: 1rem;
-        }
 
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-y: auto;
+            margin: 0;
+            padding: 1rem;
+        }
         .login-form {
             width: 100%;
             display: flex;
             justify-content: center;
         }
-
-        /* Mantemos o estilo visual aqui, mas o TAMANHO vamos forçar no HTML abaixo */
-        .login-card { 
+        .login-card {
             width: 90%;
             max-width: 520px;
-            padding: 40px; 
-            border-radius: 16px; 
-            position: relative; 
+            padding: 40px;
+            border-radius: 16px;
+            position: relative;
             overflow: hidden;
-            background: rgba(30, 41, 59, 0.85); 
-            backdrop-filter: blur(12px); 
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 28px 20px;
-            }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
         }
-
-        .login-card::before { 
-            content: ''; position: absolute; top: 0; left: 0; 
-            width: 100%; height: 4px; 
-            background: linear-gradient(90deg, #0ea5e9, #22d3ee); 
-        }
-
-        /* Input Customizado */
         body .ui-inputfield {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid #475569;
@@ -60,17 +56,25 @@
             border-color: #0ea5e9;
             box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
         }
-        .ui-input-icon-left > i { color: #94a3b8; }
-
+        .ui-input-icon-left > i {
+            color: #94a3b8;
+        }
         body .ui-password,
         body .ui-password input {
             width: 100%;
         }
-
+        .admin-code-input {
+            width: 100%;
+            text-align: center !important;
+            letter-spacing: 12px;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            padding-left: 12px !important;
+            color: #38bdf8 !important;
+        }
         .mensagem-app-mobile {
             display: none;
         }
-
         @media (max-width: 768px) {
             .mensagem-app-mobile {
                 display: block;
@@ -80,60 +84,109 @@
                 color: rgba(255, 255, 255, 0.85);
             }
         }
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px 20px;
+            }
+        }
     </style>
 </h:head>
 
 <h:body>
-    <h:form styleClass="login-form">
-        <p:growl id="msgs" showDetail="true" />
+    <h:form id="formLogin" styleClass="login-form">
+        <p:growl id="msgs" showDetail="true"/>
 
         <div class="login-card">
-            
             <div class="text-center mb-5">
                 <div class="text-3xl font-bold text-neon" style="font-size: 2rem;">
                     <i class="fas fa-trophy mr-2"></i> ARENA <span class="text-white ml-2">MATCH</span>
                 </div>
-                <div class="text-gray-400 text-sm mt-2">Entre e encontre seu próximo desafio.</div>
-                <div class="mensagem-app-mobile">
-                    Ou acesse www.arenamatch.app.br
+                <div class="text-gray-400 text-sm mt-2">
+                    #{loginBean.aguardandoCodigoAdmin ? 'Confirme seu acesso administrativo.' : 'Entre e encontre seu proximo desafio.'}
                 </div>
+                <div class="mensagem-app-mobile">Ou acesse www.arenamatch.app.br</div>
             </div>
 
-            <div class="field mb-4">
-                <span class="ui-input-icon-left w-full">
-                    <i class="pi pi-user" />
-                    <p:inputText value="#{loginBean.email}" placeholder="E-mail" styleClass="w-full" required="true" requiredMessage="E-mail obrigatório."/>
-                </span>
-            </div>
+            <h:panelGroup id="etapaLogin" layout="block" rendered="#{not loginBean.aguardandoCodigoAdmin}">
+                <div class="field mb-4">
+                    <span class="ui-input-icon-left w-full">
+                        <i class="pi pi-user"></i>
+                        <p:inputText value="#{loginBean.email}" placeholder="E-mail" styleClass="w-full"
+                                     required="true" requiredMessage="E-mail obrigatorio."/>
+                    </span>
+                </div>
 
-            <div class="field mb-4">
-                <span class="ui-input-icon-left w-full">
-                    <i class="pi pi-lock" />
-                    <p:password value="#{loginBean.senha}" placeholder="Senha" styleClass="w-full" required="true" requiredMessage="Senha obrigatória." toggleMask="true"/>
-                </span>
-            </div>
+                <div class="field mb-4">
+                    <span class="ui-input-icon-left w-full">
+                        <i class="pi pi-lock"></i>
+                        <p:password value="#{loginBean.senha}" placeholder="Senha" styleClass="w-full"
+                                    required="true" requiredMessage="Senha obrigatoria." toggleMask="true"/>
+                    </span>
+                </div>
 
-            <div class="flex justify-content-end align-items-center mb-4 text-sm">
-                <a href="recuperar-senha.xhtml" class="text-neon no-underline hover:text-white font-bold">Esqueci a senha</a>
-            </div>
+                <div class="flex justify-content-end align-items-center mb-4 text-sm">
+                    <a href="recuperar-senha.xhtml" class="text-neon no-underline hover:text-white font-bold">Esqueci a senha</a>
+                </div>
 
-            <p:commandButton value="ENTRAR EM CAMPO" action="#{loginBean.logar}" update="msgs" icon="pi pi-sign-in"
-                             styleClass="w-full rounded-btn font-bold border-none shadow-4" 
-                             style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); padding: 12px 0;"/>
+                <p:commandButton value="ENTRAR EM CAMPO"
+                                 action="#{loginBean.logar}"
+                                 update="@form"
+                                 icon="pi pi-sign-in"
+                                 styleClass="w-full rounded-btn font-bold border-none shadow-4"
+                                 style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); padding: 12px 0;"/>
 
-            <div class="text-center mt-5 text-sm text-gray-400">
-                Não tem time cadastrado? <br/>
-                <a href="cadastro.xhtml" class="text-neon font-bold no-underline hover:text-white">Crie sua conta agora</a>
-            </div>
+                <div class="text-center mt-5 text-sm text-gray-400">
+                    Nao tem time cadastrado? <br/>
+                    <a href="cadastro.xhtml" class="text-neon font-bold no-underline hover:text-white">Crie sua conta agora</a>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup id="etapaCodigoAdmin" layout="block" rendered="#{loginBean.aguardandoCodigoAdmin}">
+                <div class="text-center text-gray-300 line-height-3 mb-4">
+                    Enviamos um codigo de 5 digitos para
+                    <strong class="text-white">#{loginBean.emailAdminMascarado}</strong>.
+                </div>
+
+                <div class="field mb-4">
+                    <p:inputMask value="#{loginBean.codigoAdmin}"
+                                 mask="99999"
+                                 placeholder="_ _ _ _ _"
+                                 required="true"
+                                 requiredMessage="Informe o codigo enviado por e-mail."
+                                 styleClass="admin-code-input"/>
+                </div>
+
+                <p:commandButton value="CONFIRMAR ACESSO"
+                                 action="#{loginBean.confirmarCodigoAdmin}"
+                                 ajax="false"
+                                 icon="pi pi-lock-open"
+                                 styleClass="w-full rounded-btn font-bold border-none shadow-4"
+                                 style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); padding: 12px 0;"/>
+
+                <div class="flex justify-content-center gap-4 mt-4 text-sm">
+                    <p:commandLink value="Reenviar codigo"
+                                   action="#{loginBean.reenviarCodigoAdmin}"
+                                   process="@this"
+                                   update="@form"
+                                   styleClass="text-neon no-underline font-bold"/>
+                    <p:commandLink value="Voltar"
+                                   action="#{loginBean.voltarParaLogin}"
+                                   process="@this"
+                                   update="@form"
+                                   immediate="true"
+                                   styleClass="text-gray-400 no-underline"/>
+                </div>
+            </h:panelGroup>
 
             <div class="text-center mt-4 text-xs text-gray-500 font-bold">
-                Vers&#227;o: Beta 0.10
+                Vers&#227;o: Beta 0.11
             </div>
 
             <div class="text-center mt-3 text-xs">
-                <a href="privacidade.xhtml" class="text-gray-500 no-underline hover:text-white">Termos de Uso e Política de Privacidade</a>
+                <a href="privacidade.xhtml" class="text-gray-500 no-underline hover:text-white">
+                    Termos de Uso e Politica de Privacidade
+                </a>
             </div>
-
         </div>
     </h:form>
 </h:body>
