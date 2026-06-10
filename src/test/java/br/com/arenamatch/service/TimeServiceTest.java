@@ -1,7 +1,9 @@
 package br.com.arenamatch.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,15 +18,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
+import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import br.com.arenamatch.repository.UsuarioRepository;
 
@@ -39,6 +45,9 @@ class TimeServiceTest {
 
     @Mock
     private AssinaturaService assinaturaService;
+
+    @Mock
+    private PartidaRepository partidaRepository;
 
     @InjectMocks
     private TimeService timeService;
@@ -86,6 +95,100 @@ class TimeServiceTest {
         assertEquals(14, scout.getGolsPro());
         assertEquals(9, scout.getGolsContra());
         verify(timeRepository).findByResponsavel(usuario);
+    }
+
+    @Test
+    void deveRetornarJogosConfirmadosNaPerspectivaDoTimeAutenticado() {
+        Time meuTime = new Time();
+        meuTime.setId(10L);
+        meuTime.setNome("Areiao");
+
+        Time mocidade = new Time();
+        mocidade.setId(20L);
+        mocidade.setNome("Mocidade");
+
+        Time unidos = new Time();
+        unidos.setId(30L);
+        unidos.setNome("Unidos");
+
+        Partida maisRecente = new Partida();
+        maisRecente.setDataHora(LocalDateTime.of(2026, 5, 10, 12, 0));
+        maisRecente.setMandante(meuTime);
+        maisRecente.setVisitante(mocidade);
+        maisRecente.setGolsMandante(3);
+        maisRecente.setGolsVisitante(2);
+
+        Partida maisAntiga = new Partida();
+        maisAntiga.setDataHora(LocalDateTime.of(2026, 4, 20, 9, 0));
+        maisAntiga.setMandante(unidos);
+        maisAntiga.setVisitante(meuTime);
+        maisAntiga.setGolsMandante(1);
+        maisAntiga.setGolsVisitante(4);
+
+        when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
+        when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
+        when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
+        when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
+        PageRequest primeiraPagina = PageRequest.of(0, 10);
+        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, primeiraPagina))
+                .thenReturn(new PageImpl<>(
+                        List.of(maisRecente, maisAntiga),
+                        primeiraPagina,
+                        12));
+
+        var pagina = timeService.buscarJogosRealizadosDoUsuarioAutenticado(0);
+        var jogos = pagina.getJogos();
+
+        assertEquals(2, jogos.size());
+        assertTrue(pagina.isTemMais());
+        assertEquals(LocalDateTime.of(2026, 5, 10, 12, 0), jogos.get(0).getDataHora());
+        assertEquals("Areiao", jogos.get(0).getNomeMeuTime());
+        assertEquals(3, jogos.get(0).getGolsMeuTime());
+        assertEquals(2, jogos.get(0).getGolsAdversario());
+        assertEquals("Mocidade", jogos.get(0).getNomeAdversario());
+        assertEquals(4, jogos.get(1).getGolsMeuTime());
+        assertEquals(1, jogos.get(1).getGolsAdversario());
+        assertEquals("Unidos", jogos.get(1).getNomeAdversario());
+        verify(partidaRepository).buscarJogosComPlacarConfirmado(10L, primeiraPagina);
+    }
+
+    @Test
+    void deveIndicarUltimaPaginaDoHistorico() {
+        Time meuTime = new Time();
+        meuTime.setId(10L);
+        meuTime.setNome("Areiao");
+
+        PageRequest segundaPagina = PageRequest.of(1, 10);
+        when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
+        when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
+        when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
+        when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
+        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, segundaPagina))
+                .thenReturn(new PageImpl<>(List.of(), segundaPagina, 10));
+
+        var pagina = timeService.buscarJogosRealizadosDoUsuarioAutenticado(1);
+
+        assertEquals(0, pagina.getJogos().size());
+        assertFalse(pagina.isTemMais());
+    }
+
+    @Test
+    void deveNormalizarNumeroDePaginaNegativo() {
+        Time meuTime = new Time();
+        meuTime.setId(10L);
+        meuTime.setNome("Areiao");
+
+        PageRequest primeiraPagina = PageRequest.of(0, 10);
+        when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
+        when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
+        when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
+        when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
+        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, primeiraPagina))
+                .thenReturn(new PageImpl<>(List.of(), primeiraPagina, 0));
+
+        timeService.buscarJogosRealizadosDoUsuarioAutenticado(-3);
+
+        verify(partidaRepository).buscarJogosComPlacarConfirmado(10L, primeiraPagina);
     }
 
     @Test

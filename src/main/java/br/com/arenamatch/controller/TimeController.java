@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import br.com.arenamatch.dto.TimeSimplesDTO;
 import br.com.arenamatch.service.TimeService;
@@ -37,5 +38,11 @@ public class TimeController {
     @GetMapping("/scout")
     public ResponseEntity<TimeDTO> buscarScout() {
         return ResponseEntity.ok(timeService.buscarScoutDoUsuarioAutenticado());
+    }
+
+    @GetMapping("/scout/jogos")
+    public ResponseEntity<PaginaJogosRealizadosDTO> buscarJogosRealizadosDoScout(
+            @RequestParam(defaultValue = "0") int pagina) {
+        return ResponseEntity.ok(timeService.buscarJogosRealizadosDoUsuarioAutenticado(pagina));
     }
 }

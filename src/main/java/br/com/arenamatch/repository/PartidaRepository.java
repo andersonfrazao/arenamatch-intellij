@@ -3,6 +3,8 @@ package br.com.arenamatch.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -122,6 +124,15 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             ORDER BY p.dataHora ASC
         """)
     List<Partida> buscarJogosRealizadosComPlacarPendente(@Param("timeId") Long timeId);
+
+    @Query("""
+            SELECT p FROM Partida p
+            WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
+            AND p.statusPlacar = 'CONFIRMADO'
+            AND p.dataHora < CURRENT_TIMESTAMP
+            ORDER BY p.dataHora DESC, p.id DESC
+        """)
+    Page<Partida> buscarJogosComPlacarConfirmado(@Param("timeId") Long timeId, Pageable pageable);
 
     @Query("""
             SELECT p FROM Partida p

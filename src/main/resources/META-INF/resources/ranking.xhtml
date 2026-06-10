@@ -80,9 +80,101 @@
                 border: 1px solid rgba(250, 204, 21, 0.25);
                 background: rgba(250, 204, 21, 0.06);
             }
+            .scout-content {
+                padding-bottom: 1rem;
+            }
+            .scout-resumo-card {
+                margin: 1rem;
+                overflow: hidden;
+                border: 1px solid rgba(56, 189, 248, 0.22);
+                border-radius: 14px;
+                background: rgba(15, 23, 42, 0.55);
+                box-shadow: 0 10px 28px rgba(2, 6, 23, 0.2);
+            }
+            .scout-resumo-card .table-wrapper {
+                padding-bottom: 0;
+            }
+            .scout-jogos {
+                margin: 1.25rem 1rem 0;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .scout-jogos-list {
+                display: flex;
+                flex-direction: column;
+                gap: .4rem;
+            }
+            .scout-jogo-row {
+                display: flex;
+                align-items: center;
+                gap: .65rem;
+                padding: .7rem .8rem;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.025);
+            }
+            .scout-jogo-resultado {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: .4rem;
+                min-width: 0;
+            }
+            .scout-jogo-data {
+                color: #bae6fd;
+                font-size: .82rem;
+                font-weight: 900;
+                white-space: nowrap;
+            }
+            .scout-jogo-hora {
+                color: rgba(255, 255, 255, 0.72);
+                font-size: .82rem;
+                font-weight: 800;
+                white-space: nowrap;
+            }
+            .scout-jogo-time {
+                color: #fff;
+                font-weight: 800;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .scout-jogo-placar {
+                color: #fff;
+                font-size: 1rem;
+                font-weight: 900;
+                white-space: nowrap;
+            }
+            .scout-jogos-empty {
+                padding: 1rem;
+                color: #94a3b8;
+                text-align: center;
+                border: 1px dashed rgba(148, 163, 184, .25);
+                border-radius: 10px;
+            }
+            .scout-carregar-mais {
+                display: flex;
+                justify-content: flex-start;
+                margin-top: .8rem;
+            }
             @media (max-width: 520px) {
                 .desempenho-tabs { padding: .6rem; }
                 .desempenho-tab { flex: 1; padding: .7rem .45rem; font-size: .82rem; }
+                .scout-resumo-card { margin: .65rem; }
+                .scout-jogos { margin: 0 .65rem; }
+                .scout-jogo-row {
+                    align-items: flex-start;
+                    flex-wrap: wrap;
+                    gap: .35rem;
+                    padding: .6rem .5rem;
+                }
+                .scout-jogo-resultado {
+                    flex-basis: 100%;
+                    flex-wrap: wrap;
+                }
+                .scout-jogo-data, .scout-jogo-hora { font-size: .7rem; }
+                .scout-jogo-time { font-size: .76rem; white-space: normal; overflow-wrap: anywhere; }
+                .scout-jogo-placar { font-size: .84rem; }
             }
         </style>
 
@@ -140,7 +232,9 @@
                 </p:dataTable>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{rankingBean.scoutAtivo and sessaoBean.acessoCompleto}" layout="block" styleClass="table-wrapper">
+            <h:panelGroup rendered="#{rankingBean.scoutAtivo and sessaoBean.acessoCompleto}" layout="block" styleClass="scout-content">
+                <div class="scout-resumo-card">
+                <div class="table-wrapper">
                 <p:dataTable value="#{rankingBean.scoutTabela}" var="t"
                              styleClass="tabela-ranking"
                              rowStyleClass="text-white"
@@ -156,10 +250,55 @@
                     </p:column>
                     <p:column headerText="J" width="55" styleClass="text-center text-gray-300">#{t.partidasJogadas}</p:column>
                     <p:column headerText="V" width="55" styleClass="text-center text-green-400 font-bold text-lg col-vitorias">#{t.vitorias}</p:column>
+                    <p:column headerText="E" width="55" styleClass="text-center text-gray-300">#{t.empates}</p:column>
                     <p:column headerText="D" width="55" styleClass="text-center text-red-400">#{t.derrotas}</p:column>
                     <p:column headerText="GP" width="55" styleClass="text-center text-gray-300">#{t.golsPro}</p:column>
                     <p:column headerText="GS" width="55" styleClass="text-center text-gray-400">#{t.golsContra}</p:column>
+                    <p:column headerText="SG" width="55" styleClass="text-center font-bold text-white">#{t.saldoGols}</p:column>
                 </p:dataTable>
+                </div>
+                </div>
+
+                <h:form id="formJogosScout">
+                <section class="scout-jogos">
+                    <div class="text-white font-bold mb-3">Jogos realizados</div>
+
+                    <h:panelGroup rendered="#{empty rankingBean.jogosRealizados}">
+                        <div class="scout-jogos-empty">Nenhum jogo com placar confirmado.</div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{not empty rankingBean.jogosRealizados}" layout="block" styleClass="scout-jogos-list">
+                        <ui:repeat value="#{rankingBean.jogosRealizados}" var="jogo">
+                            <div class="scout-jogo-row">
+                                <span class="scout-jogo-data">
+                                    <h:outputText value="#{jogo.dataHora}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
+                                    </h:outputText>
+                                </span>
+                                <span class="scout-jogo-hora">
+                                    <h:outputText value="#{jogo.dataHora}">
+                                        <f:convertDateTime pattern="HH:mm" type="localDateTime"/>
+                                    </h:outputText>
+                                </span>
+                                <span class="scout-jogo-resultado">
+                                    <span class="scout-jogo-time">#{jogo.nomeMeuTime}</span>
+                                    <span class="scout-jogo-placar">#{jogo.golsMeuTime} x #{jogo.golsAdversario}</span>
+                                    <span class="scout-jogo-time">#{jogo.nomeAdversario}</span>
+                                </span>
+                            </div>
+                        </ui:repeat>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{rankingBean.temMaisJogos}" layout="block" styleClass="scout-carregar-mais">
+                        <p:commandButton value="Carregar mais"
+                                         icon="fas fa-chevron-down"
+                                         action="#{rankingBean.carregarMaisJogos}"
+                                         process="@this"
+                                         update="@form"
+                                         styleClass="ui-button-outlined ui-button-sm rounded-btn"/>
+                    </h:panelGroup>
+                </section>
+                </h:form>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block" styleClass="scout-bloqueado">

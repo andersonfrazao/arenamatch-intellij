@@ -1,9 +1,11 @@
 package br.com.arenamatch.jsf.beans;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.arenamatch.jsf.client.TimeClient;
+import br.com.arenamatch.dto.JogoRealizadoDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.view.ViewScoped;
@@ -18,6 +20,9 @@ public class RankingBean implements Serializable {
     @Inject private SessaoBean sessaoBean;
     @Getter private List<TimeDTO> ranking;
     @Getter private TimeDTO scout;
+    @Getter private List<JogoRealizadoDTO> jogosRealizados = new ArrayList<>();
+    @Getter private boolean temMaisJogos;
+    private int paginaJogos;
     @Getter private String abaAtiva = "ranking";
 
     @PostConstruct
@@ -57,6 +62,24 @@ public class RankingBean implements Serializable {
 
     private void carregarScout() {
         this.scout = timeClient.buscarMeuScout();
+        this.paginaJogos = 0;
+        this.jogosRealizados = new ArrayList<>();
+        carregarPaginaDeJogos();
+    }
+
+    public void carregarMaisJogos() {
+        if (!temMaisJogos) {
+            return;
+        }
+
+        paginaJogos++;
+        carregarPaginaDeJogos();
+    }
+
+    private void carregarPaginaDeJogos() {
+        var resultado = timeClient.buscarJogosRealizadosDoScout(paginaJogos);
+        this.jogosRealizados.addAll(resultado.getJogos());
+        this.temMaisJogos = resultado.isTemMais();
     }
 
     private void carregarRanking() {

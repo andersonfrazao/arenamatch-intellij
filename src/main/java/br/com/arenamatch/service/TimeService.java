@@ -5,22 +5,30 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.arenamatch.dto.JogoRealizadoDTO;
+import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import br.com.arenamatch.dto.TimeResumoDTO;
 import br.com.arenamatch.dto.TimeSimplesDTO;
+import br.com.arenamatch.entity.Partida;
+import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.Perfil;
+import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import br.com.arenamatch.repository.UsuarioRepository;
 
 @Service
 public class TimeService {
-	
+
+    private static final int TAMANHO_PAGINA_JOGOS = 10;
+
     @Autowired
     private TimeRepository timeRepository;
 
@@ -29,6 +37,9 @@ public class TimeService {
 
     @Autowired
     private AssinaturaService assinaturaService;
+
+    @Autowired
+    private PartidaRepository partidaRepository;
 
     public Optional<TimeResumoDTO> buscarResumoPorResponsavel(Long idResponsavel) {
         return timeRepository.findByResponsavelId(idResponsavel)
@@ -62,6 +73,24 @@ public class TimeService {
                 .map(this::converterParaDTO)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Time do usuario nao encontrado."));
+    }
+
+    public PaginaJogosRealizadosDTO buscarJogosRealizadosDoUsuarioAutenticado(int pagina) {
+        var usuario = buscarUsuarioAutenticadoComAcessoDesempenho();
+        Time meuTime = timeRepository.findByResponsavel(usuario)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Time do usuario nao encontrado."));
+
+        int paginaNormalizada = Math.max(pagina, 0);
+        var resultado = partidaRepository.buscarJogosComPlacarConfirmado(
+                meuTime.getId(),
+                PageRequest.of(paginaNormalizada, TAMANHO_PAGINA_JOGOS));
+
+        List<JogoRealizadoDTO> jogos = resultado.getContent().stream()
+                .map(partida -> converterParaJogoRealizado(partida, meuTime))
+                .toList();
+
+        return new PaginaJogosRealizadosDTO(jogos, resultado.hasNext());
     }
 
     private Usuario buscarUsuarioAutenticadoComAcessoDesempenho() {
@@ -107,6 +136,19 @@ public class TimeService {
         dto.setGolsPro(time.getGolsPro());
         dto.setGolsContra(time.getGolsContra());
         
+        return dto;
+    }
+
+    private JogoRealizadoDTO converterParaJogoRealizado(Partida partida, Time meuTime) {
+        boolean souMandante = partida.getMandante().getId().equals(meuTime.getId());
+        Time adversario = souMandante ? partida.getVisitante() : partida.getMandante();
+
+        JogoRealizadoDTO dto = new JogoRealizadoDTO();
+        dto.setDataHora(partida.getDataHora());
+        dto.setNomeMeuTime(meuTime.getNome());
+        dto.setGolsMeuTime(souMandante ? partida.getGolsMandante() : partida.getGolsVisitante());
+        dto.setGolsAdversario(souMandante ? partida.getGolsVisitante() : partida.getGolsMandante());
+        dto.setNomeAdversario(adversario.getNome());
         return dto;
     }
 

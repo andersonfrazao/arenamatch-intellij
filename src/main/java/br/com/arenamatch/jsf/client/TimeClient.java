@@ -1,5 +1,6 @@
 package br.com.arenamatch.jsf.client;
 
+import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,5 +29,19 @@ public class TimeClient {
                 .uri("/api/times/scout")
                 .retrieve()
                 .body(TimeDTO.class);
+    }
+
+    public PaginaJogosRealizadosDTO buscarJogosRealizadosDoScout(int pagina) {
+        PaginaJogosRealizadosDTO resultado = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/times/scout/jogos")
+                        .queryParam("pagina", pagina)
+                        .build())
+                .retrieve()
+                .body(PaginaJogosRealizadosDTO.class);
+
+        return resultado != null
+                ? resultado
+                : new PaginaJogosRealizadosDTO(List.of(), false);
     }
 }
