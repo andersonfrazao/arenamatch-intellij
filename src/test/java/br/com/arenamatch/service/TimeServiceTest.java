@@ -318,8 +318,6 @@ class TimeServiceTest {
         when(timeRepository.findById(20L)).thenReturn(Optional.of(adversario));
         when(distanciaService.calcularDistancia(-23.5, -46.6, -23.6, -46.7)).thenReturn(12.4);
         when(partidaRepository.buscarResumoConfrontos(10L, List.of(20L))).thenReturn(List.of(resumo));
-        when(partidaRepository.buscarConfrontosConfirmados(10L, 20L, cincoPrimeiros))
-                .thenReturn(new PageImpl<>(List.of(confronto)));
         when(partidaRepository.buscarJogosComPlacarConfirmado(20L, cincoPrimeiros))
                 .thenReturn(new PageImpl<>(List.of(confronto)));
         when(timeRepository.buscarRankingGeral()).thenReturn(List.of(meuTime, adversario));
@@ -332,8 +330,6 @@ class TimeServiceTest {
         assertEquals(3L, detalhes.getConfronto().getJogos());
         assertEquals(1L, detalhes.getConfronto().getVitorias());
         assertEquals(6L, detalhes.getConfronto().getGolsMeuTime());
-        assertEquals(1, detalhes.getConfrontosRecentes().size());
-        assertEquals("Rival FC", detalhes.getConfrontosRecentes().get(0).getNomeMandante());
         assertEquals(1, detalhes.getResultadosRecentes().get(0).getGolsMeuTime());
         assertEquals(3, detalhes.getResultadosRecentes().get(0).getGolsAdversario());
     }

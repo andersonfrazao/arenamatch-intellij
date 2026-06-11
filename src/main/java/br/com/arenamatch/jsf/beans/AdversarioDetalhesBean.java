@@ -126,7 +126,7 @@ public class AdversarioDetalhesBean implements Serializable {
     public String getPosicaoRankingTexto() {
         return adversario == null || adversario.getPosicaoRanking() == null
                 ? "-"
-                : adversario.getPosicaoRanking() + "º";
+                : adversario.getPosicaoRanking() + "\u00BA";
     }
 
     private br.com.arenamatch.enums.Categoria getCategoriaDesafio() {

@@ -1,6 +1,5 @@
 package br.com.arenamatch.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import br.com.arenamatch.enums.Categoria;
@@ -18,7 +17,6 @@ public class AdversarioDetalhesDTO {
     private boolean mandoCampo;
     private Double distanciaKm;
     private Integer posicaoRanking;
-    private Integer pontos;
     private Integer partidasJogadas;
     private Integer vitorias;
     private Integer empates;
@@ -26,8 +24,7 @@ public class AdversarioDetalhesDTO {
     private Integer golsPro;
     private Integer golsContra;
     private ConfrontoResumoDTO confronto = new ConfrontoResumoDTO(0L, 0L, 0L, 0L, 0L, 0L);
-    private List<ConfrontoJogoDTO> confrontosRecentes = new ArrayList<>();
-    private List<JogoRealizadoDTO> resultadosRecentes = new ArrayList<>();
+    private List<JogoRealizadoDTO> resultadosRecentes = List.of();
 
     public Integer getSaldoGols() {
         return (golsPro != null ? golsPro : 0) - (golsContra != null ? golsContra : 0);

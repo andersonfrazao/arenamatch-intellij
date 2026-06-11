@@ -13,7 +13,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.arenamatch.dto.JogoRealizadoDTO;
 import br.com.arenamatch.dto.AdversarioDetalhesDTO;
-import br.com.arenamatch.dto.ConfrontoJogoDTO;
 import br.com.arenamatch.dto.ConfrontoResumoDTO;
 import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
 import br.com.arenamatch.dto.TimeDTO;
@@ -120,12 +119,6 @@ public class TimeService {
         AdversarioDetalhesDTO dto = converterParaDetalhes(adversario, meuTime);
         dto.setConfronto(buscarResumoConfronto(meuTime.getId(), adversario.getId()));
 
-        var confrontos = partidaRepository.buscarConfrontosConfirmados(
-                meuTime.getId(), adversario.getId(), PageRequest.of(0, 5));
-        dto.setConfrontosRecentes(confrontos.getContent().stream()
-                .map(this::converterParaConfronto)
-                .toList());
-
         var recentes = partidaRepository.buscarJogosComPlacarConfirmado(
                 adversario.getId(), PageRequest.of(0, 5));
         dto.setResultadosRecentes(recentes.getContent().stream()
@@ -201,7 +194,6 @@ public class TimeService {
         dto.setDistanciaKm(distanciaService.calcularDistancia(
                 meuTime.getLatitude(), meuTime.getLongitude(),
                 adversario.getLatitude(), adversario.getLongitude()));
-        dto.setPontos(adversario.getPontos());
         dto.setPartidasJogadas(adversario.getPartidasJogadas());
         dto.setVitorias(adversario.getVitorias());
         dto.setEmpates(adversario.getEmpates());
@@ -222,18 +214,6 @@ public class TimeService {
                         numeroLong(tuple.get("golsMeuTime")),
                         numeroLong(tuple.get("golsAdversario"))))
                 .orElseGet(() -> new ConfrontoResumoDTO(0L, 0L, 0L, 0L, 0L, 0L));
-    }
-
-    private ConfrontoJogoDTO converterParaConfronto(Partida partida) {
-        ConfrontoJogoDTO dto = new ConfrontoJogoDTO();
-        dto.setDataHora(partida.getDataHora());
-        dto.setNomeMandante(partida.getMandante().getNome());
-        dto.setEscudoMandante(partida.getMandante().getEscudo());
-        dto.setGolsMandante(partida.getGolsMandante());
-        dto.setGolsVisitante(partida.getGolsVisitante());
-        dto.setNomeVisitante(partida.getVisitante().getNome());
-        dto.setEscudoVisitante(partida.getVisitante().getEscudo());
-        return dto;
     }
 
     private Long numeroLong(Object valor) {

@@ -177,18 +177,6 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
 
     @Query("""
             SELECT p FROM Partida p
-            WHERE ((p.mandante.id = :meuTimeId AND p.visitante.id = :adversarioId)
-                OR (p.mandante.id = :adversarioId AND p.visitante.id = :meuTimeId))
-            AND p.statusPlacar = 'CONFIRMADO'
-            ORDER BY p.dataHora DESC, p.id DESC
-            """)
-    Page<Partida> buscarConfrontosConfirmados(
-            @Param("meuTimeId") Long meuTimeId,
-            @Param("adversarioId") Long adversarioId,
-            Pageable pageable);
-
-    @Query("""
-            SELECT p FROM Partida p
             WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
             AND p.status = 'AGENDADO'
             AND p.statusPlacar = 'AGUARDANDO_CONFIRMACAO'
