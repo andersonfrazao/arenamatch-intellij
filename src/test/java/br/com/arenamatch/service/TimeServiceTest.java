@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,9 +31,12 @@ import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
+import br.com.arenamatch.enums.StatusPlacar;
+import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import br.com.arenamatch.repository.UsuarioRepository;
+import jakarta.persistence.Tuple;
 
 @ExtendWith(MockitoExtension.class)
 class TimeServiceTest {
@@ -48,6 +52,9 @@ class TimeServiceTest {
 
     @Mock
     private PartidaRepository partidaRepository;
+
+    @Mock
+    private DistanciaService distanciaService;
 
     @InjectMocks
     private TimeService timeService;
@@ -267,5 +274,118 @@ class TimeServiceTest {
         when(timeRepository.buscarRankingGeral()).thenReturn(List.of());
 
         assertEquals(0, timeService.buscarRankingGeral().size());
+    }
+
+    @Test
+    void deveMontarDetalhesDoAdversarioNaPerspectivaDoTimeAutenticado() {
+        Time meuTime = criarTime(10L, "Arena FC");
+        meuTime.setLatitude(-23.5);
+        meuTime.setLongitude(-46.6);
+
+        Time adversario = criarTime(20L, "Rival FC");
+        adversario.setResponsavel(criarResponsavelAtivo());
+        adversario.setLatitude(-23.6);
+        adversario.setLongitude(-46.7);
+        adversario.setPartidasJogadas(9);
+        adversario.setVitorias(5);
+        adversario.setEmpates(2);
+        adversario.setDerrotas(2);
+        adversario.setGolsPro(18);
+        adversario.setGolsContra(10);
+
+        Partida confronto = new Partida();
+        confronto.setId(100L);
+        confronto.setDataHora(LocalDateTime.of(2026, 5, 10, 15, 0));
+        confronto.setMandante(adversario);
+        confronto.setVisitante(meuTime);
+        confronto.setGolsMandante(1);
+        confronto.setGolsVisitante(3);
+        confronto.setStatusPlacar(StatusPlacar.CONFIRMADO);
+
+        Tuple resumo = mock(Tuple.class);
+        when(resumo.get("jogos")).thenReturn(3L);
+        when(resumo.get("vitorias")).thenReturn(1L);
+        when(resumo.get("empates")).thenReturn(1L);
+        when(resumo.get("derrotas")).thenReturn(1L);
+        when(resumo.get("golsMeuTime")).thenReturn(6L);
+        when(resumo.get("golsAdversario")).thenReturn(5L);
+
+        PageRequest cincoPrimeiros = PageRequest.of(0, 5);
+        when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
+        when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
+        when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
+        when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
+        when(timeRepository.findById(20L)).thenReturn(Optional.of(adversario));
+        when(distanciaService.calcularDistancia(-23.5, -46.6, -23.6, -46.7)).thenReturn(12.4);
+        when(partidaRepository.buscarResumoConfrontos(10L, List.of(20L))).thenReturn(List.of(resumo));
+        when(partidaRepository.buscarConfrontosConfirmados(10L, 20L, cincoPrimeiros))
+                .thenReturn(new PageImpl<>(List.of(confronto)));
+        when(partidaRepository.buscarJogosComPlacarConfirmado(20L, cincoPrimeiros))
+                .thenReturn(new PageImpl<>(List.of(confronto)));
+        when(timeRepository.buscarRankingGeral()).thenReturn(List.of(meuTime, adversario));
+
+        var detalhes = timeService.buscarDetalhesAdversario(20L);
+
+        assertEquals("Rival FC", detalhes.getNome());
+        assertEquals(12.4, detalhes.getDistanciaKm());
+        assertEquals(2, detalhes.getPosicaoRanking());
+        assertEquals(3L, detalhes.getConfronto().getJogos());
+        assertEquals(1L, detalhes.getConfronto().getVitorias());
+        assertEquals(6L, detalhes.getConfronto().getGolsMeuTime());
+        assertEquals(1, detalhes.getConfrontosRecentes().size());
+        assertEquals("Rival FC", detalhes.getConfrontosRecentes().get(0).getNomeMandante());
+        assertEquals(1, detalhes.getResultadosRecentes().get(0).getGolsMeuTime());
+        assertEquals(3, detalhes.getResultadosRecentes().get(0).getGolsAdversario());
+    }
+
+    @Test
+    void deveRejeitarConsultaDoProprioTimeComoAdversario() {
+        Time meuTime = criarTime(10L, "Arena FC");
+
+        when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
+        when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
+        when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
+        when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
+        when(timeRepository.findById(10L)).thenReturn(Optional.of(meuTime));
+
+        ResponseStatusException erro = assertThrows(
+                ResponseStatusException.class,
+                () -> timeService.buscarDetalhesAdversario(10L));
+
+        assertEquals(400, erro.getStatusCode().value());
+    }
+
+    @Test
+    void deveOcultarAdversarioInativo() {
+        Time meuTime = criarTime(10L, "Arena FC");
+        Time adversario = criarTime(20L, "Rival FC");
+        Usuario responsavel = criarResponsavelAtivo();
+        responsavel.setStatusUsuario(StatusUsuario.INATIVO);
+        adversario.setResponsavel(responsavel);
+
+        when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
+        when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
+        when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
+        when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
+        when(timeRepository.findById(20L)).thenReturn(Optional.of(adversario));
+
+        ResponseStatusException erro = assertThrows(
+                ResponseStatusException.class,
+                () -> timeService.buscarDetalhesAdversario(20L));
+
+        assertEquals(404, erro.getStatusCode().value());
+    }
+
+    private Time criarTime(Long id, String nome) {
+        Time time = new Time();
+        time.setId(id);
+        time.setNome(nome);
+        return time;
+    }
+
+    private Usuario criarResponsavelAtivo() {
+        Usuario responsavel = new Usuario();
+        responsavel.setStatusUsuario(StatusUsuario.ATIVO);
+        return responsavel;
     }
 }

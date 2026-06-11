@@ -1,6 +1,7 @@
 package br.com.arenamatch.jsf.client;
 
 import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
+import br.com.arenamatch.dto.AdversarioDetalhesDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,5 +44,12 @@ public class TimeClient {
         return resultado != null
                 ? resultado
                 : new PaginaJogosRealizadosDTO(List.of(), false);
+    }
+
+    public AdversarioDetalhesDTO buscarDetalhesAdversario(Long idAdversario) {
+        return restClient.get()
+                .uri("/api/times/{id}/adversario-detalhes", idAdversario)
+                .retrieve()
+                .body(AdversarioDetalhesDTO.class);
     }
 }

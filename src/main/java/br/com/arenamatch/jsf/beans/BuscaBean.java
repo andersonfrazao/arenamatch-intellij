@@ -159,6 +159,25 @@ public class BuscaBean implements Serializable {
         return Categoria.values();
     }
 
+    public String getDataJogoParametro() {
+        return filtro.getDataJogo() != null ? filtro.getDataJogo().toString() : null;
+    }
+
+    public String getDataParametro() {
+        return getDataJogoParametro();
+    }
+
+    public void setDataParametro(String data) {
+        if (data == null || data.isBlank()) {
+            return;
+        }
+        try {
+            filtro.setDataJogo(java.time.LocalDate.parse(data));
+        } catch (java.time.format.DateTimeParseException e) {
+            filtro.setDataJogo(null);
+        }
+    }
+
     private void carregarResultados(Long meuId) {
         this.resultados = buscaClient.filtrarTimes(filtro, meuId);
     }

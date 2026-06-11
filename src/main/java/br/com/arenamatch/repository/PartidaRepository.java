@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.StatusPartida;
+import jakarta.persistence.Tuple;
 
 @Repository
 public interface PartidaRepository extends JpaRepository<Partida, Long> {
@@ -133,6 +134,58 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             ORDER BY p.dataHora DESC, p.id DESC
         """)
     Page<Partida> buscarJogosComPlacarConfirmado(@Param("timeId") Long timeId, Pageable pageable);
+
+    @Query(value = """
+            SELECT
+                confronto.adversario_id AS adversarioId,
+                COUNT(*) AS jogos,
+                SUM(CASE
+                    WHEN confronto.gols_meu_time > confronto.gols_adversario
+                    THEN 1 ELSE 0 END) AS vitorias,
+                SUM(CASE
+                    WHEN confronto.gols_meu_time = confronto.gols_adversario
+                    THEN 1 ELSE 0 END) AS empates,
+                SUM(CASE
+                    WHEN confronto.gols_meu_time < confronto.gols_adversario
+                    THEN 1 ELSE 0 END) AS derrotas,
+                SUM(confronto.gols_meu_time) AS golsMeuTime,
+                SUM(confronto.gols_adversario) AS golsAdversario
+            FROM (
+                SELECT
+                    CASE
+                        WHEN p.id_mandante = :meuTimeId THEN p.id_visitante
+                        ELSE p.id_mandante
+                    END AS adversario_id,
+                    CASE
+                        WHEN p.id_mandante = :meuTimeId THEN p.gols_mandante
+                        ELSE p.gols_visitante
+                    END AS gols_meu_time,
+                    CASE
+                        WHEN p.id_mandante = :meuTimeId THEN p.gols_visitante
+                        ELSE p.gols_mandante
+                    END AS gols_adversario
+                FROM partida p
+                WHERE p.status_placar = 'CONFIRMADO'
+                  AND ((p.id_mandante = :meuTimeId AND p.id_visitante IN (:adversariosIds))
+                    OR (p.id_visitante = :meuTimeId AND p.id_mandante IN (:adversariosIds)))
+            ) confronto
+            GROUP BY confronto.adversario_id
+            """, nativeQuery = true)
+    List<Tuple> buscarResumoConfrontos(
+            @Param("meuTimeId") Long meuTimeId,
+            @Param("adversariosIds") List<Long> adversariosIds);
+
+    @Query("""
+            SELECT p FROM Partida p
+            WHERE ((p.mandante.id = :meuTimeId AND p.visitante.id = :adversarioId)
+                OR (p.mandante.id = :adversarioId AND p.visitante.id = :meuTimeId))
+            AND p.statusPlacar = 'CONFIRMADO'
+            ORDER BY p.dataHora DESC, p.id DESC
+            """)
+    Page<Partida> buscarConfrontosConfirmados(
+            @Param("meuTimeId") Long meuTimeId,
+            @Param("adversarioId") Long adversarioId,
+            Pageable pageable);
 
     @Query("""
             SELECT p FROM Partida p

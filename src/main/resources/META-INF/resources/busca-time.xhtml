@@ -5,6 +5,10 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/WEB-INF/template/layout.xhtml">
 
+    <f:metadata>
+        <f:viewParam name="data" value="#{buscaBean.dataParametro}"/>
+    </f:metadata>
+
     <ui:define name="conteudo">
         
         <h:form id="formBusca">
@@ -139,9 +143,33 @@
                                             <span class="text-gray-500 text-xs font-bold">A combinar / Grátis</span>
                                         </h:panelGroup>
                                     </div>
+
+                                    <div class="col-12 mt-2 pt-2 border-top-1 border-white-alpha-10 text-xs">
+                                        <h:panelGroup rendered="#{time.historicoDisponivel}">
+                                            <i class="fas fa-clock-rotate-left text-blue-400 mr-1"></i>
+                                            <span class="text-gray-400">Histórico:</span>
+                                            <h:panelGroup rendered="#{time.historicoJogos gt 0}">
+                                                <strong class="text-white">#{time.historicoJogos} jogos · #{time.historicoVitorias}V · #{time.historicoEmpates}E · #{time.historicoDerrotas}D</strong>
+                                            </h:panelGroup>
+                                            <h:panelGroup rendered="#{time.historicoJogos eq 0}">
+                                                <strong class="text-gray-300">nenhum confronto</strong>
+                                            </h:panelGroup>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{not time.historicoDisponivel}">
+                                            <i class="fas fa-lock text-yellow-400 mr-1"></i>
+                                            <span class="text-yellow-300 font-bold">Histórico disponível no PRO</span>
+                                        </h:panelGroup>
+                                    </div>
                                 </div>
 
                                 <div class="p-3 bg-black-alpha-10">
+                                    <p:button value="Detalhes Adversário" icon="fas fa-chart-line"
+                                              outcome="/adversario-detalhes"
+                                              styleClass="w-full ui-button-secondary ui-button-outlined rounded-btn font-bold text-sm mb-2">
+                                        <f:param name="id" value="#{time.id}"/>
+                                        <f:param name="data" value="#{buscaBean.dataJogoParametro}"/>
+                                        <f:param name="categoria" value="#{time.categoria}"/>
+                                    </p:button>
                                     
                                     <h:panelGroup rendered="#{not time.convitePendente}">
                                         <p:commandButton value="Desafiar" icon="fas fa-bolt" 

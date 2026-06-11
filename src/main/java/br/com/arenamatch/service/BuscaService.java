@@ -3,7 +3,9 @@ package br.com.arenamatch.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.Tuple;
@@ -30,6 +32,7 @@ public class BuscaService {
     @Autowired private DistanciaService distanciaService;
     @Autowired private ParametroSistemaService parametroSistemaService;
     @Autowired private PlacarPendenteService placarPendenteService;
+    @Autowired private AssinaturaService assinaturaService;
 
     public List<TimeResumoDTO> buscar(FiltroBuscaDTO filtro) {
         return new ArrayList<>(); 
@@ -79,7 +82,7 @@ public class BuscaService {
                     categoria != null ? categoria.name() : null
             );
 
-            return resultados.stream().map(t -> {
+            List<TimeResumoDTO> times = resultados.stream().map(t -> {
                 java.math.BigDecimal taxaBd = t.get("taxa", java.math.BigDecimal.class);
                 double valorTaxa = (taxaBd != null) ? taxaBd.doubleValue() : 0.0;
                 
@@ -142,11 +145,45 @@ public class BuscaService {
                 }
                 return dto;
             }).collect(Collectors.toList());
+
+            enriquecerHistoricoConfrontos(meuTime, times);
+            return times;
             
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Erro ao buscar times disponíveis: " + e.getMessage());
         }
+    }
+
+    private void enriquecerHistoricoConfrontos(Time meuTime, List<TimeResumoDTO> times) {
+        if (times.isEmpty() || meuTime.getResponsavel() == null
+                || !assinaturaService.temAcessoCompleto(meuTime.getResponsavel())) {
+            return;
+        }
+
+        times.forEach(time -> time.setHistoricoDisponivel(true));
+        List<Long> adversariosIds = times.stream().map(TimeResumoDTO::getId).toList();
+        Map<Long, Tuple> historicosPorAdversario = new HashMap<>();
+
+        partidaRepo.buscarResumoConfrontos(meuTime.getId(), adversariosIds)
+                .forEach(tuple -> historicosPorAdversario.put(
+                        numeroLong(tuple.get("adversarioId")),
+                        tuple));
+
+        times.forEach(time -> {
+            Tuple historico = historicosPorAdversario.get(time.getId());
+            if (historico == null) {
+                return;
+            }
+            time.setHistoricoJogos(numeroLong(historico.get("jogos")));
+            time.setHistoricoVitorias(numeroLong(historico.get("vitorias")));
+            time.setHistoricoEmpates(numeroLong(historico.get("empates")));
+            time.setHistoricoDerrotas(numeroLong(historico.get("derrotas")));
+        });
+    }
+
+    private Long numeroLong(Object valor) {
+        return valor instanceof Number numero ? numero.longValue() : 0L;
     }
 
     private String traduzirDia(DayOfWeek dia) {

@@ -5,11 +5,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
+import br.com.arenamatch.dto.AdversarioDetalhesDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import br.com.arenamatch.dto.TimeSimplesDTO;
 import br.com.arenamatch.service.TimeService;
@@ -44,5 +46,10 @@ public class TimeController {
     public ResponseEntity<PaginaJogosRealizadosDTO> buscarJogosRealizadosDoScout(
             @RequestParam(defaultValue = "0") int pagina) {
         return ResponseEntity.ok(timeService.buscarJogosRealizadosDoUsuarioAutenticado(pagina));
+    }
+
+    @GetMapping("/{id}/adversario-detalhes")
+    public ResponseEntity<AdversarioDetalhesDTO> buscarDetalhesAdversario(@PathVariable Long id) {
+        return ResponseEntity.ok(timeService.buscarDetalhesAdversario(id));
     }
 }

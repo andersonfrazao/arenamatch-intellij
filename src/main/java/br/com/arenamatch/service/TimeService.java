@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.arenamatch.dto.JogoRealizadoDTO;
+import br.com.arenamatch.dto.AdversarioDetalhesDTO;
+import br.com.arenamatch.dto.ConfrontoJogoDTO;
+import br.com.arenamatch.dto.ConfrontoResumoDTO;
 import br.com.arenamatch.dto.PaginaJogosRealizadosDTO;
 import br.com.arenamatch.dto.TimeDTO;
 import br.com.arenamatch.dto.TimeResumoDTO;
@@ -20,6 +23,7 @@ import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.Perfil;
+import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import br.com.arenamatch.repository.UsuarioRepository;
@@ -40,6 +44,9 @@ public class TimeService {
 
     @Autowired
     private PartidaRepository partidaRepository;
+
+    @Autowired
+    private DistanciaService distanciaService;
 
     public Optional<TimeResumoDTO> buscarResumoPorResponsavel(Long idResponsavel) {
         return timeRepository.findByResponsavelId(idResponsavel)
@@ -93,6 +100,48 @@ public class TimeService {
         return new PaginaJogosRealizadosDTO(jogos, resultado.hasNext());
     }
 
+    public AdversarioDetalhesDTO buscarDetalhesAdversario(Long adversarioId) {
+        Usuario usuario = buscarUsuarioAutenticadoComAcessoDesempenho();
+        Time meuTime = timeRepository.findByResponsavel(usuario)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Time do usuario nao encontrado."));
+        Time adversario = timeRepository.findById(adversarioId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Adversario nao encontrado."));
+
+        if (meuTime.getId().equals(adversario.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O time informado nao e um adversario.");
+        }
+        if (adversario.getResponsavel() == null
+                || adversario.getResponsavel().getStatusUsuario() != StatusUsuario.ATIVO) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Adversario nao encontrado.");
+        }
+
+        AdversarioDetalhesDTO dto = converterParaDetalhes(adversario, meuTime);
+        dto.setConfronto(buscarResumoConfronto(meuTime.getId(), adversario.getId()));
+
+        var confrontos = partidaRepository.buscarConfrontosConfirmados(
+                meuTime.getId(), adversario.getId(), PageRequest.of(0, 5));
+        dto.setConfrontosRecentes(confrontos.getContent().stream()
+                .map(this::converterParaConfronto)
+                .toList());
+
+        var recentes = partidaRepository.buscarJogosComPlacarConfirmado(
+                adversario.getId(), PageRequest.of(0, 5));
+        dto.setResultadosRecentes(recentes.getContent().stream()
+                .map(partida -> converterParaJogoRealizado(partida, adversario))
+                .toList());
+
+        List<Time> ranking = timeRepository.buscarRankingGeral();
+        for (int indice = 0; indice < ranking.size(); indice++) {
+            if (ranking.get(indice).getId().equals(adversario.getId())) {
+                dto.setPosicaoRanking(indice + 1);
+                break;
+            }
+        }
+        return dto;
+    }
+
     private Usuario buscarUsuarioAutenticadoComAcessoDesempenho() {
         String email = SecurityContextHolder.getContext().getAuthentication() != null
                 ? String.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
@@ -137,6 +186,58 @@ public class TimeService {
         dto.setGolsContra(time.getGolsContra());
         
         return dto;
+    }
+
+    private AdversarioDetalhesDTO converterParaDetalhes(Time adversario, Time meuTime) {
+        AdversarioDetalhesDTO dto = new AdversarioDetalhesDTO();
+        dto.setId(adversario.getId());
+        dto.setNome(adversario.getNome());
+        dto.setEscudo(adversario.getEscudo());
+        dto.setCategoria(adversario.getCategoria());
+        dto.setCidade(adversario.getCidade());
+        dto.setUf(adversario.getUf());
+        dto.setRegiao(adversario.getRegiao());
+        dto.setMandoCampo(adversario.isMandoCampo());
+        dto.setDistanciaKm(distanciaService.calcularDistancia(
+                meuTime.getLatitude(), meuTime.getLongitude(),
+                adversario.getLatitude(), adversario.getLongitude()));
+        dto.setPontos(adversario.getPontos());
+        dto.setPartidasJogadas(adversario.getPartidasJogadas());
+        dto.setVitorias(adversario.getVitorias());
+        dto.setEmpates(adversario.getEmpates());
+        dto.setDerrotas(adversario.getDerrotas());
+        dto.setGolsPro(adversario.getGolsPro());
+        dto.setGolsContra(adversario.getGolsContra());
+        return dto;
+    }
+
+    private ConfrontoResumoDTO buscarResumoConfronto(Long meuTimeId, Long adversarioId) {
+        return partidaRepository.buscarResumoConfrontos(meuTimeId, List.of(adversarioId)).stream()
+                .findFirst()
+                .map(tuple -> new ConfrontoResumoDTO(
+                        numeroLong(tuple.get("jogos")),
+                        numeroLong(tuple.get("vitorias")),
+                        numeroLong(tuple.get("empates")),
+                        numeroLong(tuple.get("derrotas")),
+                        numeroLong(tuple.get("golsMeuTime")),
+                        numeroLong(tuple.get("golsAdversario"))))
+                .orElseGet(() -> new ConfrontoResumoDTO(0L, 0L, 0L, 0L, 0L, 0L));
+    }
+
+    private ConfrontoJogoDTO converterParaConfronto(Partida partida) {
+        ConfrontoJogoDTO dto = new ConfrontoJogoDTO();
+        dto.setDataHora(partida.getDataHora());
+        dto.setNomeMandante(partida.getMandante().getNome());
+        dto.setEscudoMandante(partida.getMandante().getEscudo());
+        dto.setGolsMandante(partida.getGolsMandante());
+        dto.setGolsVisitante(partida.getGolsVisitante());
+        dto.setNomeVisitante(partida.getVisitante().getNome());
+        dto.setEscudoVisitante(partida.getVisitante().getEscudo());
+        return dto;
+    }
+
+    private Long numeroLong(Object valor) {
+        return valor instanceof Number numero ? numero.longValue() : 0L;
     }
 
     private JogoRealizadoDTO converterParaJogoRealizado(Partida partida, Time meuTime) {

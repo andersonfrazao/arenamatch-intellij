@@ -25,6 +25,11 @@ public class TimeResumoDTO {
     private Categoria categoria;
     private Long idPartidaPendente;
     private boolean conviteRecebido;
+    private boolean historicoDisponivel;
+    private Long historicoJogos = 0L;
+    private Long historicoVitorias = 0L;
+    private Long historicoEmpates = 0L;
+    private Long historicoDerrotas = 0L;
     
     private List<DisponibilidadeDTO> disponibilidades = new ArrayList<>();
     
