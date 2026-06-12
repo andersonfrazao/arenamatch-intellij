@@ -69,7 +69,7 @@
             .day-card.hasInvite { border-color: rgba(255,204,0,0.35); background: rgba(255,204,0,0.05); }
             .day-card.hasCancelled { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); }
             .day-card.hasPlayed { border-color: rgba(59,130,246,0.38); background: rgba(59,130,246,0.08); }
-            .day-card.hasScorePending { border-color: rgba(248,113,113,0.55); background: rgba(248,113,113,0.12); box-shadow: 0 0 12px rgba(248,113,113,0.16); }
+            .day-card.hasScorePending { border-color: rgba(168,85,247,0.55); background: rgba(168,85,247,0.12); box-shadow: 0 0 12px rgba(168,85,247,0.18); }
             
             .dow { color: rgba(255,255,255,0.72); font-size:.85rem; }
             .dnum { font-weight: 900; font-size: 1.2rem; margin-top: 5px; }
@@ -80,7 +80,7 @@
             .dot.invite { background: #ffcc00; border-color: rgba(255,204,0,0.45); box-shadow: 0 0 5px #ffcc00; }
             .dot.cancelled { background: #ef4444; border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 5px #ef4444; }            
             .dot.played { background: #3b82f6; border-color: rgba(59,130,246,0.45); box-shadow: 0 0 5px #3b82f6; }
-            .dot.score-pending { background: #f87171; border-color: rgba(248,113,113,0.55); box-shadow: 0 0 6px #f87171; }
+            .dot.score-pending { background: #a855f7; border-color: rgba(168,85,247,0.60); box-shadow: 0 0 6px #a855f7; }
 
             .event-tags { display: flex; flex-direction: column; gap: .25rem; margin-top: .55rem; min-height: 22px; }
             .event-tag {
@@ -93,7 +93,7 @@
             .event-tag.liga { color: #d8b4fe; background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.30); }
             .event-tag.cancelled { color: #fecaca; background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.32); }
             .event-tag.played { color: #bfdbfe; background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.32); }
-            .event-tag.score-pending { color: #fecaca; background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.38); }
+            .event-tag.score-pending { color: #e9d5ff; background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.40); }
 
             .role-badge {
                 display: inline-flex; align-items: center; gap: .35rem; padding: .28rem .55rem; border-radius: 999px;
@@ -125,7 +125,7 @@
             }
             .item-lista.game-upcoming { border-color: rgba(37,211,102,0.26); background: rgba(37,211,102,0.05); }
             .item-lista.game-played { border-color: rgba(59,130,246,0.30); background: rgba(59,130,246,0.06); }
-            .item-lista.score-pending { border-color: rgba(248,113,113,0.45); background: rgba(248,113,113,0.09); }
+            .item-lista.score-pending { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.10); }
             .item-lista.score-waiting { border-color: rgba(234,179,8,0.38); background: rgba(234,179,8,0.08); }
             .item-lista.score-confirmed { border-color: rgba(45,212,191,0.34); background: rgba(45,212,191,0.07); }
             .item-lista.score-dispute { border-color: rgba(239,68,68,0.44); background: rgba(239,68,68,0.10); }
@@ -383,7 +383,7 @@
                                     #{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA' ? 'score-dispute' : ''}">
                             <div class="badge-icon">
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and not evento.passouDaHora}"><i class="fas fa-check text-xl" style="color: #25d366;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><i class="fas fa-clipboard-list text-xl" style="color: #f87171;"></i></h:panelGroup>
+                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><i class="fas fa-clipboard-list text-xl" style="color: #a855f7;"></i></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><i class="far fa-clock text-xl" style="color: #facc15;"></i></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}"><i class="fas fa-exclamation-triangle text-xl" style="color: #ef4444;"></i></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"><i class="fas fa-trophy text-xl" style="color: #2dd4bf;"></i></h:panelGroup>
