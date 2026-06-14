@@ -1,6 +1,7 @@
 package br.com.arenamatch.dto;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.Data;
 
@@ -18,4 +19,5 @@ public class NotificacaoDTO {
  private String nomeTimeVisitante;
  private Integer golsMandanteInformado;
  private Integer golsVisitanteInformado;
+ private LocalDate dataJogo;
 }

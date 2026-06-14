@@ -79,7 +79,7 @@ public class BuscaBean implements Serializable {
             }
         } catch (RestClientResponseException e) {
             this.resultados = new ArrayList<>();
-            msgErro(e.getResponseBodyAsString());
+            msgWarn(e.getResponseBodyAsString());
         } catch (Exception e) {
             msgErro("Erro ao buscar os times");
         }

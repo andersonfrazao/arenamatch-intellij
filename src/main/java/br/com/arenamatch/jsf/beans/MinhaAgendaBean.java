@@ -90,6 +90,11 @@ public class MinhaAgendaBean implements Serializable {
     public void init() {
         this.diasCalendario = new ArrayList<>();
         this.eventosDoDia = new ArrayList<>();
+
+        LocalDate dataSolicitada = buscarDataSolicitada();
+        if (dataSolicitada != null) {
+            this.dataBaseCalendario = dataSolicitada;
+        }
         
         if (sessaoBean.isLogado()) {
             try {
@@ -99,12 +104,40 @@ public class MinhaAgendaBean implements Serializable {
                 if (meuTime != null) {
                     this.meuTimeId = meuTime.getId();
                     carregarCalendario();
+                    if (dataSolicitada != null) {
+                        selecionarData(dataSolicitada);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 msgErro("Erro ao carregar agenda: " + e.getMessage());
             }
         }
+    }
+
+    private LocalDate buscarDataSolicitada() {
+        String data = FacesContext.getCurrentInstance()
+                .getExternalContext()
+                .getRequestParameterMap()
+                .get("data");
+
+        if (data == null || data.isBlank()) {
+            return null;
+        }
+
+        try {
+            return LocalDate.parse(data);
+        } catch (Exception e) {
+            log.warn("Data invalida recebida para abertura da agenda: {}", data);
+            return null;
+        }
+    }
+
+    private void selecionarData(LocalDate data) {
+        this.diasCalendario.stream()
+                .filter(dia -> data.equals(dia.getData()))
+                .findFirst()
+                .ifPresent(this::selecionarDia);
     }
 
     public void carregarCalendario() {

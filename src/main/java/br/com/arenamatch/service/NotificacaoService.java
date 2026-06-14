@@ -198,10 +198,11 @@ public class NotificacaoService {
             dto.setIdReferencia(p.getId());
             dto.setTipo("PLACAR_PENDENTE");
             dto.setTitulo("Placar pendente");
-            dto.setSubtitulo("Acesse a agenda e informe o placar do jogo do dia "
+            dto.setSubtitulo("Informe o placar do jogo do dia "
                     + (p.getDataHora() != null ? p.getDataHora().format(formatador) : "anterior")
-                    + " para manter o ranking atualizado.");
+                    + ", para manter o ranking atualizado, ou acesse a agenda.");
             dto.setDataCriacao(p.getDataHora());
+            dto.setDataJogo(p.getDataHora() != null ? p.getDataHora().toLocalDate() : null);
             dto.setEnviadoPorMim(false);
             dto.setNomeTimeMandante(p.getMandante() != null ? p.getMandante().getNome() : "Mandante");
             dto.setNomeTimeVisitante(p.getVisitante() != null ? p.getVisitante().getNome() : "Visitante");

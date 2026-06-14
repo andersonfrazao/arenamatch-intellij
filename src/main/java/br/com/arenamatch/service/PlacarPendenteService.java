@@ -68,7 +68,7 @@ public class PlacarPendenteService {
         }
 
         throw new RuntimeException("Voce precisa informar o placar do jogo do dia "
-                + dataJogo + " antes de continuar usando este recurso. Acesse sua agenda e informe o resultado para manter o ranking atualizado.");
+                + dataJogo + " antes de continuar usando este recurso. Acesse sua agenda ou as notificacoes e informe o resultado para manter o ranking atualizado.");
     }
 
     @Transactional

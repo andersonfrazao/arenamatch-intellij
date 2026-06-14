@@ -539,7 +539,9 @@
                                                                      icon="fas fa-check"
                                                                      styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" />
                                                     <p:button value="Agenda" outcome="/minha-agenda.xhtml" icon="far fa-calendar-alt"
-                                                              styleClass="ui-button-warning ui-button-outlined rounded-btn ui-button-sm" />
+                                                              styleClass="ui-button-warning ui-button-outlined rounded-btn ui-button-sm">
+                                                        <f:param name="data" value="#{notif.dataJogo}" />
+                                                    </p:button>
                                                 </div>
                                             </h:form>
                                         </h:panelGroup>
