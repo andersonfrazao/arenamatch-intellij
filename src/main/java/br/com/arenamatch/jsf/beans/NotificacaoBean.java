@@ -166,6 +166,61 @@ public class NotificacaoBean implements Serializable {
         }
     }
 
+    public void informarPlacarPendente(NotificacaoDTO notificacao) {
+        if (!notificacaoClassificacaoService.isPlacarPendente(notificacao)) {
+            return;
+        }
+
+        Long idPartida = notificacao.getIdReferencia();
+        Integer golsMandante = notificacao.getGolsMandanteInformado();
+        Integer golsVisitante = notificacao.getGolsVisitanteInformado();
+
+        if (golsMandante == null || golsVisitante == null) {
+            msgErro("Por favor, preencha os gols dos dois times.");
+            return;
+        }
+
+        try {
+            partidaClient.informarPlacar(
+                    idPartida,
+                    golsMandante,
+                    golsVisitante,
+                    sessaoBean.getUsuarioLogado().getIdTime());
+            msgInfo("Placar enviado! Aguardando confirmação do adversário.");
+            aposAcao();
+        } catch (Exception e) {
+            log.error("Erro ao informar placar via notificacao", e);
+            msgErro("Erro ao salvar o placar.");
+        }
+    }
+
+    public void informarPlacarDiferente(NotificacaoDTO notificacao) {
+        if (!notificacaoClassificacaoService.isPlacar(notificacao)) {
+            return;
+        }
+
+        Integer golsMandante = notificacao.getGolsMandanteInformado();
+        Integer golsVisitante = notificacao.getGolsVisitanteInformado();
+
+        if (golsMandante == null || golsVisitante == null) {
+            msgErro("Para recusar o resultado, informe o placar correto dos dois times.");
+            return;
+        }
+
+        try {
+            partidaClient.informarPlacar(
+                    notificacao.getIdReferencia(),
+                    golsMandante,
+                    golsVisitante,
+                    sessaoBean.getUsuarioLogado().getIdTime());
+            msgInfo("Novo placar enviado! Aguardando confirmação do adversário.");
+            aposAcao();
+        } catch (Exception e) {
+            log.error("Erro ao informar placar diferente via notificacao", e);
+            msgErro("Erro ao enviar o novo placar.");
+        }
+    }
+
     private void aplicarResumo(ResumoNotificacoesDTO resumo) {
         this.totalConvitesJogo = resumo.getTotalConvitesJogo();
         this.totalConvitesLiga = resumo.getTotalConvitesLiga();

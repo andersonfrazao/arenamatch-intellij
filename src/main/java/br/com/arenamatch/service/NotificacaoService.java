@@ -170,6 +170,16 @@ public class NotificacaoService {
             dto.setTipo(n.getTipo()); // Vai puxar "PLACAR" do banco
             dto.setTitulo(n.getTitulo());
             dto.setSubtitulo(n.getSubtitulo());
+            if ("PLACAR".equals(n.getTipo())) {
+                partidaRepository.findById(n.getIdReferencia()).ifPresent(partida -> {
+                    dto.setNomeTimeMandante(partida.getMandante() != null
+                            ? partida.getMandante().getNome()
+                            : "Mandante");
+                    dto.setNomeTimeVisitante(partida.getVisitante() != null
+                            ? partida.getVisitante().getNome()
+                            : "Visitante");
+                });
+            }
             dto.setDataCriacao(n.getDataCriacao());
             dto.setEnviadoPorMim(false); // Alertas do sistema não são "enviados por mim"
             lista.add(dto);
@@ -193,6 +203,8 @@ public class NotificacaoService {
                     + " para manter o ranking atualizado.");
             dto.setDataCriacao(p.getDataHora());
             dto.setEnviadoPorMim(false);
+            dto.setNomeTimeMandante(p.getMandante() != null ? p.getMandante().getNome() : "Mandante");
+            dto.setNomeTimeVisitante(p.getVisitante() != null ? p.getVisitante().getNome() : "Visitante");
             lista.add(dto);
         }
 

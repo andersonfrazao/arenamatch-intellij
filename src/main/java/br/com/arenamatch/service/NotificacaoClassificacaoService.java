@@ -46,4 +46,8 @@ public class NotificacaoClassificacaoService {
     public boolean isPlacar(NotificacaoDTO notificacao) {
         return notificacao != null && "PLACAR".equals(notificacao.getTipo());
     }
+
+    public boolean isPlacarPendente(NotificacaoDTO notificacao) {
+        return notificacao != null && "PLACAR_PENDENTE".equals(notificacao.getTipo());
+    }
 }

@@ -36,6 +36,7 @@ public class PlacarService {
         placarPendenteService.registrarInformacaoPlacar(partida, idTimeInformante);
 
         partidaRepository.save(partida);
+        notificacaoService.deletarNotificacaoPlacar(idPartida);
         notificarAdversario(partida, golsMandante, golsVisitante, idTimeInformante);
     }
 
