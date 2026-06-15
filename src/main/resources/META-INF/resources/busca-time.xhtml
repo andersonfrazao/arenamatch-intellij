@@ -10,6 +10,19 @@
     </f:metadata>
 
     <ui:define name="conteudo">
+        <style>
+            @media (max-width: 1500px) {
+                .team-search-results .ui-dataview-column {
+                    width: 50% !important;
+                }
+            }
+
+            @media (max-width: 1100px) {
+                .team-search-results .ui-dataview-column {
+                    width: 100% !important;
+                }
+            }
+        </style>
         
         <h:form id="formBusca">
             <p:growl id="messages" showDetail="true" life="5000"/>
@@ -71,6 +84,7 @@
 
             <p:dataView id="dataView" var="time" value="#{buscaBean.resultados}" layout="grid" 
                         paginator="true" rows="12" gridIcon="pi pi-th-large" listIcon="pi pi-bars"
+                        styleClass="team-search-results"
                         emptyMessage="Utilize os filtros acima para encontrar times.">
 
                 <p:dataViewGridItem columns="3">

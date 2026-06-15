@@ -644,10 +644,12 @@
                                                 <f:param name="p" value="#{evento.idPartida}" />
                                             </p:button>
 
-                                            <p:commandButton value="Solicitar cancelamento" icon="fas fa-ban"
-                                                             action="#{minhaAgendaBean.prepararCancelamento(evento)}"
-                                                             update=":formAgenda:painelDetalhes"
-                                                             styleClass="ui-button-danger ui-button-outlined rounded-btn text-sm font-bold shadow-2"/>
+                                            <h:panelGroup rendered="#{not evento.passouDaHora}">
+                                                <p:commandButton value="Solicitar cancelamento" icon="fas fa-ban"
+                                                                 action="#{minhaAgendaBean.prepararCancelamento(evento)}"
+                                                                 update=":formAgenda:painelDetalhes"
+                                                                 styleClass="ui-button-danger ui-button-outlined rounded-btn text-sm font-bold shadow-2"/>
+                                            </h:panelGroup>
                                         </h:panelGroup>
 
                                         <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}">

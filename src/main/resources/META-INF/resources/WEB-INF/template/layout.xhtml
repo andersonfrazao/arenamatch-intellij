@@ -476,40 +476,19 @@
 
                                         <h:panelGroup rendered="#{notif.tipo eq 'PLACAR'}">
                                             <h:form id="formConfirmacaoPlacar">
-                                                <div class="flex flex-column gap-2">
+                                                <div class="flex gap-2 flex-wrap">
                                                     <p:commandButton value="Confirmar placar"
                                                                      action="#{notificacaoBean.confirmarResultadoPlacar(notif)}"
                                                                      process="@this"
                                                                      update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
                                                                      icon="fas fa-check"
                                                                      styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" />
-
-                                                    <div class="text-xs text-gray-400 font-bold">
-                                                        Não concorda? Informe o placar correto:
-                                                    </div>
-                                                    <div class="flex align-items-end gap-2 flex-wrap">
-                                                        <div class="flex flex-column gap-1">
-                                                            <span class="text-xs text-gray-400 font-bold">#{empty notif.nomeTimeMandante ? 'Mandante' : notif.nomeTimeMandante}</span>
-                                                            <p:inputNumber value="#{notif.golsMandanteInformado}"
-                                                                           decimalPlaces="0" minValue="0"
-                                                                           inputStyle="width: 54px; text-align: center; font-weight: bold;"
-                                                                           placeholder="0" />
-                                                        </div>
-                                                        <span class="font-bold text-gray-400 mb-2">X</span>
-                                                        <div class="flex flex-column gap-1">
-                                                            <span class="text-xs text-gray-400 font-bold">#{empty notif.nomeTimeVisitante ? 'Visitante' : notif.nomeTimeVisitante}</span>
-                                                            <p:inputNumber value="#{notif.golsVisitanteInformado}"
-                                                                           decimalPlaces="0" minValue="0"
-                                                                           inputStyle="width: 54px; text-align: center; font-weight: bold;"
-                                                                           placeholder="0" />
-                                                        </div>
-                                                        <p:commandButton value="Enviar outro placar"
-                                                                         action="#{notificacaoBean.informarPlacarDiferente(notif)}"
-                                                                         process="@form"
-                                                                         update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
-                                                                         icon="fas fa-exchange-alt"
-                                                                         styleClass="ui-button-danger rounded-btn ui-button-sm shadow-2" />
-                                                    </div>
+                                                    <p:commandButton value="Contestar placar"
+                                                                     action="#{notificacaoBean.contestarResultadoPlacar(notif)}"
+                                                                     process="@this"
+                                                                     update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                                     icon="fas fa-times"
+                                                                     styleClass="ui-button-danger rounded-btn ui-button-sm shadow-2" />
                                                 </div>
                                             </h:form>
                                         </h:panelGroup>

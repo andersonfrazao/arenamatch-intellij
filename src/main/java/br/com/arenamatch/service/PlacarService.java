@@ -75,13 +75,17 @@ public class PlacarService {
         String dataDoJogo = partida.getDataHora() != null
                 ? partida.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 : "Data indefinida";
+        String nomeMandante = partida.getMandante().getNome();
+        String nomeVisitante = partida.getVisitante().getNome();
 
         notificacaoService.criarNotificacao(
                 idAdversario,
                 "PLACAR",
                 partida.getId(),
-                "Placar: " + timeQueInformou.getNome(),
-                "Jogo do dia " + dataDoJogo + ". Resultado: " + golsMandante + " x " + golsVisitante + ". Confirma?"
+                "Placar informado por " + timeQueInformou.getNome(),
+                "Confirma o placar " + nomeMandante + " " + golsMandante
+                        + " x " + golsVisitante + " " + nomeVisitante
+                        + "? Jogo do dia " + dataDoJogo + "."
         );
     }
 }
