@@ -145,7 +145,7 @@
         </style>
 
         <h:form id="formCadastro" enctype="multipart/form-data">
-            <p:growl id="msgs" showDetail="true" life="5000" />
+            <p:growl id="msgs" showDetail="true" life="12000" />
             <h:inputHidden id="geoLat" value="#{cadastroBean.dto.latitude}" />
             <h:inputHidden id="geoLon" value="#{cadastroBean.dto.longitude}" />
 
@@ -298,7 +298,14 @@
                                 </div>
 
                                 <div class="form-group full-width">
-                                    <label class="form-label">CEP</label>
+                                    <div class="info-box" style="margin-bottom: 14px;">
+                                        <i class="fas fa-map-location-dot" style="font-size: 1.2rem; margin-top:2px;"></i>
+                                        <div>
+                                            <strong>Escolha uma das opções abaixo para preencher o endereço:</strong><br/>
+                                            busque pelo CEP ou use a localização atual do seu smartphone. Não é necessário usar as duas opções.
+                                        </div>
+                                    </div>
+                                    <label class="form-label">Opção 1: buscar pelo CEP</label>
                                     <p:remoteCommand name="usarLocalizacaoAtual"
                                                      action="#{cadastroBean.buscarEnderecoPorLocalizacao}"
                                                      process="@this :formCadastro:geoLat :formCadastro:geoLon"
@@ -314,14 +321,20 @@
                                                          process="@this inputCep" update="painelEndereco msgs"
                                                          style="background:#334155; border:1px solid #475569; color:#fff; border-radius:8px; width:50px; height: 46px"/>
                                     </div>
-                                    <p:commandButton value="Usar localização atual"
+                                    <div style="display:flex; align-items:center; gap:12px; margin:16px 0; color:#94a3b8;">
+                                        <span style="height:1px; background:#475569; flex:1;"></span>
+                                        <strong>OU</strong>
+                                        <span style="height:1px; background:#475569; flex:1;"></span>
+                                    </div>
+                                    <label class="form-label">Opção 2: usar o GPS do aparelho</label>
+                                    <p:commandButton value="Usar a localização atual do seu smartphone"
                                                      icon="fas fa-location-crosshairs"
                                                      type="button"
                                                      onclick="obterLocalizacaoAtual();"
                                                      styleClass="mt-2"
                                                      style="width:100%; background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.45); color:#86efac; padding:10px; border-radius:8px; font-weight:700;"/>
                                     <small style="color:#94a3b8; display:block; margin-top:6px;">
-                                        No celular, o navegador pedirá permissão para usar sua localização.
+                                        O navegador solicitará permissão para acessar a localização do smartphone.
                                     </small>
                                 </div>
 

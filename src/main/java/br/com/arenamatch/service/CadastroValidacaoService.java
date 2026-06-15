@@ -29,6 +29,7 @@ public class CadastroValidacaoService {
 
         validarSenhaObrigatoria(dto.getSenha());
         validarTermosAceitos(dto);
+        validarEnderecoCompleto(dto);
         validarHorariosMandante(dto);
 
         if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -46,7 +47,24 @@ public class CadastroValidacaoService {
     }
 
     public void validarAtualizacao(CadastroDTO dto) {
+        validarEnderecoCompleto(dto);
         validarHorariosMandante(dto);
+    }
+
+    public void validarEnderecoCompleto(CadastroDTO dto) {
+        if (dto == null || isVazio(dto.getCep())) {
+            throw new RuntimeException("Informe o CEP do endereco do time.");
+        }
+
+        if (isVazio(dto.getLogradouro())
+                || isVazio(dto.getBairro())
+                || isVazio(dto.getRegiao())
+                || isVazio(dto.getCidade())
+                || isVazio(dto.getUf())) {
+            throw new RuntimeException(
+                    "Apos informar o CEP, aperte ou clique na luneta para buscar os dados do endereco "
+                            + "ou use a localizacao atual do seu smartphone.");
+        }
     }
 
     public void validarSenhaEdicao(String senha) {
@@ -104,5 +122,9 @@ public class CadastroValidacaoService {
         if (senha == null || senha.length() < 6) {
             throw new RuntimeException("A senha precisa ter no minimo 6 caracteres.");
         }
+    }
+
+    private boolean isVazio(String valor) {
+        return valor == null || valor.trim().isEmpty();
     }
 }

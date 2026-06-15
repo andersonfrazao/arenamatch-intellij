@@ -88,6 +88,15 @@ public class CadastroBean implements Serializable {
             }
         }
 
+        if ("time".equals(abaAtual) && "agenda".equals(proximaAba)) {
+            try {
+                cadastroFormularioService.validarAvancoTime(dto);
+            } catch (RuntimeException e) {
+                msgErro(e.getMessage());
+                return "time";
+            }
+        }
+
         this.stepAtual = proximaAba;
         return proximaAba;
     }
@@ -148,9 +157,14 @@ public class CadastroBean implements Serializable {
                     dto.setLatitude(null);
                     dto.setLongitude(null);
                 } else {
-                    msgErro("CEP não encontrado.");
+                    msgErro("Não foi possível encontrar o endereço deste CEP. "
+                            + "Tente outro CEP ou use a localização atual do seu smartphone.");
                 }
+            } else {
+                msgErro("Digite um CEP completo com 8 números para realizar a busca.");
             }
+        } else {
+            msgErro("Digite o CEP antes de clicar na luneta.");
         }
     }
 

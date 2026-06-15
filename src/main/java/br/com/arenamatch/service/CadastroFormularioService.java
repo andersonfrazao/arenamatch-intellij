@@ -34,6 +34,10 @@ public class CadastroFormularioService {
         }
     }
 
+    public void validarAvancoTime(CadastroDTO dto) {
+        cadastroValidacaoService.validarEnderecoCompleto(dto);
+    }
+
     public DisponibilidadeDTO criarDisponibilidade(
             CadastroDTO dto,
             List<DisponibilidadeDTO> agenda,
