@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.FlowEvent;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,6 +94,7 @@ public class CadastroBean implements Serializable {
                 cadastroFormularioService.validarAvancoTime(dto);
             } catch (RuntimeException e) {
                 msgErro(e.getMessage());
+                PrimeFaces.current().executeScript("setTimeout(focarLunetaCep, 150);");
                 return "time";
             }
         }

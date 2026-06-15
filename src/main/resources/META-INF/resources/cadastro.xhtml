@@ -61,6 +61,11 @@
                 background: rgba(15, 23, 42, 0.9) !important; color: #64748b !important; opacity: 1 !important;
             }
 
+            body .foco-busca-cep {
+                border-color: #ef4444 !important;
+                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35) !important;
+            }
+
             /* Estilos dos Botões de Dias */
             body .week-selector .ui-selectonebutton { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
             body .week-selector .ui-button {
@@ -305,7 +310,7 @@
                                             busque pelo CEP ou use a localização atual do seu smartphone. Não é necessário usar as duas opções.
                                         </div>
                                     </div>
-                                    <label class="form-label">Opção 1: buscar pelo CEP</label>
+                                    <label class="form-label">Opção 1: Digite o CEP e aperte a luneta para buscar o endereço</label>
                                     <p:remoteCommand name="usarLocalizacaoAtual"
                                                      action="#{cadastroBean.buscarEnderecoPorLocalizacao}"
                                                      process="@this :formCadastro:geoLat :formCadastro:geoLon"
@@ -317,7 +322,8 @@
                                                      requiredMessage="O CEP é obrigatório."
                                                      placeholder="00000-000"
                                                      onchange="limparLocalizacaoAtual();"/>
-                                        <p:commandButton icon="fas fa-search" action="#{cadastroBean.buscarCep}" 
+                                        <p:commandButton id="botaoBuscarCep"
+                                                         icon="fas fa-search" action="#{cadastroBean.buscarCep}" 
                                                          process="@this inputCep" update="painelEndereco msgs"
                                                          style="background:#334155; border:1px solid #475569; color:#fff; border-radius:8px; width:50px; height: 46px"/>
                                     </div>
@@ -603,6 +609,20 @@
             </p:dialog>
 
             <script>
+                function focarLunetaCep() {
+                    var botao = document.getElementById('formCadastro:botaoBuscarCep');
+                    if (!botao) {
+                        return;
+                    }
+
+                    botao.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    botao.focus();
+                    botao.classList.add('foco-busca-cep');
+                    setTimeout(function() {
+                        botao.classList.remove('foco-busca-cep');
+                    }, 5000);
+                }
+
                 function obterLocalizacaoAtual() {
                     if (!navigator.geolocation) {
                         alert('Seu navegador não permite usar a localização atual.');
