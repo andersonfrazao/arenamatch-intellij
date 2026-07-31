@@ -1,0 +1,115 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template/layout-ligas.xhtml">
+
+    <f:metadata>
+        <f:viewParam name="id" value="#{muralLigaBean.ligaId}" />
+        <f:viewAction action="#{muralLigaBean.carregarMural}" />
+    </f:metadata>
+
+    <ui:define name="tituloPagina">Anunciar jogo</ui:define>
+    <ui:define name="subtituloPagina">Publique sua necessidade de jogo no mural global</ui:define>
+
+    <ui:define name="conteudo">
+        <h:form id="formAnunciarJogo">
+            <p:growl id="msgs" showDetail="true" life="4000"/>
+
+            <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block">
+                <div class="bg-bluegray-900 p-5 border-round-xl shadow-4 text-center" style="border: 1px solid rgba(234,179,8,0.30);">
+                    <i class="fas fa-lock text-yellow-300 text-5xl mb-3"></i>
+                    <div class="text-white text-2xl font-bold mb-2">Anuncios de Ligas exigem plano PRO</div>
+                    <div class="text-gray-300 line-height-3">
+                        Ative um plano PRO ou utilize um periodo trial valido para anunciar jogos.
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{sessaoBean.acessoCompleto}" layout="block">
+                <div class="flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
+                    <div>
+                        <h1 class="text-white text-2xl font-bold m-0">
+                            <i class="fas fa-bullhorn text-purple-300 mr-2"></i> Anunciar jogo
+                        </h1>
+                        <div class="text-gray-400 text-sm mt-1">
+                            Informe data, horario, perfil do adversario e contexto da comunidade.
+                        </div>
+                    </div>
+                    <p:button outcome="/mural-liga.xhtml" value="Voltar ao Mural" icon="fas fa-arrow-left"
+                              styleClass="ui-button-secondary rounded-btn font-bold"/>
+                </div>
+
+                <div class="grid justify-content-center">
+                    <div class="col-12 lg:col-7 xl:col-6">
+                        <div class="bg-bluegray-900 p-4 border-round-xl shadow-4" style="border: 1px solid rgba(168,85,247,0.26);">
+                            <div class="field">
+                                <p:outputLabel value="Publicar tambem em uma liga" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                <p:selectOneMenu value="#{muralLigaBean.ligaSelecionadaPublicacao}" styleClass="w-full">
+                                    <f:selectItem itemLabel="Anuncio geral" itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{muralLigaBean.minhasLigas}" var="liga" itemLabel="#{liga.nome}" itemValue="#{liga.id}"/>
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="field">
+                                <p:outputLabel value="Data do jogo" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                <p:datePicker value="#{muralLigaBean.dataJogoPublicacao}" pattern="dd/MM/yyyy"
+                                              placeholder="Data do jogo" styleClass="w-full"/>
+                            </div>
+
+                            <div class="formgrid grid">
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="Inicio" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                    <p:inputMask value="#{muralLigaBean.horaInicioPublicacao}" mask="99:99"
+                                                 placeholder="HH:mm" styleClass="w-full custom-input text-sm"/>
+                                </div>
+                                <div class="field col-12 md:col-6">
+                                    <p:outputLabel value="Fim" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                    <p:inputMask value="#{muralLigaBean.horaFimPublicacao}" mask="99:99"
+                                                 placeholder="HH:mm" styleClass="w-full custom-input text-sm"/>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <p:outputLabel value="Procura" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                <p:selectOneMenu value="#{muralLigaBean.tipoProcuraPublicacao}" styleClass="w-full">
+                                    <f:selectItems value="#{muralLigaBean.tiposProcura}" var="tipo" itemLabel="#{tipo}" itemValue="#{tipo}"/>
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="field">
+                                <p:outputLabel value="Categoria" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                <p:selectOneMenu value="#{muralLigaBean.categoriaPublicacao}" styleClass="w-full">
+                                    <f:selectItem itemLabel="Categoria" itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{muralLigaBean.categorias}" var="categoria" itemLabel="#{categoria.descricao}" itemValue="#{categoria}"/>
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="field">
+                                <p:outputLabel value="Regiao" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                <p:inputText value="#{muralLigaBean.regiaoPublicacao}" placeholder="Bairro, cidade ou regiao"
+                                             styleClass="w-full custom-input text-sm"/>
+                            </div>
+
+                            <div class="field">
+                                <p:outputLabel value="Observacao" styleClass="text-white font-bold block mb-2 text-sm"/>
+                                <p:inputTextarea value="#{muralLigaBean.observacaoPublicacao}" placeholder="Ex: somos visitante, categoria esporte, disponivel das 10h as 16h"
+                                                 maxlength="500" rows="5" autoResize="false" styleClass="w-full custom-input text-sm"/>
+                            </div>
+
+                            <div class="flex gap-2 flex-wrap justify-content-end">
+                                <p:button outcome="/mural-liga.xhtml" value="Cancelar" icon="fas fa-times"
+                                          styleClass="ui-button-secondary ui-button-outlined rounded-btn font-bold"/>
+                                <p:commandButton value="Publicar anuncio" icon="fas fa-bullhorn"
+                                                 action="#{muralLigaBean.criarPublicacao}"
+                                                 update="@form"
+                                                 styleClass="ui-button-help font-bold rounded-btn"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>

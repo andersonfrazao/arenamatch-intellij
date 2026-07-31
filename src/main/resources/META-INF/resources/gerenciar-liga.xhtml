@@ -3,7 +3,7 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                template="/WEB-INF/template/layout.xhtml">
+                template="/WEB-INF/template/layout-ligas.xhtml">
 
     <f:metadata>
         <f:viewParam name="id" value="#{gerenciarLigaBean.ligaId}" />
@@ -13,6 +13,18 @@
     <ui:define name="conteudo">
         <h:form id="formGerenciarLiga">
             <p:growl id="msgs" showDetail="true" life="4000"/>
+
+            <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block">
+                <div class="bg-bluegray-900 p-5 border-round-xl shadow-4 text-center" style="border: 1px solid rgba(234,179,8,0.30);">
+                    <i class="fas fa-lock text-yellow-300 text-5xl mb-3"></i>
+                    <div class="text-white text-2xl font-bold mb-2">Gerenciamento de Ligas exige plano PRO</div>
+                    <div class="text-gray-300 line-height-3">
+                        Ative um plano PRO ou utilize um periodo trial valido para administrar ligas.
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{sessaoBean.acessoCompleto}" layout="block">
             
             <div class="flex justify-content-between align-items-center mb-4">
                 <div>
@@ -23,6 +35,106 @@
             </div>
 
             <div class="grid">
+
+                <div class="col-12">
+                    <div class="bg-bluegray-900 p-4 border-round-xl shadow-4" style="border: 1px solid rgba(168,85,247,0.26);">
+                        <div class="flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+                            <h2 class="text-white text-lg m-0"><i class="fas fa-bullhorn text-purple-300 mr-2"></i> Mural de Desafios</h2>
+                            <span class="text-purple-200 text-xs font-bold bg-purple-900 px-2 py-1 border-round">
+                                #{gerenciarLigaBean.publicacoesDaLiga.size()} publicacao(oes)
+                            </span>
+                        </div>
+
+                        <div class="grid mb-4">
+                            <div class="col-12 md:col-3">
+                                <p:datePicker value="#{gerenciarLigaBean.dataJogoPublicacao}" pattern="dd/MM/yyyy"
+                                              placeholder="Data do jogo" styleClass="w-full"/>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <p:inputMask value="#{gerenciarLigaBean.horaInicioPublicacao}" mask="99:99"
+                                             placeholder="Inicio" styleClass="w-full custom-input text-sm"/>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <p:inputMask value="#{gerenciarLigaBean.horaFimPublicacao}" mask="99:99"
+                                             placeholder="Fim" styleClass="w-full custom-input text-sm"/>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <p:selectOneMenu value="#{gerenciarLigaBean.tipoProcuraPublicacao}" styleClass="w-full">
+                                    <f:selectItems value="#{gerenciarLigaBean.tiposProcura}" var="tipo" itemLabel="#{tipo}" itemValue="#{tipo}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="col-12 md:col-3">
+                                <p:selectOneMenu value="#{gerenciarLigaBean.categoriaPublicacao}" styleClass="w-full">
+                                    <f:selectItem itemLabel="Categoria" itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{gerenciarLigaBean.categorias}" var="categoria" itemLabel="#{categoria.descricao}" itemValue="#{categoria}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="col-12 md:col-4">
+                                <p:inputText value="#{gerenciarLigaBean.regiaoPublicacao}" placeholder="Regiao/bairro/cidade"
+                                             styleClass="w-full custom-input text-sm"/>
+                            </div>
+                            <div class="col-12 md:col-6">
+                                <p:inputText value="#{gerenciarLigaBean.observacaoPublicacao}" placeholder="Observacao"
+                                             maxlength="500" styleClass="w-full custom-input text-sm"/>
+                            </div>
+                            <div class="col-12 md:col-2">
+                                <p:commandButton value="Publicar" icon="fas fa-plus"
+                                                 action="#{gerenciarLigaBean.criarPublicacao}"
+                                                 update="@form"
+                                                 styleClass="ui-button-help w-full font-bold"/>
+                            </div>
+                        </div>
+
+                        <h:panelGroup rendered="#{empty gerenciarLigaBean.publicacoesDaLiga}">
+                            <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                                Nenhuma publicacao no mural desta liga.
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{not empty gerenciarLigaBean.publicacoesDaLiga}">
+                            <ui:repeat value="#{gerenciarLigaBean.publicacoesDaLiga}" var="publicacao">
+                                <div class="p-3 mb-2 bg-black-alpha-20 border-round border-1 border-gray-700">
+                                    <div class="flex justify-content-between align-items-start gap-3 flex-wrap">
+                                        <div>
+                                            <div class="text-white font-bold">
+                                                #{publicacao.timeAutor.nome}
+                                                <span class="text-gray-400 font-normal">procura #{publicacao.tipoProcura}</span>
+                                            </div>
+                                            <div class="text-gray-300 text-sm mt-1">
+                                                <h:outputText value="#{publicacao.dataJogo}">
+                                                    <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
+                                                </h:outputText>
+                                                <h:panelGroup rendered="#{not empty publicacao.horaInicio}">
+                                                    · #{publicacao.horaInicio}
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{not empty publicacao.horaFim}">
+                                                    - #{publicacao.horaFim}
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{not empty publicacao.categoria}">
+                                                    · #{publicacao.categoria.descricao}
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{not empty publicacao.regiao}">
+                                                    · #{publicacao.regiao}
+                                                </h:panelGroup>
+                                            </div>
+                                            <h:panelGroup rendered="#{not empty publicacao.observacao}">
+                                                <div class="text-gray-400 text-sm mt-2">#{publicacao.observacao}</div>
+                                            </h:panelGroup>
+                                        </div>
+                                        <div class="flex align-items-center gap-2">
+                                            <span class="text-xs font-bold bg-bluegray-800 px-2 py-1 border-round">#{publicacao.status}</span>
+                                            <p:commandButton icon="fas fa-times" title="Cancelar publicacao"
+                                                             action="#{gerenciarLigaBean.cancelarPublicacao(publicacao)}"
+                                                             update="@form"
+                                                             rendered="#{gerenciarLigaBean.podeCancelarPublicacao(publicacao) and publicacao.status ne 'CANCELADO'}"
+                                                             styleClass="ui-button-danger ui-button-flat ui-button-sm"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ui:repeat>
+                        </h:panelGroup>
+                    </div>
+                </div>
                 
                 <div class="col-12 md:col-7">
                     <div class="bg-bluegray-900 p-4 border-round-xl shadow-4 h-full" style="border: 1px solid rgba(255,255,255,0.1);">
@@ -45,14 +157,179 @@
                                 </h:panelGroup>
                             </p:column>
 
-                            <p:column width="50" styleClass="bg-transparent border-bottom-1 border-gray-700 text-right">
-                                 <p:commandButton icon="fas fa-trash" action="#{gerenciarLigaBean.removerMembro(membro)}"
+                            <p:column width="105" styleClass="bg-transparent border-bottom-1 border-gray-700 text-right">
+                                 <p:commandButton icon="fas fa-trash" title="Remover membro"
+                                                  action="#{gerenciarLigaBean.removerMembro(membro)}"
                                                   update="formGerenciarLiga:msgs formGerenciarLiga"
-                                                  rendered="#{membro.id != gerenciarLigaBean.ligaAtual.admin.id}"
-                                                  styleClass="ui-button-danger ui-button-flat ui-button-sm p-0"/>
+                                                  rendered="#{gerenciarLigaBean.adminDaLiga and membro.id != gerenciarLigaBean.ligaAtual.admin.id}"
+                                                  styleClass="ui-button-danger ui-button-flat ui-button-sm p-0 mr-1"/>
+                                 <p:commandButton icon="fas fa-ban" title="Banir membro"
+                                                  action="#{gerenciarLigaBean.prepararBanimento(membro)}"
+                                                  update="formGerenciarLiga:painelBanimento"
+                                                  rendered="#{gerenciarLigaBean.adminDaLiga and membro.id != gerenciarLigaBean.ligaAtual.admin.id}"
+                                                  styleClass="ui-button-warning ui-button-flat ui-button-sm p-0"/>
                             </p:column>
                         </p:dataTable>
                         </div>
+
+                        <h:panelGroup id="painelBanimento" layout="block">
+                            <h:panelGroup rendered="#{not empty gerenciarLigaBean.membroSelecionadoParaBanimento}" layout="block"
+                                          styleClass="mt-4 p-3 bg-black-alpha-20 border-round border-1 border-yellow-700">
+                                <div class="text-yellow-300 font-bold mb-2">
+                                    <i class="fas fa-ban mr-2"></i> Banir #{gerenciarLigaBean.membroSelecionadoParaBanimento.nome}
+                                </div>
+                                <div class="text-gray-400 text-sm mb-3">
+                                    Banimento impede novo convite ou solicitacao de entrada nesta liga.
+                                </div>
+                                <p:inputTextarea value="#{gerenciarLigaBean.motivoBanimento}"
+                                                 placeholder="Informe o motivo do banimento"
+                                                 maxlength="500" rows="3" autoResize="false"
+                                                 styleClass="w-full custom-input text-sm mb-3"/>
+                                <div class="flex gap-2 justify-content-end">
+                                    <p:commandButton value="Cancelar" icon="fas fa-times"
+                                                     action="#{gerenciarLigaBean.cancelarBanimento}"
+                                                     update="formGerenciarLiga:painelBanimento"
+                                                     styleClass="ui-button-secondary rounded-btn text-sm"/>
+                                    <p:commandButton value="Confirmar banimento" icon="fas fa-ban"
+                                                     action="#{gerenciarLigaBean.banirMembro}"
+                                                     update="@form"
+                                                     styleClass="ui-button-warning rounded-btn text-sm font-bold"/>
+                                </div>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-5">
+                    <div class="bg-bluegray-900 p-4 border-round-xl shadow-4 h-full" style="border: 1px solid rgba(234,179,8,0.28);">
+                        <h2 class="text-white text-lg m-0 mb-4">
+                            <i class="fas fa-user-slash text-yellow-300 mr-2"></i> Banidos da Liga (#{gerenciarLigaBean.banimentosAtivos.size()})
+                        </h2>
+
+                        <h:panelGroup rendered="#{empty gerenciarLigaBean.banimentosAtivos}" layout="block">
+                            <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                                Nenhum time banido nesta liga.
+                            </div>
+                        </h:panelGroup>
+
+                        <ui:repeat value="#{gerenciarLigaBean.banimentosAtivos}" var="banimento">
+                            <div class="p-3 mb-2 bg-black-alpha-20 border-round border-1 border-gray-700">
+                                <div class="flex justify-content-between align-items-start gap-2">
+                                    <div>
+                                        <div class="text-white font-bold">#{banimento.timeBanido.nome}</div>
+                                        <div class="text-gray-400 text-xs mt-1">
+                                            Banido por #{banimento.admin.nome}
+                                            <h:outputText value="#{banimento.dataBanimento}" styleClass="ml-1">
+                                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                                            </h:outputText>
+                                        </div>
+                                        <div class="text-gray-300 text-sm mt-2">#{banimento.motivo}</div>
+                                    </div>
+                                    <p:commandButton icon="fas fa-undo" title="Reverter banimento"
+                                                     action="#{gerenciarLigaBean.reverterBanimento(banimento)}"
+                                                     update="@form"
+                                                     rendered="#{gerenciarLigaBean.adminDaLiga}"
+                                                     styleClass="ui-button-secondary ui-button-flat ui-button-sm"/>
+                                </div>
+                            </div>
+                        </ui:repeat>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="bg-bluegray-900 p-4 border-round-xl shadow-4" style="border: 1px solid rgba(56,189,248,0.22);">
+                        <div class="flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+                            <h2 class="text-white text-lg m-0"><i class="fas fa-futbol text-cyan-300 mr-2"></i> Jogos da Liga</h2>
+                            <span class="text-cyan-200 text-xs font-bold bg-cyan-900 px-2 py-1 border-round">
+                                #{gerenciarLigaBean.jogosDaLiga.size()} jogo(s)
+                            </span>
+                        </div>
+
+                        <h:panelGroup rendered="#{empty gerenciarLigaBean.jogosDaLiga}">
+                            <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                                Nenhum jogo vinculado a esta liga ainda.
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{not empty gerenciarLigaBean.jogosDaLiga}">
+                            <div class="am-table-scroll">
+                                <p:dataTable value="#{gerenciarLigaBean.jogosDaLiga}" var="jogo"
+                                             styleClass="ui-datatable-sm bg-transparent" emptyMessage="Nenhum jogo na liga.">
+
+                                    <p:column headerText="Data" styleClass="bg-transparent text-white border-bottom-1 border-gray-700" width="150">
+                                        <h:outputText value="#{jogo.dataHora}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                                        </h:outputText>
+                                    </p:column>
+
+                                    <p:column headerText="Jogo" styleClass="bg-transparent text-white border-bottom-1 border-gray-700">
+                                        <strong>#{jogo.mandante.nome}</strong>
+                                        <span class="text-gray-400 mx-2">x</span>
+                                        <strong>#{jogo.visitante.nome}</strong>
+                                    </p:column>
+
+                                    <p:column headerText="Status" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="130">
+                                        <span class="text-xs font-bold bg-bluegray-800 px-2 py-1 border-round">#{jogo.status}</span>
+                                    </p:column>
+
+                                    <p:column headerText="Placar" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="120">
+                                        <h:panelGroup rendered="#{not empty jogo.golsMandante and not empty jogo.golsVisitante}">
+                                            <span class="font-bold text-cyan-200">#{jogo.golsMandante} x #{jogo.golsVisitante}</span>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{empty jogo.golsMandante or empty jogo.golsVisitante}">
+                                            <span class="text-gray-500 text-xs">Pendente</span>
+                                        </h:panelGroup>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="bg-bluegray-900 p-4 border-round-xl shadow-4" style="border: 1px solid rgba(45,212,191,0.24);">
+                        <div class="flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+                            <h2 class="text-white text-lg m-0"><i class="fas fa-ranking-star text-teal-300 mr-2"></i> Ranking da Liga</h2>
+                            <span class="text-teal-200 text-xs font-bold bg-teal-900 px-2 py-1 border-round">
+                                Placar confirmado
+                            </span>
+                        </div>
+
+                        <h:panelGroup rendered="#{empty gerenciarLigaBean.rankingDaLiga}">
+                            <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                                Nenhum time no ranking desta liga.
+                            </div>
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{not empty gerenciarLigaBean.rankingDaLiga}">
+                            <div class="am-table-scroll">
+                                <p:dataTable value="#{gerenciarLigaBean.rankingDaLiga}" var="linha" rowIndexVar="pos"
+                                             styleClass="ui-datatable-sm bg-transparent" emptyMessage="Nenhum ranking calculado.">
+
+                                    <p:column headerText="#" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="60">
+                                        <strong>#{pos + 1}</strong>
+                                    </p:column>
+                                    <p:column headerText="Time" styleClass="bg-transparent text-white border-bottom-1 border-gray-700">
+                                        <strong>#{linha.nomeTime}</strong>
+                                    </p:column>
+                                    <p:column headerText="Pts" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="70">
+                                        <strong class="text-teal-200">#{linha.pontos}</strong>
+                                    </p:column>
+                                    <p:column headerText="J" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.jogos}</p:column>
+                                    <p:column headerText="V" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.vitorias}</p:column>
+                                    <p:column headerText="E" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.empates}</p:column>
+                                    <p:column headerText="D" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.derrotas}</p:column>
+                                    <p:column headerText="GP" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="60">#{linha.golsPro}</p:column>
+                                    <p:column headerText="GC" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="60">#{linha.golsContra}</p:column>
+                                    <p:column headerText="SG" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="60">#{linha.saldoGols}</p:column>
+                                    <p:column headerText="%" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="80">
+                                        <h:outputText value="#{linha.aproveitamento}">
+                                            <f:convertNumber maxFractionDigits="1" minFractionDigits="1"/>
+                                        </h:outputText>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </h:panelGroup>
                     </div>
                 </div>
 
@@ -127,6 +404,7 @@
                 </div>
 
             </div>
+            </h:panelGroup>
         </h:form>
     </ui:define>
 </ui:composition>

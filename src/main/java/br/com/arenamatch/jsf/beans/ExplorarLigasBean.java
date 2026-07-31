@@ -36,6 +36,11 @@ public class ExplorarLigasBean implements Serializable {
     }
 
     public void carregarLigasEmAlta() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            ligasEncontradas = new ArrayList<>();
+            return;
+        }
+
         try {
             Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
             ligasEncontradas = ligaClient.listarLigasEmAlta(meuTimeId);
@@ -45,6 +50,11 @@ public class ExplorarLigasBean implements Serializable {
     }
 
     public void pesquisar() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         try {
             Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
             if (termoBusca == null || termoBusca.trim().isEmpty()) {
@@ -58,6 +68,11 @@ public class ExplorarLigasBean implements Serializable {
     }
 
     public void solicitarParticipacao(LigaExplorarDTO liga) {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         try {
             Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
             ligaClient.solicitarEntradaNaLiga(liga.getId(), meuTimeId);

@@ -45,7 +45,7 @@ public class DesafioPartidaService {
     }
 
     @Transactional
-    public void criarDesafio(DesafioDTO dto) {
+    public Partida criarDesafio(DesafioDTO dto) {
         LocalDate dataJogo = dto.getDataHoraPartida().toLocalDate();
         parametroSistemaService.validarDataMinimaAgendamento(dataJogo);
 
@@ -78,6 +78,7 @@ public class DesafioPartidaService {
 
         partida = partidaRepository.save(partida);
         partidaMensagemService.criarMensagemInicialDoDesafio(partida, desafiante, dto.getMensagem());
+        return partida;
     }
 
     @Transactional

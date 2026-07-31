@@ -3,11 +3,23 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
-                template="/WEB-INF/template/layout.xhtml">
+                template="/WEB-INF/template/layout-ligas.xhtml">
 
     <ui:define name="conteudo">
         <h:form id="formLigas">
             <p:growl id="msgs" showDetail="true" life="4000"/>
+
+            <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block">
+                <div class="bg-bluegray-900 p-5 border-round-xl shadow-4 text-center" style="border: 1px solid rgba(234,179,8,0.30);">
+                    <i class="fas fa-lock text-yellow-300 text-5xl mb-3"></i>
+                    <div class="text-white text-2xl font-bold mb-2">Ligas disponivel no plano PRO</div>
+                    <div class="text-gray-300 line-height-3">
+                        Para criar e gerenciar ligas, ative um plano PRO ou utilize um periodo trial valido.
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{sessaoBean.acessoCompleto}" layout="block">
             
             <div class="flex justify-content-between align-items-center mb-4">
                 <h1 class="text-white text-2xl font-bold m-0"><i class="fas fa-trophy text-neon mr-2"></i> Minhas Ligas</h1>
@@ -107,14 +119,18 @@
                                     <span class="text-blue-300 text-xs font-bold"><i class="fas fa-user-shield mr-1"></i> Membro</span>
                                 </h:panelGroup>
 
-                                <p:button outcome="/gerenciar-liga.xhtml" value="Acessar" icon="fas fa-sign-in-alt" styleClass="ui-button-outlined rounded-btn text-sm p-1 font-bold">
-    								<f:param name="id" value="#{liga.id}" />
-								</p:button>
+                                <div class="flex gap-2">
+                                    <p:button outcome="/liga.xhtml" value="Acessar" icon="fas fa-sign-in-alt" styleClass="ui-button-outlined rounded-btn text-sm p-1 font-bold">
+                                        <f:param name="id" value="#{liga.id}" />
+                                    </p:button>
+                                    <p:button outcome="/mural-liga.xhtml" value="Mural" icon="fas fa-bullhorn" styleClass="ui-button-help rounded-btn text-sm p-1 font-bold"/>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </ui:repeat>
             </div>
+            </h:panelGroup>
 
         </h:form>
     </ui:define>

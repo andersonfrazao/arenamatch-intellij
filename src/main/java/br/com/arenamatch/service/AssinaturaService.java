@@ -1,6 +1,7 @@
 package br.com.arenamatch.service;
 
 import br.com.arenamatch.entity.Usuario;
+import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.repository.UsuarioRepository;
@@ -39,6 +40,10 @@ public class AssinaturaService {
     public boolean temAcessoCompleto(Usuario usuario) {
         if (usuario == null) {
             return false;
+        }
+
+        if (Perfil.ADMIN.equals(usuario.getPerfil())) {
+            return true;
         }
 
         boolean trialValido = usuario.getPlanoAssinatura() == PlanoAssinatura.TRIAL

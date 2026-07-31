@@ -14,6 +14,9 @@ public class PartidaMapper {
         dto.setId(partida.getId());
         dto.setDataHora(partida.getDataHora());
         dto.setStatus(partida.getStatus());
+        dto.setGolsMandante(partida.getGolsMandante());
+        dto.setGolsVisitante(partida.getGolsVisitante());
+        dto.setStatusPlacar(partida.getStatusPlacar());
         dto.setMotivoCancelamento(partida.getMotivoCancelamento());
         dto.setDataSolicitacao(partida.getDataSolicitacao());
 

@@ -8,6 +8,7 @@ import br.com.arenamatch.entity.Liga;
 import br.com.arenamatch.enums.StatusConviteLiga;
 import br.com.arenamatch.repository.ConviteLigaRepository;
 import br.com.arenamatch.repository.LigaRepository;
+import br.com.arenamatch.repository.PartidaLigaRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +18,17 @@ public class LigaConsultaService {
 
     private final LigaRepository ligaRepository;
     private final ConviteLigaRepository conviteLigaRepository;
+    private final PartidaLigaRepository partidaLigaRepository;
     private final LigaMapper ligaMapper;
 
     public LigaConsultaService(
             LigaRepository ligaRepository,
             ConviteLigaRepository conviteLigaRepository,
+            PartidaLigaRepository partidaLigaRepository,
             LigaMapper ligaMapper) {
         this.ligaRepository = ligaRepository;
         this.conviteLigaRepository = conviteLigaRepository;
+        this.partidaLigaRepository = partidaLigaRepository;
         this.ligaMapper = ligaMapper;
     }
 
@@ -77,7 +81,9 @@ public class LigaConsultaService {
                 .map(liga -> {
                     boolean temPendente = conviteLigaRepository.existsByLigaIdAndTimeConvidadoIdAndStatus(
                             liga.getId(), meuTimeId, StatusConviteLiga.PENDENTE);
-                    return ligaMapper.toExplorarDTO(liga, meuTimeId, temPendente);
+                    long publicacoesAbertas = ligaRepository.contarPublicacoesAbertas(liga.getId());
+                    long jogos = partidaLigaRepository.countByLigaId(liga.getId());
+                    return ligaMapper.toExplorarDTO(liga, meuTimeId, temPendente, publicacoesAbertas, jogos);
                 })
                 .toList();
     }

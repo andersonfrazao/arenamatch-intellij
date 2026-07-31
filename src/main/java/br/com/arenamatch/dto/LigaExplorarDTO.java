@@ -11,6 +11,9 @@ public class LigaExplorarDTO implements Serializable {
     private String nome;
     private String nomeTimeAdmin;    // Ex: Tabajara FC (Quem administra)
     private int qtdTimes;            
+    private long qtdPublicacoesAbertas;
+    private long qtdJogos;
+    private long movimentacao;
     
     // Flags de regra de negócio para a tela:
     private boolean souAdmin;        // true se o idTime logado for o admin

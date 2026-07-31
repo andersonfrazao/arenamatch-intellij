@@ -52,6 +52,15 @@ public class LigaMapper {
     }
 
     public LigaExplorarDTO toExplorarDTO(Liga liga, Long meuTimeId, boolean convitePendente) {
+        return toExplorarDTO(liga, meuTimeId, convitePendente, 0, 0);
+    }
+
+    public LigaExplorarDTO toExplorarDTO(
+            Liga liga,
+            Long meuTimeId,
+            boolean convitePendente,
+            long qtdPublicacoesAbertas,
+            long qtdJogos) {
         LigaExplorarDTO dto = new LigaExplorarDTO();
         dto.setId(liga.getId());
         dto.setNome(liga.getNome());
@@ -64,6 +73,9 @@ public class LigaMapper {
         dto.setQtdTimes(liga.getTimes() != null ? liga.getTimes().size() : 0);
         dto.setJaParticipa(liga.getTimes().stream().anyMatch(time -> time.getId().equals(meuTimeId)));
         dto.setConvitePendente(convitePendente);
+        dto.setQtdPublicacoesAbertas(qtdPublicacoesAbertas);
+        dto.setQtdJogos(qtdJogos);
+        dto.setMovimentacao(dto.getQtdTimes() + qtdPublicacoesAbertas + qtdJogos);
         return dto;
     }
 }

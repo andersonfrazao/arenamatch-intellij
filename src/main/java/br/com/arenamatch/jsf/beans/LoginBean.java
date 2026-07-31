@@ -63,7 +63,7 @@ public class LoginBean implements Serializable {
             if (loginResponse != null && loginResponse.getUsuario() != null) {
                 sessaoBean.setUsuarioLogado(loginResponse.getUsuario());
                 sessaoBean.setTokenJwt(loginResponse.getToken());
-                return "/minha-agenda?faces-redirect=true"; // Navegação
+                return "/modulos.xhtml?faces-redirect=true";
             }
         } catch (RestClientResponseException e) {
             String mensagem = e.getResponseBodyAsString();

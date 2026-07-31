@@ -1,8 +1,16 @@
 package br.com.arenamatch.jsf.beans;
 
 import br.com.arenamatch.jsf.client.LigaClient;
+import br.com.arenamatch.dto.BanimentoLigaDTO;
+import br.com.arenamatch.dto.NovaPublicacaoLigaDTO;
 import br.com.arenamatch.dto.LigaDetalheDTO;
+import br.com.arenamatch.dto.PartidaDTO;
+import br.com.arenamatch.dto.PublicacaoLigaDTO;
+import br.com.arenamatch.dto.RankingLigaDTO;
+import br.com.arenamatch.dto.ScoutLigaDTO;
 import br.com.arenamatch.dto.TimeSimplesDTO;
+import br.com.arenamatch.enums.Categoria;
+import br.com.arenamatch.enums.TipoProcuraPublicacaoLiga;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -13,7 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -45,14 +55,71 @@ public class GerenciarLigaBean implements Serializable {
     @Getter @Setter
     private List<TimeSimplesDTO> resultadosBusca = new ArrayList<>();
 
+    @Getter @Setter
+    private List<PartidaDTO> jogosDaLiga = new ArrayList<>();
+
+    @Getter @Setter
+    private List<PublicacaoLigaDTO> publicacoesDaLiga = new ArrayList<>();
+
+    @Getter @Setter
+    private List<RankingLigaDTO> rankingDaLiga = new ArrayList<>();
+
+    @Getter @Setter
+    private ScoutLigaDTO scoutDaLiga;
+
+    @Getter @Setter
+    private LocalDate dataJogoPublicacao;
+
+    @Getter @Setter
+    private String horaInicioPublicacao;
+
+    @Getter @Setter
+    private String horaFimPublicacao;
+
+    @Getter @Setter
+    private TipoProcuraPublicacaoLiga tipoProcuraPublicacao = TipoProcuraPublicacaoLiga.AMBOS;
+
+    @Getter @Setter
+    private Categoria categoriaPublicacao;
+
+    @Getter @Setter
+    private String regiaoPublicacao;
+
+    @Getter @Setter
+    private String observacaoPublicacao;
+
+    @Getter @Setter
+    private List<BanimentoLigaDTO> banimentosAtivos = new ArrayList<>();
+
+    @Getter @Setter
+    private TimeSimplesDTO membroSelecionadoParaBanimento;
+
+    @Getter @Setter
+    private String motivoBanimento;
+
     // --- NOVA LISTA PARA SEGURAR OS IDS ---
     @Getter @Setter
     private List<Long> idsTimesComConvite = new ArrayList<>();
 
     public void carregarLiga() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            ligaAtual = null;
+            jogosDaLiga = new ArrayList<>();
+            publicacoesDaLiga = new ArrayList<>();
+            rankingDaLiga = new ArrayList<>();
+            banimentosAtivos = new ArrayList<>();
+            scoutDaLiga = null;
+            return;
+        }
+
         if (ligaId != null) {
             try {
                 ligaAtual = ligaClient.buscarLigaPorId(ligaId);
+                jogosDaLiga = ligaClient.listarJogosDaLiga(ligaId);
+                publicacoesDaLiga = ligaClient.listarPublicacoesDaLiga(ligaId);
+                rankingDaLiga = ligaClient.buscarRankingDaLiga(ligaId);
+                banimentosAtivos = ligaClient.listarBanimentosAtivos(ligaId);
+                carregarScoutDaLiga();
                 log.info("Liga [{}] carregada com sucesso na tela de gestão.", ligaAtual.getNome());
             } catch (Exception e) {
                 log.error("Erro fatal ao carregar a liga com ID: {}", ligaId, e);
@@ -64,6 +131,11 @@ public class GerenciarLigaBean implements Serializable {
     }
 
     public void buscarTimesParaConvidar() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         if (termoBusca == null || termoBusca.trim().length() < 3) {
             msgErro("Digite pelo menos 3 letras para buscar.");
             return;
@@ -91,6 +163,15 @@ public class GerenciarLigaBean implements Serializable {
     }
 
     // --- MÉTODOS DE VALIDAÇÃO DE TELA ---
+    private void carregarScoutDaLiga() {
+        scoutDaLiga = null;
+        if (sessaoBean.getUsuarioLogado() == null || sessaoBean.getUsuarioLogado().getIdTime() == null) {
+            return;
+        }
+
+        scoutDaLiga = ligaClient.buscarScoutDaLiga(ligaId, sessaoBean.getUsuarioLogado().getIdTime());
+    }
+
     public boolean jaEhMembro(Long idTimeBuscado) {
         if (ligaAtual != null && ligaAtual.getTimes() != null) {
             return ligaAtual.getTimes().stream()
@@ -106,15 +187,96 @@ public class GerenciarLigaBean implements Serializable {
         return false;
     }
 
+    public boolean isAdminDaLiga() {
+        if (ligaAtual == null
+                || ligaAtual.getAdmin() == null
+                || sessaoBean.getUsuarioLogado() == null
+                || sessaoBean.getUsuarioLogado().getIdTime() == null) {
+            return false;
+        }
+
+        return ligaAtual.getAdmin().getId().equals(sessaoBean.getUsuarioLogado().getIdTime());
+    }
+
     public void removerMembro(TimeSimplesDTO membro) {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         try {
+            if (!isAdminDaLiga()) {
+                msgErro("Apenas o administrador da liga pode remover membros.");
+                return;
+            }
+
+            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
             log.info("Iniciando remoção do time '{}' (ID: {}) da liga ID {}", membro.getNome(), membro.getId(), ligaId);
-            ligaClient.removerMembro(ligaId, membro.getId());
+            ligaClient.removerMembro(ligaId, membro.getId(), meuTimeId);
             msgInfo(membro.getNome() + " foi removido da liga.");
             carregarLiga(); 
         } catch (Exception e) {
             log.error("Erro ao remover o time ID {} da liga ID {}", membro.getId(), ligaId, e);
             msgErro("Erro ao remover time.");
+        }
+    }
+
+    public void prepararBanimento(TimeSimplesDTO membro) {
+        this.membroSelecionadoParaBanimento = membro;
+        this.motivoBanimento = null;
+    }
+
+    public void cancelarBanimento() {
+        this.membroSelecionadoParaBanimento = null;
+        this.motivoBanimento = null;
+    }
+
+    public void banirMembro() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
+        try {
+            if (!isAdminDaLiga()) {
+                msgErro("Apenas o administrador da liga pode banir membros.");
+                return;
+            }
+            if (membroSelecionadoParaBanimento == null) {
+                msgErro("Selecione um membro para banir.");
+                return;
+            }
+
+            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
+            ligaClient.banirMembro(ligaId, membroSelecionadoParaBanimento.getId(), meuTimeId, motivoBanimento);
+            msgInfo(membroSelecionadoParaBanimento.getNome() + " foi banido da liga.");
+            cancelarBanimento();
+            carregarLiga();
+        } catch (Exception e) {
+            log.error("Erro ao banir membro da liga {}", ligaId, e);
+            msgErro("Erro ao banir membro.");
+        }
+    }
+
+    public void reverterBanimento(BanimentoLigaDTO banimento) {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
+        try {
+            if (!isAdminDaLiga()) {
+                msgErro("Apenas o administrador da liga pode reverter banimentos.");
+                return;
+            }
+
+            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
+            ligaClient.reverterBanimento(ligaId, banimento.getTimeBanido().getId(), meuTimeId);
+            msgInfo("Banimento revertido.");
+            carregarLiga();
+        } catch (Exception e) {
+            log.error("Erro ao reverter banimento da liga {}", ligaId, e);
+            msgErro("Erro ao reverter banimento.");
         }
     }
     
@@ -149,6 +311,85 @@ public class GerenciarLigaBean implements Serializable {
             log.error("Erro ao enviar convite", e);
             msgErro("Erro ao enviar convite.");
         }
+    }
+
+    public void criarPublicacao() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
+        try {
+            if (ligaId == null || sessaoBean.getUsuarioLogado() == null || sessaoBean.getUsuarioLogado().getIdTime() == null) {
+                msgErro("Nao foi possivel identificar o time logado.");
+                return;
+            }
+
+            NovaPublicacaoLigaDTO dto = new NovaPublicacaoLigaDTO();
+            dto.setIdLiga(ligaId);
+            dto.setIdTimeAutor(sessaoBean.getUsuarioLogado().getIdTime());
+            dto.setDataJogo(dataJogoPublicacao != null ? dataJogoPublicacao.atStartOfDay() : null);
+            dto.setHoraInicio(horaInicioPublicacao);
+            dto.setHoraFim(horaFimPublicacao);
+            dto.setTipoProcura(tipoProcuraPublicacao);
+            dto.setCategoria(categoriaPublicacao);
+            dto.setRegiao(regiaoPublicacao);
+            dto.setObservacao(observacaoPublicacao);
+
+            ligaClient.criarPublicacao(ligaId, dto);
+            msgInfo("Publicacao criada no mural da liga.");
+            limparFormularioPublicacao();
+            publicacoesDaLiga = ligaClient.listarPublicacoesDaLiga(ligaId);
+        } catch (Exception e) {
+            log.error("Erro ao criar publicacao no mural da liga {}", ligaId, e);
+            msgErro("Erro ao criar publicacao.");
+        }
+    }
+
+    public void cancelarPublicacao(PublicacaoLigaDTO publicacao) {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
+        try {
+            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
+            ligaClient.cancelarPublicacao(publicacao.getId(), meuTimeId);
+            msgInfo("Publicacao cancelada.");
+            publicacoesDaLiga = ligaClient.listarPublicacoesDaLiga(ligaId);
+        } catch (Exception e) {
+            log.error("Erro ao cancelar publicacao {}", publicacao != null ? publicacao.getId() : null, e);
+            msgErro("Erro ao cancelar publicacao.");
+        }
+    }
+
+    public boolean podeCancelarPublicacao(PublicacaoLigaDTO publicacao) {
+        if (publicacao == null || sessaoBean.getUsuarioLogado() == null || ligaAtual == null) {
+            return false;
+        }
+
+        Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
+        return meuTimeId != null
+                && (meuTimeId.equals(publicacao.getTimeAutor().getId())
+                || (ligaAtual.getAdmin() != null && meuTimeId.equals(ligaAtual.getAdmin().getId())));
+    }
+
+    public List<TipoProcuraPublicacaoLiga> getTiposProcura() {
+        return Arrays.asList(TipoProcuraPublicacaoLiga.values());
+    }
+
+    public List<Categoria> getCategorias() {
+        return Arrays.asList(Categoria.values());
+    }
+
+    private void limparFormularioPublicacao() {
+        dataJogoPublicacao = null;
+        horaInicioPublicacao = null;
+        horaFimPublicacao = null;
+        tipoProcuraPublicacao = TipoProcuraPublicacaoLiga.AMBOS;
+        categoriaPublicacao = null;
+        regiaoPublicacao = null;
+        observacaoPublicacao = null;
     }
 
     private void msgInfo(String msg) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       lang="pt-BR"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -219,33 +219,31 @@
                 </div>
 
                 <nav class="am-nav flex-grow-1">
+                    <h:link outcome="/mural-liga.xhtml" styleClass="#{view.viewId eq '/mural-liga.xhtml' or view.viewId eq '/anunciar-jogo-liga.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-bullhorn w-2rem text-center text-lg"></i> Mural
+                    </h:link>
+                    <h:link outcome="/ligas" styleClass="#{view.viewId eq '/ligas.xhtml' or view.viewId eq '/minhas-ligas.xhtml' or view.viewId eq '/explorar-ligas.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-trophy w-2rem text-center text-lg"></i> Ligas
+                    </h:link>
+                    <h:link outcome="/minhas-ligas.xhtml" styleClass="#{view.viewId eq '/minhas-ligas.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-envelope-open-text w-2rem text-center text-lg"></i> Convites
+                    </h:link>
                     <h:link outcome="/modulos" styleClass="#{view.viewId eq '/modulos.xhtml' ? 'active' : ''}">
                         <i class="fas fa-grip w-2rem text-center text-lg"></i> Módulos
                     </h:link>
-                    <h:link outcome="/minha-agenda" styleClass="#{view.viewId eq '/minha-agenda.xhtml' ? 'active' : ''}">
-                        <i class="far fa-calendar-alt w-2rem text-center text-lg"></i> Agenda
-                    </h:link>
-                    <h:link outcome="/busca-time" styleClass="#{view.viewId eq '/busca-time.xhtml' ? 'active' : ''}">
-                        <i class="fas fa-search w-2rem text-center text-lg"></i> Buscar jogo
-                    </h:link>
-<h:link outcome="/ranking" styleClass="#{view.viewId eq '/ranking.xhtml' ? 'active' : ''}">
-                        <i class="fas fa-list-ol w-2rem text-center text-lg"></i> Ranking
-                    </h:link>                    
-                    <h:panelGroup id="painelChatMenuDesktop" layout="block">
-					    <h:link outcome="/chat" styleClass="#{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
-				            <span class="relative inline-flex">
-                                <i class="fas fa-comments w-2rem text-center text-lg"></i>
-                                <h:panelGroup rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">
-                                    <span class="absolute" style="top:-7px; right:-3px; background:#ef4444; border:2px solid #0f172a; border-radius:50%; width:12px; height:12px;"></span>
-                                </h:panelGroup>
-                            </span>
-				            Chat 
-				            <p:badge value="#{sessaoBean.qtdMensagensNaoLidas}" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}" severity="danger" styleClass="ml-2"/>
-				        </h:link>
+                    <h:panelGroup rendered="#{not empty param.id}" layout="block">
+                        <div class="mt-4 pt-3 border-top-1 border-white-alpha-10 w-full">
+                            <div class="text-gray-500 text-xs font-bold uppercase px-3 mb-2 tracking-wider">Liga atual</div>
+                            <h:link outcome="/liga.xhtml" styleClass="#{view.viewId eq '/liga.xhtml' ? 'active' : ''}">
+                                <i class="fas fa-table w-2rem text-center text-lg"></i> Jogos e Ranking
+                                <f:param name="id" value="#{param.id}" />
+                            </h:link>
+                            <h:link outcome="/gerenciar-liga.xhtml" styleClass="#{view.viewId eq '/gerenciar-liga.xhtml' ? 'active' : ''}">
+                                <i class="fas fa-users-cog w-2rem text-center text-lg"></i> Gerenciar
+                                <f:param name="id" value="#{param.id}" />
+                            </h:link>
+                        </div>
                     </h:panelGroup>
-                    <h:link outcome="/cadastro" styleClass="#{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
-                        <i class="fas fa-id-card w-2rem text-center text-lg"></i> Meus Dados
-                    </h:link>
 
                     <div class="mt-4 pt-3 border-top-1 border-white-alpha-10 w-full">
                         <div class="text-gray-500 text-xs font-bold uppercase px-3 mb-2 tracking-wider">Suporte</div>
@@ -558,37 +556,17 @@
 
 	<h:panelGroup rendered="#{sessaoBean.logado}">
 		<div class="am-bottom-nav">
-            <h:link outcome="/modulos" styleClass="am-b-item #{view.viewId eq '/modulos.xhtml' ? 'active' : ''}">
-		        <i class="fas fa-grip text-xl"></i><span>Módulos</span>
-		    </h:link>
-		    <h:link outcome="/minha-agenda" styleClass="am-b-item #{view.viewId eq '/minha-agenda.xhtml' ? 'active' : ''}">
-		        <i class="far fa-calendar-alt text-xl"></i><span>Agenda</span>
-		    </h:link>
-		    <h:link outcome="/busca-time" styleClass="am-b-item #{view.viewId eq '/busca-time.xhtml' ? 'active' : ''}">
-		        <i class="fas fa-search text-xl"></i><span>Buscar</span>
-		    </h:link>
-<h:link outcome="/ranking" styleClass="am-b-item #{view.viewId eq '/ranking.xhtml' ? 'active' : ''}">
-		        <i class="fas fa-list-ol text-xl"></i><span>Ranking</span>
-		    </h:link>
-            <h:panelGroup id="painelChatMenuMobile" layout="block" styleClass="flex-1">
-		        <h:link outcome="/chat" styleClass="am-b-item #{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
-		            <i class="fas fa-comments text-xl relative">
-		                <h:panelGroup rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">
-		                    <span class="absolute" style="top:-5px; right:-8px; background:#ef4444; border:2px solid #0f172a; border-radius:50%; width:12px; height:12px;"></span>
-		                </h:panelGroup>
-		            </i>
-		            <span>Chat</span>
-		        </h:link>
-            </h:panelGroup>
-		    <h:link outcome="/cadastro" styleClass="am-b-item #{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
-		        <i class="fas fa-id-card text-xl"></i><span>Dados</span>
-		    </h:link>
-            
-            <h:link outcome="/fale-conosco" styleClass="am-b-item #{view.viewId eq '/fale-conosco.xhtml' ? 'active' : ''}">
-                <i class="fas fa-headset text-xl"></i><span>Suporte</span>
+            <h:link outcome="/mural-liga.xhtml" styleClass="am-b-item #{view.viewId eq '/mural-liga.xhtml' or view.viewId eq '/anunciar-jogo-liga.xhtml' ? 'active' : ''}">
+                <i class="fas fa-bullhorn text-xl"></i><span>Mural</span>
             </h:link>
-            <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="am-b-item #{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
-                <i class="fas fa-user-shield text-xl"></i><span>Admin</span>
+            <h:link outcome="/ligas" styleClass="am-b-item #{view.viewId eq '/ligas.xhtml' or view.viewId eq '/minhas-ligas.xhtml' or view.viewId eq '/explorar-ligas.xhtml' ? 'active' : ''}">
+                <i class="fas fa-trophy text-xl"></i><span>Ligas</span>
+            </h:link>
+            <h:link outcome="/minhas-ligas.xhtml" styleClass="am-b-item #{view.viewId eq '/minhas-ligas.xhtml' ? 'active' : ''}">
+                <i class="fas fa-envelope-open-text text-xl"></i><span>Convites</span>
+            </h:link>
+            <h:link outcome="/modulos" styleClass="am-b-item #{view.viewId eq '/modulos.xhtml' ? 'active' : ''}">
+                <i class="fas fa-grip text-xl"></i><span>Módulos</span>
             </h:link>
 		</div>
         

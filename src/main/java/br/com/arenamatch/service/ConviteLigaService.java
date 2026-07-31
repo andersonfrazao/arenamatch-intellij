@@ -21,18 +21,21 @@ public class ConviteLigaService {
     private final TimeRepository timeRepository;
     private final SimpMessagingTemplate mensageiro;
     private final PlacarPendenteService placarPendenteService;
+    private final BanimentoLigaService banimentoLigaService;
 
     public ConviteLigaService(
             LigaRepository ligaRepository,
             ConviteLigaRepository conviteLigaRepository,
             TimeRepository timeRepository,
             SimpMessagingTemplate mensageiro,
-            PlacarPendenteService placarPendenteService) {
+            PlacarPendenteService placarPendenteService,
+            BanimentoLigaService banimentoLigaService) {
         this.ligaRepository = ligaRepository;
         this.conviteLigaRepository = conviteLigaRepository;
         this.timeRepository = timeRepository;
         this.mensageiro = mensageiro;
         this.placarPendenteService = placarPendenteService;
+        this.banimentoLigaService = banimentoLigaService;
     }
 
     @Transactional
@@ -44,6 +47,7 @@ public class ConviteLigaService {
                 .orElseThrow(() -> new RuntimeException("Time convidado não encontrado."));
 
         placarPendenteService.validarSemPlacarPendente(liga.getAdmin().getId());
+        banimentoLigaService.validarTimeNaoBanido(idLiga, idTimeConvidado);
 
         if (liga.getTimes().contains(convidado)) {
             throw new RuntimeException("Este time já faz parte da liga.");
@@ -94,6 +98,7 @@ public class ConviteLigaService {
         Time time = convite.getTimeConvidado();
 
         placarPendenteService.validarSemPlacarPendente(time.getId());
+        banimentoLigaService.validarTimeNaoBanido(liga.getId(), time.getId());
 
         if (!liga.getTimes().contains(time)) {
             liga.getTimes().add(time);

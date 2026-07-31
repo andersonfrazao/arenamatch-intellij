@@ -52,6 +52,12 @@ public class LigaBean implements Serializable {
     }
 
     public void carregarDados() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            minhasLigas = new ArrayList<>();
+            convitesPendentes = new ArrayList<>();
+            return;
+        }
+
         try {
             minhasLigas = ligaClient.buscarLigasDoTime(getMeuTimeId());
             convitesPendentes = ligaClient.buscarConvitesPendentes(getMeuTimeId());
@@ -63,6 +69,11 @@ public class LigaBean implements Serializable {
 
     // --- AÇÕES DO FORMULÁRIO INLINE ---
     public void prepararNovaLiga() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         this.exibindoFormulario = true;
         this.nomeNovaLiga = "";
         this.descricaoNovaLiga = "";
@@ -73,6 +84,11 @@ public class LigaBean implements Serializable {
     }
 
     public void salvarNovaLiga() {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         try {
             if (nomeNovaLiga == null || nomeNovaLiga.trim().isEmpty()) {
                 msgErro("O nome da liga é obrigatório.");
@@ -95,6 +111,11 @@ public class LigaBean implements Serializable {
 
     // --- AÇÕES DE CONVITE ---
     public void aceitarConvite(ConviteLigaDTO convite) {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         try {
             ligaClient.responderConvite(convite.getId(), true);
             msgInfo("Você entrou na liga " + convite.getLiga().getNome() + "!");
@@ -105,6 +126,11 @@ public class LigaBean implements Serializable {
     }
 
     public void recusarConvite(ConviteLigaDTO convite) {
+        if (!sessaoBean.isAcessoCompleto()) {
+            msgErro("Ligas estao disponiveis para plano PRO ou periodo trial ativo.");
+            return;
+        }
+
         try {
             ligaClient.responderConvite(convite.getId(), false);
             msgInfo("Convite recusado.");

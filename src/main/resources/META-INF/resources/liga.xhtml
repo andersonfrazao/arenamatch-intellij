@@ -1,0 +1,256 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template/layout-ligas.xhtml">
+
+    <f:metadata>
+        <f:viewParam name="id" value="#{gerenciarLigaBean.ligaId}" />
+        <f:viewAction action="#{gerenciarLigaBean.carregarLiga}" />
+    </f:metadata>
+
+    <ui:define name="tituloPagina">#{gerenciarLigaBean.ligaAtual.nome}</ui:define>
+    <ui:define name="subtituloPagina">Modulo Ligas</ui:define>
+
+    <ui:define name="conteudo">
+        <h:form id="formLiga">
+            <p:growl id="msgs" showDetail="true" life="4000"/>
+
+            <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block">
+                <div class="bg-bluegray-900 p-5 border-round-xl shadow-4 text-center" style="border: 1px solid rgba(234,179,8,0.30);">
+                    <i class="fas fa-lock text-yellow-300 text-5xl mb-3"></i>
+                    <div class="text-white text-2xl font-bold mb-2">Esta liga exige plano PRO</div>
+                    <div class="text-gray-300 line-height-3">
+                        Ative um plano PRO ou utilize um periodo trial valido para acessar mural, jogos, ranking e scout por liga.
+                    </div>
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{sessaoBean.acessoCompleto}" layout="block">
+
+            <div class="flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
+                <div>
+                    <h1 class="text-white text-2xl font-bold m-0">
+                        <i class="fas fa-trophy text-purple-300 mr-2"></i> #{gerenciarLigaBean.ligaAtual.nome}
+                    </h1>
+                    <div class="text-gray-400 text-sm mt-1">
+                        #{gerenciarLigaBean.ligaAtual.times.size()} times parceiros
+                    </div>
+                </div>
+                <p:button outcome="/ligas" value="Voltar para Ligas" icon="fas fa-arrow-left"
+                          styleClass="ui-button-secondary rounded-btn font-bold"/>
+            </div>
+
+            <p:tabView styleClass="bg-transparent">
+                <p:tab title="Inicio">
+                    <div class="grid">
+                        <div class="col-12 md:col-4">
+                            <div class="bg-bluegray-900 p-4 border-round-xl shadow-4 h-full" style="border: 1px solid rgba(168,85,247,0.26);">
+                                <div class="text-purple-300 font-bold text-sm uppercase mb-2">Membros</div>
+                                <div class="text-white text-4xl font-bold">#{gerenciarLigaBean.ligaAtual.times.size()}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="bg-bluegray-900 p-4 border-round-xl shadow-4 h-full" style="border: 1px solid rgba(56,189,248,0.26);">
+                                <div class="text-cyan-300 font-bold text-sm uppercase mb-2">Jogos da liga</div>
+                                <div class="text-white text-4xl font-bold">#{gerenciarLigaBean.jogosDaLiga.size()}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-4">
+                            <div class="bg-bluegray-900 p-4 border-round-xl shadow-4 h-full" style="border: 1px solid rgba(234,179,8,0.26);">
+                                <div class="text-yellow-300 font-bold text-sm uppercase mb-2">Publicacoes</div>
+                                <div class="text-white text-4xl font-bold">#{gerenciarLigaBean.publicacoesDaLiga.size()}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-bluegray-900 p-4 border-round-xl shadow-4 mt-3" style="border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="text-white font-bold text-lg mb-2">Sobre a liga</div>
+                        <div class="text-gray-300 line-height-3">
+                            #{empty gerenciarLigaBean.ligaAtual.descricao ? 'Esta liga ainda nao possui descricao.' : gerenciarLigaBean.ligaAtual.descricao}
+                        </div>
+                        <p:button outcome="/mural-liga.xhtml" value="Abrir Mural" icon="fas fa-bullhorn"
+                                  styleClass="ui-button-help rounded-btn font-bold mt-3"/>
+                    </div>
+                </p:tab>
+
+                <p:tab title="Agenda/Jogos">
+                    <h:panelGroup rendered="#{empty gerenciarLigaBean.jogosDaLiga}">
+                        <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                            Nenhum jogo vinculado a esta liga ainda.
+                        </div>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{not empty gerenciarLigaBean.jogosDaLiga}">
+                        <div class="am-table-scroll">
+                            <p:dataTable value="#{gerenciarLigaBean.jogosDaLiga}" var="jogo" styleClass="ui-datatable-sm bg-transparent">
+                                <p:column headerText="Data" styleClass="bg-transparent text-white border-bottom-1 border-gray-700" width="150">
+                                    <h:outputText value="#{jogo.dataHora}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Jogo" styleClass="bg-transparent text-white border-bottom-1 border-gray-700">
+                                    <strong>#{jogo.mandante.nome}</strong>
+                                    <span class="text-gray-400 mx-2">x</span>
+                                    <strong>#{jogo.visitante.nome}</strong>
+                                </p:column>
+                                <p:column headerText="Status" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="120">
+                                    #{jogo.status}
+                                </p:column>
+                                <p:column headerText="Placar" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="110">
+                                    <h:panelGroup rendered="#{not empty jogo.golsMandante and not empty jogo.golsVisitante}">
+                                        <strong>#{jogo.golsMandante} x #{jogo.golsVisitante}</strong>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{empty jogo.golsMandante or empty jogo.golsVisitante}">
+                                        <span class="text-gray-500 text-xs">Pendente</span>
+                                    </h:panelGroup>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </h:panelGroup>
+                </p:tab>
+
+                <p:tab title="Mural" rendered="false">
+                    <h:panelGroup rendered="#{empty gerenciarLigaBean.publicacoesDaLiga}">
+                        <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                            Nenhuma publicacao no mural desta liga.
+                        </div>
+                    </h:panelGroup>
+                    <ui:repeat value="#{gerenciarLigaBean.publicacoesDaLiga}" var="publicacao">
+                        <div class="p-3 mb-2 bg-bluegray-900 border-round-xl shadow-2" style="border: 1px solid rgba(255,255,255,0.1);">
+                            <div class="flex justify-content-between align-items-start gap-3 flex-wrap">
+                                <div>
+                                    <div class="text-white font-bold">
+                                        #{publicacao.timeAutor.nome}
+                                        <span class="text-gray-400 font-normal">procura #{publicacao.tipoProcura}</span>
+                                    </div>
+                                    <div class="text-gray-300 text-sm mt-1">
+                                        <h:outputText value="#{publicacao.dataJogo}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
+                                        </h:outputText>
+                                        <h:panelGroup rendered="#{not empty publicacao.horaInicio}"> · #{publicacao.horaInicio}</h:panelGroup>
+                                        <h:panelGroup rendered="#{not empty publicacao.horaFim}"> - #{publicacao.horaFim}</h:panelGroup>
+                                        <h:panelGroup rendered="#{not empty publicacao.regiao}"> · #{publicacao.regiao}</h:panelGroup>
+                                    </div>
+                                    <h:panelGroup rendered="#{not empty publicacao.observacao}">
+                                        <div class="text-gray-400 text-sm mt-2">#{publicacao.observacao}</div>
+                                    </h:panelGroup>
+                                </div>
+                                <span class="text-xs font-bold bg-bluegray-800 px-2 py-1 border-round">#{publicacao.status}</span>
+                            </div>
+                        </div>
+                    </ui:repeat>
+                </p:tab>
+
+                <p:tab title="Ranking">
+                    <h:panelGroup rendered="#{empty gerenciarLigaBean.rankingDaLiga}">
+                        <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                            Nenhum ranking calculado para esta liga.
+                        </div>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{not empty gerenciarLigaBean.rankingDaLiga}">
+                        <div class="am-table-scroll">
+                            <p:dataTable value="#{gerenciarLigaBean.rankingDaLiga}" var="linha" rowIndexVar="pos"
+                                         styleClass="ui-datatable-sm bg-transparent">
+                                <p:column headerText="#" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="60">#{pos + 1}</p:column>
+                                <p:column headerText="Time" styleClass="bg-transparent text-white border-bottom-1 border-gray-700"><strong>#{linha.nomeTime}</strong></p:column>
+                                <p:column headerText="Pts" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="70"><strong>#{linha.pontos}</strong></p:column>
+                                <p:column headerText="J" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.jogos}</p:column>
+                                <p:column headerText="V" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.vitorias}</p:column>
+                                <p:column headerText="E" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.empates}</p:column>
+                                <p:column headerText="D" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="55">#{linha.derrotas}</p:column>
+                                <p:column headerText="SG" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="60">#{linha.saldoGols}</p:column>
+                            </p:dataTable>
+                        </div>
+                    </h:panelGroup>
+                </p:tab>
+
+                <p:tab title="Scout">
+                    <h:panelGroup rendered="#{empty gerenciarLigaBean.scoutDaLiga or gerenciarLigaBean.scoutDaLiga.jogos == 0}">
+                        <div class="text-gray-400 text-sm text-center p-4 border-round border-1 border-gray-700 bg-black-alpha-20">
+                            Seu time ainda nao possui partidas confirmadas nesta liga.
+                        </div>
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{not empty gerenciarLigaBean.scoutDaLiga and gerenciarLigaBean.scoutDaLiga.jogos > 0}">
+                        <div class="grid mb-3">
+                            <div class="col-6 md:col-2">
+                                <div class="bg-bluegray-900 p-3 border-round-xl text-center" style="border: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="text-gray-400 text-xs font-bold uppercase mb-1">Jogos</div>
+                                    <div class="text-white text-2xl font-bold">#{gerenciarLigaBean.scoutDaLiga.jogos}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <div class="bg-bluegray-900 p-3 border-round-xl text-center" style="border: 1px solid rgba(34,197,94,0.25);">
+                                    <div class="text-green-300 text-xs font-bold uppercase mb-1">Vitorias</div>
+                                    <div class="text-white text-2xl font-bold">#{gerenciarLigaBean.scoutDaLiga.vitorias}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <div class="bg-bluegray-900 p-3 border-round-xl text-center" style="border: 1px solid rgba(234,179,8,0.25);">
+                                    <div class="text-yellow-300 text-xs font-bold uppercase mb-1">Empates</div>
+                                    <div class="text-white text-2xl font-bold">#{gerenciarLigaBean.scoutDaLiga.empates}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <div class="bg-bluegray-900 p-3 border-round-xl text-center" style="border: 1px solid rgba(248,113,113,0.25);">
+                                    <div class="text-red-300 text-xs font-bold uppercase mb-1">Derrotas</div>
+                                    <div class="text-white text-2xl font-bold">#{gerenciarLigaBean.scoutDaLiga.derrotas}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <div class="bg-bluegray-900 p-3 border-round-xl text-center" style="border: 1px solid rgba(56,189,248,0.25);">
+                                    <div class="text-cyan-300 text-xs font-bold uppercase mb-1">Saldo</div>
+                                    <div class="text-white text-2xl font-bold">#{gerenciarLigaBean.scoutDaLiga.saldoGols}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 md:col-2">
+                                <div class="bg-bluegray-900 p-3 border-round-xl text-center" style="border: 1px solid rgba(168,85,247,0.25);">
+                                    <div class="text-purple-300 text-xs font-bold uppercase mb-1">Aprov.</div>
+                                    <div class="text-white text-2xl font-bold">
+                                        <h:outputText value="#{gerenciarLigaBean.scoutDaLiga.aproveitamento}">
+                                            <f:convertNumber maxFractionDigits="1" minFractionDigits="1"/>
+                                        </h:outputText>%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="am-table-scroll">
+                            <p:dataTable value="#{gerenciarLigaBean.scoutDaLiga.ultimosJogos}" var="jogo"
+                                         styleClass="ui-datatable-sm bg-transparent" emptyMessage="Nenhum jogo confirmado.">
+                                <p:column headerText="Data" styleClass="bg-transparent text-white border-bottom-1 border-gray-700" width="150">
+                                    <h:outputText value="#{jogo.dataHora}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" type="localDateTime"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Jogo" styleClass="bg-transparent text-white border-bottom-1 border-gray-700">
+                                    <strong>#{jogo.mandante.nome}</strong>
+                                    <span class="text-gray-400 mx-2">x</span>
+                                    <strong>#{jogo.visitante.nome}</strong>
+                                </p:column>
+                                <p:column headerText="Placar" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center" width="110">
+                                    <strong>#{jogo.golsMandante} x #{jogo.golsVisitante}</strong>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </h:panelGroup>
+                </p:tab>
+
+                <p:tab title="Gerenciamento" rendered="#{gerenciarLigaBean.adminDaLiga}">
+                    <div class="bg-bluegray-900 p-4 border-round-xl shadow-4" style="border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="text-white font-bold text-lg mb-2">Gestao da liga</div>
+                        <div class="text-gray-400 text-sm mb-3">
+                            Convites, membros e configuracoes administrativas continuam disponiveis na tela de gestao enquanto a nova experiencia e reorganizada.
+                        </div>
+                        <p:button outcome="/gerenciar-liga.xhtml" value="Abrir gestao" icon="fas fa-cog"
+                                  styleClass="ui-button-help rounded-btn font-bold">
+                            <f:param name="id" value="#{gerenciarLigaBean.ligaId}" />
+                        </p:button>
+                    </div>
+                </p:tab>
+            </p:tabView>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>

@@ -9,10 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import br.com.arenamatch.dto.ConviteLigaDTO;
+import br.com.arenamatch.dto.CandidaturaPublicacaoLigaDTO;
+import br.com.arenamatch.dto.BanimentoLigaDTO;
+import br.com.arenamatch.dto.BanirTimeLigaDTO;
 import br.com.arenamatch.dto.EnviarConviteLigaDTO;
+import br.com.arenamatch.dto.JogoRecenteLigaDTO;
 import br.com.arenamatch.dto.LigaExplorarDTO;
 import br.com.arenamatch.dto.NovaLigaDTO;
+import br.com.arenamatch.dto.NovaPublicacaoLigaDTO;
+import br.com.arenamatch.dto.PartidaDTO;
+import br.com.arenamatch.dto.PublicacaoLigaDTO;
+import br.com.arenamatch.dto.RankingLigaDTO;
 import br.com.arenamatch.dto.ResponderConviteLigaDTO;
+import br.com.arenamatch.dto.ResultadoCandidaturaPublicacaoLigaDTO;
+import br.com.arenamatch.dto.ScoutLigaDTO;
 
 @Service
 public class LigaClient {
@@ -69,6 +79,91 @@ public class LigaClient {
                 .body(br.com.arenamatch.dto.LigaDetalheDTO.class);
     }
 
+    public List<PartidaDTO> listarJogosDaLiga(Long ligaId) {
+        PartidaDTO[] jogos = restClient.get()
+                .uri("/api/ligas/" + ligaId + "/jogos")
+                .retrieve()
+                .body(PartidaDTO[].class);
+        return jogos != null ? new ArrayList<>(Arrays.asList(jogos)) : new ArrayList<>();
+    }
+
+    public PublicacaoLigaDTO criarPublicacao(Long ligaId, NovaPublicacaoLigaDTO dto) {
+        return restClient.post()
+                .uri("/api/ligas/" + ligaId + "/publicacoes")
+                .body(dto)
+                .retrieve()
+                .body(PublicacaoLigaDTO.class);
+    }
+
+    public PublicacaoLigaDTO criarPublicacaoGlobal(NovaPublicacaoLigaDTO dto) {
+        return restClient.post()
+                .uri("/api/ligas/mural/publicacoes")
+                .body(dto)
+                .retrieve()
+                .body(PublicacaoLigaDTO.class);
+    }
+
+    public List<PublicacaoLigaDTO> listarPublicacoesDaLiga(Long ligaId) {
+        PublicacaoLigaDTO[] publicacoes = restClient.get()
+                .uri("/api/ligas/" + ligaId + "/publicacoes")
+                .retrieve()
+                .body(PublicacaoLigaDTO[].class);
+        return publicacoes != null ? new ArrayList<>(Arrays.asList(publicacoes)) : new ArrayList<>();
+    }
+
+    public List<PublicacaoLigaDTO> listarPublicacoesGlobais(Long meuTimeId) {
+        PublicacaoLigaDTO[] publicacoes = restClient.get()
+                .uri("/api/ligas/mural/publicacoes?meuTimeId=" + meuTimeId)
+                .retrieve()
+                .body(PublicacaoLigaDTO[].class);
+        return publicacoes != null ? new ArrayList<>(Arrays.asList(publicacoes)) : new ArrayList<>();
+    }
+
+    public List<JogoRecenteLigaDTO> listarJogosRecentesDoMural(int limite) {
+        JogoRecenteLigaDTO[] jogos = restClient.get()
+                .uri("/api/ligas/mural/jogos-recentes?limit=" + limite)
+                .retrieve()
+                .body(JogoRecenteLigaDTO[].class);
+        return jogos != null ? new ArrayList<>(Arrays.asList(jogos)) : new ArrayList<>();
+    }
+
+    public ResultadoCandidaturaPublicacaoLigaDTO candidatarPublicacao(
+            Long idPublicacao,
+            Long idTimeCandidato,
+            Long idLigaCandidato) {
+        CandidaturaPublicacaoLigaDTO dto = new CandidaturaPublicacaoLigaDTO();
+        dto.setIdTimeCandidato(idTimeCandidato);
+        dto.setIdLigaCandidato(idLigaCandidato);
+
+        return restClient.post()
+                .uri("/api/ligas/mural/publicacoes/" + idPublicacao + "/candidatar")
+                .body(dto)
+                .retrieve()
+                .body(ResultadoCandidaturaPublicacaoLigaDTO.class);
+    }
+
+    public void cancelarPublicacao(Long idPublicacao, Long idTimeSolicitante) {
+        restClient.delete()
+                .uri("/api/ligas/publicacoes/" + idPublicacao + "/time/" + idTimeSolicitante)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public List<RankingLigaDTO> buscarRankingDaLiga(Long ligaId) {
+        RankingLigaDTO[] ranking = restClient.get()
+                .uri("/api/ligas/" + ligaId + "/ranking")
+                .retrieve()
+                .body(RankingLigaDTO[].class);
+        return ranking != null ? new ArrayList<>(Arrays.asList(ranking)) : new ArrayList<>();
+    }
+
+    public ScoutLigaDTO buscarScoutDaLiga(Long ligaId, Long idTime) {
+        return restClient.get()
+                .uri("/api/ligas/" + ligaId + "/scout/time/" + idTime)
+                .retrieve()
+                .body(ScoutLigaDTO.class);
+    }
+
     // Atualize o retorno para List<TimeSimplesDTO>
     public List<br.com.arenamatch.dto.TimeSimplesDTO> buscarTimesPorNome(String nome) {
         br.com.arenamatch.dto.TimeSimplesDTO[] times = restClient.get()
@@ -95,9 +190,37 @@ public class LigaClient {
     }
 
     // --- MÉTODO PARA REMOVER MEMBRO (Ponto 2) ---
-    public void removerMembro(Long idLiga, Long idTime) {
+    public void removerMembro(Long idLiga, Long idTime, Long idTimeSolicitante) {
         restClient.delete()
-                .uri("/api/ligas/" + idLiga + "/membros/" + idTime)
+                .uri("/api/ligas/" + idLiga + "/membros/" + idTime + "?idTimeSolicitante=" + idTimeSolicitante)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public BanimentoLigaDTO banirMembro(Long idLiga, Long idTime, Long idTimeAdmin, String motivo) {
+        BanirTimeLigaDTO dto = new BanirTimeLigaDTO();
+        dto.setIdTime(idTime);
+        dto.setIdTimeAdmin(idTimeAdmin);
+        dto.setMotivo(motivo);
+
+        return restClient.post()
+                .uri("/api/ligas/" + idLiga + "/banimentos")
+                .body(dto)
+                .retrieve()
+                .body(BanimentoLigaDTO.class);
+    }
+
+    public List<BanimentoLigaDTO> listarBanimentosAtivos(Long idLiga) {
+        BanimentoLigaDTO[] banimentos = restClient.get()
+                .uri("/api/ligas/" + idLiga + "/banimentos/ativos")
+                .retrieve()
+                .body(BanimentoLigaDTO[].class);
+        return banimentos != null ? new ArrayList<>(Arrays.asList(banimentos)) : new ArrayList<>();
+    }
+
+    public void reverterBanimento(Long idLiga, Long idTime, Long idTimeAdmin) {
+        restClient.delete()
+                .uri("/api/ligas/" + idLiga + "/banimentos/" + idTime + "?idTimeAdmin=" + idTimeAdmin)
                 .retrieve()
                 .toBodilessEntity();
     }
