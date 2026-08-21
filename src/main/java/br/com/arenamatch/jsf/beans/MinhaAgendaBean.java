@@ -226,9 +226,12 @@ public class MinhaAgendaBean implements Serializable {
             }
             // SINCRONIZA O SININHO
             org.primefaces.PrimeFaces.current().executeScript("atualizarSininhoAjax();");
+        } catch (RestClientResponseException e) {
+            log.warn("Convite nao aceito por regra de negocio: status={}", e.getStatusCode());
+            msgErro(mensagemErroResposta(e, "Erro ao aceitar convite."));
         } catch (Exception e) {
-            e.printStackTrace();
-            msgErro("Erro ao aceitar convite: " + e.getMessage());
+            log.error("Erro inesperado ao aceitar convite", e);
+            msgErro("Erro ao aceitar convite.");
         }
     }
 
@@ -524,5 +527,12 @@ public class MinhaAgendaBean implements Serializable {
     private void msgErro(String msg) {
         FacesContext.getCurrentInstance().addMessage(null, 
             new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", msg));
+    }
+
+    private String mensagemErroResposta(RestClientResponseException e, String mensagemPadrao) {
+        String mensagemServidor = e.getResponseBodyAsString();
+        return mensagemServidor == null || mensagemServidor.isBlank()
+                ? mensagemPadrao
+                : mensagemServidor;
     }
 }
