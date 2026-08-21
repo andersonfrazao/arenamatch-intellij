@@ -12,6 +12,8 @@ public class ProximoJogoDTO {
     private String nomeAdversario;
     private String nomeTimeMandante;
     private String nomeTimeVisitante;
+    private String escudoTimeMandante;
+    private String escudoTimeVisitante;
     private String posicaoMeuTime;
     private String cidade;
     private String endereco;

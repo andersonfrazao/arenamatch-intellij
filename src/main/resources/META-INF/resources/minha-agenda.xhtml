@@ -36,16 +36,35 @@
             .todos-jogos-action:hover { background: rgba(56,189,248,0.16); border-color: rgba(56,189,248,0.46); }
             .todos-jogos-panel { display: none; margin-bottom: 1rem; }
             .todos-jogos-panel.open { display: block; animation: amFadeIn 0.25s ease; }
-            .todos-jogos-list { display: flex; flex-direction: column; gap: .35rem; }
+            .todos-jogos-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .75rem; }
             .todos-jogos-row {
-                display: grid; grid-template-columns: 118px 72px 1fr; gap: .65rem; align-items: center;
-                padding: .65rem .75rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.10);
-                background: rgba(255,255,255,0.04); color: white; text-decoration: none !important;
+                display: block; min-width: 0; color: white; text-decoration: none !important;
             }
-            .todos-jogos-row:hover { background: rgba(56,189,248,0.08); border-color: rgba(56,189,248,0.24); }
-            .todos-jogos-date { color: #bae6fd; font-size: .82rem; font-weight: 900; white-space: nowrap; }
-            .todos-jogos-hour { color: rgba(255,255,255,0.72); font-size: .82rem; font-weight: 800; white-space: nowrap; }
-            .todos-jogos-teams { color: white; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .match-card {
+                padding: .9rem; border-radius: 15px; border: 1px solid rgba(56,189,248,.18);
+                background: linear-gradient(145deg, rgba(8,39,72,.96), rgba(4,25,48,.96));
+                box-shadow: 0 10px 24px rgba(0,0,0,.18); color: white;
+            }
+            .todos-jogos-row:hover .match-card { transform: translateY(-2px); border-color: rgba(56,189,248,.46); box-shadow: 0 13px 28px rgba(0,0,0,.26); }
+            .todos-jogos-row .match-card {
+                padding: .65rem .75rem;
+                transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+            }
+            .todos-jogos-row .match-card-versus { margin: .45rem 0 .35rem; }
+            .todos-jogos-row .match-card-team { gap: .2rem; }
+            .todos-jogos-row .match-card-shield,
+            .todos-jogos-row .match-card-shield-fallback { width: 48px; height: 48px; }
+            .todos-jogos-row .match-card-shield-fallback { font-size: 2.1rem; }
+            .match-card-date { color: rgba(255,255,255,.74); font-size: .7rem; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: .035em; }
+            .match-card-hour { color: #fff; font-size: .76rem; font-weight: 900; text-align: center; margin-top: .12rem; }
+            .match-card-versus { display: grid; grid-template-columns: minmax(0,1fr) 36px minmax(0,1fr); align-items: center; gap: .5rem; margin: .7rem 0 .55rem; }
+            .match-card-team { display: flex; flex-direction: column; align-items: center; min-width: 0; gap: .35rem; }
+            .match-card-shield { width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+            .match-card-shield-fallback { width: 58px; height: 58px; display: grid; place-items: center; color: #bae6fd; font-size: 2.55rem; }
+            .match-card-team-name { width: 100%; color: #fff; font-size: .68rem; line-height: 1.15; font-weight: 900; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; }
+            .match-card-vs { color: #38bdf8; font-size: 1rem; font-weight: 1000; text-align: center; text-transform: uppercase; }
+            .match-card-location { color: rgba(255,255,255,.58); font-size: .66rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .match-card-detail { max-width: 480px; margin: 0 auto .85rem; }
             .todos-jogos-empty {
                 padding: .85rem; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.14);
                 color: rgba(255,255,255,0.58); background: rgba(255,255,255,0.03); font-size: .9rem;
@@ -116,6 +135,7 @@
             .match-location-text { min-width: 0; flex: 1; }
             .match-location-title { color: #bae6fd; font-size: .72rem; font-weight: 900; text-transform: uppercase; margin-bottom: .2rem; }
             .match-location-address { color: rgba(255,255,255,0.88); font-size: .88rem; line-height: 1.35; overflow-wrap: anywhere; word-break: normal; }
+            .match-location-meta { display: flex; flex-wrap: wrap; gap: .45rem .8rem; margin: -.05rem 0 .65rem; padding: 0 .25rem; color: #bae6fd; font-size: .78rem; font-weight: 800; }
 
             .detailsHead { display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: .8rem; }
             .item-lista {
@@ -158,9 +178,7 @@
                     text-overflow: ellipsis;
                 }
                 .todos-jogos-action { width: 100%; }
-                .todos-jogos-row { grid-template-columns: 74px 50px 1fr; gap: .45rem; padding: .58rem; }
-                .todos-jogos-date, .todos-jogos-hour { font-size: .72rem; }
-                .todos-jogos-teams { white-space: normal; overflow-wrap: anywhere; }
+                .todos-jogos-list { grid-template-columns: 1fr; }
                 .gridWeek {
                     display: grid !important;
                     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -242,17 +260,26 @@
                                            update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav"
                                            oncomplete="document.getElementById('todosMeusJogosPanel')?.classList.remove('open'); document.getElementById('formAgenda:painelDetalhes')?.scrollIntoView({behavior:'smooth', block:'start'});"
                                            styleClass="todos-jogos-row">
-                                <span class="todos-jogos-date">
-                                    <h:outputText value="#{jogo.dataHora}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
-                                    </h:outputText>
-                                </span>
-                                <span class="todos-jogos-hour">
-                                    <h:outputText value="#{jogo.dataHora}">
-                                        <f:convertDateTime pattern="HH:mm" type="localDateTime"/>
-                                    </h:outputText>
-                                </span>
-                                <span class="todos-jogos-teams">#{jogo.nomeTimeMandante} x #{jogo.nomeTimeVisitante}</span>
+                                <div class="match-card">
+                                    <div class="match-card-date"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="dd MMM - EEE" locale="pt_BR" type="localDateTime"/></h:outputText></div>
+                                    <div class="match-card-hour"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></div>
+                                    <div class="match-card-versus">
+                                        <div class="match-card-team">
+                                            <h:graphicImage value="#{jogo.escudoTimeMandante}" rendered="#{not empty jogo.escudoTimeMandante}" styleClass="match-card-shield"/>
+                                            <h:panelGroup rendered="#{empty jogo.escudoTimeMandante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
+                                            <span class="match-card-team-name">#{jogo.nomeTimeMandante}</span>
+                                        </div>
+                                        <div class="match-card-vs">VS</div>
+                                        <div class="match-card-team">
+                                            <h:graphicImage value="#{jogo.escudoTimeVisitante}" rendered="#{not empty jogo.escudoTimeVisitante}" styleClass="match-card-shield"/>
+                                            <h:panelGroup rendered="#{empty jogo.escudoTimeVisitante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
+                                            <span class="match-card-team-name">#{jogo.nomeTimeVisitante}</span>
+                                        </div>
+                                    </div>
+                                    <h:panelGroup rendered="#{not empty jogo.endereco}" layout="block" styleClass="match-card-location">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>#{jogo.endereco}
+                                    </h:panelGroup>
+                                </div>
                             </p:commandLink>
                         </ui:repeat>
                     </h:panelGroup>
@@ -409,7 +436,7 @@
                                 <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}"><div class="text-red-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-exclamation-triangle mr-1"></i> Pedido de Cancelamento</div></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_SENT'}"><div class="text-orange-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-spinner fa-spin mr-1"></i> Aguardando Cancelamento</div></h:panelGroup>
                                 
-                                <div class="font-bold text-white text-xl flex align-items-center gap-2 flex-wrap mb-2">
+                                <h:panelGroup rendered="#{evento.tipo ne 'GAME'}" layout="block" styleClass="font-bold text-white text-xl flex align-items-center gap-2 flex-wrap mb-2">
                                     #{evento.titulo}
                                     <h:panelGroup rendered="#{evento.tipo eq 'GAME' or evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'INVITE_SENT'}">
                                         <span class="role-badge">
@@ -421,7 +448,23 @@
                                             <i class="fas fa-map-marker-alt mr-1 text-red-400"></i>#{evento.distanciaKm} km
                                         </span>
                                     </h:panelGroup>
-                                </div>
+                                </h:panelGroup>
+
+                                <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="match-card match-card-detail">
+                                    <div class="match-card-versus">
+                                        <div class="match-card-team">
+                                            <h:graphicImage value="#{evento.escudoTimeMandante}" rendered="#{not empty evento.escudoTimeMandante}" styleClass="match-card-shield"/>
+                                            <h:panelGroup rendered="#{empty evento.escudoTimeMandante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
+                                            <span class="match-card-team-name">#{evento.nomeTimeMandante}</span>
+                                        </div>
+                                        <div class="match-card-vs">VS</div>
+                                        <div class="match-card-team">
+                                            <h:graphicImage value="#{evento.escudoTimeVisitante}" rendered="#{not empty evento.escudoTimeVisitante}" styleClass="match-card-shield"/>
+                                            <h:panelGroup rendered="#{empty evento.escudoTimeVisitante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
+                                            <span class="match-card-team-name">#{evento.nomeTimeVisitante}</span>
+                                        </div>
+                                    </div>
+                                </h:panelGroup>
 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="match-location">
                                     <div class="match-location-icon">
@@ -433,13 +476,29 @@
                                     </div>
                                 </h:panelGroup>
 
+                                <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="match-location-meta">
+                                    <span>
+                                        <i class="far fa-clock mr-1"></i>Horário:
+                                        <h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText>
+                                    </span>
+                                    <h:panelGroup rendered="#{evento.valorTaxa ne null}">
+                                        <span>
+                                            <i class="fas fa-money-bill-wave mr-1 text-green-400"></i>Taxa:
+                                            <h:outputText value="#{evento.valorTaxa}"><f:convertNumber type="currency" currencySymbol="R$"/></h:outputText>
+                                        </span>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{evento.distanciaKm ne null}">
+                                        <span><i class="fas fa-map-marker-alt mr-1 text-red-400"></i>Distância: #{evento.distanciaKm} km</span>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+
                                 <h:panelGroup rendered="#{not empty evento.mensagem and (evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'CANCELLATION_RECEIVED' or evento.tipo eq 'CANCELLATION_SENT' or evento.tipo eq 'CANCELLED')}" layout="block" styleClass="mb-3">
                                     <div class="bg-white-alpha-10 p-3 border-round text-sm italic text-gray-200 border-left-3 border-yellow-500 shadow-2">
                                         <i class="fas fa-quote-left mr-2 text-yellow-500 opacity-50"></i>#{evento.mensagem}
                                     </div>
                                 </h:panelGroup>
 
-                                <h:panelGroup rendered="#{evento.tipo ne 'CANCELLED'}">
+                                <h:panelGroup rendered="#{evento.tipo ne 'CANCELLED' and evento.tipo ne 'GAME'}">
                                     <div class="flex flex-column gap-2 mt-2">
                                         <div class="flex flex-wrap gap-2">
                                             <span class="bg-bluegray-800 px-3 py-2 border-round text-blue-300 font-bold text-sm shadow-1">

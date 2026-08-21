@@ -19,6 +19,8 @@ public class EventoAgendaDTO {
     private String endereco;
     private String nomeTimeMandante;
     private String nomeTimeVisitante;
+    private String escudoTimeMandante;
+    private String escudoTimeVisitante;
     private String posicaoMeuTime;
     private String posicaoAdversario;
     private String statusPlacar;  // "PENDENTE", "AGUARDANDO_CONFIRMACAO", "CONFIRMADO", "EM_DISPUTA"
