@@ -112,6 +112,13 @@ public class AgendaService {
         dto.setDataHora(horarioJogoService.resolverDataHoraMandante(partida));
         dto.setNomeTimeMandante(partida.getMandante() != null ? partida.getMandante().getNome() : "Mandante");
         dto.setNomeTimeVisitante(partida.getVisitante() != null ? partida.getVisitante().getNome() : "Visitante");
+        dto.setEscudoTimeMandante(partida.getMandante() != null ? partida.getMandante().getEscudo() : null);
+        dto.setEscudoTimeVisitante(partida.getVisitante() != null ? partida.getVisitante().getEscudo() : null);
+        Time donoDoCampo = definirDonoDoCampo(partida);
+        if (donoDoCampo != null) {
+            dto.setCidade(donoDoCampo.getCidade());
+            dto.setEndereco(montarEnderecoResumido(donoDoCampo));
+        }
         return dto;
     }
 
@@ -179,8 +186,14 @@ public class AgendaService {
         }
 
         // 🏆 LÓGICA DE PLACAR E PÓS-JOGO LIMPA 🏆
-        if (p.getMandante() != null) dto.setNomeTimeMandante(p.getMandante().getNome());
-        if (p.getVisitante() != null) dto.setNomeTimeVisitante(p.getVisitante().getNome());
+        if (p.getMandante() != null) {
+            dto.setNomeTimeMandante(p.getMandante().getNome());
+            dto.setEscudoTimeMandante(p.getMandante().getEscudo());
+        }
+        if (p.getVisitante() != null) {
+            dto.setNomeTimeVisitante(p.getVisitante().getNome());
+            dto.setEscudoTimeVisitante(p.getVisitante().getEscudo());
+        }
         
         dto.setPassouDaHora(p.getDataHora() != null && p.getDataHora().isBefore(LocalDateTime.now()));
         
@@ -213,6 +226,14 @@ public class AgendaService {
         }
 
         return partida.getMandante();
+    }
+
+    private String montarEnderecoResumido(Time time) {
+        List<String> partes = new ArrayList<>();
+        if (time.getLogradouro() != null && !time.getLogradouro().isBlank()) partes.add(time.getLogradouro().trim());
+        if (time.getNumero() != null && !time.getNumero().isBlank()) partes.add(time.getNumero().trim());
+        if (time.getCidade() != null && !time.getCidade().isBlank()) partes.add(time.getCidade().trim());
+        return partes.isEmpty() ? "Local não informado" : String.join(", ", partes);
     }
 
     private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {
