@@ -311,7 +311,13 @@
             <h:form>
                 <p:remoteCommand name="atualizarSininhoAjax" 
                          action="#{notificacaoBean.carregarNotificacoes}" 
-                         update="painelNotificacoesGlobais" />
+                         update="painelNotificacoesGlobais"
+                         global="false" />
+                <p:remoteCommand name="atualizarSininhoAoAbrirAjax"
+                         action="#{notificacaoBean.carregarNotificacoes}"
+                         update="painelNotificacoesGlobais"
+                         global="false"
+                         oncomplete="abrirPainelNotificacoes();" />
                 <p:remoteCommand name="atualizarChatMenuAjax"
                          action="#{sessaoBean.atualizarNotificacoesChat}"
                          update="@([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" />
@@ -588,6 +594,16 @@
         
         <script>
             // Lógica para abrir/fechar o painel de notificações
+            function abrirPainelNotificacoes() {
+                const notifPanel = document.getElementById("amNotifPanel");
+                if (!notifPanel) {
+                    return;
+                }
+
+                notifPanel.classList.add("open");
+                notifPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
             if (!window.amNotifClickBound) {
                 window.amNotifClickBound = true;
 
@@ -602,10 +618,12 @@
                         return;
                     }
 
-                    notifPanel.classList.toggle("open");
                     if (notifPanel.classList.contains("open")) {
-                        notifPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+                        notifPanel.classList.remove("open");
+                        return;
                     }
+
+                    atualizarSininhoAoAbrirAjax();
                 });
             }
         </script>
@@ -659,9 +677,7 @@
             }
 
             // Inicia a conexão assim que a página terminar de carregar
-            window.onload = function() {
-                conectarWebSocket();
-            };
+            window.addEventListener("load", conectarWebSocket);
         </script>
     </h:panelGroup>
 </h:body>

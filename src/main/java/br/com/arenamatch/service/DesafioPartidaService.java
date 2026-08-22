@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class DesafioPartidaService {
     private final PlacarPendenteService placarPendenteService;
     private final PartidaMensagemService partidaMensagemService;
     private final PartidaHorarioService partidaHorarioService;
+    private final SimpMessagingTemplate mensageiro;
 
     public DesafioPartidaService(
             PartidaRepository partidaRepository,
@@ -34,7 +36,8 @@ public class DesafioPartidaService {
             ParametroSistemaService parametroSistemaService,
             PlacarPendenteService placarPendenteService,
             PartidaMensagemService partidaMensagemService,
-            PartidaHorarioService partidaHorarioService) {
+            PartidaHorarioService partidaHorarioService,
+            SimpMessagingTemplate mensageiro) {
         this.partidaRepository = partidaRepository;
         this.timeRepository = timeRepository;
         this.assinaturaService = assinaturaService;
@@ -42,6 +45,7 @@ public class DesafioPartidaService {
         this.placarPendenteService = placarPendenteService;
         this.partidaMensagemService = partidaMensagemService;
         this.partidaHorarioService = partidaHorarioService;
+        this.mensageiro = mensageiro;
     }
 
     @Transactional
@@ -78,6 +82,9 @@ public class DesafioPartidaService {
 
         partida = partidaRepository.save(partida);
         partidaMensagemService.criarMensagemInicialDoDesafio(partida, desafiante, dto.getMensagem());
+        mensageiro.convertAndSend(
+                "/topic/notificacoes/" + desafiado.getId(),
+                "CHEGOU_CONVITE");
     }
 
     @Transactional

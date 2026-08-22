@@ -134,16 +134,46 @@
                     display: flex !important;
                     justify-content: space-between;
                     align-items: center;
-                    gap: 12px;
+                    min-height: 0;
+                    gap: 8px;
+                    padding: .38rem .55rem !important;
+                    line-height: 1.15;
                     text-align: right;
                     border-color: rgba(255,255,255,0.08) !important;
+                }
+                body .agenda-table-prime .ui-column-title {
+                    flex: 0 0 72px;
+                    margin-right: 0;
+                    font-size: .76rem;
+                    line-height: 1.1;
+                    text-align: left;
                 }
                 body .agenda-table-prime.ui-datatable-reflow .ui-datatable-data tr {
                     border: 1px solid rgba(255,255,255,0.1);
                     border-radius: 10px;
                     background: rgba(15, 23, 42, 0.45);
-                    margin-bottom: 10px;
+                    margin-bottom: 7px;
                     overflow: hidden;
+                }
+                body .agenda-table-prime .agenda-action-column {
+                    min-height: 38px;
+                    justify-content: flex-end !important;
+                    padding: .25rem .55rem !important;
+                    overflow: visible !important;
+                }
+                body .agenda-table-prime .agenda-action-column .ui-column-title {
+                    display: none !important;
+                }
+                body .agenda-table-prime .agenda-delete-button {
+                    display: inline-flex !important;
+                    align-items: center;
+                    justify-content: center;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    width: 34px !important;
+                    min-width: 34px !important;
+                    height: 34px !important;
+                    margin: 0 !important;
                 }
             }
             .ui-wizard-navbar { display: none; }
@@ -485,11 +515,12 @@
                                     <p:column headerText="Horário" style="background:transparent; color:#cbd5e1; border-color:#334155">
                                         <h:outputText value="#{item.inicio} - #{item.fim}"/>
                                     </p:column>
-                                    <p:column style="background:transparent; border-color:#334155; text-align:right; width:50px">
+                                    <p:column headerText="Ação" styleClass="agenda-action-column" style="background:transparent; border-color:#334155; text-align:right; width:50px">
                                         <p:commandButton icon="fas fa-trash" action="#{cadastroBean.removerHorario(item)}" 
                                                          update="tabelaAgenda" process="@this"
                                                          style="background:transparent; color:#ef4444; border:1px solid #ef4444"
-                                                         styleClass="rounded-button ui-button-flat"/>
+                                                         styleClass="rounded-button ui-button-flat agenda-delete-button"
+                                                         title="Excluir horário"/>
                                     </p:column>
                                 </p:dataTable>
                                 </div>

@@ -19,6 +19,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestClientResponseException;
 
 @Named
 @SessionScoped
@@ -75,7 +76,11 @@ public class NotificacaoBean implements Serializable {
             }
 
             aposAcao();
+        } catch (RestClientResponseException e) {
+            log.warn("Convite nao aceito por regra de negocio: status={}", e.getStatusCode());
+            msgErro(mensagemErroResposta(e, "Erro ao aceitar convite."));
         } catch (Exception e) {
+            log.error("Erro inesperado ao aceitar convite", e);
             msgErro("Erro ao aceitar convite.");
         }
     }
@@ -248,5 +253,12 @@ public class NotificacaoBean implements Serializable {
     private void msgErro(String msg) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", msg));
+    }
+
+    private String mensagemErroResposta(RestClientResponseException e, String mensagemPadrao) {
+        String mensagemServidor = e.getResponseBodyAsString();
+        return mensagemServidor == null || mensagemServidor.isBlank()
+                ? mensagemPadrao
+                : mensagemServidor;
     }
 }
