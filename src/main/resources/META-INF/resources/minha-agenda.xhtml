@@ -159,10 +159,13 @@
                 border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04);
                 align-items:flex-start; margin-bottom: 0.5rem;
             }
+            .event-content { flex: 1; min-width: 0; padding-right: 5px; }
+            .event-actions { display: flex; flex-wrap: wrap; gap: .5rem; width: 100%; min-width: 0; }
+            .event-actions > span { display: flex; flex-wrap: wrap; gap: .5rem; max-width: 100%; }
             .item-lista.game-upcoming { border-color: rgba(37,211,102,0.26); background: rgba(37,211,102,0.05); }
             .item-lista.game-played { border-color: rgba(59,130,246,0.30); background: rgba(59,130,246,0.06); }
             .item-lista.score-pending { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.10); }
-            .item-lista.score-waiting { border-color: rgba(234,179,8,0.38); background: rgba(234,179,8,0.08); }
+            .item-lista.score-waiting { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.10); }
             .item-lista.score-confirmed { border-color: rgba(45,212,191,0.34); background: rgba(45,212,191,0.07); }
             .item-lista.score-dispute { border-color: rgba(239,68,68,0.44); background: rgba(239,68,68,0.10); }
             .badge-icon {
@@ -231,6 +234,36 @@
                     padding: .7rem;
                     border-radius: 14px;
                 }
+                .event-content { padding-right: 0; }
+                .match-card-detail,
+                .match-location,
+                .match-location-meta { width: 100%; max-width: 100%; box-sizing: border-box; }
+                .match-card-detail { padding: .7rem .45rem; }
+                .match-card-versus { grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); gap: .25rem; }
+                .match-card-shield,
+                .match-card-shield-fallback { width: 50px; height: 50px; }
+                .match-location { padding: .65rem; }
+                .event-actions,
+                .event-actions > span { width: 100%; }
+                .event-actions .ui-button { max-width: 100%; white-space: normal; }
+                .flyer-preview-dialog.ui-dialog {
+                    left: .5rem !important;
+                    right: .5rem !important;
+                    width: auto !important;
+                    max-width: none !important;
+                    margin: 0 !important;
+                    transform: none !important;
+                }
+                .flyer-preview-dialog .ui-dialog-content {
+                    width: 100%;
+                    max-height: calc(100dvh - 7rem);
+                    padding: .75rem;
+                    box-sizing: border-box;
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                }
+                .flyer-preview-shell { width: 100%; max-width: 420px; box-sizing: border-box; }
+                .flyer-preview-image { max-width: 100%; }
                 .badge-icon {
                     width: 38px;
                     height: 38px;
@@ -427,7 +460,7 @@
                             <div class="badge-icon">
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and not evento.passouDaHora}"><i class="fas fa-check text-xl" style="color: #25d366;"></i></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><i class="fas fa-clipboard-list text-xl" style="color: #a855f7;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><i class="far fa-clock text-xl" style="color: #facc15;"></i></h:panelGroup>
+                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><i class="far fa-clock text-xl" style="color: #a855f7;"></i></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}"><i class="fas fa-exclamation-triangle text-xl" style="color: #ef4444;"></i></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"><i class="fas fa-trophy text-xl" style="color: #2dd4bf;"></i></h:panelGroup>
                                 
@@ -438,11 +471,11 @@
                                 <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_SENT'}"><i class="fas fa-ban text-xl text-orange-400"></i></h:panelGroup>
                             </div>
 
-                            <div style="flex-grow: 1; padding-right: 5px;">
+                            <div class="event-content">
                                 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and not evento.passouDaHora}"><div class="text-green-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-check-circle mr-1"></i> Jogo Marcado</div></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><div class="text-red-300 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-clipboard-list mr-1"></i> Placar Pendente</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><div class="text-yellow-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="far fa-clock mr-1"></i> Aguardando Placar</div></h:panelGroup>
+                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><div class="text-purple-300 font-bold text-sm mb-2 uppercase tracking-wide"><i class="far fa-clock mr-1"></i> Placar Pendente</div></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}"><div class="text-red-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-exclamation-triangle mr-1"></i> Placar em Disputa</div></h:panelGroup>
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"><div class="text-teal-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-flag-checkered mr-1"></i> Jogo Realizado</div></h:panelGroup>
                                 
@@ -542,9 +575,9 @@
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 border-blue-500 shadow-2" style="background: rgba(59, 130, 246, 0.1);">
+                                              layout="block" styleClass="p-3 mt-3 border-round border-1 border-purple-500 shadow-2" style="background: rgba(168, 85, 247, 0.12);">
                                     
-                                    <div class="text-center mb-3 font-bold text-blue-300 text-sm uppercase tracking-wide">
+                                    <div class="text-center mb-3 font-bold text-purple-300 text-sm uppercase tracking-wide">
                                         <i class="fas fa-stopwatch mr-1"></i> Fim de Jogo! Informe o Placar
                                     </div>
                                     
@@ -575,16 +608,16 @@
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou eq minhaAgendaBean.meuTimeId}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 border-yellow-500 shadow-2 text-center" style="background: rgba(234, 179, 8, 0.1);">
-                                    <i class="far fa-clock text-yellow-400 text-3xl mb-2"></i>
-                                    <div class="text-yellow-400 font-bold text-sm uppercase tracking-wide">Aguardando Confirmação</div>
+                                              layout="block" styleClass="p-3 mt-3 border-round border-1 shadow-2 text-center" style="background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.3);">
+                                    <i class="far fa-clock text-teal-400 text-3xl mb-2"></i>
+                                    <div class="text-teal-400 font-bold text-sm uppercase tracking-wide">Aguardando Confirmação</div>
                                     <div class="text-xs text-gray-300 mt-1">O adversário precisa validar o placar informado.</div>
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou ne minhaAgendaBean.meuTimeId}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 border-green-500 shadow-2" style="background: rgba(34, 197, 94, 0.1);">
+                                              layout="block" styleClass="p-3 mt-3 border-round border-1 shadow-2" style="background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.3);">
                                     
-                                    <div class="text-center mb-3 font-bold text-green-400 text-sm uppercase tracking-wide">
+                                    <div class="text-center mb-3 font-bold text-teal-400 text-sm uppercase tracking-wide">
                                         <i class="fas fa-check-double mr-1"></i> Validar Resultado
                                     </div>
                                     <div class="text-center text-gray-300 text-sm mb-3">O adversário informou que o jogo terminou:</div>
@@ -694,7 +727,7 @@
                                 </h:panelGroup>
 
        							<h:panelGroup rendered="#{minhaAgendaBean.eventoEmCancelamento ne evento}">
-                                    <div class="flex gap-2 mt-3">
+									<div class="event-actions mt-3">
                                         
                                         <h:panelGroup rendered="#{evento.tipo eq 'INVITE_RECEIVED'}">
                                             <p:commandButton icon="fas fa-check" title="Aceitar Jogo" 
@@ -848,7 +881,7 @@
             </p:dialog>
         </h:form>
 
-        <script src="#{resource['js:flyer.js']}&amp;v=20260821-3"></script>
+        <script src="#{resource['js:flyer.js']}&amp;v=20260821-5"></script>
 
         <script>
             //<![CDATA[

@@ -313,9 +313,9 @@
             }
 
             const shareButton = document.getElementById("flyerShareButton");
-            const canShare = Boolean(navigator.share && navigator.canShare && navigator.canShare({ files: [flyerFile] }));
+            const isMobileViewport = window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
             if (shareButton) {
-                shareButton.style.display = canShare ? "inline-flex" : "none";
+                shareButton.style.display = isMobileViewport ? "inline-flex" : "none";
             }
             if (window.PF) {
                 window.PF("flyerDialog").show();
@@ -342,10 +342,18 @@
     }
 
     async function share() {
-        if (!flyerFile || !navigator.share || !navigator.canShare || !navigator.canShare({ files: [flyerFile] })) {
+        if (!flyerFile) {
+            return;
+        }
+        if (typeof navigator.share !== "function") {
+            showError("O compartilhamento de imagens exige que a aplicação seja acessada por HTTPS no celular. Enquanto isso, use a opção Baixar PNG.");
             return;
         }
         try {
+            if (typeof navigator.canShare === "function" && !navigator.canShare({ files: [flyerFile] })) {
+                showError("Este navegador não permite compartilhar a imagem. Use a opção Baixar PNG.");
+                return;
+            }
             await navigator.share({
                 files: [flyerFile],
                 title: "Flyer do jogo - Arena Match",
