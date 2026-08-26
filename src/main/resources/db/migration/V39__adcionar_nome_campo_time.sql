@@ -1,0 +1,1 @@
+ALTER TABLE time ADD COLUMN nome_campo VARCHAR(120);

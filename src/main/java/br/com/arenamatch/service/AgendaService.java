@@ -140,6 +140,7 @@ public class AgendaService {
         dto.setCidade(adversario.getCidade());
         dto.setValorTaxa(donoDoCampo != null ? donoDoCampo.getValorTaxa() : null);
         dto.setTemCampo(donoDoCampo != null && donoDoCampo.getId().equals(meuTimeId)); 
+        dto.setNomeCampo(donoDoCampo != null ? donoDoCampo.getNomeCampo() : null);
         
         // Tratamento do Endereço (Mantido)
         List<String> partes = new ArrayList<>();
@@ -178,6 +179,9 @@ public class AgendaService {
         } else if (p.getStatus() == StatusPartida.CANCELADO) {
             dto.setTipo("CANCELLED");
             dto.setTitulo("Cancelado: " + adversario.getNome());
+        } else if (p.getStatus() == StatusPartida.EXPIRADO) {
+            dto.setTipo("CANCELLED");
+            dto.setTitulo("Convite expirado: " + adversario.getNome());
         } else if (p.getStatus() == StatusPartida.SOLICITACAO_CANCELAMENTO) {
             boolean fuiEuQuePedi = p.getSolicitanteCancelamento() != null && p.getSolicitanteCancelamento().getId().equals(meuTimeId);
             dto.setTipo(fuiEuQuePedi ? "CANCELLATION_SENT" : "CANCELLATION_RECEIVED");

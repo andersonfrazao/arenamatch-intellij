@@ -429,6 +429,12 @@
                                 
                                 <h:panelGroup id="painelTaxa" layout="block">
                                     <h:panelGroup rendered="#{cadastroBean.dto.mandoCampo eq 'true'}" layout="block" styleClass="form-group full-width mt-3">
+                                        <label class="form-label" for="nomeCampo">Nome do Campo <span style="color: #94a3b8; font-weight: normal;">(opcional)</span></label>
+                                        <p:inputText id="nomeCampo" value="#{cadastroBean.dto.nomeCampo}"
+                                                     maxlength="120"
+                                                     placeholder="Ex: Arena Central"
+                                                     styleClass="w-full custom-input mb-3"/>
+
                                         <label class="form-label" style="color: #4ade80;">Valor da Taxa / Racha</label>
                                         <div class="ui-inputgroup">
                                             <span class="ui-inputgroup-addon" style="background: #334155; border: none; color: #fff;">

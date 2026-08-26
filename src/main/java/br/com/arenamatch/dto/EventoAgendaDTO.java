@@ -16,6 +16,7 @@ public class EventoAgendaDTO {
     private Double distanciaKm;   // Distância calculada
     private Double valorTaxa;     // Se tem custo
     private boolean temCampo;
+    private String nomeCampo;
     private String endereco;
     private String nomeTimeMandante;
     private String nomeTimeVisitante;

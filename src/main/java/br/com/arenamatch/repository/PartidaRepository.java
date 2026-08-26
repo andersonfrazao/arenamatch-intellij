@@ -52,6 +52,10 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
     @Query("SELECT p FROM Partida p WHERE (p.visitante.id = :timeId OR p.mandante.id = :timeId) AND p.status = 'PENDENTE'")
     List<Partida> buscarConvitesPendentesParaOTime(@Param("timeId") Long timeId);
 
+    @Query("SELECT p FROM Partida p WHERE p.status = 'PENDENTE' AND p.dataHora < :inicioDoDia")
+    List<Partida> buscarConvitesPendentesAnterioresA(
+            @Param("inicioDoDia") LocalDateTime inicioDoDia);
+
     @Query("""
             SELECT p FROM Partida p
             WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)

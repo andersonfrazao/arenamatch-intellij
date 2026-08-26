@@ -42,6 +42,8 @@ public class Time {
     private String numero;
     private String complemento;
     private String regiao;
+    @Column(name = "nome_campo", length = 120)
+    private String nomeCampo;
     @Column(name = "escudo_url")
     private String escudo;
     private Double latitude;

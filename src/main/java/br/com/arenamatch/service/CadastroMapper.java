@@ -31,6 +31,7 @@ public class CadastroMapper {
         dto.setNumero(time.getNumero());
         dto.setComplemento(time.getComplemento());
         dto.setRegiao(time.getRegiao());
+        dto.setNomeCampo(time.getNomeCampo());
         dto.setValorTaxa(time.getValorTaxa());
         dto.setMandoCampo(time.isMandoCampo());
         dto.setLatitude(time.getLatitude());

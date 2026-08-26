@@ -5,7 +5,8 @@ public enum StatusPartida {
     SOLICITACAO_CANCELAMENTO("Cancelamento Solicitado"),
     CANCELADO("Cancelado"),
     FINALIZADO("Finalizado"),
-    PENDENTE("Pendente");
+    PENDENTE("Pendente"),
+    EXPIRADO("Convite expirado");
 
     private String descricao;
     

@@ -1,6 +1,8 @@
 package br.com.arenamatch.service;
 
 import br.com.arenamatch.entity.Partida;
+import br.com.arenamatch.enums.StatusPartida;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +14,10 @@ public class ChatBloqueioPolicy {
                 && "CONFIRMADO".equals(partida.getStatusPlacar().name());
         boolean jogoCancelado = partida.getStatus() != null
                 && "CANCELADO".equals(partida.getStatus().name());
-        boolean conviteExpirado = partida.getStatus() != null
-                && "PENDENTE".equals(partida.getStatus().name())
+        boolean conviteExpirado = partida.getStatus() == StatusPartida.EXPIRADO
+                || (partida.getStatus() == StatusPartida.PENDENTE
                 && partida.getDataHora() != null
-                && partida.getDataHora().isBefore(LocalDateTime.now());
+                && !partida.getDataHora().toLocalDate().isAfter(LocalDate.now()));
 
         return placarConfirmado || jogoCancelado || conviteExpirado;
     }
