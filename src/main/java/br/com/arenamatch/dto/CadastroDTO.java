@@ -20,6 +20,7 @@ public class CadastroDTO {
     private String complemento;
     private String bairro;
     private String regiao;
+    private String nomeCampo;
     private String cidade;
     private String uf;
     private String escudo;

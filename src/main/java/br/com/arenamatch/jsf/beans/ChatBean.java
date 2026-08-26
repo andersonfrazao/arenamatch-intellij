@@ -98,6 +98,10 @@ public class ChatBean implements Serializable {
             return "Jogo cancelado";
         }
 
+        if ("EXPIRADO".equals(conversaSelecionada.getStatusPartida())) {
+            return "Convite expirado";
+        }
+
         return "Conversa de jogo";
     }
 

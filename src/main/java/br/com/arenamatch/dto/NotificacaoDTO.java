@@ -15,6 +15,7 @@ public class NotificacaoDTO {
  private boolean enviadoPorMim;
  private LocalDateTime dataCriacao;
  private Double valorTaxa;
+ private String endereco;
  private String nomeTimeMandante;
  private String nomeTimeVisitante;
  private Integer golsMandanteInformado;

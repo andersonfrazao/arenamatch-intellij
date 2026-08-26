@@ -131,6 +131,7 @@ public class CadastroService {
                 || diferente(time.getComplemento(), dto.getComplemento())
                 || diferente(time.getBairro(), dto.getBairro())
                 || diferente(time.getRegiao(), dto.getRegiao())
+                || diferente(time.getNomeCampo(), dto.getNomeCampo())
                 || diferente(time.getCidade(), dto.getCidade())
                 || diferente(time.getUf(), dto.getUf());
     }

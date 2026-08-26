@@ -7,7 +7,8 @@ import br.com.arenamatch.enums.Categoria;
 import br.com.arenamatch.jsf.client.AgendaClient;
 import br.com.arenamatch.jsf.client.BuscaClient;
 import br.com.arenamatch.jsf.client.PartidaClient;
-import br.com.arenamatch.service.BuscaTelaService;
+import br.com.arenamatch.jsf.client.ParametroSistemaClient;
+import br.com.arenamatch.enums.PlanoAssinatura;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -29,7 +30,8 @@ public class BuscaBean implements Serializable {
     @Inject private SessaoBean sessaoBean;
     @Inject private PartidaClient partidaClient;
     @Inject private AgendaClient agendaClient;
-    @Inject private BuscaTelaService buscaTelaService;
+    @Inject private ParametroSistemaClient parametroSistemaClient;
+    private Integer raioMaximoPlanoBasicoKm;
 
     @Getter @Setter
     private FiltroBuscaDTO filtro = new FiltroBuscaDTO();
@@ -57,11 +59,9 @@ public class BuscaBean implements Serializable {
     public void pesquisar() {
         aplicarLimiteRaioBasicoNaTela();
 
-        try {
-            buscaTelaService.validarFiltro(filtro);
-        } catch (RuntimeException e) {
+        if (filtro.getDataJogo() == null) {
             this.resultados = new ArrayList<>();
-            msgWarn(e.getMessage());
+            msgWarn("Selecione uma data para realizar a busca.");
             return;
         }
 
@@ -118,11 +118,15 @@ public class BuscaBean implements Serializable {
     }
 
     public boolean isPlanoBasico() {
-        return buscaTelaService.isPlanoBasico(sessaoBean.getUsuarioLogado());
+        return sessaoBean.getUsuarioLogado() != null
+                && sessaoBean.getUsuarioLogado().getPlanoAssinatura() == PlanoAssinatura.BASICO;
     }
 
     public Integer getRaioMaximoPlanoBasicoKm() {
-        return buscaTelaService.getRaioMaximoPlanoBasicoKm();
+        if (raioMaximoPlanoBasicoKm == null) {
+            raioMaximoPlanoBasicoKm = parametroSistemaClient.buscarRaioMaximoBuscaBasico();
+        }
+        return raioMaximoPlanoBasicoKm;
     }
 
     public void informarBloqueioRaioBasico() {
@@ -183,7 +187,10 @@ public class BuscaBean implements Serializable {
     }
 
     private void aplicarLimiteRaioBasicoNaTela() {
-        buscaTelaService.aplicarLimiteRaioBasico(filtro, sessaoBean.getUsuarioLogado());
+        if (isPlanoBasico()
+                && (filtro.getRaioKm() == null || filtro.getRaioKm() > getRaioMaximoPlanoBasicoKm())) {
+            filtro.setRaioKm(getRaioMaximoPlanoBasicoKm());
+        }
     }
 
     private Long carregarIdMeuTime() {

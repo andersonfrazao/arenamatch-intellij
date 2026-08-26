@@ -515,6 +515,7 @@
             const weekday = text(data, ".flyer-weekday", "Data definida");
             const date = text(data, ".flyer-date", "");
             const time = text(data, ".flyer-time", "--:--");
+            const fieldName = text(data, ".flyer-field-name", "");
             const address = text(data, ".flyer-address", "Local não informado");
             const homeElement = match.querySelector("img.flyer-shield-home");
             const awayElement = match.querySelector("img.flyer-shield-away");
@@ -595,7 +596,19 @@
             ctx.fillStyle = CYAN;
             ctx.font = "800 21px " + BODY_FONT;
             ctx.fillText("LOCAL DO JOGO", 220, 974);
-            drawAddress(ctx, address);
+            if (fieldName) {
+                ctx.fillStyle = WHITE;
+                ctx.font = "900 29px " + BODY_FONT;
+                ctx.fillText(fieldName, 220, 1015);
+                ctx.fillStyle = MUTED;
+                ctx.font = "700 23px " + BODY_FONT;
+                const addressLines = fitLines(ctx, address, 720, 2, 23, 19, BODY_FONT).lines;
+                addressLines.forEach(function (line, index) {
+                    ctx.fillText(line, 220, 1053 + index * 31);
+                });
+            } else {
+                drawAddress(ctx, address);
+            }
 
             ctx.textAlign = "center";
             ctx.fillStyle = CYAN;

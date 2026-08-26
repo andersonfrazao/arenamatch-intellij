@@ -492,7 +492,7 @@
                                             <i class="fas fa-users"></i> Adversário: #{evento.posicaoAdversario}
                                         </span>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{evento.distanciaKm ne null}">
+                                    <h:panelGroup rendered="#{evento.distanciaKm ne null and evento.tipo ne 'INVITE_RECEIVED'}">
                                         <span class="text-xs bg-bluegray-700 px-2 py-1 border-round text-gray-300 font-normal shadow-1" style="white-space: nowrap;">
                                             <i class="fas fa-map-marker-alt mr-1 text-red-400"></i>#{evento.distanciaKm} km
                                         </span>
@@ -521,16 +521,27 @@
                                     <span class="flyer-weekday"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="EEEE" locale="pt_BR" type="localDateTime"/></h:outputText></span>
                                     <span class="flyer-date"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/></h:outputText></span>
                                     <span class="flyer-time"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></span>
+                                    <span class="flyer-field-name"><h:outputText value="#{evento.nomeCampo}"/></span>
                                     <span class="flyer-address"><h:outputText value="#{evento.endereco}"/></span>
                                 </h:panelGroup>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="match-location">
+                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' or evento.tipo eq 'INVITE_RECEIVED'}" layout="block" styleClass="match-location">
                                     <div class="match-location-icon">
                                         <i class="fas fa-location-dot"></i>
                                     </div>
                                     <div class="match-location-text">
                                         <div class="match-location-title">Local do jogo</div>
-                                        <div class="match-location-address">#{evento.endereco}</div>
+                                        <h:panelGroup rendered="#{not empty evento.nomeCampo}">
+                                            <div class="text-white font-bold mb-1">#{evento.nomeCampo}</div>
+                                        </h:panelGroup>
+                                        <div class="match-location-address flex align-items-center gap-2 flex-wrap">
+                                            <span>#{evento.endereco}</span>
+                                            <h:panelGroup rendered="#{evento.distanciaKm ne null}">
+                                                <span class="text-xs bg-bluegray-700 px-2 py-1 border-round text-gray-300 font-normal shadow-1" style="white-space: nowrap;">
+                                                    <i class="fas fa-map-marker-alt mr-1 text-red-400"></i>#{evento.distanciaKm} km
+                                                </span>
+                                            </h:panelGroup>
+                                        </div>
                                     </div>
                                 </h:panelGroup>
 
@@ -544,9 +555,6 @@
                                             <i class="fas fa-money-bill-wave mr-1 text-green-400"></i>Taxa:
                                             <h:outputText value="#{evento.valorTaxa}"><f:convertNumber type="currency" currencySymbol="R$"/></h:outputText>
                                         </span>
-                                    </h:panelGroup>
-                                    <h:panelGroup rendered="#{evento.distanciaKm ne null}">
-                                        <span><i class="fas fa-map-marker-alt mr-1 text-red-400"></i>Distância: #{evento.distanciaKm} km</span>
                                     </h:panelGroup>
                                 </h:panelGroup>
 
@@ -881,7 +889,7 @@
             </p:dialog>
         </h:form>
 
-        <script src="#{resource['js:flyer.js']}&amp;v=20260824-1"></script>
+        <script src="#{resource['js:flyer.js']}&amp;v=20260826-1"></script>
 
         <script>
             //<![CDATA[

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.arenamatch.dto.LoginDTO;
+import br.com.arenamatch.dto.LoginResponseDTO;
 import br.com.arenamatch.dto.UsuarioDTO;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
@@ -41,6 +42,39 @@ public class AuthService {
 
     @Autowired
     private AssinaturaService assinaturaService;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Transactional
+    public LoginResponseDTO realizarLogin(LoginDTO login) {
+        UsuarioDTO usuario = autenticar(login);
+        LoginResponseDTO response = new LoginResponseDTO();
+        if (Perfil.ADMIN.equals(usuario.getPerfil())) {
+            response.setRequerCodigoAdmin(true);
+            response.setDesafioAdmin(iniciarAcessoAdmin(usuario.getEmail()));
+            response.setEmailMascarado(mascararEmail(usuario.getEmail()));
+            return response;
+        }
+
+        response.setUsuario(usuario);
+        response.setToken(gerarTokenParaEmail(usuario.getEmail()));
+        return response;
+    }
+
+    @Transactional
+    public LoginResponseDTO confirmarLoginAdmin(String desafio, String codigo) {
+        UsuarioDTO usuario = confirmarAcessoAdmin(desafio, codigo);
+        LoginResponseDTO response = new LoginResponseDTO();
+        response.setUsuario(usuario);
+        response.setToken(gerarTokenParaEmail(usuario.getEmail()));
+        return response;
+    }
+
+    private String gerarTokenParaEmail(String email) {
+        Usuario usuario = repository.findByEmail(email).orElseThrow();
+        return jwtService.gerarToken(usuario);
+    }
 
     @Transactional
     public UsuarioDTO autenticar(LoginDTO login) {

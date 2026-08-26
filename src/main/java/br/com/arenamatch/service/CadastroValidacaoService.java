@@ -30,6 +30,7 @@ public class CadastroValidacaoService {
         validarSenhaObrigatoria(dto.getSenha());
         validarTermosAceitos(dto);
         validarEnderecoCompleto(dto);
+        validarNomeCampo(dto);
         validarHorariosMandante(dto);
 
         if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -48,7 +49,14 @@ public class CadastroValidacaoService {
 
     public void validarAtualizacao(CadastroDTO dto) {
         validarEnderecoCompleto(dto);
+        validarNomeCampo(dto);
         validarHorariosMandante(dto);
+    }
+
+    private void validarNomeCampo(CadastroDTO dto) {
+        if (dto != null && dto.getNomeCampo() != null && dto.getNomeCampo().trim().length() > 120) {
+            throw new RuntimeException("O nome do campo deve ter no maximo 120 caracteres.");
+        }
     }
 
     public void validarEnderecoCompleto(CadastroDTO dto) {

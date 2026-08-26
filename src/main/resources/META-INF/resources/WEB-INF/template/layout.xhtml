@@ -433,6 +433,12 @@
 
                                         <div style="color: rgba(255,255,255,0.65); font-size: 0.9rem;">#{notif.subtitulo}</div>
 
+                                        <h:panelGroup rendered="#{notif.tipo eq 'JOGO' and not notif.enviadoPorMim and not empty notif.endereco}" layout="block">
+                                            <div style="color: rgba(255,255,255,0.65); font-size: 0.9rem;">
+                                                <i class="fas fa-location-dot mr-1"></i>#{notif.endereco}
+                                            </div>
+                                        </h:panelGroup>
+
                                         <h:panelGroup rendered="#{notif.tipo eq 'JOGO' and notif.valorTaxa ne null and notif.valorTaxa gt 0}" layout="block" styleClass="mt-2">
                                             <span class="bg-bluegray-800 px-2 py-1 border-round text-green-400 font-bold text-xs shadow-1">
                                                 <i class="fas fa-money-bill-wave mr-1"></i>

@@ -48,8 +48,15 @@ public class TimeCadastroService {
         time.setNumero(dto.getNumero());
         time.setComplemento(dto.getComplemento());
         time.setRegiao(dto.getRegiao());
+        time.setNomeCampo(Boolean.TRUE.equals(dto.getMandoCampo())
+                ? normalizarNomeCampo(dto.getNomeCampo())
+                : null);
         time.setValorTaxa(dto.getValorTaxa());
         preencherCoordenadas(time, dto);
+    }
+
+    private String normalizarNomeCampo(String nomeCampo) {
+        return nomeCampo == null || nomeCampo.isBlank() ? null : nomeCampo.trim();
     }
 
     private void preencherCoordenadas(Time time, CadastroDTO dto) {
