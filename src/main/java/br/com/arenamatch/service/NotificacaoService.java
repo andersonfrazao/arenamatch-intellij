@@ -116,10 +116,37 @@ public class NotificacaoService {
             dto.setSubtitulo(prefixo + nomeAdversario + " — " + dataHoraFormatada);
             dto.setDataCriacao(p.getDataSolicitacao());
             dto.setValorTaxa(donoDoCampo != null ? donoDoCampo.getValorTaxa() : null);
+            if (!fuiEuQueEnviei && !souMandante) {
+                dto.setEndereco(montarEndereco(donoDoCampo));
+            }
             
             lista.add(dto);
         }
         return lista;
+    }
+
+    private String montarEndereco(Time time) {
+        if (time == null) {
+            return null;
+        }
+
+        List<String> partes = new ArrayList<>();
+        adicionarSePreenchido(partes, time.getLogradouro());
+        adicionarSePreenchido(partes, time.getNumero());
+        adicionarSePreenchido(partes, time.getBairro());
+
+        String cidadeUf = time.getCidade();
+        if (cidadeUf != null && !cidadeUf.isBlank() && time.getUf() != null && !time.getUf().isBlank()) {
+            cidadeUf = cidadeUf.trim() + "/" + time.getUf().trim();
+        }
+        adicionarSePreenchido(partes, cidadeUf);
+        return partes.isEmpty() ? null : String.join(", ", partes);
+    }
+
+    private void adicionarSePreenchido(List<String> partes, String valor) {
+        if (valor != null && !valor.isBlank()) {
+            partes.add(valor.trim());
+        }
     }
 
     private List<NotificacaoDTO> buscarCancelamentosJogoVirtuais(Long idTime) {
