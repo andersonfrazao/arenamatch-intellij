@@ -9,7 +9,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import org.primefaces.model.file.UploadedFile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +21,14 @@ public class EscudoTimeService {
     @Value("${arenamatch.uploads.escudos-dir:/app/uploads/escudos}")
     private String diretorioEscudos;
 
-    public String salvar(UploadedFile arquivo) {
-        if (arquivo == null || arquivo.getSize() <= 0) {
+    public String salvar(String nomeOriginal, String contentType, long tamanho, InputStream conteudo) {
+        if (tamanho <= 0 || conteudo == null) {
             return null;
         }
 
-        validarArquivo(arquivo);
+        validarArquivo(nomeOriginal, contentType, tamanho);
 
-        String extensao = extrairExtensao(arquivo.getFileName());
+        String extensao = extrairExtensao(nomeOriginal);
         String nomeArquivo = UUID.randomUUID() + "." + extensao;
         Path diretorio = Paths.get(diretorioEscudos).toAbsolutePath().normalize();
         Path destino = diretorio.resolve(nomeArquivo).normalize();
@@ -40,7 +39,7 @@ public class EscudoTimeService {
 
         try {
             Files.createDirectories(diretorio);
-            try (InputStream inputStream = arquivo.getInputStream()) {
+            try (InputStream inputStream = conteudo) {
                 Files.copy(inputStream, destino, StandardCopyOption.REPLACE_EXISTING);
             }
             return "/uploads/escudos/" + nomeArquivo;
@@ -49,17 +48,16 @@ public class EscudoTimeService {
         }
     }
 
-    private void validarArquivo(UploadedFile arquivo) {
-        if (arquivo.getSize() > TAMANHO_MAXIMO) {
+    private void validarArquivo(String nomeOriginal, String contentType, long tamanho) {
+        if (tamanho > TAMANHO_MAXIMO) {
             throw new RuntimeException("O escudo deve ter no maximo 2 MB.");
         }
 
-        String extensao = extrairExtensao(arquivo.getFileName());
+        String extensao = extrairExtensao(nomeOriginal);
         if (!EXTENSOES_PERMITIDAS.contains(extensao)) {
             throw new RuntimeException("Envie um escudo em JPG, PNG ou WEBP.");
         }
 
-        String contentType = arquivo.getContentType();
         if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
             throw new RuntimeException("O arquivo enviado precisa ser uma imagem.");
         }

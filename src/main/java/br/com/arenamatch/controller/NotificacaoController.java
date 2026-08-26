@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.arenamatch.dto.NotificacaoDTO;
+import br.com.arenamatch.dto.ResumoNotificacoesDTO;
+import br.com.arenamatch.service.NotificacaoClassificacaoService;
 import br.com.arenamatch.service.NotificacaoService;
 
 @RestController
@@ -18,11 +20,19 @@ public class NotificacaoController {
 
     @Autowired
     private NotificacaoService notificacaoService;
+    @Autowired
+    private NotificacaoClassificacaoService notificacaoClassificacaoService;
 
     @GetMapping("/time/{idTime}")
     public ResponseEntity<List<NotificacaoDTO>> buscarNotificacoes(@PathVariable Long idTime) {
         // O Controller agora só chama o Service, respeitando a arquitetura!
         List<NotificacaoDTO> notificacoes = notificacaoService.buscarNotificacoes(idTime);
         return ResponseEntity.ok(notificacoes);
+    }
+
+    @GetMapping("/time/{idTime}/resumo")
+    public ResponseEntity<ResumoNotificacoesDTO> buscarResumo(@PathVariable Long idTime) {
+        return ResponseEntity.ok(notificacaoClassificacaoService.calcularResumo(
+                notificacaoService.buscarNotificacoes(idTime)));
     }
 }

@@ -4,11 +4,7 @@ import br.com.arenamatch.dto.CadastroDTO;
 import br.com.arenamatch.dto.DisponibilidadeDTO;
 import br.com.arenamatch.dto.EnderecoDTO;
 import br.com.arenamatch.enums.Categoria;
-import br.com.arenamatch.integracao.GeoClient;
-import br.com.arenamatch.integracao.ViaCepClient;
 import br.com.arenamatch.jsf.client.CadastroClient;
-import br.com.arenamatch.service.CadastroFormularioService;
-import br.com.arenamatch.service.EscudoTimeService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -46,11 +42,7 @@ public class CadastroBean implements Serializable {
     @Getter @Setter
     private List<DisponibilidadeDTO> agenda = new ArrayList<>();
 
-    @Inject private ViaCepClient viaCepClient;
-    @Inject private GeoClient geoClient;
     @Inject private CadastroClient cadastroClient;
-    @Inject private CadastroFormularioService cadastroFormularioService;
-    @Inject private EscudoTimeService escudoTimeService;
     @Inject private SessaoBean sessaoBean;
 
     @Getter
@@ -82,7 +74,7 @@ public class CadastroBean implements Serializable {
 
         if ("responsavel".equals(abaAtual) && "time".equals(proximaAba)) {
             try {
-                cadastroFormularioService.validarAvancoResponsavel(dto, confirmarSenha, !sessaoBean.isLogado());
+                cadastroClient.validarResponsavel(dto, confirmarSenha, !sessaoBean.isLogado());
             } catch (RuntimeException e) {
                 msgErro(e.getMessage());
                 return "responsavel";
@@ -91,7 +83,7 @@ public class CadastroBean implements Serializable {
 
         if ("time".equals(abaAtual) && "agenda".equals(proximaAba)) {
             try {
-                cadastroFormularioService.validarAvancoTime(dto);
+                cadastroClient.validarTime(dto);
             } catch (RuntimeException e) {
                 msgErro(e.getMessage());
                 PrimeFaces.current().executeScript("setTimeout(focarLunetaCep, 150);");
@@ -105,7 +97,7 @@ public class CadastroBean implements Serializable {
 
     public void adicionarHorario() {
         try {
-            DisponibilidadeDTO novoItem = cadastroFormularioService.criarDisponibilidade(
+            DisponibilidadeDTO novoItem = cadastroClient.criarDisponibilidade(
                     dto, agenda, tempCategoria, tempDia, tempInicio, tempFim);
             this.agenda.add(novoItem);
             this.tempInicio = "";
@@ -126,7 +118,7 @@ public class CadastroBean implements Serializable {
 
     public void uploadEscudo(FileUploadEvent event) {
         try {
-            String escudo = escudoTimeService.salvar(event.getFile());
+            String escudo = cadastroClient.uploadEscudo(event.getFile());
             dto.setEscudo(escudo);
             msgInfo("Escudo enviado com sucesso.");
         } catch (RuntimeException e) {
@@ -153,7 +145,7 @@ public class CadastroBean implements Serializable {
         if (dto.getCep() != null && !dto.getCep().isEmpty()) {
             String cepLimpo = dto.getCep().replaceAll("\\D", "");
             if (cepLimpo.length() == 8) {
-                EnderecoDTO endereco = viaCepClient.buscarEndereco(cepLimpo);
+                EnderecoDTO endereco = cadastroClient.buscarEnderecoPorCep(cepLimpo);
                 if (endereco != null && !endereco.isErro()) {
                     preencherEndereco(endereco);
                     dto.setLatitude(null);
@@ -176,29 +168,14 @@ public class CadastroBean implements Serializable {
             return;
         }
 
-        EnderecoDTO enderecoGoogle = geoClient.buscarEnderecoPorCoordenadas(dto.getLatitude(), dto.getLongitude());
-        if (enderecoGoogle == null) {
-            msgErro("Não foi possível converter sua localização em endereço.");
-            return;
-        }
-
-        String cepLimpo = enderecoGoogle.getCep() != null ? enderecoGoogle.getCep().replaceAll("\\D", "") : "";
-        if (cepLimpo.length() == 8) {
-            EnderecoDTO enderecoViaCep = viaCepClient.buscarEndereco(cepLimpo);
-            if (enderecoViaCep != null && !enderecoViaCep.isErro()) {
-                preencherEndereco(enderecoViaCep);
-                msgInfo("Localização atual usada para preencher o endereço.");
-                return;
-            }
-        }
-
-        preencherEndereco(enderecoGoogle);
+        EnderecoDTO endereco = cadastroClient.buscarEnderecoPorCoordenadas(dto.getLatitude(), dto.getLongitude());
+        preencherEndereco(endereco);
         msgInfo("Localização atual usada para preencher o endereço.");
     }
 
     public String finalizar() {
         try {
-            cadastroFormularioService.validarFinalizacao(dto, agenda, !sessaoBean.isLogado());
+            cadastroClient.validarFinalizacao(dto, agenda, !sessaoBean.isLogado());
             this.dto.setDisponibilidades(agenda);
 
             if (sessaoBean.isLogado()) {

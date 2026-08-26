@@ -5,11 +5,7 @@ import br.com.arenamatch.dto.ConfirmacaoAcessoAdminDTO;
 import br.com.arenamatch.dto.LoginDTO;
 import br.com.arenamatch.dto.LoginResponseDTO;
 import br.com.arenamatch.dto.RedefinirSenhaDTO;
-import br.com.arenamatch.dto.UsuarioDTO;
-import br.com.arenamatch.enums.Perfil;
-import br.com.arenamatch.repository.UsuarioRepository;
 import br.com.arenamatch.service.AuthService;
-import br.com.arenamatch.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,39 +20,14 @@ public class AuthController {
     @Autowired
     private AuthService service;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginDTO loginDTO) {
-        UsuarioDTO usuario = service.autenticar(loginDTO);
-
-        LoginResponseDTO response = new LoginResponseDTO();
-        if (Perfil.ADMIN.equals(usuario.getPerfil())) {
-            response.setRequerCodigoAdmin(true);
-            response.setDesafioAdmin(service.iniciarAcessoAdmin(usuario.getEmail()));
-            response.setEmailMascarado(service.mascararEmail(usuario.getEmail()));
-            return ResponseEntity.ok(response);
-        }
-
-        var usuarioEntity = usuarioRepository.findByEmail(usuario.getEmail()).orElseThrow();
-        response.setUsuario(usuario);
-        response.setToken(jwtService.gerarToken(usuarioEntity));
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(service.realizarLogin(loginDTO));
     }
 
     @PostMapping("/admin/confirmar")
     public ResponseEntity<LoginResponseDTO> confirmarAcessoAdmin(@RequestBody ConfirmacaoAcessoAdminDTO dto) {
-        UsuarioDTO usuario = service.confirmarAcessoAdmin(dto.getDesafio(), dto.getCodigo());
-        var usuarioEntity = usuarioRepository.findByEmail(usuario.getEmail()).orElseThrow();
-
-        LoginResponseDTO response = new LoginResponseDTO();
-        response.setUsuario(usuario);
-        response.setToken(jwtService.gerarToken(usuarioEntity));
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(service.confirmarLoginAdmin(dto.getDesafio(), dto.getCodigo()));
     }
 
     @PostMapping("/admin/reenviar")

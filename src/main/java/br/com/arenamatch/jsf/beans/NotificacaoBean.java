@@ -6,7 +6,6 @@ import br.com.arenamatch.jsf.client.AgendaClient;
 import br.com.arenamatch.jsf.client.LigaClient;
 import br.com.arenamatch.jsf.client.NotificacaoClient;
 import br.com.arenamatch.jsf.client.PartidaClient;
-import br.com.arenamatch.service.NotificacaoClassificacaoService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -31,7 +30,6 @@ public class NotificacaoBean implements Serializable {
     @Inject private LigaClient ligaClient;
     @Inject private AgendaClient agendaClient;
     @Inject private PartidaClient partidaClient;
-    @Inject private NotificacaoClassificacaoService notificacaoClassificacaoService;
 
     @Getter @Setter
     private List<NotificacaoDTO> listaNotificacoes = new ArrayList<>();
@@ -56,7 +54,7 @@ public class NotificacaoBean implements Serializable {
                 Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
                 if (meuTimeId != null) {
                     this.listaNotificacoes = notificacaoClient.buscarNotificacoes(meuTimeId);
-                    aplicarResumo(notificacaoClassificacaoService.calcularResumo(listaNotificacoes));
+                    aplicarResumo(notificacaoClient.buscarResumo(meuTimeId));
                     sessaoBean.setQtdNotificacoes(this.totalNotificacoes);
                 }
             } catch (Exception e) {
@@ -67,10 +65,10 @@ public class NotificacaoBean implements Serializable {
 
     public void aceitarConvite(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isLiga(notificacao)) {
+            if (isTipo(notificacao, "LIGA")) {
                 ligaClient.responderConvite(notificacao.getIdReferencia(), true);
                 msgInfo("Você entrou na liga!");
-            } else if (notificacaoClassificacaoService.isJogo(notificacao)) {
+            } else if (isTipo(notificacao, "JOGO")) {
                 agendaClient.aceitarDesafio(notificacao.getIdReferencia());
                 msgInfo("Desafio aceito! Jogo confirmado.");
             }
@@ -87,10 +85,10 @@ public class NotificacaoBean implements Serializable {
 
     public void recusarConvite(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isLiga(notificacao)) {
+            if (isTipo(notificacao, "LIGA")) {
                 ligaClient.responderConvite(notificacao.getIdReferencia(), false);
                 msgInfo("Convite de liga recusado.");
-            } else if (notificacaoClassificacaoService.isJogo(notificacao)) {
+            } else if (isTipo(notificacao, "JOGO")) {
                 agendaClient.excluirPartida(notificacao.getIdReferencia());
                 msgInfo("Convite de jogo recusado.");
             }
@@ -103,7 +101,7 @@ public class NotificacaoBean implements Serializable {
 
     public void cancelarConvite(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isJogo(notificacao)) {
+            if (isTipo(notificacao, "JOGO")) {
                 agendaClient.excluirPartida(notificacao.getIdReferencia());
                 msgInfo("Desafio cancelado.");
                 aposAcao();
@@ -115,7 +113,7 @@ public class NotificacaoBean implements Serializable {
 
     public void aceitarCancelamentoJogo(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isCancelamentoJogo(notificacao)) {
+            if (isTipo(notificacao, "CANCELAMENTO_JOGO")) {
                 agendaClient.responderCancelamento(
                         notificacao.getIdReferencia(),
                         sessaoBean.getUsuarioLogado().getIdTime(),
@@ -131,7 +129,7 @@ public class NotificacaoBean implements Serializable {
 
     public void recusarCancelamentoJogo(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isCancelamentoJogo(notificacao)) {
+            if (isTipo(notificacao, "CANCELAMENTO_JOGO")) {
                 agendaClient.responderCancelamento(
                         notificacao.getIdReferencia(),
                         sessaoBean.getUsuarioLogado().getIdTime(),
@@ -147,7 +145,7 @@ public class NotificacaoBean implements Serializable {
 
     public void confirmarResultadoPlacar(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isPlacar(notificacao)) {
+            if (isTipo(notificacao, "PLACAR")) {
                 partidaClient.confirmarPlacar(notificacao.getIdReferencia());
                 msgInfo("Placar confirmado! Os pontos foram para o Ranking.");
                 aposAcao();
@@ -160,7 +158,7 @@ public class NotificacaoBean implements Serializable {
 
     public void contestarResultadoPlacar(NotificacaoDTO notificacao) {
         try {
-            if (notificacaoClassificacaoService.isPlacar(notificacao)) {
+            if (isTipo(notificacao, "PLACAR")) {
                 partidaClient.contestarPlacar(notificacao.getIdReferencia());
                 msgInfo("Placar contestado! A partida entrou em disputa.");
                 aposAcao();
@@ -172,7 +170,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void informarPlacarPendente(NotificacaoDTO notificacao) {
-        if (!notificacaoClassificacaoService.isPlacarPendente(notificacao)) {
+        if (!isTipo(notificacao, "PLACAR_PENDENTE")) {
             return;
         }
 
@@ -200,7 +198,7 @@ public class NotificacaoBean implements Serializable {
     }
 
     public void informarPlacarDiferente(NotificacaoDTO notificacao) {
-        if (!notificacaoClassificacaoService.isPlacar(notificacao)) {
+        if (!isTipo(notificacao, "PLACAR")) {
             return;
         }
 
@@ -230,6 +228,10 @@ public class NotificacaoBean implements Serializable {
         this.totalConvitesJogo = resumo.getTotalConvitesJogo();
         this.totalConvitesLiga = resumo.getTotalConvitesLiga();
         this.totalNotificacoes = resumo.getTotalNotificacoes();
+    }
+
+    private boolean isTipo(NotificacaoDTO notificacao, String tipo) {
+        return notificacao != null && tipo.equals(notificacao.getTipo());
     }
 
     private void aposAcao() {

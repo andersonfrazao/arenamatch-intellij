@@ -4,11 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import br.com.arenamatch.dto.NotificacaoDTO;
 import br.com.arenamatch.jsf.client.AgendaClient;
-import br.com.arenamatch.service.NotificacaoClassificacaoService;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +25,6 @@ import org.springframework.web.client.RestClientResponseException;
 class NotificacaoBeanTest {
 
     @Mock private AgendaClient agendaClient;
-    @Mock private NotificacaoClassificacaoService notificacaoClassificacaoService;
     @InjectMocks private NotificacaoBean bean;
 
     @Test
@@ -44,7 +41,6 @@ class NotificacaoBeanTest {
                 mensagem.getBytes(StandardCharsets.UTF_8),
                 StandardCharsets.UTF_8);
 
-        when(notificacaoClassificacaoService.isJogo(notificacao)).thenReturn(true);
         doThrow(resposta).when(agendaClient).aceitarDesafio(30L);
 
         FacesContext facesContext = org.mockito.Mockito.mock(FacesContext.class);

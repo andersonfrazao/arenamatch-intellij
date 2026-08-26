@@ -23,4 +23,11 @@ public class ParametroSistemaClient {
                 .retrieve()
                 .toBodilessEntity();
     }
+
+    public Integer buscarRaioMaximoBuscaBasico() {
+        return restClient.get()
+                .uri("/api/parametros/raio-maximo-busca-basico")
+                .retrieve()
+                .body(Integer.class);
+    }
 }

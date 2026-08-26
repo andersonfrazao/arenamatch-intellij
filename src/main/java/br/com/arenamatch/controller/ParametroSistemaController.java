@@ -27,4 +27,9 @@ public class ParametroSistemaController {
         parametroSistemaService.validarDataMinimaAgendamento(dataJogo);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/raio-maximo-busca-basico")
+    public ResponseEntity<Integer> buscarRaioMaximoBuscaBasico() {
+        return ResponseEntity.ok(parametroSistemaService.buscarRaioMaximoBuscaPlanoBasicoKm());
+    }
 }

@@ -2,9 +2,13 @@ package br.com.arenamatch.dto;
 
 public class ResumoNotificacoesDTO {
 
-    private final int totalConvitesJogo;
-    private final int totalConvitesLiga;
-    private final int totalNotificacoes;
+    private int totalConvitesJogo;
+    private int totalConvitesLiga;
+    private int totalNotificacoes;
+
+    public ResumoNotificacoesDTO() {
+        this(0, 0);
+    }
 
     public ResumoNotificacoesDTO(int totalConvitesJogo, int totalConvitesLiga) {
         this.totalConvitesJogo = totalConvitesJogo;
@@ -22,5 +26,17 @@ public class ResumoNotificacoesDTO {
 
     public int getTotalNotificacoes() {
         return totalNotificacoes;
+    }
+
+    public void setTotalConvitesJogo(int totalConvitesJogo) {
+        this.totalConvitesJogo = totalConvitesJogo;
+    }
+
+    public void setTotalConvitesLiga(int totalConvitesLiga) {
+        this.totalConvitesLiga = totalConvitesLiga;
+    }
+
+    public void setTotalNotificacoes(int totalNotificacoes) {
+        this.totalNotificacoes = totalNotificacoes;
     }
 }
