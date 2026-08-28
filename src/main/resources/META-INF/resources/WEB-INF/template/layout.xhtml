@@ -54,6 +54,29 @@
             border-left: 4px solid #38bdf8; border-radius: 0 12px 12px 0;
         }
 
+        .am-more-menu { position: relative; }
+        .am-more-menu summary {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 12px;
+            color: #94a3b8; font-weight: 600; cursor: pointer; list-style: none; transition: all 0.2s;
+        }
+        .am-more-menu summary::-webkit-details-marker { display: none; }
+        .am-more-menu summary:hover, .am-more-menu[open] summary, .am-more-menu.active summary {
+            background: rgba(255,255,255,0.05); color: #fff;
+        }
+        .am-more-menu.active summary {
+            background: rgba(14, 165, 233, 0.15); color: #38bdf8;
+            border-left: 4px solid #38bdf8; border-radius: 0 12px 12px 0;
+        }
+        .am-more-menu-panel {
+            margin: .25rem 0 .75rem; padding: .45rem; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.10); background: rgba(2, 6, 23, 0.55);
+        }
+        .am-more-menu-panel a { margin-bottom: .2rem; }
+        .am-more-menu-title {
+            padding: .35rem .55rem .25rem; color: #64748b; font-size: .68rem;
+            font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+        }
+
         .am-team-box {
             margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2);
             border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
@@ -177,6 +200,24 @@
                 color: #94a3b8; text-decoration: none; font-size: 0.75rem; padding: 0.5rem;
             }
             .am-b-item.active { color: #38bdf8; font-weight: bold; }
+            .am-bottom-more { flex: 1; position: static; }
+            .am-bottom-more summary {
+                height: 100%; padding: .5rem; border-radius: 0; justify-content: center;
+                flex-direction: column; gap: .3rem; font-size: .75rem;
+            }
+            .am-bottom-more summary:hover, .am-bottom-more[open] summary, .am-bottom-more.active summary {
+                background: transparent; color: #38bdf8;
+            }
+            .am-bottom-more.active summary { border-left: 0; border-radius: 0; }
+            .am-bottom-more .am-more-menu-panel {
+                position: absolute; left: .75rem; right: .75rem; bottom: calc(100% + .6rem);
+                margin: 0; padding: .65rem; border-radius: 16px; z-index: 1000;
+                background: rgba(15, 23, 42, 0.98); box-shadow: 0 -14px 35px rgba(0,0,0,.45);
+            }
+            .am-bottom-more .am-more-menu-panel a {
+                flex-direction: row; justify-content: flex-start; gap: .8rem; padding: .85rem;
+                border-radius: 10px; font-size: .85rem;
+            }
         }
 
         @media (max-width: 420px){
@@ -240,19 +281,23 @@
 				            <p:badge value="#{sessaoBean.qtdMensagensNaoLidas}" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}" severity="danger" styleClass="ml-2"/>
 				        </h:link>
                     </h:panelGroup>
-                    <h:link outcome="/cadastro" styleClass="#{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
-                        <i class="fas fa-id-card w-2rem text-center text-lg"></i> Meus Dados
-                    </h:link>
-
-                    <div class="mt-4 pt-3 border-top-1 border-white-alpha-10 w-full">
-                        <div class="text-gray-500 text-xs font-bold uppercase px-3 mb-2 tracking-wider">Suporte</div>
+                    <details class="am-more-menu #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+                        <summary title="Abrir menu">
+                            <i class="fas fa-bars w-2rem text-center text-lg"></i> Menu
+                        </summary>
+                        <div class="am-more-menu-panel">
+                            <div class="am-more-menu-title">Conta e suporte</div>
+                            <h:link outcome="/cadastro" styleClass="#{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
+                                <i class="fas fa-id-card w-2rem text-center text-lg"></i> Meus Dados
+                            </h:link>
                         <h:link outcome="/fale-conosco" styleClass="#{view.viewId eq '/fale-conosco.xhtml' ? 'active' : ''}">
                             <i class="fas fa-headset w-2rem text-center text-lg text-blue-400"></i> Fale Conosco
                         </h:link>
                         <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="#{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
                             <i class="fas fa-user-shield w-2rem text-center text-lg text-blue-400"></i> Admin
                         </h:link>
-                    </div>
+                        </div>
+                    </details>
                 </nav>
 
                 <div class="am-team-box">
@@ -586,16 +631,23 @@
 		            <span>Chat</span>
 		        </h:link>
             </h:panelGroup>
-		    <h:link outcome="/cadastro" styleClass="am-b-item #{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
-		        <i class="fas fa-id-card text-xl"></i><span>Dados</span>
-		    </h:link>
-            
-            <h:link outcome="/fale-conosco" styleClass="am-b-item #{view.viewId eq '/fale-conosco.xhtml' ? 'active' : ''}">
-                <i class="fas fa-headset text-xl"></i><span>Suporte</span>
-            </h:link>
-            <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="am-b-item #{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
-                <i class="fas fa-user-shield text-xl"></i><span>Admin</span>
-            </h:link>
+            <details class="am-more-menu am-bottom-more #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+                <summary title="Abrir menu">
+                    <i class="fas fa-bars text-xl"></i><span>Menu</span>
+                </summary>
+                <div class="am-more-menu-panel">
+                    <div class="am-more-menu-title">Conta e suporte</div>
+                    <h:link outcome="/cadastro" styleClass="am-b-item #{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-id-card text-xl"></i><span>Meus Dados</span>
+                    </h:link>
+                    <h:link outcome="/fale-conosco" styleClass="am-b-item #{view.viewId eq '/fale-conosco.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-headset text-xl"></i><span>Fale Conosco</span>
+                    </h:link>
+                    <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="am-b-item #{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-user-shield text-xl"></i><span>Admin</span>
+                    </h:link>
+                </div>
+            </details>
 		</div>
         
         <script>
@@ -630,6 +682,17 @@
                     }
 
                     atualizarSininhoAoAbrirAjax();
+                });
+            }
+
+            if (!window.amMoreMenuClickBound) {
+                window.amMoreMenuClickBound = true;
+                document.addEventListener("click", function(event) {
+                    document.querySelectorAll(".am-more-menu[open]").forEach(function(menu) {
+                        if (!menu.contains(event.target)) {
+                            menu.removeAttribute("open");
+                        }
+                    });
                 });
             }
         </script>
