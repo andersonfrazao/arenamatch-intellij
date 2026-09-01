@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1220">
+    <title>Arena Match — Gestão do Time V1.1</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="prototype-note"><i class="fa-solid fa-flask"></i> Protótipo V1.1 — prancheta tática arrastável</div>
+
+<div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+        <a href="#agenda" class="brand" data-route="agenda">
+            <span class="brand-mark"><i class="fa-solid fa-futbol"></i></span>
+            <span>ARENA <b>MATCH</b></span>
+        </a>
+        <nav class="desktop-nav"></nav>
+        <div class="side-team">
+            <span class="crest">MF</span>
+            <div><strong>Mocidade FC</strong><small>Mandante</small></div>
+        </div>
+        <button class="plan-switch" id="planSwitch" type="button" aria-pressed="true">
+            <i class="fa-solid fa-crown"></i>
+            <span><strong>Plano PRO</strong><small>Toque para simular o Básico</small></span>
+        </button>
+    </aside>
+
+    <main class="main-area">
+        <header class="topbar">
+            <div class="mobile-team">
+                <span class="crest">MF</span>
+                <div><strong>Mocidade FC</strong><small>Mandante</small></div>
+            </div>
+            <div class="top-actions">
+                <span class="plan-pill" id="planLabel"><i class="fa-solid fa-crown"></i> PRO ATIVO</span>
+                <button class="notification-button" type="button" data-toast="Você tem 2 notificações"><i class="fa-regular fa-bell"></i><span class="notification-copy"><strong>Notificações</strong><small>Convites e placares</small></span><span class="dot"></span></button>
+                <button class="logout" type="button" data-toast="Saída simulada"><i class="fa-solid fa-right-from-bracket"></i><span>Sair</span></button>
+            </div>
+        </header>
+        <section id="page" class="page" aria-live="polite"></section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegação principal"></nav>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
