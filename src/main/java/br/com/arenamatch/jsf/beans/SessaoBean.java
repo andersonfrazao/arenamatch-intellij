@@ -49,6 +49,13 @@ public class SessaoBean implements Serializable {
         return usuarioLogado != null && usuarioLogado.getIdTime() != null;
     }
 
+    public boolean isAssinantePro() {
+        atualizarTrialLocalSeExpirado();
+        return usuarioLogado != null
+                && usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
+                && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO;
+    }
+
     public String getPlanoAssinaturaLabel() {
         atualizarTrialLocalSeExpirado();
 

@@ -613,6 +613,12 @@
                                                      update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs" 
                                                      icon="fas fa-check"
                                                      styleClass="ui-button-success w-full mt-4 rounded-button shadow-2 font-bold"/>
+                                    <h:panelGroup rendered="#{sessaoBean.assinantePro}" layout="block" styleClass="mt-3 pt-3 border-top-1 border-white-alpha-20">
+                                        <div class="text-sm text-white mb-2">Você também pode preparar a escalação antes de informar o placar.</div>
+                                        <p:button value="Montar escalação" outcome="/gestao-time" icon="fas fa-chalkboard" styleClass="ui-button-info ui-button-outlined ui-button-sm w-full">
+                                            <f:param name="partida" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                    </h:panelGroup>
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou eq minhaAgendaBean.meuTimeId}" 
@@ -620,6 +626,12 @@
                                     <i class="far fa-clock text-teal-400 text-3xl mb-2"></i>
                                     <div class="text-teal-400 font-bold text-sm uppercase tracking-wide">Aguardando Confirmação</div>
                                     <div class="text-xs text-gray-300 mt-1">O adversário precisa validar o placar informado.</div>
+                                    <h:panelGroup rendered="#{sessaoBean.assinantePro}" layout="block" styleClass="mt-3 pt-3 border-top-1 border-white-alpha-20">
+                                        <div class="text-sm text-white mb-2">O rascunho da escalação e dos eventos já pode ser preenchido.</div>
+                                        <p:button value="Continuar na prancheta" outcome="/gestao-time" icon="fas fa-chalkboard" styleClass="ui-button-warning ui-button-sm w-full">
+                                            <f:param name="partida" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                    </h:panelGroup>
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou ne minhaAgendaBean.meuTimeId}" 
@@ -723,6 +735,12 @@
                                             </span>
                                         </div>
                                     </div>
+                                    <h:panelGroup rendered="#{sessaoBean.assinantePro}" layout="block" styleClass="mt-4 pt-3 border-top-1 border-white-alpha-20">
+                                        <div class="text-sm text-white mb-2">Complete a escalação, os gols e os cartões desta partida.</div>
+                                        <p:button value="Abrir prancheta e súmula" outcome="/gestao-time" icon="fas fa-chalkboard" styleClass="ui-button-warning w-full">
+                                            <f:param name="partida" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                    </h:panelGroup>
                                 </h:panelGroup>
 
                                 <h:panelGroup rendered="#{minhaAgendaBean.eventoEmCancelamento eq evento}" layout="block" styleClass="mt-4 p-3 border-round shadow-2 w-full" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">

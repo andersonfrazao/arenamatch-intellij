@@ -7,6 +7,7 @@ public record DisponibilidadeGestaoPartidaDTO(
         boolean acessoPro,
         boolean editavel,
         boolean placarInformado,
+        boolean placarConfirmado,
         boolean pendenteConclusao,
         LocalDateTime liberadaEm,
         String mensagem) {

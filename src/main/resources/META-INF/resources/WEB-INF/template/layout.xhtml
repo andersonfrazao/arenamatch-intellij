@@ -266,9 +266,9 @@
                     <h:link outcome="/busca-time" styleClass="#{view.viewId eq '/busca-time.xhtml' ? 'active' : ''}">
                         <i class="fas fa-search w-2rem text-center text-lg"></i> Buscar jogo
                     </h:link>
-<h:link outcome="/ranking" styleClass="#{view.viewId eq '/ranking.xhtml' ? 'active' : ''}">
+                    <h:link outcome="/ranking" styleClass="#{view.viewId eq '/ranking.xhtml' ? 'active' : ''}">
                         <i class="fas fa-list-ol w-2rem text-center text-lg"></i> Ranking
-                    </h:link>                    
+                    </h:link>
                     <h:panelGroup id="painelChatMenuDesktop" layout="block">
 					    <h:link outcome="/chat" styleClass="#{view.viewId eq '/chat.xhtml' ? 'active' : ''}">
 				            <span class="relative inline-flex">
@@ -281,11 +281,17 @@
 				            <p:badge value="#{sessaoBean.qtdMensagensNaoLidas}" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}" severity="danger" styleClass="ml-2"/>
 				        </h:link>
                     </h:panelGroup>
-                    <details class="am-more-menu #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+                    <details class="am-more-menu #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' or view.viewId eq '/gestao-time.xhtml' ? 'active' : ''}">
                         <summary title="Abrir menu">
                             <i class="fas fa-bars w-2rem text-center text-lg"></i> Menu
                         </summary>
                         <div class="am-more-menu-panel">
+                            <div class="am-more-menu-title">Gestão do time</div>
+                            <h:link outcome="/gestao-time" rendered="#{sessaoBean.possuiTime}" styleClass="#{view.viewId eq '/gestao-time.xhtml' ? 'active' : ''}">
+                                <i class="fas fa-users-cog w-2rem text-center text-lg"></i>
+                                Gestão do Time
+                                <i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'} ml-auto" style="color:#fbbf24;font-size:.72rem;"></i>
+                            </h:link>
                             <div class="am-more-menu-title">Conta e suporte</div>
                             <h:link outcome="/cadastro" styleClass="#{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
                                 <i class="fas fa-id-card w-2rem text-center text-lg"></i> Meus Dados
@@ -631,11 +637,15 @@
 		            <span>Chat</span>
 		        </h:link>
             </h:panelGroup>
-            <details class="am-more-menu am-bottom-more #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' ? 'active' : ''}">
+            <details class="am-more-menu am-bottom-more #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' or view.viewId eq '/gestao-time.xhtml' ? 'active' : ''}">
                 <summary title="Abrir menu">
                     <i class="fas fa-bars text-xl"></i><span>Menu</span>
                 </summary>
                 <div class="am-more-menu-panel">
+                    <div class="am-more-menu-title">Time</div>
+                    <h:link outcome="/gestao-time" rendered="#{sessaoBean.possuiTime}" styleClass="am-b-item #{view.viewId eq '/gestao-time.xhtml' ? 'active' : ''}">
+                        <i class="fas fa-users-cog text-xl"></i><span>Gestão do Time <small style="color:#fbbf24;font-weight:800;">#{sessaoBean.assinantePro ? 'PRO' : 'BLOQUEADO'}</small></span>
+                    </h:link>
                     <div class="am-more-menu-title">Conta e suporte</div>
                     <h:link outcome="/cadastro" styleClass="am-b-item #{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
                         <i class="fas fa-id-card text-xl"></i><span>Meus Dados</span>

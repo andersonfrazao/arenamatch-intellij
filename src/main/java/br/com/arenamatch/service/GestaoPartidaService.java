@@ -70,6 +70,7 @@ public class GestaoPartidaService {
         boolean liberada = estadoValido && validator.estaLiberada(contexto.partida(), LocalDateTime.now());
         boolean placarInformado = contexto.partida().getStatusPlacar() != null
                 && contexto.partida().getStatusPlacar() != StatusPlacar.PENDENTE;
+        boolean placarConfirmado = contexto.partida().getStatusPlacar() == StatusPlacar.CONFIRMADO;
         boolean pendenteConclusao = placarInformado
                 && gestaoPartidaRepository.findByPartidaIdAndTimeId(partidaId, contexto.time().getId())
                         .map(gestao -> gestao.getStatus() != StatusGestaoPartida.PUBLICADO)
@@ -93,6 +94,7 @@ public class GestaoPartidaService {
                 acessoPro,
                 acessoPro && liberada,
                 placarInformado,
+                placarConfirmado,
                 pendenteConclusao,
                 contexto.partida().getDataHora(),
                 mensagem);
