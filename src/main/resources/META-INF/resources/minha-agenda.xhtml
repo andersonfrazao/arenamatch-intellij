@@ -10,6 +10,12 @@
         
         <style>
             .agenda-container { font-family: system-ui, -apple-system, sans-serif; color: rgba(255,255,255,0.92); }
+            .am-mini-field {
+                position: relative; display: inline-block; width: 1.15rem; height: .82rem;
+                border: 2px solid currentColor; border-radius: 2px; box-sizing: border-box;
+            }
+            .am-mini-field:before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px solid currentColor; transform: translateX(-50%); }
+            .am-mini-field:after { content: ""; position: absolute; width: .26rem; height: .26rem; left: 50%; top: 50%; border: 1px solid currentColor; border-radius: 50%; transform: translate(-50%,-50%); }
             
             .panel-glass {
                 background: rgba(255,255,255,0.06);
@@ -612,10 +618,10 @@
                                     <p:commandButton value="Salvar Placar" action="#{minhaAgendaBean.salvarPlacarInline(evento)}" 
                                                      update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs" 
                                                      icon="fas fa-check"
-                                                     styleClass="ui-button-success w-full mt-4 rounded-button shadow-2 font-bold"/>
+                                                     styleClass="ui-button-info w-full mt-4 rounded-button shadow-2 font-bold"/>
                                     <h:panelGroup rendered="#{sessaoBean.assinantePro}" layout="block" styleClass="mt-3 pt-3 border-top-1 border-white-alpha-20">
                                         <div class="text-sm text-white mb-2">Você também pode preparar a escalação antes de informar o placar.</div>
-                                        <p:button value="Montar escalação" outcome="/gestao-time" icon="fas fa-chalkboard" styleClass="ui-button-info ui-button-outlined ui-button-sm w-full">
+                                        <p:button value="Montar escalação" outcome="/gestao-time" icon="am-mini-field" styleClass="ui-button-success ui-button-sm w-full shadow-2 font-bold">
                                             <f:param name="partida" value="#{evento.idPartida}"/>
                                         </p:button>
                                     </h:panelGroup>

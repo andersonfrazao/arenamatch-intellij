@@ -4,7 +4,8 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <h:head>
     <meta charset="UTF-8" />
@@ -76,6 +77,12 @@
             padding: .35rem .55rem .25rem; color: #64748b; font-size: .68rem;
             font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
         }
+        .am-pro-coming-soon {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: .2rem; padding: 1rem;
+            border-radius: 12px; color: #64748b; font-weight: 600; cursor: not-allowed; opacity: .78;
+        }
+        .am-pro-status { margin-left: auto; display: inline-flex; align-items: center; gap: .35rem; color: #fbbf24; font-size: .68rem; font-weight: 900; }
+        .am-coming-soon-badge { padding: .16rem .38rem; border: 1px solid rgba(251,191,36,.28); border-radius: 999px; background: rgba(251,191,36,.09); white-space: nowrap; }
 
         .am-team-box {
             margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2);
@@ -214,7 +221,7 @@
                 margin: 0; padding: .65rem; border-radius: 16px; z-index: 1000;
                 background: rgba(15, 23, 42, 0.98); box-shadow: 0 -14px 35px rgba(0,0,0,.45);
             }
-            .am-bottom-more .am-more-menu-panel a {
+            .am-bottom-more .am-more-menu-panel a, .am-bottom-more .am-pro-coming-soon {
                 flex-direction: row; justify-content: flex-start; gap: .8rem; padding: .85rem;
                 border-radius: 10px; font-size: .85rem;
             }
@@ -286,12 +293,17 @@
                             <i class="fas fa-bars w-2rem text-center text-lg"></i> Menu
                         </summary>
                         <div class="am-more-menu-panel">
-                            <div class="am-more-menu-title">Gestão do time</div>
+                            <div class="am-more-menu-title">Recursos PRO</div>
                             <h:link outcome="/gestao-time" rendered="#{sessaoBean.possuiTime}" styleClass="#{view.viewId eq '/gestao-time.xhtml' ? 'active' : ''}">
                                 <i class="fas fa-users-cog w-2rem text-center text-lg"></i>
                                 Gestão do Time
                                 <i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'} ml-auto" style="color:#fbbf24;font-size:.72rem;"></i>
                             </h:link>
+                            <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-pro-coming-soon" pt:role="link" pt:aria-disabled="true" title="Campeonatos estará disponível em breve">
+                                <i class="fas fa-trophy w-2rem text-center text-lg"></i>
+                                <span>Campeonatos</span>
+                                <span class="am-pro-status"><i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'}"></i><span class="am-coming-soon-badge">Em breve</span></span>
+                            </h:panelGroup>
                             <div class="am-more-menu-title">Conta e suporte</div>
                             <h:link outcome="/cadastro" styleClass="#{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
                                 <i class="fas fa-id-card w-2rem text-center text-lg"></i> Meus Dados
@@ -545,7 +557,7 @@
                                                                      process="@this"
                                                                      update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
                                                                      icon="fas fa-check"
-                                                                     styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" />
+                                                                     styleClass="ui-button-info rounded-btn ui-button-sm shadow-2" />
                                                     <p:commandButton value="Contestar placar"
                                                                      action="#{notificacaoBean.contestarResultadoPlacar(notif)}"
                                                                      process="@this"
@@ -642,10 +654,14 @@
                     <i class="fas fa-bars text-xl"></i><span>Menu</span>
                 </summary>
                 <div class="am-more-menu-panel">
-                    <div class="am-more-menu-title">Time</div>
+                    <div class="am-more-menu-title">Recursos PRO</div>
                     <h:link outcome="/gestao-time" rendered="#{sessaoBean.possuiTime}" styleClass="am-b-item #{view.viewId eq '/gestao-time.xhtml' ? 'active' : ''}">
                         <i class="fas fa-users-cog text-xl"></i><span>Gestão do Time <small style="color:#fbbf24;font-weight:800;">#{sessaoBean.assinantePro ? 'PRO' : 'BLOQUEADO'}</small></span>
                     </h:link>
+                    <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-pro-coming-soon" pt:role="link" pt:aria-disabled="true" title="Campeonatos estará disponível em breve">
+                        <i class="fas fa-trophy text-xl"></i><span>Campeonatos</span>
+                        <span class="am-pro-status"><i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'}"></i><span class="am-coming-soon-badge">Em breve</span></span>
+                    </h:panelGroup>
                     <div class="am-more-menu-title">Conta e suporte</div>
                     <h:link outcome="/cadastro" styleClass="am-b-item #{view.viewId eq '/cadastro.xhtml' ? 'active' : ''}">
                         <i class="fas fa-id-card text-xl"></i><span>Meus Dados</span>
