@@ -11,17 +11,13 @@ import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.EtapaGestaoPartida;
-import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.SituacaoAtleta;
 import br.com.arenamatch.enums.StatusGestaoPartida;
-import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.enums.StatusPlacar;
 import br.com.arenamatch.enums.TipoEventoSumula;
 import br.com.arenamatch.repository.AtletaRepository;
 import br.com.arenamatch.repository.GestaoPartidaRepository;
 import br.com.arenamatch.repository.PartidaRepository;
-import br.com.arenamatch.repository.TimeRepository;
-import br.com.arenamatch.repository.UsuarioRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +26,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,34 +33,29 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class GestaoPartidaService {
 
-    private static final String MENSAGEM_UPGRADE = "Assine o plano PRO para acessar a gestao do seu time!";
-
     private final GestaoPartidaRepository gestaoPartidaRepository;
     private final PartidaRepository partidaRepository;
     private final AtletaRepository atletaRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final TimeRepository timeRepository;
     private final GestaoPartidaValidator validator;
+    private final GestaoTimeAuthorizationService authorizationService;
 
     public GestaoPartidaService(
             GestaoPartidaRepository gestaoPartidaRepository,
             PartidaRepository partidaRepository,
             AtletaRepository atletaRepository,
-            UsuarioRepository usuarioRepository,
-            TimeRepository timeRepository,
-            GestaoPartidaValidator validator) {
+            GestaoPartidaValidator validator,
+            GestaoTimeAuthorizationService authorizationService) {
         this.gestaoPartidaRepository = gestaoPartidaRepository;
         this.partidaRepository = partidaRepository;
         this.atletaRepository = atletaRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.timeRepository = timeRepository;
         this.validator = validator;
+        this.authorizationService = authorizationService;
     }
 
     @Transactional(readOnly = true)
     public DisponibilidadeGestaoPartidaDTO consultarDisponibilidade(Long partidaId) {
         Contexto contexto = carregarContexto(partidaId, false);
-        boolean acessoPro = possuiProPago(contexto.usuario());
+        boolean acessoPro = contexto.acessoPro();
         boolean estadoValido = validator.estadoPermiteGestao(contexto.partida());
         boolean liberada = estadoValido && validator.estaLiberada(contexto.partida(), LocalDateTime.now());
         boolean placarInformado = contexto.partida().getStatusPlacar() != null
@@ -78,7 +68,8 @@ public class GestaoPartidaService {
 
         String mensagem;
         if (!acessoPro) {
-            mensagem = MENSAGEM_UPGRADE;
+            mensagem = authorizationService.mensagemBloqueio(
+                    contexto.usuario().getPlanoAssinatura(), contexto.usuario().getStatusPagamento());
         } else if (!estadoValido) {
             mensagem = "Esta partida nao permite gestao.";
         } else if (!liberada) {
@@ -182,10 +173,7 @@ public class GestaoPartidaService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Atleta informado nao foi encontrado.");
         }
         for (Atleta atleta : atletas.values()) {
-            if (!Objects.equals(atleta.getTime().getId(), time.getId())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "Atleta informado nao pertence ao time autenticado.");
-            }
+            authorizationService.exigirRecursoDoTime(atleta.getTime().getId(), time, "Atleta");
             if (atleta.getSituacao() != SituacaoAtleta.ATIVO) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "Atleta inativo nao pode entrar em uma nova escalacao.");
@@ -236,37 +224,15 @@ public class GestaoPartidaService {
     }
 
     private Contexto carregarContexto(Long partidaId, boolean exigirPro) {
-        Usuario usuario = usuarioAutenticado();
-        Time time = timeRepository.findByResponsavel(usuario)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Time do usuario autenticado nao encontrado."));
+        GestaoTimeAuthorizationService.ContextoAcesso acesso = exigirPro
+                ? authorizationService.exigirAcessoPro()
+                : authorizationService.consultarContexto();
+        Usuario usuario = acesso.usuario();
+        Time time = acesso.time();
         Partida partida = partidaRepository.findById(partidaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida nao encontrada."));
-        if (!validator.pertenceAPartida(partida, time)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "A partida nao pertence ao time autenticado.");
-        }
-        if (exigirPro && !possuiProPago(usuario)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, MENSAGEM_UPGRADE);
-        }
-        return new Contexto(usuario, time, partida);
-    }
-
-    private Usuario usuarioAutenticado() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication() == null
-                ? null
-                : SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal == null || principal.toString().isBlank() || "anonymousUser".equals(principal.toString())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario nao autenticado.");
-        }
-        return usuarioRepository.findByEmail(principal.toString())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                        "Usuario autenticado nao encontrado."));
-    }
-
-    private boolean possuiProPago(Usuario usuario) {
-        return usuario.getPlanoAssinatura() == PlanoAssinatura.PRO
-                && usuario.getStatusPagamento() == StatusPagamento.PAGO;
+        authorizationService.exigirAcessoAoRecurso(validator.pertenceAPartida(partida, time), "Jogo");
+        return new Contexto(usuario, time, partida, acesso.acessoPro());
     }
 
     private boolean placarInformado(Partida partida) {
@@ -302,6 +268,6 @@ public class GestaoPartidaService {
         return valores == null ? List.of() : valores;
     }
 
-    private record Contexto(Usuario usuario, Time time, Partida partida) {
+    private record Contexto(Usuario usuario, Time time, Partida partida, boolean acessoPro) {
     }
 }

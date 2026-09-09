@@ -38,7 +38,11 @@ public class GestaoTimeBean implements Serializable {
     private List<LinhaAtleta> escalacao = new ArrayList<>();
     private String novoNome;
     private String novoApelido;
+    private String novoNomePartida;
+    private String novoApelidoPartida;
     private Long atletaEmEdicaoId;
+    private Long retornoPartidaId;
+    private String abaJogadoresMobile = "DISPONIVEIS";
     private String formacao = "3-5-2";
     private String formacaoPersonalizada;
     private Long atletaSelecionadoId;
@@ -51,10 +55,16 @@ public class GestaoTimeBean implements Serializable {
     public void init() {
         if (!sessaoBean.isAssinantePro()) return;
         carregarAtletas();
-        String id = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("partida");
+        Map<String, String> parametros = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        String id = parametros.get("partida");
         if (id != null && !id.isBlank()) {
             try { partidaId = Long.valueOf(id); carregarPartida(); }
             catch (NumberFormatException e) { erro("Partida informada é inválida."); }
+        }
+        String retorno = parametros.get("retornoPartida");
+        if (retorno != null && !retorno.isBlank()) {
+            try { retornoPartidaId = Long.valueOf(retorno); }
+            catch (NumberFormatException e) { retornoPartidaId = null; }
         }
     }
 
@@ -68,6 +78,26 @@ public class GestaoTimeBean implements Serializable {
             info(editando ? "Atleta atualizado." : "Atleta adicionado ao elenco.");
         } catch (Exception e) { erro(mensagem(e, "Não foi possível cadastrar o atleta.")); }
     }
+
+    public void adicionarAtletaPartida() {
+        try {
+            AtletaDTO criado = atletaClient.criar(novoNomePartida, novoApelidoPartida);
+            novoNomePartida = null;
+            novoApelidoPartida = null;
+            carregarAtletas();
+            atletaSelecionadoId = criado == null ? null : criado.getId();
+            abaJogadoresMobile = "DISPONIVEIS";
+            info("Atleta adicionado e disponível para a escalação.");
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().validationFailed();
+            erro(mensagem(e, "Não foi possível cadastrar o atleta."));
+        }
+    }
+
+    public void cancelarSelecaoAtleta() { atletaSelecionadoId = null; }
+    public void exibirDisponiveis() { abaJogadoresMobile = "DISPONIVEIS"; }
+    public void exibirRelacionados() { abaJogadoresMobile = "RELACIONADOS"; }
+    public void exibirReservas() { abaJogadoresMobile = "RESERVAS"; }
 
     public void editarAtleta(AtletaDTO atleta) {
         atletaEmEdicaoId = atleta.getId();
@@ -261,11 +291,25 @@ public class GestaoTimeBean implements Serializable {
         LinhaAtleta selecionado = linha(atletaSelecionadoId);
         if (selecionado != null) selecionado.limpar();
         atletaSelecionadoId = null;
+        abaJogadoresMobile = "DISPONIVEIS";
     }
 
-    public void moverSelecionadoParaRelacionados() { moverSelecionado(PapelParticipacao.RELACIONADO); }
-    public void moverSelecionadoParaReservas() { moverSelecionado(PapelParticipacao.RESERVA); }
+    public void moverSelecionadoParaRelacionados() {
+        moverSelecionado(PapelParticipacao.RELACIONADO);
+        abaJogadoresMobile = "RELACIONADOS";
+    }
+    public void moverSelecionadoParaReservas() {
+        moverSelecionado(PapelParticipacao.RESERVA);
+        abaJogadoresMobile = "RESERVAS";
+    }
     public boolean isAtletaSelecionado() { return atletaSelecionadoId != null; }
+    public String getNomeAtletaSelecionado() {
+        LinhaAtleta selecionado = linha(atletaSelecionadoId);
+        if (selecionado == null) return "Atleta selecionado";
+        AtletaDTO atleta = selecionado.getAtleta();
+        return atleta.getApelido() == null || atleta.getApelido().isBlank()
+                ? atleta.getNome() : atleta.getApelido();
+    }
 
     private void moverSelecionado(PapelParticipacao papel) {
         LinhaAtleta selecionado = linha(atletaSelecionadoId);

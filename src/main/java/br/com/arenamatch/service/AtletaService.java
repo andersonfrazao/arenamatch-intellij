@@ -4,16 +4,10 @@ import br.com.arenamatch.dto.AtletaDTO;
 import br.com.arenamatch.dto.AtletaRequestDTO;
 import br.com.arenamatch.entity.Atleta;
 import br.com.arenamatch.entity.Time;
-import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.SituacaoAtleta;
-import br.com.arenamatch.enums.PlanoAssinatura;
-import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.repository.AtletaRepository;
-import br.com.arenamatch.repository.TimeRepository;
-import br.com.arenamatch.repository.UsuarioRepository;
 import java.util.List;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,14 +15,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AtletaService {
     private final AtletaRepository atletaRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final TimeRepository timeRepository;
+    private final GestaoTimeAuthorizationService authorizationService;
 
-    public AtletaService(AtletaRepository atletaRepository, UsuarioRepository usuarioRepository,
-                         TimeRepository timeRepository) {
+    public AtletaService(AtletaRepository atletaRepository,
+                         GestaoTimeAuthorizationService authorizationService) {
         this.atletaRepository = atletaRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.timeRepository = timeRepository;
+        this.authorizationService = authorizationService;
     }
 
     @Transactional(readOnly = true)
@@ -65,27 +57,15 @@ public class AtletaService {
     }
 
     private Atleta atletaDoTime(Long id) {
+        Time time = timeAutenticado();
         Atleta atleta = atletaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atleta nao encontrado."));
-        if (!atleta.getTime().getId().equals(timeAutenticado().getId()))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Atleta nao pertence ao time autenticado.");
+        authorizationService.exigirRecursoDoTime(atleta.getTime().getId(), time, "Atleta");
         return atleta;
     }
 
     private Time timeAutenticado() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication() == null ? null
-                : SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal == null || "anonymousUser".equals(principal.toString()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario nao autenticado.");
-        Usuario usuario = usuarioRepository.findByEmail(principal.toString())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario nao encontrado."));
-        if (usuario.getPlanoAssinatura() != PlanoAssinatura.PRO
-                || usuario.getStatusPagamento() != StatusPagamento.PAGO) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "Assine o plano PRO para acessar a gestao do seu time!");
-        }
-        return timeRepository.findByResponsavel(usuario)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Time nao encontrado."));
+        return authorizationService.exigirAcessoPro().time();
     }
 
     private void validar(AtletaRequestDTO request) {

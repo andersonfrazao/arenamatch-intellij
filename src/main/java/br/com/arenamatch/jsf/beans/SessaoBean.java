@@ -12,6 +12,7 @@ import br.com.arenamatch.dto.UsuarioDTO;
 import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
+import br.com.arenamatch.service.GestaoTimeAuthorizationService;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -36,6 +37,7 @@ public class SessaoBean implements Serializable {
     
     @Inject private ChatClient chatClient;
     @Inject private NotificacaoClient notificacaoClient;
+    @Inject private GestaoTimeAuthorizationService gestaoTimeAuthorizationService;
 
     public boolean isLogado() {
         return usuarioLogado != null;
@@ -51,9 +53,20 @@ public class SessaoBean implements Serializable {
 
     public boolean isAssinantePro() {
         atualizarTrialLocalSeExpirado();
-        return usuarioLogado != null
-                && usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
-                && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO;
+        return gestaoTimeAuthorizationService.possuiProPago(usuarioLogado);
+    }
+
+    public String getMensagemBloqueioGestaoTime() {
+        atualizarTrialLocalSeExpirado();
+        if (usuarioLogado == null) return "Entre para acessar a gestao do seu time.";
+        return gestaoTimeAuthorizationService.mensagemBloqueio(
+                usuarioLogado.getPlanoAssinatura(), usuarioLogado.getStatusPagamento());
+    }
+
+    public String getAcaoBloqueioGestaoTime() {
+        return usuarioLogado != null && gestaoTimeAuthorizationService.precisaRegularizar(
+                usuarioLogado.getPlanoAssinatura(), usuarioLogado.getStatusPagamento())
+                ? "Regularizar acesso" : "Conhecer o plano PRO";
     }
 
     public String getPlanoAssinaturaLabel() {
