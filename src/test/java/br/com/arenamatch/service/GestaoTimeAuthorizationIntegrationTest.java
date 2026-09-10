@@ -92,7 +92,8 @@ class GestaoTimeAuthorizationIntegrationTest {
         GestaoTimeAuthorizationService authorizationService =
                 new GestaoTimeAuthorizationService(usuarioRepository, timeRepository);
         GestaoPartidaService gestaoService = new GestaoPartidaService(
-                gestaoRepository, partidaRepository, atletaRepository, validator, authorizationService);
+                gestaoRepository, partidaRepository, mock(br.com.arenamatch.repository.ParticipacaoPartidaRepository.class),
+                atletaRepository, validator, authorizationService);
 
         ResponseStatusException erro = assertThrows(ResponseStatusException.class,
                 () -> gestaoService.consultarDisponibilidade(77L));

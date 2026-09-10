@@ -3,6 +3,7 @@ package br.com.arenamatch.jsf.client;
 import br.com.arenamatch.dto.DisponibilidadeGestaoPartidaDTO;
 import br.com.arenamatch.dto.GestaoPartidaDTO;
 import br.com.arenamatch.dto.GestaoPartidaRequestDTO;
+import br.com.arenamatch.dto.PaginaHistoricoGestaoPartidaDTO;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -17,6 +18,11 @@ public class GestaoPartidaClient {
     }
     public GestaoPartidaDTO buscar(Long partidaId) {
         return restClient.get().uri("/api/gestao-partidas/{id}", partidaId).retrieve().body(GestaoPartidaDTO.class);
+    }
+    public PaginaHistoricoGestaoPartidaDTO buscarHistorico(int pagina) {
+        return restClient.get().uri(uri -> uri.path("/api/gestao-partidas/historico")
+                        .queryParam("pagina", pagina).build())
+                .retrieve().body(PaginaHistoricoGestaoPartidaDTO.class);
     }
     public GestaoPartidaDTO salvar(Long partidaId, GestaoPartidaRequestDTO dto) {
         return restClient.put().uri("/api/gestao-partidas/{id}/rascunho", partidaId)

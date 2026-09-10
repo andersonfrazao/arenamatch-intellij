@@ -3,6 +3,8 @@ package br.com.arenamatch.service;
 import br.com.arenamatch.dto.DisponibilidadeGestaoPartidaDTO;
 import br.com.arenamatch.dto.GestaoPartidaDTO;
 import br.com.arenamatch.dto.GestaoPartidaRequestDTO;
+import br.com.arenamatch.dto.PaginaHistoricoGestaoPartidaDTO;
+import br.com.arenamatch.dto.ResumoHistoricoGestaoPartidaDTO;
 import br.com.arenamatch.entity.Atleta;
 import br.com.arenamatch.entity.EventoSumula;
 import br.com.arenamatch.entity.GestaoPartida;
@@ -18,6 +20,7 @@ import br.com.arenamatch.enums.TipoEventoSumula;
 import br.com.arenamatch.repository.AtletaRepository;
 import br.com.arenamatch.repository.GestaoPartidaRepository;
 import br.com.arenamatch.repository.PartidaRepository;
+import br.com.arenamatch.repository.ParticipacaoPartidaRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +37,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class GestaoPartidaService {
 
+    private static final int TAMANHO_PAGINA_HISTORICO = 10;
+
     private final GestaoPartidaRepository gestaoPartidaRepository;
     private final PartidaRepository partidaRepository;
+    private final ParticipacaoPartidaRepository participacaoPartidaRepository;
     private final AtletaRepository atletaRepository;
     private final GestaoPartidaValidator validator;
     private final GestaoTimeAuthorizationService authorizationService;
@@ -42,11 +49,13 @@ public class GestaoPartidaService {
     public GestaoPartidaService(
             GestaoPartidaRepository gestaoPartidaRepository,
             PartidaRepository partidaRepository,
+            ParticipacaoPartidaRepository participacaoPartidaRepository,
             AtletaRepository atletaRepository,
             GestaoPartidaValidator validator,
             GestaoTimeAuthorizationService authorizationService) {
         this.gestaoPartidaRepository = gestaoPartidaRepository;
         this.partidaRepository = partidaRepository;
+        this.participacaoPartidaRepository = participacaoPartidaRepository;
         this.atletaRepository = atletaRepository;
         this.validator = validator;
         this.authorizationService = authorizationService;
@@ -88,6 +97,10 @@ public class GestaoPartidaService {
                 placarConfirmado,
                 pendenteConclusao,
                 contexto.partida().getDataHora(),
+                contexto.partida().getMandante().getNome(),
+                contexto.partida().getGolsMandante(),
+                contexto.partida().getGolsVisitante(),
+                contexto.partida().getVisitante().getNome(),
                 mensagem);
     }
 
@@ -97,6 +110,27 @@ public class GestaoPartidaService {
         return gestaoPartidaRepository.findByPartidaIdAndTimeId(partidaId, contexto.time().getId())
                 .map(this::converter)
                 .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public PaginaHistoricoGestaoPartidaDTO buscarHistorico(int pagina) {
+        GestaoTimeAuthorizationService.ContextoAcesso acesso = authorizationService.exigirAcessoPro();
+        int paginaNormalizada = Math.max(0, pagina);
+        var resultado = partidaRepository.buscarJogosComPlacarConfirmado(
+                acesso.time().getId(), PageRequest.of(paginaNormalizada, TAMANHO_PAGINA_HISTORICO));
+        List<Long> partidaIds = resultado.getContent().stream().map(Partida::getId).toList();
+        Map<Long, StatusGestaoPartida> statusPorPartida = partidaIds.isEmpty()
+                ? Map.of()
+                : gestaoPartidaRepository.findByTimeIdAndPartidaIdIn(acesso.time().getId(), partidaIds).stream()
+                        .collect(Collectors.toMap(item -> item.getPartida().getId(), GestaoPartida::getStatus));
+        List<ResumoHistoricoGestaoPartidaDTO> partidas = resultado.getContent().stream()
+                .map(item -> new ResumoHistoricoGestaoPartidaDTO(
+                        item.getId(), item.getDataHora(),
+                        item.getMandante().getNome(), item.getMandante().getEscudo(),
+                        item.getVisitante().getNome(), item.getVisitante().getEscudo(),
+                        item.getGolsMandante(), item.getGolsVisitante(), statusPorPartida.get(item.getId())))
+                .toList();
+        return new PaginaHistoricoGestaoPartidaDTO(partidas, resultado.hasNext());
     }
 
     @Transactional
@@ -145,9 +179,16 @@ public class GestaoPartidaService {
         gestao.setAlteradoPor(contexto.usuario());
 
         Map<Long, Atleta> atletas = carregarAtletas(contexto.time(), request);
+        // Remove primeiro os eventos e participações anteriores. Isso também garante
+        // que uma gestão nova já tenha identidade antes de receber seus dependentes.
         gestao.substituirEventos(List.of());
+        gestao.substituirParticipacoes(List.of());
+        gestaoPartidaRepository.saveAndFlush(gestao);
+
         List<ParticipacaoPartida> participacoes = criarParticipacoes(request, atletas);
         gestao.substituirParticipacoes(participacoes);
+        participacaoPartidaRepository.saveAllAndFlush(participacoes);
+
         Map<Long, ParticipacaoPartida> participacaoPorAtleta = participacoes.stream()
                 .collect(Collectors.toMap(item -> item.getAtleta().getId(), Function.identity()));
         gestao.substituirEventos(criarEventos(contexto.partida(), contexto.time(), request, participacaoPorAtleta));

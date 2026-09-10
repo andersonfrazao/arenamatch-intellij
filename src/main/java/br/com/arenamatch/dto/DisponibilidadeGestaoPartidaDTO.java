@@ -10,5 +10,9 @@ public record DisponibilidadeGestaoPartidaDTO(
         boolean placarConfirmado,
         boolean pendenteConclusao,
         LocalDateTime liberadaEm,
+        String nomeTimeMandante,
+        Integer golsMandante,
+        Integer golsVisitante,
+        String nomeTimeVisitante,
         String mensagem) {
 }

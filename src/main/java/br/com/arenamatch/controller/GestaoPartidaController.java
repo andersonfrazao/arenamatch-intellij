@@ -3,6 +3,7 @@ package br.com.arenamatch.controller;
 import br.com.arenamatch.dto.DisponibilidadeGestaoPartidaDTO;
 import br.com.arenamatch.dto.GestaoPartidaDTO;
 import br.com.arenamatch.dto.GestaoPartidaRequestDTO;
+import br.com.arenamatch.dto.PaginaHistoricoGestaoPartidaDTO;
 import br.com.arenamatch.service.GestaoPartidaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,6 +23,12 @@ public class GestaoPartidaController {
 
     public GestaoPartidaController(GestaoPartidaService service) {
         this.service = service;
+    }
+
+    @GetMapping("/historico")
+    public ResponseEntity<PaginaHistoricoGestaoPartidaDTO> buscarHistorico(
+            @RequestParam(defaultValue = "0") int pagina) {
+        return ResponseEntity.ok(service.buscarHistorico(pagina));
     }
 
     @GetMapping("/{partidaId}/disponibilidade")

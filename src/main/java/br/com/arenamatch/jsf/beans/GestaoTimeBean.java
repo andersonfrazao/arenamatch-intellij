@@ -42,6 +42,8 @@ public class GestaoTimeBean implements Serializable {
     private String novoApelidoPartida;
     private Long atletaEmEdicaoId;
     private Long retornoPartidaId;
+    private String origem;
+    private String retornoOrigem;
     private String abaJogadoresMobile = "DISPONIVEIS";
     private String formacao = "3-5-2";
     private String formacaoPersonalizada;
@@ -66,6 +68,8 @@ public class GestaoTimeBean implements Serializable {
             try { retornoPartidaId = Long.valueOf(retorno); }
             catch (NumberFormatException e) { retornoPartidaId = null; }
         }
+        origem = parametros.get("origem");
+        retornoOrigem = parametros.get("retornoOrigem");
     }
 
     public void adicionarAtleta() {
@@ -76,8 +80,13 @@ public class GestaoTimeBean implements Serializable {
             cancelarEdicaoAtleta();
             carregarAtletas();
             info(editando ? "Atleta atualizado." : "Atleta adicionado ao elenco.");
-        } catch (Exception e) { erro(mensagem(e, "Não foi possível cadastrar o atleta.")); }
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().validationFailed();
+            erro(mensagem(e, "Não foi possível cadastrar o atleta."));
+        }
     }
+
+    public void novoAtleta() { cancelarEdicaoAtleta(); }
 
     public void adicionarAtletaPartida() {
         try {
@@ -204,6 +213,14 @@ public class GestaoTimeBean implements Serializable {
     public boolean isPlacarInformado() { return disponibilidade != null && disponibilidade.placarInformado(); }
     public boolean isPlacarConfirmado() { return disponibilidade != null && disponibilidade.placarConfirmado(); }
     public String getMensagemDisponibilidade() { return disponibilidade == null ? "" : disponibilidade.mensagem(); }
+    public String getResumoPlacar() {
+        if (disponibilidade == null) return "";
+        String mandante = disponibilidade.nomeTimeMandante();
+        String visitante = disponibilidade.nomeTimeVisitante();
+        if (!disponibilidade.placarInformado()) return mandante + " x " + visitante + " · placar pendente";
+        return mandante + " " + disponibilidade.golsMandante() + " x "
+                + disponibilidade.golsVisitante() + " " + visitante;
+    }
 
     public void alterarFormacao() {
         escalacao.stream().filter(l -> l.getPapel() == PapelParticipacao.TITULAR).forEach(l -> {

@@ -13,4 +13,6 @@ public interface GestaoPartidaRepository extends JpaRepository<GestaoPartida, Lo
     Optional<GestaoPartida> findByPartidaIdAndTimeId(Long partidaId, Long timeId);
 
     List<GestaoPartida> findByTimeIdAndStatusOrderByDataAlteracaoDesc(Long timeId, StatusGestaoPartida status);
+
+    List<GestaoPartida> findByTimeIdAndPartidaIdIn(Long timeId, List<Long> partidaIds);
 }
