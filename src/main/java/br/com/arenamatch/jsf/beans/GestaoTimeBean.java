@@ -18,9 +18,11 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +42,8 @@ public class GestaoTimeBean implements Serializable {
     private String novoApelido;
     private String novoNomePartida;
     private String novoApelidoPartida;
+    private String filtroAtleta;
+    private SituacaoAtleta filtroSituacao;
     private Long atletaEmEdicaoId;
     private Long retornoPartidaId;
     private String origem;
@@ -127,6 +131,26 @@ public class GestaoTimeBean implements Serializable {
             atletaClient.alterarSituacao(atleta.getId(), situacao);
             carregarAtletas();
         } catch (Exception e) { erro(mensagem(e, "Não foi possível alterar o atleta.")); }
+    }
+
+    public List<AtletaDTO> getAtletasFiltrados() {
+        String termo = normalizarBusca(filtroAtleta);
+        return atletas.stream()
+                .filter(atleta -> filtroSituacao == null || atleta.getSituacao() == filtroSituacao)
+                .filter(atleta -> termo.isEmpty()
+                        || contem(atleta.getNome(), termo)
+                        || contem(atleta.getApelido(), termo))
+                .toList();
+    }
+
+    private boolean contem(String valor, String termo) {
+        return valor != null && normalizarBusca(valor).contains(termo);
+    }
+
+    private String normalizarBusca(String valor) {
+        if (valor == null) return "";
+        return Normalizer.normalize(valor.trim().toLowerCase(Locale.ROOT), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "");
     }
 
     public void salvarRascunho() { persistir(false); }
