@@ -19,6 +19,7 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.Normalizer;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,10 @@ public class GestaoTimeBean implements Serializable {
     private Long partidaId;
     private Long versao;
     private String status;
+    private LocalDateTime dataPublicacao;
+    private String publicadoPor;
+    private Integer golsContra = 0;
+    private String minutosGolsContra;
     private DisponibilidadeGestaoPartidaDTO disponibilidade;
 
     @PostConstruct
@@ -167,7 +172,7 @@ public class GestaoTimeBean implements Serializable {
         } catch (Exception e) { erro(mensagem(e, "Não foi possível salvar as estatísticas.")); }
     }
 
-    private GestaoPartidaRequestDTO montarRequest(boolean publicar) {
+    GestaoPartidaRequestDTO montarRequest(boolean publicar) {
         List<GestaoPartidaRequestDTO.ParticipacaoRequestDTO> participacoes = new ArrayList<>();
         List<GestaoPartidaRequestDTO.EventoRequestDTO> eventos = new ArrayList<>();
         int ordem = 0;
@@ -176,20 +181,38 @@ public class GestaoTimeBean implements Serializable {
             participacoes.add(new GestaoPartidaRequestDTO.ParticipacaoRequestDTO(linha.getAtleta().getId(),
                     linha.getPapel(), linha.getNumeroCamisa(), linha.getPosicao(), linha.getSlotTatico(),
                     linha.getCoordenadaX(), linha.getCoordenadaY(), ordem++));
-            repetir(eventos, linha, TipoEventoSumula.GOL, linha.getGols());
-            repetir(eventos, linha, TipoEventoSumula.CARTAO_AMARELO, linha.getAmarelos());
-            repetir(eventos, linha, TipoEventoSumula.CARTAO_VERMELHO, linha.getVermelhos());
+            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.GOL,
+                    linha.getGols(), linha.getMinutosGols());
+            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.CARTAO_AMARELO,
+                    linha.getAmarelos(), linha.getMinutosAmarelos());
+            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.CARTAO_VERMELHO,
+                    linha.getVermelhos(), linha.getMinutosVermelhos());
         }
+        repetir(eventos, null, TipoEventoSumula.GOL_CONTRA, golsContra, minutosGolsContra);
         EtapaGestaoPartida etapa = publicar ? EtapaGestaoPartida.PUBLICACAO
                 : (isPlacarInformado() ? EtapaGestaoPartida.OCORRENCIAS : EtapaGestaoPartida.ESCALACAO);
         return new GestaoPartidaRequestDTO(versao, etapa, formacao, formacaoPersonalizada,
                 participacoes, eventos);
     }
 
-    private void repetir(List<GestaoPartidaRequestDTO.EventoRequestDTO> eventos, LinhaAtleta linha,
-                         TipoEventoSumula tipo, Integer quantidade) {
-        for (int i = 0; i < (quantidade == null ? 0 : quantidade); i++)
-            eventos.add(new GestaoPartidaRequestDTO.EventoRequestDTO(linha.getAtleta().getId(), tipo, null));
+    private void repetir(List<GestaoPartidaRequestDTO.EventoRequestDTO> eventos, Long atletaId,
+                         TipoEventoSumula tipo, Integer quantidade, String minutosTexto) {
+        List<Integer> minutos = parseMinutos(minutosTexto);
+        int total = quantidade == null ? 0 : quantidade;
+        for (int i = 0; i < total; i++)
+            eventos.add(new GestaoPartidaRequestDTO.EventoRequestDTO(
+                    atletaId, tipo, i < minutos.size() ? minutos.get(i) : null));
+    }
+
+    private List<Integer> parseMinutos(String texto) {
+        if (texto == null || texto.isBlank()) return List.of();
+        List<Integer> minutos = new ArrayList<>();
+        for (String parte : texto.split("[,;]")) {
+            int minuto = Integer.parseInt(parte.trim());
+            if (minuto < 0 || minuto > 200) throw new IllegalArgumentException("Minuto inválido.");
+            minutos.add(minuto);
+        }
+        return minutos;
     }
 
     private void carregarAtletas() {
@@ -214,6 +237,10 @@ public class GestaoTimeBean implements Serializable {
 
     void aplicar(GestaoPartidaDTO dto) {
         versao = dto.versao(); status = dto.status() == null ? null : dto.status().name();
+        dataPublicacao = dto.dataPublicacao();
+        publicadoPor = dto.publicadoPor();
+        golsContra = 0;
+        minutosGolsContra = null;
         formacao = dto.formacao() == null ? "3-5-2" : dto.formacao();
         formacaoPersonalizada = dto.formacaoPersonalizada();
         Map<Long, LinhaAtleta> linhas = new HashMap<>();
@@ -234,11 +261,21 @@ public class GestaoTimeBean implements Serializable {
                 l.coordenadaX = p.coordenadaX(); l.coordenadaY = p.coordenadaY(); }
         });
         dto.eventos().forEach(e -> {
+            if (e.tipo() == TipoEventoSumula.GOL_CONTRA) {
+                golsContra++;
+                minutosGolsContra = adicionarMinuto(minutosGolsContra, e.minuto());
+                return;
+            }
             LinhaAtleta l = linhas.get(e.atletaId()); if (l == null) return;
-            if (e.tipo() == TipoEventoSumula.GOL) l.gols++;
-            else if (e.tipo() == TipoEventoSumula.CARTAO_AMARELO) l.amarelos++;
-            else if (e.tipo() == TipoEventoSumula.CARTAO_VERMELHO) l.vermelhos++;
+            if (e.tipo() == TipoEventoSumula.GOL) { l.gols++; l.minutosGols = adicionarMinuto(l.minutosGols, e.minuto()); }
+            else if (e.tipo() == TipoEventoSumula.CARTAO_AMARELO) { l.amarelos++; l.minutosAmarelos = adicionarMinuto(l.minutosAmarelos, e.minuto()); }
+            else if (e.tipo() == TipoEventoSumula.CARTAO_VERMELHO) { l.vermelhos++; l.minutosVermelhos = adicionarMinuto(l.minutosVermelhos, e.minuto()); }
         });
+    }
+
+    private String adicionarMinuto(String atual, Integer minuto) {
+        if (minuto == null) return atual;
+        return atual == null || atual.isBlank() ? minuto.toString() : atual + ", " + minuto;
     }
 
     public boolean isAcessoPro() { return disponibilidade != null && disponibilidade.acessoPro(); }
@@ -254,6 +291,21 @@ public class GestaoTimeBean implements Serializable {
         return mandante + " " + disponibilidade.golsMandante() + " x "
                 + disponibilidade.golsVisitante() + " " + visitante;
     }
+    public int getTotalGolsSumula() {
+        return (golsContra == null ? 0 : golsContra)
+                + escalacao.stream().mapToInt(linha -> linha.getGols() == null ? 0 : linha.getGols()).sum();
+    }
+    public boolean isGolsConferem() {
+        return disponibilidade != null && disponibilidade.golsDoTime() != null
+                && getTotalGolsSumula() == disponibilidade.golsDoTime();
+    }
+    public String getResumoConferenciaGols() {
+        if (disponibilidade == null || disponibilidade.golsDoTime() == null)
+            return "O placar do time ainda não está disponível para conferência.";
+        return getTotalGolsSumula() + " de " + disponibilidade.golsDoTime()
+                + " gol(s) do placar atribuídos na súmula.";
+    }
+    public boolean isSumulaPublicada() { return "PUBLICADO".equals(status); }
 
     public void alterarFormacao() {
         escalacao.stream().filter(l -> l.getPapel() == PapelParticipacao.TITULAR).forEach(l -> {
@@ -396,9 +448,12 @@ public class GestaoTimeBean implements Serializable {
         private Integer gols = 0;
         private Integer amarelos = 0;
         private Integer vermelhos = 0;
+        private String minutosGols;
+        private String minutosAmarelos;
+        private String minutosVermelhos;
         public LinhaAtleta(AtletaDTO atleta) { this.atleta = atleta; }
         void limparPosicaoTatica() { slotTatico=null; coordenadaX=null; coordenadaY=null; }
-        void limpar() { papel=null; numeroCamisa=null; posicao=null; limparPosicaoTatica(); gols=0; amarelos=0; vermelhos=0; }
+        void limpar() { papel=null; numeroCamisa=null; posicao=null; limparPosicaoTatica(); gols=0; amarelos=0; vermelhos=0; minutosGols=null; minutosAmarelos=null; minutosVermelhos=null; }
     }
 
     public record SlotTatico(String id, String rotulo, BigDecimal x, BigDecimal y) implements Serializable {

@@ -19,6 +19,7 @@ public record GestaoPartidaDTO(
         Long versao,
         LocalDateTime dataAlteracao,
         LocalDateTime dataPublicacao,
+        String publicadoPor,
         List<ParticipacaoDTO> participacoes,
         List<EventoDTO> eventos) {
 

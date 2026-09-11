@@ -25,7 +25,7 @@ class GestaoTimeBeanHistoricoTest {
                 15, "Meio", null, null, null, 0);
         var dto = new GestaoPartidaDTO(1L, 2L, 3L, StatusGestaoPartida.PUBLICADO,
                 EtapaGestaoPartida.PUBLICACAO, "4-4-2", null, 1L,
-                null, null, List.of(participacao), List.of());
+                null, null, "Responsável", List.of(participacao), List.of());
 
         bean.aplicar(dto);
 

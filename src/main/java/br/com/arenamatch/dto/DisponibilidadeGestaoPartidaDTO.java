@@ -14,5 +14,6 @@ public record DisponibilidadeGestaoPartidaDTO(
         Integer golsMandante,
         Integer golsVisitante,
         String nomeTimeVisitante,
+        Integer golsDoTime,
         String mensagem) {
 }

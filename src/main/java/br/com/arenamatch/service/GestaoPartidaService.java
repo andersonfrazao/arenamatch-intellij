@@ -101,6 +101,8 @@ public class GestaoPartidaService {
                 contexto.partida().getGolsMandante(),
                 contexto.partida().getGolsVisitante(),
                 contexto.partida().getVisitante().getNome(),
+                Objects.equals(contexto.partida().getMandante().getId(), contexto.time().getId())
+                        ? contexto.partida().getGolsMandante() : contexto.partida().getGolsVisitante(),
                 mensagem);
     }
 
@@ -299,7 +301,8 @@ public class GestaoPartidaService {
         return new GestaoPartidaDTO(
                 gestao.getId(), gestao.getPartida().getId(), gestao.getTime().getId(), gestao.getStatus(),
                 gestao.getEtapa(), gestao.getFormacao(), gestao.getFormacaoPersonalizada(), gestao.getVersao(),
-                gestao.getDataAlteracao(), gestao.getDataPublicacao(), participacoes, eventos);
+                gestao.getDataAlteracao(), gestao.getDataPublicacao(),
+                gestao.getPublicadoPor() == null ? null : gestao.getPublicadoPor().getNome(), participacoes, eventos);
     }
 
     private String normalizar(String valor) {
