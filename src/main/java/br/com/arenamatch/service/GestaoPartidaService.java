@@ -116,7 +116,7 @@ public class GestaoPartidaService {
     public PaginaHistoricoGestaoPartidaDTO buscarHistorico(int pagina) {
         GestaoTimeAuthorizationService.ContextoAcesso acesso = authorizationService.exigirAcessoPro();
         int paginaNormalizada = Math.max(0, pagina);
-        var resultado = partidaRepository.buscarJogosComPlacarConfirmado(
+        var resultado = partidaRepository.buscarPartidasElegiveisGestao(
                 acesso.time().getId(), PageRequest.of(paginaNormalizada, TAMANHO_PAGINA_HISTORICO));
         List<Long> partidaIds = resultado.getContent().stream().map(Partida::getId).toList();
         Map<Long, StatusGestaoPartida> statusPorPartida = partidaIds.isEmpty()
@@ -128,7 +128,8 @@ public class GestaoPartidaService {
                         item.getId(), item.getDataHora(),
                         item.getMandante().getNome(), item.getMandante().getEscudo(),
                         item.getVisitante().getNome(), item.getVisitante().getEscudo(),
-                        item.getGolsMandante(), item.getGolsVisitante(), statusPorPartida.get(item.getId())))
+                        item.getGolsMandante(), item.getGolsVisitante(), statusPorPartida.get(item.getId()),
+                        item.getStatus(), item.getStatusPlacar()))
                 .toList();
         return new PaginaHistoricoGestaoPartidaDTO(partidas, resultado.hasNext());
     }

@@ -42,7 +42,7 @@ class GestaoPartidaHistoricoTest {
         PageRequest pagina = PageRequest.of(0, 10);
         when(authorizationService.exigirAcessoPro())
                 .thenReturn(new GestaoTimeAuthorizationService.ContextoAcesso(usuario, meuTime, true));
-        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, pagina))
+        when(partidaRepository.buscarPartidasElegiveisGestao(10L, pagina))
                 .thenReturn(new PageImpl<>(List.of(primeira, segunda), pagina, 11));
         when(gestaoRepository.findByTimeIdAndPartidaIdIn(10L, List.of(101L, 100L)))
                 .thenReturn(List.of(gestao));
@@ -57,7 +57,7 @@ class GestaoPartidaHistoricoTest {
         assertEquals("Rivais FC", resultado.partidas().get(1).nomeTimeMandante());
         assertEquals("Arena FC", resultado.partidas().get(1).nomeTimeVisitante());
         assertEquals(true, resultado.temMais());
-        verify(partidaRepository).buscarJogosComPlacarConfirmado(10L, pagina);
+        verify(partidaRepository).buscarPartidasElegiveisGestao(10L, pagina);
     }
 
     @Test

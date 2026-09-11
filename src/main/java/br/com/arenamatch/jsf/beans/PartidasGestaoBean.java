@@ -59,6 +59,21 @@ public class PartidasGestaoBean implements Serializable {
         };
     }
 
+    public String getRotuloPlacar(ResumoHistoricoGestaoPartidaDTO partida) {
+        if (partida.golsMandante() == null || partida.golsVisitante() == null) return "Placar pendente";
+        return partida.golsMandante() + " × " + partida.golsVisitante();
+    }
+
+    public String getRotuloSituacaoPartida(ResumoHistoricoGestaoPartidaDTO partida) {
+        if (partida.statusPlacar() == null) return "Placar pendente · Arena Match";
+        return switch (partida.statusPlacar()) {
+            case PENDENTE -> "Placar pendente · Arena Match";
+            case AGUARDANDO_CONFIRMACAO -> "Aguardando confirmação · Arena Match";
+            case CONFIRMADO -> "Placar confirmado · Arena Match";
+            case EM_DISPUTA -> "Placar em disputa · Arena Match";
+        };
+    }
+
     private void carregarPagina() {
         try {
             PaginaHistoricoGestaoPartidaDTO resultado = gestaoPartidaClient.buscarHistorico(pagina);

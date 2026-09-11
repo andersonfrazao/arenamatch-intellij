@@ -197,8 +197,8 @@ public class GestaoTimeBean implements Serializable {
             atletas = atletaClient.listar();
             Map<Long, LinhaAtleta> atuais = new HashMap<>();
             escalacao.forEach(l -> atuais.put(l.getAtleta().getId(), l));
-            escalacao = atletas.stream().filter(a -> a.getSituacao() == SituacaoAtleta.ATIVO)
-                    .map(a -> atuais.getOrDefault(a.getId(), new LinhaAtleta(a))).toList();
+            escalacao = new ArrayList<>(atletas.stream().filter(a -> a.getSituacao() == SituacaoAtleta.ATIVO)
+                    .map(a -> atuais.getOrDefault(a.getId(), new LinhaAtleta(a))).toList());
         } catch (Exception e) { erro(mensagem(e, "Não foi possível carregar o elenco.")); }
     }
 
@@ -212,7 +212,7 @@ public class GestaoTimeBean implements Serializable {
         } catch (Exception e) { erro(mensagem(e, "Não foi possível carregar a gestão da partida.")); }
     }
 
-    private void aplicar(GestaoPartidaDTO dto) {
+    void aplicar(GestaoPartidaDTO dto) {
         versao = dto.versao(); status = dto.status() == null ? null : dto.status().name();
         formacao = dto.formacao() == null ? "3-5-2" : dto.formacao();
         formacaoPersonalizada = dto.formacaoPersonalizada();
@@ -220,6 +220,15 @@ public class GestaoTimeBean implements Serializable {
         escalacao.forEach(l -> { l.limpar(); linhas.put(l.getAtleta().getId(), l); });
         dto.participacoes().forEach(p -> {
             LinhaAtleta l = linhas.get(p.atletaId());
+            if (l == null) {
+                AtletaDTO atletaHistorico = atletas.stream()
+                        .filter(atleta -> atleta.getId().equals(p.atletaId())).findFirst().orElse(null);
+                if (atletaHistorico == null)
+                    atletaHistorico = new AtletaDTO(p.atletaId(), p.nomeAtleta(), null, SituacaoAtleta.INATIVO);
+                l = new LinhaAtleta(atletaHistorico);
+                escalacao.add(l);
+                linhas.put(p.atletaId(), l);
+            }
             if (l != null) { l.papel = p.papel(); l.numeroCamisa = p.numeroCamisa();
                 l.posicao = p.posicao(); l.slotTatico = p.slotTatico();
                 l.coordenadaX = p.coordenadaX(); l.coordenadaY = p.coordenadaY(); }

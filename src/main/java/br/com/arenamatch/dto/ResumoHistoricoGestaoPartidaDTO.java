@@ -1,6 +1,8 @@
 package br.com.arenamatch.dto;
 
 import br.com.arenamatch.enums.StatusGestaoPartida;
+import br.com.arenamatch.enums.StatusPartida;
+import br.com.arenamatch.enums.StatusPlacar;
 
 import java.time.LocalDateTime;
 
@@ -15,12 +17,15 @@ public final class ResumoHistoricoGestaoPartidaDTO {
     private final Integer golsMandante;
     private final Integer golsVisitante;
     private final StatusGestaoPartida statusGestao;
+    private final StatusPartida statusPartida;
+    private final StatusPlacar statusPlacar;
 
     public ResumoHistoricoGestaoPartidaDTO(Long partidaId, LocalDateTime dataHora,
                                            String nomeTimeMandante, String escudoTimeMandante,
                                            String nomeTimeVisitante, String escudoTimeVisitante,
                                            Integer golsMandante, Integer golsVisitante,
-                                           StatusGestaoPartida statusGestao) {
+                                           StatusGestaoPartida statusGestao, StatusPartida statusPartida,
+                                           StatusPlacar statusPlacar) {
         this.partidaId = partidaId;
         this.dataHora = dataHora;
         this.nomeTimeMandante = nomeTimeMandante;
@@ -30,6 +35,8 @@ public final class ResumoHistoricoGestaoPartidaDTO {
         this.golsMandante = golsMandante;
         this.golsVisitante = golsVisitante;
         this.statusGestao = statusGestao;
+        this.statusPartida = statusPartida;
+        this.statusPlacar = statusPlacar;
     }
 
     public Long getPartidaId() { return partidaId; }
@@ -41,6 +48,8 @@ public final class ResumoHistoricoGestaoPartidaDTO {
     public Integer getGolsMandante() { return golsMandante; }
     public Integer getGolsVisitante() { return golsVisitante; }
     public StatusGestaoPartida getStatusGestao() { return statusGestao; }
+    public StatusPartida getStatusPartida() { return statusPartida; }
+    public StatusPlacar getStatusPlacar() { return statusPlacar; }
 
     // Preserva o contrato usado pelos consumidores Java quando este DTO era um record.
     public Long partidaId() { return partidaId; }
@@ -52,4 +61,6 @@ public final class ResumoHistoricoGestaoPartidaDTO {
     public Integer golsMandante() { return golsMandante; }
     public Integer golsVisitante() { return golsVisitante; }
     public StatusGestaoPartida statusGestao() { return statusGestao; }
+    public StatusPartida statusPartida() { return statusPartida; }
+    public StatusPlacar statusPlacar() { return statusPlacar; }
 }

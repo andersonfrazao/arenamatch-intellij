@@ -139,6 +139,15 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
         """)
     Page<Partida> buscarJogosComPlacarConfirmado(@Param("timeId") Long timeId, Pageable pageable);
 
+    @Query("""
+            SELECT p FROM Partida p
+            WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
+            AND p.status IN ('AGENDADO', 'FINALIZADO')
+            AND p.dataHora <= CURRENT_TIMESTAMP
+            ORDER BY p.dataHora DESC, p.id DESC
+        """)
+    Page<Partida> buscarPartidasElegiveisGestao(@Param("timeId") Long timeId, Pageable pageable);
+
     @Query(value = """
             SELECT
                 confronto.adversario_id AS adversarioId,
