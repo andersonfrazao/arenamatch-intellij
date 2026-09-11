@@ -293,13 +293,13 @@
 				            <p:badge value="#{sessaoBean.qtdMensagensNaoLidas}" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}" severity="danger" styleClass="ml-2"/>
 				        </h:link>
                     </h:panelGroup>
-                    <details class="am-more-menu #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' or view.viewId eq '/gestao-time.xhtml' or view.viewId eq '/partidas-gestao.xhtml' ? 'active' : ''}">
+                    <details class="am-more-menu #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' or view.viewId eq '/gestao-time.xhtml' or view.viewId eq '/partidas-gestao.xhtml' or view.viewId eq '/estatisticas-gestao.xhtml' or view.viewId eq '/estatisticas-jogador.xhtml' ? 'active' : ''}">
                         <summary title="Abrir menu">
                             <i class="fas fa-bars w-2rem text-center text-lg"></i> Menu
                         </summary>
                         <div class="am-more-menu-panel">
                             <div class="am-more-menu-title">Recursos PRO</div>
-                            <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-team-menu"><div class="am-team-parent"><i class="fas fa-users-cog w-2rem text-center text-lg"></i><span>Gestão do Time</span><span class="am-pro-status"><i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'}"></i></span></div><div class="am-team-links"><h:link outcome="/gestao-time" styleClass="#{view.viewId eq '/gestao-time.xhtml' and empty param.partida ? 'active' : ''}"><i class="fas fa-user-group"></i>Jogadores</h:link><h:link outcome="/partidas-gestao" styleClass="#{view.viewId eq '/partidas-gestao.xhtml' ? 'active' : ''}"><i class="fas fa-clipboard-list"></i>Partidas</h:link></div></h:panelGroup>
+                            <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-team-menu"><div class="am-team-parent"><i class="fas fa-users-cog w-2rem text-center text-lg"></i><span>Gestão do Time</span><span class="am-pro-status"><i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'}"></i></span></div><div class="am-team-links"><h:link outcome="/gestao-time" styleClass="#{view.viewId eq '/gestao-time.xhtml' and empty param.partida ? 'active' : ''}"><i class="fas fa-user-group"></i>Jogadores</h:link><h:link outcome="/partidas-gestao" styleClass="#{view.viewId eq '/partidas-gestao.xhtml' ? 'active' : ''}"><i class="fas fa-clipboard-list"></i>Partidas</h:link><h:link outcome="/estatisticas-gestao" styleClass="#{view.viewId eq '/estatisticas-gestao.xhtml' or view.viewId eq '/estatisticas-jogador.xhtml' ? 'active' : ''}"><i class="fas fa-chart-line"></i>Estatísticas</h:link></div></h:panelGroup>
                             <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-pro-coming-soon" pt:role="link" pt:aria-disabled="true" title="Campeonatos estará disponível em breve">
                                 <i class="fas fa-trophy w-2rem text-center text-lg"></i>
                                 <span>Campeonatos</span>
@@ -650,13 +650,13 @@
 		            <span>Chat</span>
 		        </h:link>
             </h:panelGroup>
-            <details class="am-more-menu am-bottom-more #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' or view.viewId eq '/gestao-time.xhtml' or view.viewId eq '/partidas-gestao.xhtml' ? 'active' : ''}">
+            <details class="am-more-menu am-bottom-more #{view.viewId eq '/cadastro.xhtml' or view.viewId eq '/fale-conosco.xhtml' or view.viewId eq '/admin.xhtml' or view.viewId eq '/gestao-time.xhtml' or view.viewId eq '/partidas-gestao.xhtml' or view.viewId eq '/estatisticas-gestao.xhtml' or view.viewId eq '/estatisticas-jogador.xhtml' ? 'active' : ''}">
                 <summary title="Abrir menu">
                     <i class="fas fa-bars text-xl"></i><span>Menu</span>
                 </summary>
                 <div class="am-more-menu-panel">
                     <div class="am-more-menu-title">Recursos PRO</div>
-                    <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-team-menu"><div class="am-team-parent"><i class="fas fa-users-cog text-xl"></i><span>Gestão do Time</span><small class="am-pro-status">#{sessaoBean.assinantePro ? 'PRO' : 'BLOQUEADO'}</small></div><div class="am-team-links"><h:link outcome="/gestao-time" styleClass="am-b-item #{view.viewId eq '/gestao-time.xhtml' and empty param.partida ? 'active' : ''}"><i class="fas fa-user-group"></i><span>Jogadores</span></h:link><h:link outcome="/partidas-gestao" styleClass="am-b-item #{view.viewId eq '/partidas-gestao.xhtml' ? 'active' : ''}"><i class="fas fa-clipboard-list"></i><span>Partidas</span></h:link></div></h:panelGroup>
+                    <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-team-menu"><div class="am-team-parent"><i class="fas fa-users-cog text-xl"></i><span>Gestão do Time</span><small class="am-pro-status">#{sessaoBean.assinantePro ? 'PRO' : 'BLOQUEADO'}</small></div><div class="am-team-links"><h:link outcome="/gestao-time" styleClass="am-b-item #{view.viewId eq '/gestao-time.xhtml' and empty param.partida ? 'active' : ''}"><i class="fas fa-user-group"></i><span>Jogadores</span></h:link><h:link outcome="/partidas-gestao" styleClass="am-b-item #{view.viewId eq '/partidas-gestao.xhtml' ? 'active' : ''}"><i class="fas fa-clipboard-list"></i><span>Partidas</span></h:link><h:link outcome="/estatisticas-gestao" styleClass="am-b-item #{view.viewId eq '/estatisticas-gestao.xhtml' or view.viewId eq '/estatisticas-jogador.xhtml' ? 'active' : ''}"><i class="fas fa-chart-line"></i><span>Estatísticas</span></h:link></div></h:panelGroup>
                     <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block" styleClass="am-pro-coming-soon" pt:role="link" pt:aria-disabled="true" title="Campeonatos estará disponível em breve">
                         <i class="fas fa-trophy text-xl"></i><span>Campeonatos</span>
                         <span class="am-pro-status"><i class="fas #{sessaoBean.assinantePro ? 'fa-crown' : 'fa-lock'}"></i><span class="am-coming-soon-badge">Em breve</span></span>
