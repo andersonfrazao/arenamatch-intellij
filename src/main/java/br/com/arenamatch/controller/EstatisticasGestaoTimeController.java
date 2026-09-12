@@ -5,6 +5,7 @@ import br.com.arenamatch.dto.PainelEstatisticasJogadoresDTO;
 import br.com.arenamatch.dto.ResumoEstatisticasTimeDTO;
 import br.com.arenamatch.service.EstatisticasGestaoTimeService;
 import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,11 @@ public class EstatisticasGestaoTimeController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {
         return ResponseEntity.ok(service.resumirTime(inicio, fim));
+    }
+
+    @GetMapping("/anos")
+    public ResponseEntity<List<Integer>> listarAnos() {
+        return ResponseEntity.ok(service.listarAnosDisponiveis());
     }
 
     @GetMapping("/jogadores")

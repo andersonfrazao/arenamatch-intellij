@@ -67,4 +67,14 @@ public interface EstatisticasRepository extends Repository<GestaoPartida, Long> 
     List<ResumoJogadorProjection> resumirJogadores(@Param("timeId") Long timeId,
                                                    @Param("inicio") LocalDateTime inicio,
                                                    @Param("fim") LocalDateTime fim);
+
+    @Query(value = """
+            SELECT DISTINCT CAST(EXTRACT(YEAR FROM p.data_hora) AS INTEGER) AS ano
+              FROM partida p
+             WHERE (p.id_mandante = :timeId OR p.id_visitante = :timeId)
+               AND p.status_placar = 'CONFIRMADO'
+               AND p.status NOT IN ('CANCELADO', 'EXPIRADO')
+             ORDER BY ano DESC
+            """, nativeQuery = true)
+    List<Integer> listarAnosComPartidas(@Param("timeId") Long timeId);
 }

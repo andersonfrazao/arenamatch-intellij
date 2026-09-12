@@ -65,7 +65,6 @@ class EstatisticasGestaoTimeServiceTest {
 
         var resumo = service.resumirTime(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31));
 
-        assertEquals(7, resumo.getPontos());
         assertEquals(58.33, resumo.getAproveitamento());
         assertEquals(1.75, resumo.getMediaGolsPro());
         assertEquals(2, resumo.getSaldoGols());
@@ -126,6 +125,17 @@ class EstatisticasGestaoTimeServiceTest {
         assertThrows(ResponseStatusException.class,
                 () -> service.resumirTime(LocalDate.now(), LocalDate.now()));
         verify(estatisticasRepository, never()).resumirTime(any(), any(), any());
+    }
+
+    @Test
+    void deveListarAnoAtualEAnosComPartidasSemDuplicidade() {
+        int anoAtual = LocalDate.now().getYear();
+        when(estatisticasRepository.listarAnosComPartidas(10L))
+                .thenReturn(List.of(anoAtual - 2, anoAtual, anoAtual - 1));
+
+        var anos = service.listarAnosDisponiveis();
+
+        assertEquals(List.of(anoAtual, anoAtual - 1, anoAtual - 2), anos);
     }
 
     private Atleta atleta(Long id, String nome, String apelido, SituacaoAtleta situacao) {

@@ -3,7 +3,6 @@ package br.com.arenamatch.jsf.beans;
 import br.com.arenamatch.dto.PainelEstatisticasJogadoresDTO;
 import br.com.arenamatch.dto.ResumoEstatisticasTimeDTO;
 import br.com.arenamatch.jsf.client.EstatisticasGestaoTimeClient;
-import br.com.arenamatch.service.EstatisticasGestaoTimeService;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -27,7 +26,10 @@ public class EstatisticasGestaoTimeBean implements Serializable {
     @Inject private SessaoBean sessaoBean;
 
     private String visao = "time";
-    private String periodo = "ano";
+    private String modo = "ano";
+    private boolean periodoPersonalizadoAberto;
+    private Integer ano = LocalDate.now().getYear();
+    private List<Integer> anosDisponiveis = List.of(LocalDate.now().getYear());
     private LocalDate inicio = LocalDate.now().withDayOfYear(1);
     private LocalDate fim = LocalDate.now();
     private String busca = "";
@@ -39,7 +41,16 @@ public class EstatisticasGestaoTimeBean implements Serializable {
     public void inicializar() {
         if (inicializado || !sessaoBean.isAssinantePro()) return;
         inicializado = true;
-        aplicarPeriodoSemConsultar(periodo);
+        try {
+            anosDisponiveis = client.listarAnos();
+        } catch (Exception e) {
+            anosDisponiveis = List.of(LocalDate.now().getYear());
+        }
+        if (anosDisponiveis == null || anosDisponiveis.isEmpty()) {
+            anosDisponiveis = List.of(LocalDate.now().getYear());
+        }
+        if (ano == null || !anosDisponiveis.contains(ano)) ano = LocalDate.now().getYear();
+        if (!"personalizado".equals(modo) || inicio == null || fim == null) aplicarAnoSemConsultar();
         consultar();
     }
 
@@ -53,9 +64,28 @@ public class EstatisticasGestaoTimeBean implements Serializable {
         consultar();
     }
 
-    public void aplicarPeriodo(String novoPeriodo) {
-        periodo = novoPeriodo;
-        aplicarPeriodoSemConsultar(novoPeriodo);
+    public void selecionarAno() {
+        modo = "ano";
+        periodoPersonalizadoAberto = false;
+        aplicarAnoSemConsultar();
+        consultar();
+    }
+
+    public void alternarPeriodoPersonalizado() {
+        periodoPersonalizadoAberto = !periodoPersonalizadoAberto;
+        if (periodoPersonalizadoAberto && (inicio == null || fim == null)) aplicarAnoSemConsultar();
+    }
+
+    public void aplicarPeriodoPersonalizado() {
+        modo = "personalizado";
+        periodoPersonalizadoAberto = false;
+        consultar();
+    }
+
+    public void cancelarPeriodoPersonalizado() {
+        modo = "ano";
+        periodoPersonalizadoAberto = false;
+        aplicarAnoSemConsultar();
         consultar();
     }
 
@@ -72,16 +102,6 @@ public class EstatisticasGestaoTimeBean implements Serializable {
         }
     }
 
-    public String getPeriodoLabel() {
-        return switch (periodo == null ? "" : periodo) {
-            case "30" -> "Últimos 30 dias";
-            case "90" -> "Últimos 90 dias";
-            case "todos" -> "Todo o histórico";
-            case "personalizado" -> "Período personalizado";
-            default -> "Ano atual";
-        };
-    }
-
     public List<CardTime> getCardsTime() {
         if (resumoTime == null) return List.of();
         return List.of(
@@ -90,7 +110,6 @@ public class EstatisticasGestaoTimeBean implements Serializable {
                 new CardTime("fa-trophy", Long.toString(resumoTime.getVitorias()), "Vitórias", false),
                 new CardTime("fa-equals", Long.toString(resumoTime.getEmpates()), "Empates", false),
                 new CardTime("fa-times", Long.toString(resumoTime.getDerrotas()), "Derrotas", false),
-                new CardTime("fa-star", Long.toString(resumoTime.getPontos()), "Pontos", false),
                 new CardTime("fa-arrow-up", Long.toString(resumoTime.getGolsPro()),
                         "Gols pró · média " + decimal(resumoTime.getMediaGolsPro()), false),
                 new CardTime("fa-arrow-down", Long.toString(resumoTime.getGolsContra()),
@@ -102,18 +121,10 @@ public class EstatisticasGestaoTimeBean implements Serializable {
         return new DecimalFormat("0.##").format(valor);
     }
 
-    private void aplicarPeriodoSemConsultar(String valor) {
-        LocalDate hoje = LocalDate.now();
-        switch (valor == null ? "ano" : valor) {
-            case "30" -> { inicio = hoje.minusDays(29); fim = hoje; }
-            case "90" -> { inicio = hoje.minusDays(89); fim = hoje; }
-            case "todos" -> {
-                inicio = EstatisticasGestaoTimeService.inicioTodoHistorico();
-                fim = EstatisticasGestaoTimeService.fimTodoHistorico();
-            }
-            case "personalizado" -> { /* datas informadas pelo usuário */ }
-            default -> { periodo = "ano"; inicio = hoje.withDayOfYear(1); fim = hoje; }
-        }
+    private void aplicarAnoSemConsultar() {
+        int anoSelecionado = ano == null ? LocalDate.now().getYear() : ano;
+        inicio = LocalDate.of(anoSelecionado, 1, 1);
+        fim = LocalDate.of(anoSelecionado, 12, 31);
     }
 
     private String mensagem(Exception e) {

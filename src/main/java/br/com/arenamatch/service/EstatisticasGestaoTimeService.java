@@ -34,8 +34,6 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class EstatisticasGestaoTimeService {
 
-    private static final LocalDate DATA_MINIMA = LocalDate.of(2000, 1, 1);
-    private static final LocalDate DATA_MAXIMA = LocalDate.of(2100, 1, 1);
     private static final int TAMANHO_HISTORICO = 10;
 
     private final EstatisticasRepository estatisticasRepository;
@@ -66,9 +64,19 @@ public class EstatisticasGestaoTimeService {
         long golsPro = numero(resumo == null ? null : resumo.getGolsPro());
         long golsContra = numero(resumo == null ? null : resumo.getGolsContra());
         long pontos = vitorias * 3 + empates;
-        return new ResumoEstatisticasTimeDTO(jogos, vitorias, empates, derrotas, pontos,
+        return new ResumoEstatisticasTimeDTO(jogos, vitorias, empates, derrotas,
                 golsPro, golsContra, golsPro - golsContra,
                 percentual(pontos, jogos * 3), media(golsPro, jogos), media(golsContra, jogos));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Integer> listarAnosDisponiveis() {
+        var contexto = authorizationService.exigirAcessoPro();
+        List<Integer> anos = new ArrayList<>(
+                estatisticasRepository.listarAnosComPartidas(contexto.time().getId()));
+        int anoAtual = LocalDate.now().getYear();
+        if (!anos.contains(anoAtual)) anos.add(anoAtual);
+        return anos.stream().distinct().sorted(Comparator.reverseOrder()).toList();
     }
 
     @Transactional(readOnly = true)
@@ -194,9 +202,6 @@ public class EstatisticasGestaoTimeService {
         }
         return new Periodo(inicioValido.atStartOfDay(), fimValido.plusDays(1).atStartOfDay());
     }
-
-    public static LocalDate inicioTodoHistorico() { return DATA_MINIMA; }
-    public static LocalDate fimTodoHistorico() { return DATA_MAXIMA; }
 
     private long numero(Number numero) { return numero == null ? 0 : numero.longValue(); }
     private double percentual(long valor, long total) {

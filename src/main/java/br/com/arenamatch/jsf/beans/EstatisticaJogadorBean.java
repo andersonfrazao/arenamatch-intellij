@@ -26,6 +26,8 @@ public class EstatisticaJogadorBean implements Serializable {
     private Long atleta;
     private LocalDate inicio;
     private LocalDate fim;
+    private String modo = "ano";
+    private Integer ano;
     private DetalheEstatisticaJogadorDTO detalhe;
     private final List<HistoricoEstatisticaJogadorDTO> historico = new ArrayList<>();
     private int pagina;

@@ -12,7 +12,6 @@ public class ResumoEstatisticasTimeDTO {
     private long vitorias;
     private long empates;
     private long derrotas;
-    private long pontos;
     private long golsPro;
     private long golsContra;
     private long saldoGols;

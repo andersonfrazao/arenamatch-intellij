@@ -4,6 +4,8 @@ import br.com.arenamatch.dto.DetalheEstatisticaJogadorDTO;
 import br.com.arenamatch.dto.PainelEstatisticasJogadoresDTO;
 import br.com.arenamatch.dto.ResumoEstatisticasTimeDTO;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -17,6 +19,12 @@ public class EstatisticasGestaoTimeClient {
         return restClient.get().uri(uri -> uri.path("/api/gestao-time/estatisticas/time")
                         .queryParam("inicio", inicio).queryParam("fim", fim).build())
                 .retrieve().body(ResumoEstatisticasTimeDTO.class);
+    }
+
+    public List<Integer> listarAnos() {
+        Integer[] anos = restClient.get().uri("/api/gestao-time/estatisticas/anos")
+                .retrieve().body(Integer[].class);
+        return anos == null ? List.of() : Arrays.asList(anos);
     }
 
     public PainelEstatisticasJogadoresDTO resumirJogadores(
