@@ -16,27 +16,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GestaoTimeBeanSumulaTest {
 
     @Test
-    void deveMontarEventosComMinutosEGolContra() {
+    void deveMontarEventosSemMinutosNemGolContra() {
         GestaoTimeBean bean = new GestaoTimeBean();
         var linha = new GestaoTimeBean.LinhaAtleta(
                 new AtletaDTO(10L, "Atleta", null, SituacaoAtleta.ATIVO));
         linha.setPapel(PapelParticipacao.TITULAR);
         linha.setGols(2);
-        linha.setMinutosGols("12, 67");
         linha.setAmarelos(1);
-        linha.setMinutosAmarelos("40");
         bean.setEscalacao(new ArrayList<>(List.of(linha)));
-        bean.setGolsContra(1);
-        bean.setMinutosGolsContra("74");
 
         var request = bean.montarRequest(true);
 
-        assertEquals(List.of(12, 67), request.eventos().stream()
-                .filter(e -> e.tipo() == TipoEventoSumula.GOL).map(e -> e.minuto()).toList());
-        assertEquals(40, request.eventos().stream()
-                .filter(e -> e.tipo() == TipoEventoSumula.CARTAO_AMARELO).findFirst().orElseThrow().minuto());
-        assertEquals(74, request.eventos().stream()
-                .filter(e -> e.tipo() == TipoEventoSumula.GOL_CONTRA).findFirst().orElseThrow().minuto());
+        assertEquals(2, request.eventos().stream()
+                .filter(e -> e.tipo() == TipoEventoSumula.GOL).count());
+        assertTrue(request.eventos().stream().allMatch(e -> e.minuto() == null));
+        assertTrue(request.eventos().stream().noneMatch(e -> e.tipo() == TipoEventoSumula.GOL_CONTRA));
     }
 
     @Test
@@ -46,12 +40,12 @@ class GestaoTimeBeanSumulaTest {
                 new AtletaDTO(10L, "Atleta", null, SituacaoAtleta.ATIVO));
         linha.setGols(1);
         bean.setEscalacao(List.of(linha));
-        bean.setGolsContra(1);
         bean.setDisponibilidade(new DisponibilidadeGestaoPartidaDTO(
                 true, true, true, true, true, true, null,
                 "Meu time", 2, 0, "Adversário", 2, "Disponível"));
 
         assertTrue(bean.isGolsConferem());
-        assertEquals("2 de 2 gol(s) do placar atribuídos na súmula.", bean.getResumoConferenciaGols());
+        assertEquals("1 de 2 gol(s) atribuído(s) aos jogadores. A diferença pode ficar sem autor individual.",
+                bean.getResumoConferenciaGols());
     }
 }

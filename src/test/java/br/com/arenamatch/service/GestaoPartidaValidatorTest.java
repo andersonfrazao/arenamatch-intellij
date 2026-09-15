@@ -106,27 +106,28 @@ class GestaoPartidaValidatorTest {
     }
 
     @Test
-    void devePublicarQuandoGolsEContraFechamComPlacar() {
+    void devePublicarQuandoNemTodoGolDoPlacarTemAutorIndividual() {
+        partida.setStatusPlacar(StatusPlacar.CONFIRMADO);
+        partida.setGolsMandante(2);
+        partida.setGolsVisitante(0);
+        var request = request(
+                List.of(participacao(10L, "a1")),
+                List.of(new EventoRequestDTO(10L, TipoEventoSumula.GOL, null)));
+
+        assertDoesNotThrow(() -> validator.validarPublicacao(partida, mandante, request));
+    }
+
+    @Test
+    void deveBloquearPublicacaoQuandoGolsIndividuaisExcedemPlacar() {
         partida.setStatusPlacar(StatusPlacar.CONFIRMADO);
         partida.setGolsMandante(2);
         partida.setGolsVisitante(0);
         var request = request(
                 List.of(participacao(10L, "a1")),
                 List.of(
-                        new EventoRequestDTO(10L, TipoEventoSumula.GOL, 10),
-                        new EventoRequestDTO(null, TipoEventoSumula.GOL_CONTRA, 55)));
-
-        assertDoesNotThrow(() -> validator.validarPublicacao(partida, mandante, request));
-    }
-
-    @Test
-    void deveBloquearPublicacaoQuandoGolsNaoFechamComPlacar() {
-        partida.setStatusPlacar(StatusPlacar.CONFIRMADO);
-        partida.setGolsMandante(2);
-        partida.setGolsVisitante(0);
-        var request = request(
-                List.of(participacao(10L, "a1")),
-                List.of(new EventoRequestDTO(10L, TipoEventoSumula.GOL, 10)));
+                        new EventoRequestDTO(10L, TipoEventoSumula.GOL, null),
+                        new EventoRequestDTO(10L, TipoEventoSumula.GOL, null),
+                        new EventoRequestDTO(10L, TipoEventoSumula.GOL, null)));
 
         ResponseStatusException erro = assertThrows(
                 ResponseStatusException.class,
@@ -145,6 +146,31 @@ class GestaoPartidaValidatorTest {
                         partida, terceiro, LocalDateTime.of(2026, 8, 31, 21, 0)));
 
         assertEquals(HttpStatus.FORBIDDEN, erro.getStatusCode());
+    }
+
+    @Test
+    void deveAceitarSubstituicaoSemMinuto() {
+        var titular = participacao(10L, "a1");
+        var reserva = new ParticipacaoRequestDTO(11L, PapelParticipacao.RESERVA,
+                null, null, null, null, null, 1);
+        var request = new GestaoPartidaRequestDTO(null, EtapaGestaoPartida.ESCALACAO,
+                "4-4-2", null, 60, List.of(titular, reserva), List.of(),
+                List.of(new GestaoPartidaRequestDTO.SubstituicaoRequestDTO(10L, 11L, null, 0)));
+
+        assertDoesNotThrow(() -> validator.validarRascunho(request));
+    }
+
+    @Test
+    void devePermitirReentradaQuandoSequenciaForValida() {
+        var titular = participacao(10L, "a1");
+        var reserva = new ParticipacaoRequestDTO(11L, PapelParticipacao.RESERVA,
+                null, null, null, null, null, 1);
+        var request = new GestaoPartidaRequestDTO(null, EtapaGestaoPartida.ESCALACAO,
+                "4-4-2", null, 60, List.of(titular, reserva), List.of(), List.of(
+                new GestaoPartidaRequestDTO.SubstituicaoRequestDTO(10L, 11L, 20, 0),
+                new GestaoPartidaRequestDTO.SubstituicaoRequestDTO(11L, 10L, 45, 1)));
+
+        assertDoesNotThrow(() -> validator.validarRascunho(request));
     }
 
     @Test

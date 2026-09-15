@@ -92,7 +92,7 @@ class EstatisticasGestaoTimeServiceTest {
     }
 
     @Test
-    void deveMontarHistoricoComPlacarPapelEventosEMinutos() {
+    void deveMontarHistoricoComPlacarPapelEQuantidadesDeEventos() {
         Atleta atleta = atleta(1L, "Anderson", "Frazão", SituacaoAtleta.ATIVO);
         Time adversario = new Time(); adversario.setId(20L); adversario.setNome("Rival FC");
         Partida partida = new Partida(); partida.setId(50L); partida.setMandante(time);
@@ -113,8 +113,8 @@ class EstatisticasGestaoTimeServiceTest {
         var detalhe = service.detalharJogador(1L, LocalDate.now().minusMonths(1), LocalDate.now(), 0);
 
         assertEquals("Rival FC", detalhe.getHistorico().get(0).getAdversario());
-        assertEquals("22'", detalhe.getHistorico().get(0).getMinutosGols());
-        assertEquals("70'", detalhe.getHistorico().get(0).getMinutosCartoes());
+        assertEquals(1, detalhe.getHistorico().get(0).getGols());
+        assertEquals(1, detalhe.getHistorico().get(0).getCartoesAmarelos());
         verify(authorizationService).exigirRecursoDoTime(10L, time, "Jogador");
     }
 

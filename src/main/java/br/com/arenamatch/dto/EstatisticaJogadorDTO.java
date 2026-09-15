@@ -17,6 +17,8 @@ public class EstatisticaJogadorDTO {
     private long gols;
     private long cartoesAmarelos;
     private long cartoesVermelhos;
+    private Long minutosJogados;
+    private long partidasSemMinutos;
 
     public String getNomeExibicao() {
         return apelido == null || apelido.isBlank() ? nome : apelido;

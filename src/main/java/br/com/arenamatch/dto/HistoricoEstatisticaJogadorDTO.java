@@ -20,6 +20,5 @@ public class HistoricoEstatisticaJogadorDTO {
     private long gols;
     private long cartoesAmarelos;
     private long cartoesVermelhos;
-    private String minutosGols;
-    private String minutosCartoes;
+    private Integer minutosJogados;
 }

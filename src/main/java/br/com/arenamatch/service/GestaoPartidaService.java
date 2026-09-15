@@ -11,6 +11,7 @@ import br.com.arenamatch.entity.GestaoPartida;
 import br.com.arenamatch.entity.ParticipacaoPartida;
 import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
+import br.com.arenamatch.entity.SubstituicaoPartida;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.EtapaGestaoPartida;
 import br.com.arenamatch.enums.SituacaoAtleta;
@@ -179,11 +180,13 @@ public class GestaoPartidaService {
         gestao.setEtapa(request.etapa() == null ? EtapaGestaoPartida.ESCALACAO : request.etapa());
         gestao.setFormacao(normalizar(request.formacao()));
         gestao.setFormacaoPersonalizada(normalizar(request.formacaoPersonalizada()));
+        gestao.setDuracaoMinutos(request.duracaoMinutos());
         gestao.setAlteradoPor(contexto.usuario());
 
         Map<Long, Atleta> atletas = carregarAtletas(contexto.time(), request);
         // Remove primeiro os eventos e participações anteriores. Isso também garante
         // que uma gestão nova já tenha identidade antes de receber seus dependentes.
+        gestao.substituirSubstituicoes(List.of());
         gestao.substituirEventos(List.of());
         gestao.substituirParticipacoes(List.of());
         gestaoPartidaRepository.saveAndFlush(gestao);
@@ -194,6 +197,8 @@ public class GestaoPartidaService {
 
         Map<Long, ParticipacaoPartida> participacaoPorAtleta = participacoes.stream()
                 .collect(Collectors.toMap(item -> item.getAtleta().getId(), Function.identity()));
+        List<SubstituicaoPartida> substituicoes = criarSubstituicoes(request, participacaoPorAtleta);
+        gestao.substituirSubstituicoes(substituicoes);
         gestao.substituirEventos(criarEventos(contexto.partida(), contexto.time(), request, participacaoPorAtleta));
         return gestao;
     }
@@ -267,6 +272,20 @@ public class GestaoPartidaService {
         return resultado;
     }
 
+    private List<SubstituicaoPartida> criarSubstituicoes(
+            GestaoPartidaRequestDTO request, Map<Long, ParticipacaoPartida> participacaoPorAtleta) {
+        List<SubstituicaoPartida> resultado = new ArrayList<>();
+        for (var item : lista(request.substituicoes())) {
+            SubstituicaoPartida substituicao = new SubstituicaoPartida();
+            substituicao.setParticipacaoSaiu(participacaoPorAtleta.get(item.atletaSaiuId()));
+            substituicao.setParticipacaoEntrou(participacaoPorAtleta.get(item.atletaEntrouId()));
+            substituicao.setMinuto(item.minuto());
+            substituicao.setOrdem(item.ordem());
+            resultado.add(substituicao);
+        }
+        return resultado;
+    }
+
     private Contexto carregarContexto(Long partidaId, boolean exigirPro) {
         GestaoTimeAuthorizationService.ContextoAcesso acesso = exigirPro
                 ? authorizationService.exigirAcessoPro()
@@ -298,11 +317,21 @@ public class GestaoPartidaService {
                         item.getParticipacao() == null ? null : item.getParticipacao().getAtleta().getId(),
                         item.getTipo(), item.getMinuto()))
                 .toList();
+        List<GestaoPartidaDTO.SubstituicaoDTO> substituicoes = gestao.getSubstituicoes().stream()
+                .sorted(java.util.Comparator.comparing(SubstituicaoPartida::getOrdem))
+                .map(item -> new GestaoPartidaDTO.SubstituicaoDTO(
+                        item.getId(), item.getParticipacaoSaiu().getAtleta().getId(),
+                        item.getParticipacaoSaiu().getAtleta().getNome(),
+                        item.getParticipacaoEntrou().getAtleta().getId(),
+                        item.getParticipacaoEntrou().getAtleta().getNome(), item.getMinuto(), item.getOrdem()))
+                .toList();
         return new GestaoPartidaDTO(
                 gestao.getId(), gestao.getPartida().getId(), gestao.getTime().getId(), gestao.getStatus(),
-                gestao.getEtapa(), gestao.getFormacao(), gestao.getFormacaoPersonalizada(), gestao.getVersao(),
+                gestao.getEtapa(), gestao.getFormacao(), gestao.getFormacaoPersonalizada(),
+                gestao.getDuracaoMinutos(), gestao.getVersao(),
                 gestao.getDataAlteracao(), gestao.getDataPublicacao(),
-                gestao.getPublicadoPor() == null ? null : gestao.getPublicadoPor().getNome(), participacoes, eventos);
+                gestao.getPublicadoPor() == null ? null : gestao.getPublicadoPor().getNome(),
+                participacoes, eventos, substituicoes);
     }
 
     private String normalizar(String valor) {

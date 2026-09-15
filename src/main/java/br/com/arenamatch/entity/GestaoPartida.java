@@ -59,6 +59,9 @@ public class GestaoPartida {
     @Column(name = "formacao_personalizada", length = 60)
     private String formacaoPersonalizada;
 
+    @Column(name = "duracao_minutos")
+    private Integer duracaoMinutos;
+
     @ManyToOne
     @JoinColumn(name = "id_criado_por")
     private Usuario criadoPor;
@@ -90,6 +93,9 @@ public class GestaoPartida {
     @OneToMany(mappedBy = "gestaoPartida", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventoSumula> eventos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "gestaoPartida", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubstituicaoPartida> substituicoes = new ArrayList<>();
+
     public void substituirParticipacoes(List<ParticipacaoPartida> novas) {
         participacoes.clear();
         novas.forEach(this::adicionarParticipacao);
@@ -108,6 +114,16 @@ public class GestaoPartida {
     public void adicionarEvento(EventoSumula evento) {
         evento.setGestaoPartida(this);
         eventos.add(evento);
+    }
+
+    public void substituirSubstituicoes(List<SubstituicaoPartida> novas) {
+        substituicoes.clear();
+        novas.forEach(this::adicionarSubstituicao);
+    }
+
+    public void adicionarSubstituicao(SubstituicaoPartida substituicao) {
+        substituicao.setGestaoPartida(this);
+        substituicoes.add(substituicao);
     }
 
     @PrePersist

@@ -31,4 +31,19 @@ public interface ParticipacaoPartidaRepository extends JpaRepository<Participaca
             @Param("timeId") Long timeId, @Param("atletaId") Long atletaId,
             @Param("inicio") LocalDateTime inicio, @Param("fim") LocalDateTime fim,
             Pageable pageable);
+
+    @Query("""
+            SELECT pp FROM ParticipacaoPartida pp
+            JOIN pp.gestaoPartida gp
+            JOIN gp.partida p
+            WHERE gp.time.id = :timeId
+              AND gp.status = br.com.arenamatch.enums.StatusGestaoPartida.PUBLICADO
+              AND p.statusPlacar = br.com.arenamatch.enums.StatusPlacar.CONFIRMADO
+              AND p.status NOT IN (br.com.arenamatch.enums.StatusPartida.CANCELADO,
+                                   br.com.arenamatch.enums.StatusPartida.EXPIRADO)
+              AND p.dataHora >= :inicio AND p.dataHora < :fim
+            """)
+    List<ParticipacaoPartida> buscarParticipacoesEstatisticas(
+            @Param("timeId") Long timeId, @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim);
 }

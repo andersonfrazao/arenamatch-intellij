@@ -19,6 +19,8 @@ public class DetalheEstatisticaJogadorDTO {
     private long gols;
     private long cartoesAmarelos;
     private long cartoesVermelhos;
+    private Long minutosJogados;
+    private long partidasSemMinutos;
     private List<HistoricoEstatisticaJogadorDTO> historico = new ArrayList<>();
     private int pagina;
     private boolean temMais;

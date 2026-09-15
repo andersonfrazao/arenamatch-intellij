@@ -12,6 +12,8 @@ import br.com.arenamatch.enums.TipoEventoSumula;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -29,8 +31,14 @@ public class GestaoPartidaValidator {
 
         List<ParticipacaoRequestDTO> participacoes = lista(request.participacoes());
         List<EventoRequestDTO> eventos = lista(request.eventos());
+        var substituicoes = lista(request.substituicoes());
+        if (request.duracaoMinutos() != null
+                && (request.duracaoMinutos() < 1 || request.duracaoMinutos() > 300)) {
+            falha(HttpStatus.BAD_REQUEST, "Duracao da partida deve estar entre 1 e 300 minutos.");
+        }
         Set<Long> atletas = new HashSet<>();
         Set<String> slotsTitulares = new HashSet<>();
+        Map<Long, PapelParticipacao> papeis = new HashMap<>();
 
         for (ParticipacaoRequestDTO participacao : participacoes) {
             if (participacao == null || participacao.atletaId() == null || participacao.papel() == null) {
@@ -39,6 +47,7 @@ public class GestaoPartidaValidator {
             if (!atletas.add(participacao.atletaId())) {
                 falha(HttpStatus.BAD_REQUEST, "O mesmo atleta nao pode aparecer duas vezes na escalação.");
             }
+            papeis.put(participacao.atletaId(), participacao.papel());
             if (participacao.numeroCamisa() != null
                     && (participacao.numeroCamisa() < 1 || participacao.numeroCamisa() > 99)) {
                 falha(HttpStatus.BAD_REQUEST, "Numero da camisa deve estar entre 1 e 99.");
@@ -52,12 +61,48 @@ public class GestaoPartidaValidator {
             }
         }
 
+        for (var substituicao : substituicoes) {
+            if (substituicao == null || substituicao.ordem() == null) {
+                falha(HttpStatus.BAD_REQUEST, "Atletas e ordem sao obrigatorios na substituicao.");
+            }
+        }
+        Set<Integer> ordens = new HashSet<>();
+        Integer ultimoMinuto = null;
+        for (var substituicao : substituicoes.stream()
+                .sorted(java.util.Comparator.comparing(item -> item.ordem() == null ? Integer.MAX_VALUE : item.ordem()))
+                .toList()) {
+            if (substituicao.atletaSaiuId() == null || substituicao.atletaEntrouId() == null) {
+                falha(HttpStatus.BAD_REQUEST, "Atletas e ordem sao obrigatorios na substituicao.");
+            }
+            if (Objects.equals(substituicao.atletaSaiuId(), substituicao.atletaEntrouId())) {
+                falha(HttpStatus.BAD_REQUEST, "Os atletas da substituicao devem ser diferentes.");
+            }
+            if (!atletas.contains(substituicao.atletaSaiuId()) || !atletas.contains(substituicao.atletaEntrouId())) {
+                falha(HttpStatus.BAD_REQUEST, "Substituicao exige atletas participantes da partida.");
+            }
+            if (substituicao.ordem() < 0 || !ordens.add(substituicao.ordem())) {
+                falha(HttpStatus.BAD_REQUEST, "A ordem das substituicoes deve ser unica e valida.");
+            }
+            if (papeis.get(substituicao.atletaSaiuId()) != PapelParticipacao.TITULAR
+                    || papeis.get(substituicao.atletaEntrouId()) == PapelParticipacao.TITULAR) {
+                falha(HttpStatus.BAD_REQUEST, "A substituicao deve trocar um atleta em campo por um reserva.");
+            }
+            Integer minuto = substituicao.minuto();
+            int limite = request.duracaoMinutos() == null ? 300 : request.duracaoMinutos();
+            if (minuto != null && (minuto < 0 || minuto > limite)) {
+                falha(HttpStatus.BAD_REQUEST, "Minuto da substituicao fora da duracao da partida.");
+            }
+            if (minuto != null && ultimoMinuto != null && minuto < ultimoMinuto) {
+                falha(HttpStatus.BAD_REQUEST, "Os minutos das substituicoes devem respeitar a ordem informada.");
+            }
+            if (minuto != null) ultimoMinuto = minuto;
+            papeis.put(substituicao.atletaSaiuId(), PapelParticipacao.RESERVA);
+            papeis.put(substituicao.atletaEntrouId(), PapelParticipacao.TITULAR);
+        }
+
         for (EventoRequestDTO evento : eventos) {
             if (evento == null || evento.tipo() == null) {
                 falha(HttpStatus.BAD_REQUEST, "Tipo do evento e obrigatorio.");
-            }
-            if (evento.minuto() != null && (evento.minuto() < 0 || evento.minuto() > 200)) {
-                falha(HttpStatus.BAD_REQUEST, "Minuto do evento deve estar entre 0 e 200.");
             }
             if (evento.tipo() == TipoEventoSumula.GOL_CONTRA) {
                 if (evento.atletaId() != null) {
@@ -91,15 +136,14 @@ public class GestaoPartidaValidator {
         }
 
         int golsRegistrados = (int) lista(request.eventos()).stream()
-                .filter(evento -> evento.tipo() == TipoEventoSumula.GOL
-                        || evento.tipo() == TipoEventoSumula.GOL_CONTRA)
+                .filter(evento -> evento.tipo() == TipoEventoSumula.GOL)
                 .count();
         Integer golsDoTime = Objects.equals(partida.getMandante().getId(), time.getId())
                 ? partida.getGolsMandante()
                 : partida.getGolsVisitante();
-        if (golsDoTime == null || golsRegistrados != golsDoTime) {
+        if (golsDoTime == null || golsRegistrados > golsDoTime) {
             falha(HttpStatus.CONFLICT,
-                    "A quantidade de gols atribuida deve corresponder ao placar confirmado do time.");
+                    "A quantidade de gols atribuida aos jogadores nao pode exceder o placar do time.");
         }
     }
 

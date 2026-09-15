@@ -46,16 +46,16 @@ class GestaoTimeBeanTest {
     }
 
     @Test
-    void devePreservarAtletaComoRelacionadoAoTrocarFormacao() {
+    void deveMoverAtletaParaReservaAoTrocarFormacao() {
         bean.selecionarAtleta(atleta);
         bean.clicarSlot(bean.getSlotsFormacao().get(1));
 
         bean.setFormacao("4-4-2");
         bean.alterarFormacao();
 
-        assertEquals(PapelParticipacao.RELACIONADO, atleta.getPapel());
+        assertEquals(PapelParticipacao.RESERVA, atleta.getPapel());
         assertNull(atleta.getSlotTatico());
-        assertEquals(1, bean.getRelacionados().size());
+        assertEquals(1, bean.getReservas().size());
     }
 
     @Test
@@ -76,13 +76,38 @@ class GestaoTimeBeanTest {
         assertEquals(PapelParticipacao.RESERVA, atleta.getPapel());
 
         bean.selecionarAtleta(atleta);
-        bean.moverSelecionadoParaRelacionados();
-        assertEquals(PapelParticipacao.RELACIONADO, atleta.getPapel());
-
-        bean.selecionarAtleta(atleta);
         bean.moverSelecionadoParaDisponiveis();
         assertNull(atleta.getPapel());
         assertEquals(1, bean.getDisponiveis().size());
         assertNull(bean.getAtletaSelecionadoId());
+    }
+
+    @Test
+    void deveEscolherDisponivelDepoisDeTocarNaPosicao() {
+        var slot = bean.getSlotsFormacao().get(1);
+
+        bean.abrirSeletorPosicao(slot);
+        bean.escolherJogadorParaPosicao(atleta);
+
+        assertEquals(PapelParticipacao.TITULAR, atleta.getPapel());
+        assertEquals(slot.id(), atleta.getSlotTatico());
+        assertNull(bean.getSlotSelecionado());
+    }
+
+    @Test
+    void deveEnviarTitularAnteriorParaReservaAoTrocarAntesDoJogo() {
+        var novoTitular = new GestaoTimeBean.LinhaAtleta(
+                new AtletaDTO(2L, "Bruno Lima", "Bruno", SituacaoAtleta.ATIVO));
+        bean.getEscalacao().add(novoTitular);
+        var slot = bean.getSlotsFormacao().get(1);
+        bean.selecionarAtleta(atleta);
+        bean.clicarSlot(slot);
+
+        bean.abrirSeletorPosicao(slot);
+        bean.escolherJogadorParaPosicao(novoTitular);
+
+        assertEquals(PapelParticipacao.RESERVA, atleta.getPapel());
+        assertEquals(PapelParticipacao.TITULAR, novoTitular.getPapel());
+        assertEquals(slot.id(), novoTitular.getSlotTatico());
     }
 }

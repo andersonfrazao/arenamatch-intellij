@@ -23,11 +23,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,15 +39,27 @@ public class EstatisticasGestaoTimeService {
     private final AtletaRepository atletaRepository;
     private final ParticipacaoPartidaRepository participacaoRepository;
     private final GestaoTimeAuthorizationService authorizationService;
+    private final MinutosJogadosCalculator minutosCalculator;
 
+    @Autowired
     public EstatisticasGestaoTimeService(EstatisticasRepository estatisticasRepository,
                                          AtletaRepository atletaRepository,
                                          ParticipacaoPartidaRepository participacaoRepository,
-                                         GestaoTimeAuthorizationService authorizationService) {
+                                         GestaoTimeAuthorizationService authorizationService,
+                                         MinutosJogadosCalculator minutosCalculator) {
         this.estatisticasRepository = estatisticasRepository;
         this.atletaRepository = atletaRepository;
         this.participacaoRepository = participacaoRepository;
         this.authorizationService = authorizationService;
+        this.minutosCalculator = minutosCalculator;
+    }
+
+    EstatisticasGestaoTimeService(EstatisticasRepository estatisticasRepository,
+                                  AtletaRepository atletaRepository,
+                                  ParticipacaoPartidaRepository participacaoRepository,
+                                  GestaoTimeAuthorizationService authorizationService) {
+        this(estatisticasRepository, atletaRepository, participacaoRepository,
+                authorizationService, new MinutosJogadosCalculator());
     }
 
     @Transactional(readOnly = true)
@@ -88,13 +99,14 @@ public class EstatisticasGestaoTimeService {
         estatisticasRepository.resumirJogadores(
                 contexto.time().getId(), periodo.inicio(), periodo.fimExclusivo())
                 .forEach(item -> totais.put(item.getAtletaId(), item));
+        Map<Long, ResumoMinutos> minutos = resumirMinutos(contexto.time().getId(), periodo);
 
         String termo = normalizar(busca);
         List<EstatisticaJogadorDTO> jogadores = atletaRepository
                 .findByTimeIdOrderByNomeAsc(contexto.time().getId()).stream()
                 .filter(atleta -> termo.isBlank() || normalizar(atleta.getNome()).contains(termo)
                         || normalizar(atleta.getApelido()).contains(termo))
-                .map(atleta -> converter(atleta, totais.get(atleta.getId())))
+                .map(atleta -> converter(atleta, totais.get(atleta.getId()), minutos.get(atleta.getId())))
                 .sorted(comparador(ordenacao))
                 .toList();
 
@@ -134,21 +146,26 @@ public class EstatisticasGestaoTimeService {
         var resumo = estatisticasRepository.resumirJogadores(
                 contexto.time().getId(), periodo.inicio(), periodo.fimExclusivo()).stream()
                 .filter(item -> Objects.equals(item.getAtletaId(), atletaId)).findFirst().orElse(null);
+        ResumoMinutos resumoMinutos = resumirMinutos(contexto.time().getId(), periodo).get(atletaId);
         return new DetalheEstatisticaJogadorDTO(atleta.getId(), atleta.getNome(), atleta.getApelido(),
                 atleta.getSituacao(), numero(resumo == null ? null : resumo.getPartidas()),
                 numero(resumo == null ? null : resumo.getGols()),
                 numero(resumo == null ? null : resumo.getCartoesAmarelos()),
                 numero(resumo == null ? null : resumo.getCartoesVermelhos()),
+                resumoMinutos == null || !resumoMinutos.temCalculado ? null : resumoMinutos.total,
+                resumoMinutos == null ? 0 : resumoMinutos.semMinutos,
                 historico, paginaSegura, resultado.hasNext());
     }
 
     private EstatisticaJogadorDTO converter(
-            Atleta atleta, EstatisticasRepository.ResumoJogadorProjection resumo) {
+            Atleta atleta, EstatisticasRepository.ResumoJogadorProjection resumo, ResumoMinutos minutos) {
         return new EstatisticaJogadorDTO(atleta.getId(), atleta.getNome(), atleta.getApelido(),
                 atleta.getSituacao(), numero(resumo == null ? null : resumo.getPartidas()),
                 numero(resumo == null ? null : resumo.getGols()),
                 numero(resumo == null ? null : resumo.getCartoesAmarelos()),
-                numero(resumo == null ? null : resumo.getCartoesVermelhos()));
+                numero(resumo == null ? null : resumo.getCartoesVermelhos()),
+                minutos == null || !minutos.temCalculado ? null : minutos.total,
+                minutos == null ? 0 : minutos.semMinutos);
     }
 
     private HistoricoEstatisticaJogadorDTO converterHistorico(
@@ -160,24 +177,28 @@ public class EstatisticasGestaoTimeService {
                 .filter(item -> item.getParticipacao() != null
                         && Objects.equals(item.getParticipacao().getId(), participacao.getId()))
                 .toList();
-        Predicate<EventoSumula> gol = evento -> evento.getTipo() == TipoEventoSumula.GOL;
-        Predicate<EventoSumula> cartao = evento -> evento.getTipo() == TipoEventoSumula.CARTAO_AMARELO
-                || evento.getTipo() == TipoEventoSumula.CARTAO_VERMELHO;
         return new HistoricoEstatisticaJogadorDTO(partida.getId(), partida.getDataHora(),
                 mandante ? partida.getVisitante().getNome() : partida.getMandante().getNome(),
                 mandante ? partida.getGolsMandante() : partida.getGolsVisitante(),
                 mandante ? partida.getGolsVisitante() : partida.getGolsMandante(),
                 participacao.getNumeroCamisa(), participacao.getPosicao(),
-                participacao.getPapel().name(), eventos.stream().filter(gol).count(),
+                participacao.getPapel().name(),
+                eventos.stream().filter(e -> e.getTipo() == TipoEventoSumula.GOL).count(),
                 eventos.stream().filter(e -> e.getTipo() == TipoEventoSumula.CARTAO_AMARELO).count(),
                 eventos.stream().filter(e -> e.getTipo() == TipoEventoSumula.CARTAO_VERMELHO).count(),
-                minutos(eventos, gol), minutos(eventos, cartao));
+                minutosCalculator.calcular(gestao, participacao));
     }
 
-    private String minutos(List<EventoSumula> eventos, Predicate<EventoSumula> filtro) {
-        String valor = eventos.stream().filter(filtro).filter(item -> item.getMinuto() != null)
-                .map(item -> item.getMinuto() + "'").collect(Collectors.joining(", "));
-        return valor.isBlank() ? null : valor;
+    private Map<Long, ResumoMinutos> resumirMinutos(Long timeId, Periodo periodo) {
+        Map<Long, ResumoMinutos> resultado = new HashMap<>();
+        for (ParticipacaoPartida participacao : participacaoRepository.buscarParticipacoesEstatisticas(
+                timeId, periodo.inicio(), periodo.fimExclusivo())) {
+            ResumoMinutos resumo = resultado.computeIfAbsent(participacao.getAtleta().getId(), id -> new ResumoMinutos());
+            Integer minutos = minutosCalculator.calcular(participacao.getGestaoPartida(), participacao);
+            if (minutos == null) resumo.semMinutos++;
+            else { resumo.total += minutos; resumo.temCalculado = true; }
+        }
+        return resultado;
     }
 
     private Comparator<EstatisticaJogadorDTO> comparador(String ordenacao) {
@@ -217,4 +238,5 @@ public class EstatisticasGestaoTimeService {
     }
 
     private record Periodo(LocalDateTime inicio, LocalDateTime fimExclusivo) { }
+    private static class ResumoMinutos { long total; long semMinutos; boolean temCalculado; }
 }

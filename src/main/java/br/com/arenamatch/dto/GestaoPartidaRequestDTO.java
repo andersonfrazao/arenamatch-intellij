@@ -11,8 +11,16 @@ public record GestaoPartidaRequestDTO(
         EtapaGestaoPartida etapa,
         String formacao,
         String formacaoPersonalizada,
+        Integer duracaoMinutos,
         List<ParticipacaoRequestDTO> participacoes,
-        List<EventoRequestDTO> eventos) {
+        List<EventoRequestDTO> eventos,
+        List<SubstituicaoRequestDTO> substituicoes) {
+
+    public GestaoPartidaRequestDTO(Long versao, EtapaGestaoPartida etapa, String formacao,
+                                   String formacaoPersonalizada, List<ParticipacaoRequestDTO> participacoes,
+                                   List<EventoRequestDTO> eventos) {
+        this(versao, etapa, formacao, formacaoPersonalizada, null, participacoes, eventos, List.of());
+    }
 
     public record ParticipacaoRequestDTO(
             Long atletaId,
@@ -29,5 +37,12 @@ public record GestaoPartidaRequestDTO(
             Long atletaId,
             TipoEventoSumula tipo,
             Integer minuto) {
+    }
+
+    public record SubstituicaoRequestDTO(
+            Long atletaSaiuId,
+            Long atletaEntrouId,
+            Integer minuto,
+            Integer ordem) {
     }
 }

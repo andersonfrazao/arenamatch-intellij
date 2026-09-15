@@ -16,12 +16,22 @@ public record GestaoPartidaDTO(
         EtapaGestaoPartida etapa,
         String formacao,
         String formacaoPersonalizada,
+        Integer duracaoMinutos,
         Long versao,
         LocalDateTime dataAlteracao,
         LocalDateTime dataPublicacao,
         String publicadoPor,
         List<ParticipacaoDTO> participacoes,
-        List<EventoDTO> eventos) {
+        List<EventoDTO> eventos,
+        List<SubstituicaoDTO> substituicoes) {
+
+    public GestaoPartidaDTO(Long id, Long partidaId, Long timeId, StatusGestaoPartida status,
+                            EtapaGestaoPartida etapa, String formacao, String formacaoPersonalizada,
+                            Long versao, LocalDateTime dataAlteracao, LocalDateTime dataPublicacao,
+                            String publicadoPor, List<ParticipacaoDTO> participacoes, List<EventoDTO> eventos) {
+        this(id, partidaId, timeId, status, etapa, formacao, formacaoPersonalizada, null, versao,
+                dataAlteracao, dataPublicacao, publicadoPor, participacoes, eventos, List.of());
+    }
 
     public record ParticipacaoDTO(
             Long id,
@@ -41,5 +51,15 @@ public record GestaoPartidaDTO(
             Long atletaId,
             TipoEventoSumula tipo,
             Integer minuto) {
+    }
+
+    public record SubstituicaoDTO(
+            Long id,
+            Long atletaSaiuId,
+            String nomeAtletaSaiu,
+            Long atletaEntrouId,
+            String nomeAtletaEntrou,
+            Integer minuto,
+            Integer ordem) {
     }
 }

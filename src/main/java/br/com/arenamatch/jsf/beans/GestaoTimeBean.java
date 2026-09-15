@@ -52,14 +52,19 @@ public class GestaoTimeBean implements Serializable {
     private String abaJogadoresMobile = "DISPONIVEIS";
     private String formacao = "3-5-2";
     private String formacaoPersonalizada;
+    private Integer duracaoMinutos;
+    private List<SubstituicaoLinha> substituicoes = new ArrayList<>();
+    private Long atletaSaiuId;
+    private Long atletaEntrouId;
+    private Integer minutoSubstituicao;
+    private boolean visaoInicial;
+    private SlotTatico slotSelecionado;
     private Long atletaSelecionadoId;
     private Long partidaId;
     private Long versao;
     private String status;
     private LocalDateTime dataPublicacao;
     private String publicadoPor;
-    private Integer golsContra = 0;
-    private String minutosGolsContra;
     private DisponibilidadeGestaoPartidaDTO disponibilidade;
 
     @PostConstruct
@@ -114,7 +119,6 @@ public class GestaoTimeBean implements Serializable {
 
     public void cancelarSelecaoAtleta() { atletaSelecionadoId = null; }
     public void exibirDisponiveis() { abaJogadoresMobile = "DISPONIVEIS"; }
-    public void exibirRelacionados() { abaJogadoresMobile = "RELACIONADOS"; }
     public void exibirReservas() { abaJogadoresMobile = "RESERVAS"; }
 
     public void editarAtleta(AtletaDTO atleta) {
@@ -177,42 +181,33 @@ public class GestaoTimeBean implements Serializable {
         List<GestaoPartidaRequestDTO.EventoRequestDTO> eventos = new ArrayList<>();
         int ordem = 0;
         for (LinhaAtleta linha : escalacao) {
-            if (linha.getPapel() == null) continue;
+            PapelParticipacao papelPersistido = substituicoes.isEmpty() ? linha.getPapel() : linha.getPapelInicial();
+            if (papelPersistido == null) continue;
             participacoes.add(new GestaoPartidaRequestDTO.ParticipacaoRequestDTO(linha.getAtleta().getId(),
-                    linha.getPapel(), linha.getNumeroCamisa(), linha.getPosicao(), linha.getSlotTatico(),
-                    linha.getCoordenadaX(), linha.getCoordenadaY(), ordem++));
-            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.GOL,
-                    linha.getGols(), linha.getMinutosGols());
-            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.CARTAO_AMARELO,
-                    linha.getAmarelos(), linha.getMinutosAmarelos());
-            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.CARTAO_VERMELHO,
-                    linha.getVermelhos(), linha.getMinutosVermelhos());
+                    papelPersistido, linha.getNumeroCamisa(),
+                    substituicoes.isEmpty() ? linha.getPosicao() : linha.getPosicaoInicial(),
+                    substituicoes.isEmpty() ? linha.getSlotTatico() : linha.getSlotTaticoInicial(),
+                    substituicoes.isEmpty() ? linha.getCoordenadaX() : linha.getCoordenadaXInicial(),
+                    substituicoes.isEmpty() ? linha.getCoordenadaY() : linha.getCoordenadaYInicial(), ordem++));
+            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.GOL, linha.getGols());
+            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.CARTAO_AMARELO, linha.getAmarelos());
+            repetir(eventos, linha.getAtleta().getId(), TipoEventoSumula.CARTAO_VERMELHO, linha.getVermelhos());
         }
-        repetir(eventos, null, TipoEventoSumula.GOL_CONTRA, golsContra, minutosGolsContra);
         EtapaGestaoPartida etapa = publicar ? EtapaGestaoPartida.PUBLICACAO
                 : (isPlacarInformado() ? EtapaGestaoPartida.OCORRENCIAS : EtapaGestaoPartida.ESCALACAO);
+        List<GestaoPartidaRequestDTO.SubstituicaoRequestDTO> trocas = substituicoes.stream()
+                .map(item -> new GestaoPartidaRequestDTO.SubstituicaoRequestDTO(
+                        item.atletaSaiuId, item.atletaEntrouId, item.minuto, item.ordem))
+                .toList();
         return new GestaoPartidaRequestDTO(versao, etapa, formacao, formacaoPersonalizada,
-                participacoes, eventos);
+                duracaoMinutos, participacoes, eventos, trocas);
     }
 
     private void repetir(List<GestaoPartidaRequestDTO.EventoRequestDTO> eventos, Long atletaId,
-                         TipoEventoSumula tipo, Integer quantidade, String minutosTexto) {
-        List<Integer> minutos = parseMinutos(minutosTexto);
+                         TipoEventoSumula tipo, Integer quantidade) {
         int total = quantidade == null ? 0 : quantidade;
         for (int i = 0; i < total; i++)
-            eventos.add(new GestaoPartidaRequestDTO.EventoRequestDTO(
-                    atletaId, tipo, i < minutos.size() ? minutos.get(i) : null));
-    }
-
-    private List<Integer> parseMinutos(String texto) {
-        if (texto == null || texto.isBlank()) return List.of();
-        List<Integer> minutos = new ArrayList<>();
-        for (String parte : texto.split("[,;]")) {
-            int minuto = Integer.parseInt(parte.trim());
-            if (minuto < 0 || minuto > 200) throw new IllegalArgumentException("Minuto inválido.");
-            minutos.add(minuto);
-        }
-        return minutos;
+            eventos.add(new GestaoPartidaRequestDTO.EventoRequestDTO(atletaId, tipo, null));
     }
 
     private void carregarAtletas() {
@@ -239,10 +234,10 @@ public class GestaoTimeBean implements Serializable {
         versao = dto.versao(); status = dto.status() == null ? null : dto.status().name();
         dataPublicacao = dto.dataPublicacao();
         publicadoPor = dto.publicadoPor();
-        golsContra = 0;
-        minutosGolsContra = null;
         formacao = dto.formacao() == null ? "3-5-2" : dto.formacao();
         formacaoPersonalizada = dto.formacaoPersonalizada();
+        duracaoMinutos = dto.duracaoMinutos();
+        substituicoes = new ArrayList<>();
         Map<Long, LinhaAtleta> linhas = new HashMap<>();
         escalacao.forEach(l -> { l.limpar(); linhas.put(l.getAtleta().getId(), l); });
         dto.participacoes().forEach(p -> {
@@ -256,26 +251,23 @@ public class GestaoTimeBean implements Serializable {
                 escalacao.add(l);
                 linhas.put(p.atletaId(), l);
             }
-            if (l != null) { l.papel = p.papel(); l.numeroCamisa = p.numeroCamisa();
+            if (l != null) { l.papel = p.papel() == PapelParticipacao.RELACIONADO
+                        ? PapelParticipacao.RESERVA : p.papel(); l.numeroCamisa = p.numeroCamisa();
                 l.posicao = p.posicao(); l.slotTatico = p.slotTatico();
-                l.coordenadaX = p.coordenadaX(); l.coordenadaY = p.coordenadaY(); }
+                l.coordenadaX = p.coordenadaX(); l.coordenadaY = p.coordenadaY();
+                l.congelarInicial(); }
         });
+        if (dto.substituicoes() != null) dto.substituicoes().forEach(item ->
+                substituicoes.add(new SubstituicaoLinha(item.atletaSaiuId(), item.nomeAtletaSaiu(),
+                        item.atletaEntrouId(), item.nomeAtletaEntrou(), item.minuto(), item.ordem())));
+        reaplicarSubstituicoes();
         dto.eventos().forEach(e -> {
-            if (e.tipo() == TipoEventoSumula.GOL_CONTRA) {
-                golsContra++;
-                minutosGolsContra = adicionarMinuto(minutosGolsContra, e.minuto());
-                return;
-            }
+            if (e.tipo() == TipoEventoSumula.GOL_CONTRA) return;
             LinhaAtleta l = linhas.get(e.atletaId()); if (l == null) return;
-            if (e.tipo() == TipoEventoSumula.GOL) { l.gols++; l.minutosGols = adicionarMinuto(l.minutosGols, e.minuto()); }
-            else if (e.tipo() == TipoEventoSumula.CARTAO_AMARELO) { l.amarelos++; l.minutosAmarelos = adicionarMinuto(l.minutosAmarelos, e.minuto()); }
-            else if (e.tipo() == TipoEventoSumula.CARTAO_VERMELHO) { l.vermelhos++; l.minutosVermelhos = adicionarMinuto(l.minutosVermelhos, e.minuto()); }
+            if (e.tipo() == TipoEventoSumula.GOL) l.gols++;
+            else if (e.tipo() == TipoEventoSumula.CARTAO_AMARELO) l.amarelos++;
+            else if (e.tipo() == TipoEventoSumula.CARTAO_VERMELHO) l.vermelhos++;
         });
-    }
-
-    private String adicionarMinuto(String atual, Integer minuto) {
-        if (minuto == null) return atual;
-        return atual == null || atual.isBlank() ? minuto.toString() : atual + ", " + minuto;
     }
 
     public boolean isAcessoPro() { return disponibilidade != null && disponibilidade.acessoPro(); }
@@ -292,24 +284,27 @@ public class GestaoTimeBean implements Serializable {
                 + disponibilidade.golsVisitante() + " " + visitante;
     }
     public int getTotalGolsSumula() {
-        return (golsContra == null ? 0 : golsContra)
-                + escalacao.stream().mapToInt(linha -> linha.getGols() == null ? 0 : linha.getGols()).sum();
+        return escalacao.stream().mapToInt(linha -> linha.getGols() == null ? 0 : linha.getGols()).sum();
     }
     public boolean isGolsConferem() {
         return disponibilidade != null && disponibilidade.golsDoTime() != null
-                && getTotalGolsSumula() == disponibilidade.golsDoTime();
+                && getTotalGolsSumula() <= disponibilidade.golsDoTime();
     }
     public String getResumoConferenciaGols() {
         if (disponibilidade == null || disponibilidade.golsDoTime() == null)
             return "O placar do time ainda não está disponível para conferência.";
         return getTotalGolsSumula() + " de " + disponibilidade.golsDoTime()
-                + " gol(s) do placar atribuídos na súmula.";
+                + " gol(s) atribuído(s) aos jogadores. A diferença pode ficar sem autor individual.";
     }
     public boolean isSumulaPublicada() { return "PUBLICADO".equals(status); }
 
     public void alterarFormacao() {
+        if (!substituicoes.isEmpty()) {
+            erro("Remova as substituicoes antes de alterar a formacao inicial.");
+            return;
+        }
         escalacao.stream().filter(l -> l.getPapel() == PapelParticipacao.TITULAR).forEach(l -> {
-            l.setPapel(PapelParticipacao.RELACIONADO); l.limparPosicaoTatica();
+            l.setPapel(PapelParticipacao.RESERVA); l.limparPosicaoTatica();
         });
         atletaSelecionadoId = null;
     }
@@ -352,12 +347,49 @@ public class GestaoTimeBean implements Serializable {
     }
 
     public LinhaAtleta getOcupante(SlotTatico slot) {
-        return escalacao.stream().filter(l -> slot.id().equals(l.getSlotTatico())).findFirst().orElse(null);
+        return escalacao.stream().filter(l -> slot.id().equals(
+                visaoInicial ? l.getSlotTaticoInicial() : l.getSlotTatico())).findFirst().orElse(null);
     }
 
     public void selecionarAtleta(LinhaAtleta linha) { atletaSelecionadoId = linha.getAtleta().getId(); }
 
+    public void abrirSeletorPosicao(SlotTatico slot) {
+        if (slot == null || visaoInicial || !substituicoes.isEmpty()) return;
+        slotSelecionado = slot;
+        atletaSelecionadoId = null;
+    }
+
+    public void escolherJogadorParaPosicao(LinhaAtleta linha) {
+        if (slotSelecionado == null || linha == null || !substituicoes.isEmpty()) return;
+        atletaSelecionadoId = linha.getAtleta().getId();
+        clicarSlot(slotSelecionado);
+        slotSelecionado = null;
+    }
+
+    public void cancelarSeletorPosicao() {
+        slotSelecionado = null;
+    }
+
+    public String getTituloSeletorPosicao() {
+        if (slotSelecionado == null) return "Escolher jogador";
+        return (getOcupante(slotSelecionado) == null ? "Escolher" : "Trocar")
+                + " jogador - " + slotSelecionado.rotulo();
+    }
+
+    public void prepararSubstituicaoPeloSlot(SlotTatico slot) {
+        LinhaAtleta ocupante = slot == null ? null : getOcupante(slot);
+        if (ocupante == null || ocupante.getPapel() != PapelParticipacao.TITULAR) {
+            FacesContext.getCurrentInstance().validationFailed();
+            erro("Selecione um titular que esteja atualmente em campo.");
+            return;
+        }
+        atletaSaiuId = ocupante.getAtleta().getId();
+        atletaEntrouId = null;
+        minutoSubstituicao = null;
+    }
+
     public void clicarSlot(SlotTatico slot) {
+        if (visaoInicial) return;
         LinhaAtleta ocupante = getOcupante(slot);
         if (atletaSelecionadoId == null) {
             if (ocupante != null) atletaSelecionadoId = ocupante.getAtleta().getId();
@@ -365,8 +397,20 @@ public class GestaoTimeBean implements Serializable {
         }
         LinhaAtleta selecionado = linha(atletaSelecionadoId);
         if (selecionado == null) return;
+        if (!substituicoes.isEmpty() && selecionado.getPapel() != PapelParticipacao.TITULAR) {
+            atletaSelecionadoId = null;
+            erro("Use a acao Substituir para trocar atletas entre campo e reserva.");
+            return;
+        }
         if (ocupante != null && ocupante != selecionado) {
-            ocupante.setPapel(PapelParticipacao.RELACIONADO); ocupante.limparPosicaoTatica();
+            if (!substituicoes.isEmpty() && ocupante.getPapel() == PapelParticipacao.TITULAR) {
+                String slotAnterior = selecionado.slotTatico; String posicaoAnterior = selecionado.posicao;
+                BigDecimal xAnterior = selecionado.coordenadaX; BigDecimal yAnterior = selecionado.coordenadaY;
+                ocupante.slotTatico = slotAnterior; ocupante.posicao = posicaoAnterior;
+                ocupante.coordenadaX = xAnterior; ocupante.coordenadaY = yAnterior;
+            } else {
+                ocupante.setPapel(PapelParticipacao.RESERVA); ocupante.limparPosicaoTatica();
+            }
         }
         selecionado.setPapel(PapelParticipacao.TITULAR);
         selecionado.setSlotTatico(slot.id()); selecionado.setPosicao(slot.rotulo());
@@ -380,31 +424,41 @@ public class GestaoTimeBean implements Serializable {
             atletaSelecionadoId = Long.valueOf(parametros.get("atletaId"));
             String destino = parametros.get("destino");
             if ("RESERVA".equals(destino)) moverSelecionado(PapelParticipacao.RESERVA);
-            else if ("RELACIONADO".equals(destino)) moverSelecionado(PapelParticipacao.RELACIONADO);
             else getSlotsFormacao().stream().filter(s -> s.id().equals(destino)).findFirst().ifPresent(this::clicarSlot);
         } catch (RuntimeException e) { erro("Não foi possível movimentar o atleta na prancheta."); }
     }
 
     public void moverParaReserva(LinhaAtleta linha) { atletaSelecionadoId = linha.getAtleta().getId(); moverSelecionado(PapelParticipacao.RESERVA); }
-    public void relacionar(LinhaAtleta linha) { atletaSelecionadoId = linha.getAtleta().getId(); moverSelecionado(PapelParticipacao.RELACIONADO); }
     public void removerDaPartida(LinhaAtleta linha) { linha.limpar(); atletaSelecionadoId = null; }
 
     public void moverSelecionadoParaDisponiveis() {
+        if (!substituicoes.isEmpty()) { erro("Remova as substituicoes antes de alterar os relacionados."); return; }
         LinhaAtleta selecionado = linha(atletaSelecionadoId);
         if (selecionado != null) selecionado.limpar();
         atletaSelecionadoId = null;
         abaJogadoresMobile = "DISPONIVEIS";
     }
 
-    public void moverSelecionadoParaRelacionados() {
-        moverSelecionado(PapelParticipacao.RELACIONADO);
-        abaJogadoresMobile = "RELACIONADOS";
-    }
     public void moverSelecionadoParaReservas() {
         moverSelecionado(PapelParticipacao.RESERVA);
         abaJogadoresMobile = "RESERVAS";
     }
     public boolean isAtletaSelecionado() { return atletaSelecionadoId != null; }
+
+    public boolean isSelecionadoNoCampo() {
+        LinhaAtleta selecionado = linha(atletaSelecionadoId);
+        return selecionado != null && selecionado.getPapel() == PapelParticipacao.TITULAR;
+    }
+
+    public boolean isSelecionadoNaReserva() {
+        LinhaAtleta selecionado = linha(atletaSelecionadoId);
+        return selecionado != null && selecionado.getPapel() == PapelParticipacao.RESERVA;
+    }
+
+    public boolean isSelecionadoDisponivel() {
+        LinhaAtleta selecionado = linha(atletaSelecionadoId);
+        return selecionado != null && selecionado.getPapel() == null;
+    }
     public String getNomeAtletaSelecionado() {
         LinhaAtleta selecionado = linha(atletaSelecionadoId);
         if (selecionado == null) return "Atleta selecionado";
@@ -414,6 +468,7 @@ public class GestaoTimeBean implements Serializable {
     }
 
     private void moverSelecionado(PapelParticipacao papel) {
+        if (!substituicoes.isEmpty()) { erro("Use a acao Substituir ou remova as trocas registradas."); return; }
         LinhaAtleta selecionado = linha(atletaSelecionadoId);
         if (selecionado != null) { selecionado.setPapel(papel); selecionado.limparPosicaoTatica(); }
         atletaSelecionadoId = null;
@@ -424,9 +479,118 @@ public class GestaoTimeBean implements Serializable {
     }
 
     public List<LinhaAtleta> getDisponiveis() { return escalacao.stream().filter(l -> l.getPapel() == null).toList(); }
-    public List<LinhaAtleta> getRelacionados() { return escalacao.stream().filter(l -> l.getPapel() == PapelParticipacao.RELACIONADO).toList(); }
     public List<LinhaAtleta> getReservas() { return escalacao.stream().filter(l -> l.getPapel() == PapelParticipacao.RESERVA).toList(); }
     public int getTotalParticipantes() { return (int) escalacao.stream().filter(l -> l.getPapel() != null).count(); }
+
+    public boolean isEdicaoPranchetaPermitida() { return isEditavel() && !visaoInicial; }
+
+    public List<LinhaAtleta> getTitularesAtuais() {
+        return escalacao.stream().filter(l -> l.getPapel() == PapelParticipacao.TITULAR).toList();
+    }
+
+    public void registrarSubstituicao() {
+        LinhaAtleta saiu = linha(atletaSaiuId);
+        LinhaAtleta entrou = linha(atletaEntrouId);
+        if (saiu == null || entrou == null || saiu == entrou
+                || saiu.getPapel() != PapelParticipacao.TITULAR
+                || entrou.getPapel() != PapelParticipacao.RESERVA) {
+            FacesContext.getCurrentInstance().validationFailed();
+            erro("Selecione um titular em campo e um reserva para entrar.");
+            return;
+        }
+        if (minutoSubstituicao != null && (minutoSubstituicao < 0
+                || (duracaoMinutos != null && minutoSubstituicao > duracaoMinutos))) {
+            FacesContext.getCurrentInstance().validationFailed();
+            erro("O minuto deve estar dentro da duracao informada.");
+            return;
+        }
+        if (substituicoes.isEmpty()) escalacao.forEach(LinhaAtleta::congelarInicial);
+        SubstituicaoLinha troca = new SubstituicaoLinha(saiu.getAtleta().getId(), nome(saiu),
+                entrou.getAtleta().getId(), nome(entrou), minutoSubstituicao, substituicoes.size());
+        substituicoes.add(troca);
+        aplicarTroca(troca);
+        atletaSaiuId = null; atletaEntrouId = null; minutoSubstituicao = null;
+        visaoInicial = false;
+        abaJogadoresMobile = "RESERVAS";
+        info("Substituicao registrada.");
+    }
+
+    public void removerSubstituicao(SubstituicaoLinha troca) {
+        int indice = substituicoes.indexOf(troca);
+        if (indice < 0) return;
+        substituicoes.remove(indice);
+        if (!sequenciaValida()) {
+            substituicoes.add(indice, troca);
+            erro("Esta substituicao sustenta uma troca posterior. Remova primeiro as trocas dependentes.");
+            return;
+        }
+        for (int i = 0; i < substituicoes.size(); i++) substituicoes.get(i).setOrdem(i);
+        reaplicarSubstituicoes();
+    }
+
+    private boolean sequenciaValida() {
+        Map<Long, PapelParticipacao> estado = new HashMap<>();
+        escalacao.forEach(l -> estado.put(l.atleta.getId(), l.papelInicial));
+        for (SubstituicaoLinha item : substituicoes.stream()
+                .sorted(java.util.Comparator.comparing(SubstituicaoLinha::getOrdem)).toList()) {
+            if (estado.get(item.atletaSaiuId) != PapelParticipacao.TITULAR
+                    || estado.get(item.atletaEntrouId) == PapelParticipacao.TITULAR) return false;
+            estado.put(item.atletaSaiuId, PapelParticipacao.RESERVA);
+            estado.put(item.atletaEntrouId, PapelParticipacao.TITULAR);
+        }
+        return true;
+    }
+
+    public void exibirEscalacaoInicial() { visaoInicial = true; atletaSelecionadoId = null; }
+    public void exibirSituacaoAtual() { visaoInicial = false; }
+
+    private void reaplicarSubstituicoes() {
+        escalacao.forEach(LinhaAtleta::restaurarInicial);
+        substituicoes.stream().sorted(java.util.Comparator.comparing(SubstituicaoLinha::getOrdem))
+                .forEach(this::aplicarTroca);
+    }
+
+    private void aplicarTroca(SubstituicaoLinha troca) {
+        LinhaAtleta saiu = linha(troca.atletaSaiuId);
+        LinhaAtleta entrou = linha(troca.atletaEntrouId);
+        if (saiu == null || entrou == null) return;
+        String slot = saiu.slotTatico; String posicaoAtual = saiu.posicao;
+        BigDecimal x = saiu.coordenadaX; BigDecimal y = saiu.coordenadaY;
+        saiu.papel = PapelParticipacao.RESERVA; saiu.limparPosicaoTatica();
+        entrou.papel = PapelParticipacao.TITULAR; entrou.slotTatico = slot;
+        entrou.posicao = posicaoAtual; entrou.coordenadaX = x; entrou.coordenadaY = y;
+    }
+
+    public String getMinutosJogador(LinhaAtleta linha) {
+        Integer minutos = calcularMinutos(linha);
+        return minutos == null ? "Nao informado" : minutos + " min";
+    }
+
+    private Integer calcularMinutos(LinhaAtleta alvo) {
+        if (duracaoMinutos == null || substituicoes.stream().anyMatch(s -> s.minuto == null)) return null;
+        boolean emCampo = (substituicoes.isEmpty() ? alvo.papel : alvo.papelInicial)
+                == PapelParticipacao.TITULAR;
+        int inicio = 0, total = 0;
+        List<int[]> intervalos = new ArrayList<>();
+        for (SubstituicaoLinha troca : substituicoes.stream()
+                .sorted(java.util.Comparator.comparing(SubstituicaoLinha::getOrdem)).toList()) {
+            if (troca.atletaSaiuId.equals(alvo.atleta.getId()) && emCampo) {
+                intervalos.add(new int[]{inicio, troca.minuto}); emCampo = false;
+            } else if (troca.atletaEntrouId.equals(alvo.atleta.getId()) && !emCampo) {
+                inicio = troca.minuto; emCampo = true;
+            }
+        }
+        if (emCampo) intervalos.add(new int[]{inicio, duracaoMinutos});
+        for (int[] intervalo : intervalos) {
+            total += Math.max(0, intervalo[1] - intervalo[0]);
+        }
+        return total;
+    }
+
+    private String nome(LinhaAtleta linha) {
+        return linha.atleta.getApelido() == null || linha.atleta.getApelido().isBlank()
+                ? linha.atleta.getNome() : linha.atleta.getApelido();
+    }
 
     private String mensagem(Exception e, String padrao) {
         if (e instanceof RestClientResponseException re && re.getResponseBodyAsString() != null
@@ -448,12 +612,32 @@ public class GestaoTimeBean implements Serializable {
         private Integer gols = 0;
         private Integer amarelos = 0;
         private Integer vermelhos = 0;
-        private String minutosGols;
-        private String minutosAmarelos;
-        private String minutosVermelhos;
+        private PapelParticipacao papelInicial;
+        private String posicaoInicial;
+        private String slotTaticoInicial;
+        private BigDecimal coordenadaXInicial;
+        private BigDecimal coordenadaYInicial;
         public LinhaAtleta(AtletaDTO atleta) { this.atleta = atleta; }
         void limparPosicaoTatica() { slotTatico=null; coordenadaX=null; coordenadaY=null; }
-        void limpar() { papel=null; numeroCamisa=null; posicao=null; limparPosicaoTatica(); gols=0; amarelos=0; vermelhos=0; minutosGols=null; minutosAmarelos=null; minutosVermelhos=null; }
+        void limpar() { papel=null; numeroCamisa=null; posicao=null; limparPosicaoTatica(); gols=0; amarelos=0; vermelhos=0; papelInicial=null; posicaoInicial=null; slotTaticoInicial=null; coordenadaXInicial=null; coordenadaYInicial=null; }
+        void congelarInicial() { papelInicial=papel; posicaoInicial=posicao; slotTaticoInicial=slotTatico; coordenadaXInicial=coordenadaX; coordenadaYInicial=coordenadaY; }
+        void restaurarInicial() { papel=papelInicial; posicao=posicaoInicial; slotTatico=slotTaticoInicial; coordenadaX=coordenadaXInicial; coordenadaY=coordenadaYInicial; }
+    }
+
+    @Getter @Setter
+    public static class SubstituicaoLinha implements Serializable {
+        private Long atletaSaiuId;
+        private String nomeAtletaSaiu;
+        private Long atletaEntrouId;
+        private String nomeAtletaEntrou;
+        private Integer minuto;
+        private Integer ordem;
+        public SubstituicaoLinha(Long atletaSaiuId, String nomeAtletaSaiu, Long atletaEntrouId,
+                                 String nomeAtletaEntrou, Integer minuto, Integer ordem) {
+            this.atletaSaiuId=atletaSaiuId; this.nomeAtletaSaiu=nomeAtletaSaiu;
+            this.atletaEntrouId=atletaEntrouId; this.nomeAtletaEntrou=nomeAtletaEntrou;
+            this.minuto=minuto; this.ordem=ordem;
+        }
     }
 
     public record SlotTatico(String id, String rotulo, BigDecimal x, BigDecimal y) implements Serializable {
