@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:pt="jakarta.faces.passthrough">
+    <div class="am-more-menu-title">Recursos PREMIUM</div>
+    <div class="am-team-menu">
+        <div class="am-team-parent"><i class="fas fa-trophy"></i><span>Campeonatos</span>
+            <span class="am-pro-status"><i class="fas #{sessaoBean.assinantePremium ? 'fa-crown' : 'fa-lock'}"></i> PREMIUM</span>
+        </div>
+        <div class="am-team-links">
+            <h:link outcome="/campeonatos" rendered="#{sessaoBean.assinantePremium}" styleClass="am-b-item">
+                <f:param name="area" value="organizar"/><i class="fas fa-trophy"></i><span>Organizar campeonatos</span>
+            </h:link>
+            <h:panelGroup rendered="#{not sessaoBean.assinantePremium}" layout="block" styleClass="am-premium-disabled"
+                          pt:role="link" pt:aria-disabled="true" title="Organização exclusiva para PREMIUM com pagamento em dia">
+                <i class="fas fa-lock"></i><span>Organizar campeonatos</span>
+            </h:panelGroup>
+            <h:link outcome="/campeonatos" rendered="#{not sessaoBean.assinantePremium}" styleClass="am-b-item am-premium-info">
+                <i class="fas fa-circle-info"></i><span>Conhecer o PREMIUM</span>
+            </h:link>
+            <h:link outcome="/campeonatos" rendered="#{sessaoBean.possuiTime}" styleClass="am-b-item">
+                <f:param name="area" value="participacao"/><i class="fas fa-shield-alt"></i><span>Campeonatos do time</span>
+            </h:link>
+            <h:link outcome="/campeonatos" rendered="#{sessaoBean.possuiTime}" styleClass="am-b-item">
+                <f:param name="area" value="convites"/><i class="fas fa-envelope"></i><span>Convites recebidos</span>
+            </h:link>
+        </div>
+    </div>
+</ui:composition>

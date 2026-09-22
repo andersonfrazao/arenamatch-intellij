@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets" xmlns:p="http://primefaces.org/ui">
+<h:head><title>Campeonatos - Arena Match</title></h:head>
+<h:body>
+<ui:composition template="/WEB-INF/template/layout.xhtml">
+<ui:define name="tituloPagina">Campeonatos</ui:define>
+<ui:define name="subtituloPagina">Organização e participação</ui:define>
+<ui:define name="conteudo">
+    <style>
+        .cp-card{padding:1.5rem;border:1px solid rgba(148,163,184,.2);border-radius:16px;background:rgba(15,23,42,.85);max-width:850px;margin:0 auto 1rem;color:#cbd5e1}
+        .cp-card h1,.cp-card h2{color:#fff}.cp-badge{color:#fbbf24;font-weight:800;font-size:.8rem}.cp-card p{line-height:1.6}.cp-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+        @media(max-width:760px){.cp-card{padding:1rem}.cp-actions .ui-button{width:100%}}
+    </style>
+    <h:panelGroup rendered="#{not sessaoBean.logado}" layout="block" styleClass="cp-card">
+        <h1>Campeonatos</h1><p>Entre na sua conta para acessar campeonatos.</p><p:button outcome="/login" value="Entrar"/>
+    </h:panelGroup>
+    <h:panelGroup rendered="#{sessaoBean.logado}" layout="block">
+        <h:panelGroup rendered="#{param.area ne 'participacao' and param.area ne 'convites'}" layout="block" styleClass="cp-card">
+            <span class="cp-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+            <h1>Organizar campeonatos</h1>
+            <p>O PREMIUM inclui todos os recursos PRO e o acesso à organização de campeonatos.</p>
+            <p>#{campeonatoAcessoBean.mensagem}</p>
+            <h:panelGroup rendered="#{campeonatoAcessoBean.podeOrganizar}" layout="block">
+                <h2>Seu acesso está liberado</h2><p>O cadastro e a administração das competições serão disponibilizados nas próximas etapas do módulo.</p>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{not campeonatoAcessoBean.podeOrganizar and not campeonatoAcessoBean.erro}" layout="block" styleClass="cp-actions">
+                <p:button outcome="/fale-conosco" value="Consultar ou regularizar PREMIUM" icon="fas fa-headset"/>
+            </h:panelGroup>
+            <p>A participação do seu time e a resposta a convites não exigem PREMIUM.</p>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{param.area eq 'participacao' or param.area eq 'convites'}" layout="block" styleClass="cp-card">
+            <h1>#{param.area eq 'convites' ? 'Convites recebidos' : 'Campeonatos do time'}</h1>
+            <h:panelGroup rendered="#{sessaoBean.possuiTime}" layout="block">
+                <p>#{param.area eq 'convites' ? 'Aqui você poderá consultar os detalhes e aceitar ou recusar convites para o seu time.' : 'Aqui você poderá acompanhar os campeonatos em que seu time participa.'}</p>
+                <p>Esta funcionalidade será disponibilizada nas próximas etapas do módulo, sem exigir assinatura PREMIUM.</p>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{not sessaoBean.possuiTime}" layout="block"><p>Esta área é destinada ao responsável por um time cadastrado.</p></h:panelGroup>
+        </h:panelGroup>
+    </h:panelGroup>
+</ui:define>
+</ui:composition>
+</h:body>
+</html>

@@ -45,7 +45,7 @@ public class AssinaturaService {
                 && usuario.getStatusPagamento() == StatusPagamento.TRIAL
                 && usuario.getDataExpiracao() != null
                 && LocalDateTime.now().isBefore(usuario.getDataExpiracao());
-        boolean proValido = usuario.getPlanoAssinatura() == PlanoAssinatura.PRO
+        boolean proValido = usuario.getPlanoAssinatura() != null && usuario.getPlanoAssinatura().incluiPro()
                 && usuario.getStatusPagamento() == StatusPagamento.PAGO;
 
         return trialValido || proValido;

@@ -13,6 +13,7 @@ import br.com.arenamatch.enums.Perfil;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusPagamento;
 import br.com.arenamatch.service.GestaoTimeAuthorizationService;
+import br.com.arenamatch.service.CampeonatoAuthorizationService;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
@@ -56,6 +57,11 @@ public class SessaoBean implements Serializable {
         return gestaoTimeAuthorizationService.possuiProPago(usuarioLogado);
     }
 
+    public boolean isAssinantePremium() {
+        return usuarioLogado != null && CampeonatoAuthorizationService.possuiPremiumPago(
+                usuarioLogado.getPlanoAssinatura(), usuarioLogado.getStatusPagamento());
+    }
+
     public String getMensagemBloqueioGestaoTime() {
         atualizarTrialLocalSeExpirado();
         if (usuarioLogado == null) return "Entre para acessar a gestao do seu time.";
@@ -79,6 +85,7 @@ public class SessaoBean implements Serializable {
         return switch (usuarioLogado.getPlanoAssinatura()) {
             case TRIAL -> "Período de teste";
             case PRO -> "Pró";
+            case PREMIUM -> "Premium";
             case BASICO -> "Básico";
         };
     }
@@ -91,8 +98,9 @@ public class SessaoBean implements Serializable {
         }
 
         PlanoAssinatura plano = usuarioLogado.getPlanoAssinatura();
-        if (plano == PlanoAssinatura.PRO && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO) {
-            return "Recursos premium ativos";
+        if (plano != null && plano.incluiPro()) {
+            if (usuarioLogado.getStatusPagamento() != StatusPagamento.PAGO) return "Pagamento pendente de regularização";
+            return plano == PlanoAssinatura.PREMIUM ? "Recursos PREMIUM e PRO ativos" : "Recursos PRO ativos";
         }
 
         if (plano == PlanoAssinatura.BASICO || usuarioLogado.isExpirado()) {
@@ -127,9 +135,9 @@ public class SessaoBean implements Serializable {
             return "basico";
         }
 
-        if (usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
+        if (usuarioLogado.getPlanoAssinatura().incluiPro()
                 && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO) {
-            return "pro";
+            return usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PREMIUM ? "premium" : "pro";
         }
 
         if (usuarioLogado.isExpirado()) {
@@ -139,6 +147,7 @@ public class SessaoBean implements Serializable {
         return switch (usuarioLogado.getPlanoAssinatura()) {
             case TRIAL -> "trial";
             case PRO -> "pro";
+            case PREMIUM -> "premium";
             case BASICO -> "basico";
         };
     }
@@ -154,7 +163,7 @@ public class SessaoBean implements Serializable {
             return true;
         }
 
-        boolean proValido = usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
+        boolean proValido = usuarioLogado.getPlanoAssinatura() != null && usuarioLogado.getPlanoAssinatura().incluiPro()
                 && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO;
         boolean trialValido = usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.TRIAL
                 && usuarioLogado.getStatusPagamento() == StatusPagamento.TRIAL

@@ -66,7 +66,7 @@ public class GestaoTimeAuthorizationService {
     }
 
     public boolean possuiProPago(PlanoAssinatura plano, StatusPagamento pagamento) {
-        return plano == PlanoAssinatura.PRO && pagamento == StatusPagamento.PAGO;
+        return plano != null && plano.incluiPro() && pagamento == StatusPagamento.PAGO;
     }
 
     public String mensagemBloqueio(PlanoAssinatura plano, StatusPagamento pagamento) {
@@ -75,7 +75,7 @@ public class GestaoTimeAuthorizationService {
     }
 
     public boolean precisaRegularizar(PlanoAssinatura plano, StatusPagamento pagamento) {
-        return plano == PlanoAssinatura.PRO && pagamento != StatusPagamento.PAGO;
+        return plano != null && plano.incluiPro() && pagamento != StatusPagamento.PAGO;
     }
 
     private Usuario usuarioAutenticado() {
