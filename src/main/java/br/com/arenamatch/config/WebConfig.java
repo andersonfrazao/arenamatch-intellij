@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        // Redireciona a raiz "/" para "/login.xhtml"
+        // Entrada direta do aplicativo WebView; apresentacao em /index.xhtml.
         registry.addViewController("/")
                 .setViewName("redirect:/login.xhtml");
         

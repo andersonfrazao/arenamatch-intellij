@@ -5,20 +5,19 @@
 
 <h:head>
     <title>Arena Match - Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/login-publico.css?v=61"/>
     <h:outputStylesheet library="css" name="styles.css"/>
     <link href="https://unpkg.com/primeflex@3.1.2/primeflex.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
     <style>
         body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
             min-height: 100vh;
             overflow-y: auto;
             margin: 0;
-            padding: 1rem;
+            padding: 0;
         }
         .login-form {
             width: 100%;
@@ -134,6 +133,25 @@
 </h:head>
 
 <h:body>
+    <header class="login-public-header">
+        <div class="login-public-header-inner">
+            <a href="#{request.contextPath}/login.xhtml" class="login-public-brand" aria-label="Arena Match, login">
+                <img src="#{request.contextPath}/images/logo-arena-match.png" alt="Arena Match" width="348" height="68"/>
+            </a>
+            <nav id="loginPublicNav" class="login-public-nav" aria-label="Conheça o Arena Match">
+                <a href="#{request.contextPath}/index.xhtml#quem-somos">Quem somos</a>
+                <a href="#{request.contextPath}/index.xhtml#funcionalidades">Funcionalidades</a>
+                <a href="#{request.contextPath}/index.xhtml#planos">Planos</a>
+            </nav>
+            <div class="login-public-actions">
+                <h:link outcome="/index" value="Saiba mais" styleClass="login-public-more"/>
+                <button id="loginPublicToggle" class="login-public-toggle" type="button" aria-label="Abrir menu" aria-controls="loginPublicNav" aria-expanded="false">
+                    <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="login-public-main">
     <h:form id="formLogin" styleClass="login-form">
         <p:growl id="msgs" showDetail="true"/>
 
@@ -221,7 +239,7 @@
             </h:panelGroup>
 
             <div class="text-center mt-4 text-xs text-gray-500 font-bold">
-                Vers&#227;o: Beta 0.19
+                Vers&#227;o: Beta 0.20
             </div>
 
             <div class="text-center mt-3 text-xs">
@@ -231,5 +249,7 @@
             </div>
         </div>
     </h:form>
+    </main>
+    <script src="#{request.contextPath}/js/login-publico.js"></script>
 </h:body>
 </html>
