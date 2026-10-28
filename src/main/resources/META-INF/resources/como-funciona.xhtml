@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets" lang="pt-BR">
+<h:head>
+    <title>Como funciona o Arena Match | Cadastre seu time e marque amistosos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Veja como cadastrar seu time de várzea, configurar categorias e horários, encontrar adversários e enviar convites para amistosos no Arena Match."/>
+    <meta name="theme-color" content="#0b1220"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=62"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/guia-publico.css?v=62"/>
+</h:head>
+<h:body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <ui:include src="/WEB-INF/template/cabecalho-publico.xhtml"/>
+    <main id="conteudo" tabindex="-1">
+        <section class="container section guia-intro" aria-labelledby="guia-title">
+            <a class="text-link" href="#{request.contextPath}/index.xhtml">← Conheça o Arena Match</a><br/>
+            <span class="eyebrow">COMO FUNCIONA</span>
+            <h1 id="guia-title">Da primeira conta<br/>ao próximo amistoso.</h1>
+            <p>Um guia para colocar seu time de várzea em campo. Siga as etapas no navegador ou no aplicativo Android.</p>
+            <div class="hero-actions"><h:link outcome="/cadastro" value="Cadastrar meu time grátis →" styleClass="button"/><h:link outcome="/login" value="Já tenho conta. Entrar" styleClass="text-link"/></div>
+            <p class="guia-observacao">As imagens mostram telas reais com dados demonstrativos. Abra uma imagem para ampliá-la. Os limites de uso e o período de teste seguem a configuração vigente do seu plano.</p>
+        </section>
+        <div class="container guia-corpo">
+            <nav class="guia-indice" aria-label="Etapas do guia"><span class="eyebrow">PASSO A PASSO</span><ol><li><a href="#conta">Criar sua conta</a></li><li><a href="#time">Cadastrar seu time</a></li><li><a href="#disponibilidade">Categorias e horários</a></li><li><a href="#adversarios">Encontrar adversários</a></li><li><a href="#convites">Enviar um convite</a></li></ol></nav>
+            <div class="guia-etapas">
+                <section id="conta" class="guia-etapa" aria-labelledby="conta-title">
+                    <span class="eyebrow">PASSO 01</span><h2 id="conta-title">Comece pelo representante.</h2>
+                    <p>Em <strong>Criar conta</strong>, preencha seu nome, CPF, celular, e-mail e senha na etapa Representante. Confirme a senha e avance em <strong>Próximo</strong>.</p>
+                    <p>Use um e-mail ao qual você tenha acesso. Quando a verificação estiver habilitada, ao concluir o cadastro será enviado um código para ativar a conta no primeiro acesso. Confira as instruções exibidas na tela.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/conta.png"><img src="#{request.contextPath}/images/guia/conta.png" alt="Tela real do cadastro na etapa Representante, com os campos para criar a conta" width="1200" height="850" loading="lazy"/></a><figcaption>Representante · primeira etapa do cadastro.</figcaption></figure>
+                    <a class="text-link" href="#time">Próxima etapa: seu time →</a>
+                </section>
+                <section id="time" class="guia-etapa" aria-labelledby="time-title">
+                    <span class="eyebrow">PASSO 02</span><h2 id="time-title">Apresente a sua equipe.</h2>
+                    <p>Na etapa <strong>Time</strong>, informe o nome da equipe e o local. Você pode buscar o endereço pelo CEP ou usar a localização atual do smartphone, concedendo a permissão quando solicitada. Não é necessário usar as duas opções.</p>
+                    <p>Confira cidade, bairro e demais informações. Escolha se o time é <strong>Mandante</strong> ou <strong>Visitante</strong>. Se for mandante, preencha as informações do local de jogo e da taxa conforme os campos apresentados.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/time.png"><img src="#{request.contextPath}/images/guia/time.png" alt="Tela real da etapa Time e Local com endereço e escolha de mando de campo" width="1200" height="850" loading="lazy"/></a><figcaption>Time e Local · exemplo com uma equipe demonstrativa.</figcaption></figure>
+                    <a class="text-link" href="#disponibilidade">Próxima etapa: disponibilidade →</a>
+                </section>
+                <section id="disponibilidade" class="guia-etapa" aria-labelledby="disponibilidade-title">
+                    <span class="eyebrow">PASSO 03</span><h2 id="disponibilidade-title">Escolha quando seu time joga.</h2>
+                    <p>Na etapa <strong>Agenda</strong>, selecione uma categoria, o dia da semana e os horários. Para mandantes, o intervalo de cada horário deve ter duas horas. Adicione o item à lista de disponibilidades. Repita para cadastrar outras categorias ou horários.</p>
+                    <p>Revise a lista, remova itens incorretos e finalize em <strong>Finalizar Cadastro</strong> (ou <strong>Atualizar os dados</strong>, se estiver editando). Essas informações ajudam a encontrar adversários compatíveis. Depois, você pode consultar seus dados pelo aplicativo.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/disponibilidade.png"><img src="#{request.contextPath}/images/guia/disponibilidade.png" alt="Tela real da etapa Agenda com seleção de categoria, dia e horários e lista de disponibilidades" width="1200" height="850" loading="lazy"/></a><figcaption>Agenda · categorias e horários do time demonstrativo.</figcaption></figure>
+                    <a class="text-link" href="#adversarios">Próxima etapa: encontrar adversários →</a>
+                </section>
+                <section id="adversarios" class="guia-etapa" aria-labelledby="adversarios-title">
+                    <span class="eyebrow">PASSO 04</span><h2 id="adversarios-title">Encontre o próximo adversário.</h2>
+                    <p>Após entrar, acesse <strong>Buscar</strong>, escolha a data do jogo e utilize os filtros de categoria, nome do time e distância disponíveis. Confira a localização e a disponibilidade dos times nos resultados.</p>
+                    <p>O raio de busca do Básico tem um limite definido pelo sistema. Se não aparecerem adversários, revise a data e os filtros. Novos convites também precisam respeitar as regras de antecedência.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/busca.png"><img src="#{request.contextPath}/images/guia/busca.png" alt="Tela real da busca de adversários com filtros de data, categoria e localização e times demonstrativos" width="1200" height="850" loading="lazy"/></a><figcaption>Busca de adversários · resultados com dados demonstrativos.</figcaption></figure>
+                    <a class="text-link" href="#convites">Próxima etapa: convite para jogar →</a>
+                </section>
+                <section id="convites" class="guia-etapa" aria-labelledby="convites-title">
+                    <span class="eyebrow">PASSO 05</span><h2 id="convites-title">Envie o convite e acompanhe a resposta.</h2>
+                    <p>Confira o adversário e use a ação de desafio na busca. Revise os dados apresentados e, se desejar, envie uma mensagem junto com o convite. O sistema considera a disponibilidade dos times e o mando de campo.</p>
+                    <p><strong>Convite enviado não é jogo confirmado.</strong> Aguarde o aceite do outro time e acompanhe o status na agenda e nas notificações. O Básico possui um intervalo para novos agendamentos; a aplicação informa quando for necessário aguardar. Use o chat para conversar com o outro representante.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/convite.png"><img src="#{request.contextPath}/images/guia/convite.png" alt="Tela real de revisão de um desafio entre times demonstrativos antes de enviar o convite" width="1200" height="850" loading="lazy"/></a><figcaption>Desafio · confira os dados antes de enviar.</figcaption></figure>
+                    <p>Com a partida confirmada, confira data, local e horário na agenda antes de sair para jogar.</p><a class="text-link" href="#conta">Voltar ao início do guia ↑</a>
+                </section>
+            </div>
+        </div>
+        <ui:include src="/WEB-INF/template/faq-publico.xhtml"/>
+        <section class="section container contact" aria-labelledby="guia-final-title"><div><span class="eyebrow">AGORA É COM O SEU TIME</span><h2 id="guia-final-title">Pronto para o próximo jogo?</h2><p>Crie a conta da sua equipe ou entre para continuar.</p></div><div class="contact-actions"><h:link outcome="/cadastro" value="Cadastrar meu time grátis →" styleClass="button"/><h:link outcome="/login" value="Entrar no Arena Match" styleClass="text-link"/></div></section>
+    </main>
+    <ui:include src="/WEB-INF/template/rodape-publico.xhtml"/>
+</h:body>
+</html>

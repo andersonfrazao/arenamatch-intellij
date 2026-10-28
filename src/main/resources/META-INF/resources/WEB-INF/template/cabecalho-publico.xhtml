@@ -1,0 +1,14 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html">
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="#{request.contextPath}/index.xhtml" class="brand" aria-label="Arena Match, apresentação"><img src="#{request.contextPath}/images/logo-arena-match.png" alt="Arena Match" width="348" height="68"/></a>
+            <nav aria-label="Navegação principal" class="site-nav">
+                <a href="#{request.contextPath}/index.xhtml#quem-somos">Quem somos</a>
+                <a href="#{request.contextPath}/index.xhtml#funcionalidades">Funcionalidades</a>
+                <a href="#{request.contextPath}/como-funciona.xhtml">Como funciona</a>
+                <a href="#{request.contextPath}/index.xhtml#planos">Planos</a>
+            </nav>
+            <div class="header-actions"><h:link outcome="/login" value="Entrar" styleClass="login-link"/><h:link outcome="/cadastro" value="Criar conta" styleClass="button button-small"/></div>
+        </div>
+    </header>
+</ui:composition>

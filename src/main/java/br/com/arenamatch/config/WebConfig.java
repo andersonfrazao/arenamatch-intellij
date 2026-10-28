@@ -13,11 +13,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${arenamatch.uploads.escudos-dir:/app/uploads/escudos}")
     private String diretorioEscudos;
 
+    @Value("${arenamatch.pagina-publica-inicial-habilitada:false}")
+    private boolean paginaPublicaInicialHabilitada;
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        // Redireciona a raiz "/" para "/login.xhtml"
+        // Mantem o login para WebViews antigos ate a ativacao explicita da apresentacao.
         registry.addViewController("/")
-                .setViewName("redirect:/login.xhtml");
+                .setViewName(paginaPublicaInicialHabilitada ? "redirect:/index.xhtml" : "redirect:/login.xhtml");
         
         // Define prioridade alta para garantir que esse redirecionamento aconteça antes de outros
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
