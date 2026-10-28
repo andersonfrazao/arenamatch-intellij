@@ -60,7 +60,7 @@ class PaginaPublicaTest {
             MockMvcBuilders.webAppContextSetup(context).addFilters(filtro).build()
                     .perform(get("/"))
                     .andExpect(status().is3xxRedirection())
-                    .andExpect(redirectedUrl("/login.xhtml"));
+                    .andExpect(redirectedUrl("/index.xhtml"));
         }
     }
 
