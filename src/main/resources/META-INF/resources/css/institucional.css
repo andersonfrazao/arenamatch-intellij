@@ -36,6 +36,9 @@ p{color:var(--muted)}
 .hero-copy>p{max-width:510px;font-size:18px;line-height:1.7}
 .hero-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-top:30px}
 .hero-copy .hero-footnote{font-size:12px;margin-top:18px;color:#95a9bf}
+.app-showcase{display:flex;flex-direction:column;align-items:center;gap:24px;min-width:0}
+.google-play-link{display:block;width:180px;max-width:100%;border-radius:6px}
+.google-play-link img{width:100%;height:auto}
 .app-preview{margin:0 auto;width:min(100%,370px);padding:12px;background:#15243a;border:1px solid #355476;border-radius:19px;box-shadow:0 30px 100px #1684bb20;transform:rotate(2deg);position:relative}
 .preview-top{display:flex;align-items:center;justify-content:center;gap:8px;padding:2px 0 13px;font-size:9px;letter-spacing:1.5px;font-weight:700;color:#b7d0e7}
 .app-preview>img{width:100%;border-radius:10px;border:1px solid #304058;aspect-ratio:430/740;object-fit:cover;object-position:top}

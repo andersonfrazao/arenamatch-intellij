@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="Encontre adversários para jogos de várzea, organize a agenda do seu time e acompanhe resultados com o Arena Match, a plataforma para o futebol amador."/>
     <meta name="theme-color" content="#0b1220"/>
-    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=62"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=62.1"/>
 </h:head>
 <h:body>
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -19,11 +19,16 @@
                 <div class="hero-actions"><h:link outcome="/cadastro" value="Cadastrar meu time grátis →" styleClass="button"/><h:link outcome="/como-funciona" value="Como funciona ↗" styleClass="text-link"/></div>
                 <p class="hero-footnote">Comece gratuitamente. O Básico tem limites de busca e agendamento.</p>
             </div>
-            <figure class="app-preview">
-                <div class="preview-top"><span class="status-dot"></span><span>ARENA MATCH · NA PALMA DA MÃO</span></div>
-                <img src="#{request.contextPath}/images/arena-match-agenda.png" alt="Tela real da agenda do Arena Match, com o perfil de um time demonstrativo" width="430" height="740" fetchpriority="high"/>
-                <figcaption>Sua agenda, seus adversários e seus jogos em um só lugar.<small>Tela do aplicativo com times demonstrativos.</small></figcaption>
-            </figure>
+            <div class="app-showcase">
+                <figure class="app-preview">
+                    <div class="preview-top"><span class="status-dot"></span><span>ARENA MATCH · NA PALMA DA MÃO</span></div>
+                    <img src="#{request.contextPath}/images/arena-match-agenda.png" alt="Tela real da agenda do Arena Match, com o perfil de um time demonstrativo" width="430" height="740" fetchpriority="high"/>
+                    <figcaption>Sua agenda, seus adversários e seus jogos em um só lugar.<small>Tela do aplicativo com times demonstrativos.</small></figcaption>
+                </figure>
+                <a class="google-play-link" href="https://play.google.com/store/apps/details?id=br.app.arenamatch&amp;pcampaignid=web_share">
+                    <img src="#{request.contextPath}/images/google-play-badge-pt-br.png" alt="Baixe o Arena Match no Google Play" width="646" height="250"/>
+                </a>
+            </div>
         </section>
         <div class="promise-strip"><div class="container"><span>ENCONTRE ADVERSÁRIOS</span><span aria-hidden="true">✦</span><span>ORGANIZE SEUS JOGOS</span><span aria-hidden="true">✦</span><span>ACOMPANHE RESULTADOS</span></div></div>
         <section id="como-funciona" class="section container" aria-labelledby="resumo-title">
