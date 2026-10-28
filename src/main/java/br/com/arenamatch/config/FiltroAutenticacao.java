@@ -36,7 +36,6 @@ public class FiltroAutenticacao implements Filter {
         // 2. PÁGINAS PÚBLICAS (Login e Cadastro precisam estar escancarados)
         // Usamos o final da URL para evitar falsos positivos
         boolean isLoginPage = url.endsWith("login.xhtml") || url.equals(path + "/");
-        boolean isInstitutionalPage = url.equals(path + "/index.xhtml");
         
         // MÁGICA AQUI: Libera as rotas de API para o seu AuthClient (Feign) conseguir conversar com o backend!
         // Se a sua API tiver um prefixo diferente (ex: /v1/ ou /rest/), adicione aqui.
@@ -60,7 +59,7 @@ public class FiltroAutenticacao implements Filter {
             return;
         }
 
-        if (isLogado || isPublicPage || isInstitutionalPage || isResource) {
+        if (isLogado || isPublicPage || isResource) {
             // Se estiver logado ou for página pública/recurso, segue o jogo!
             chain.doFilter(request, response);
         } else {
