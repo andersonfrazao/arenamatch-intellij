@@ -1,0 +1,29 @@
+@charset "UTF-8";
+.guia-intro { padding-bottom: 48px; }
+.guia-intro h1 { font-size: clamp(36px, 4vw, 58px); line-height: 1.13; letter-spacing: -2px; margin: 20px 0; }
+.guia-intro > p { max-width: 700px; font-size: 18px; }
+.guia-intro .guia-observacao { font-size: 12px; max-width: 740px; margin-top: 22px; }
+.guia-corpo { display: grid; grid-template-columns: 235px minmax(0, 1fr); gap: 60px; padding-bottom: 70px; align-items: start; }
+.guia-indice { position: sticky; top: 120px; padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); }
+.guia-indice ol { list-style: none; padding: 0; margin: 18px 0 0; }
+.guia-indice li { margin: 0; padding: 0; }
+.guia-indice li::before { content: none; }
+.guia-indice a { display: block; padding: 10px 0; font-size: 14px; color: #c5d8ed; }
+.guia-indice a:hover { color: var(--blue); }
+.guia-etapa { padding: 30px 0 50px; border-bottom: 1px solid var(--border); scroll-margin-top: 15px; }
+.guia-etapa:first-child { padding-top: 0; }
+.guia-etapa h2 { font-size: clamp(28px, 3vw, 36px); }
+.guia-etapa p { font-size: 16px; line-height: 1.85; }
+.guia-etapa strong { color: #e8f4ff; }
+.guia-captura { margin: 28px 0 18px; padding: 10px; border: 1px solid #304963; border-radius: 12px; background: #152238; }
+.guia-captura img { width: 100%; height: auto; border-radius: 6px; }
+.guia-captura figcaption { color: #b2c8e1; font-size: 12px; padding: 10px 6px 0; }
+@media (max-width: 780px) {
+    .guia-corpo { grid-template-columns: 1fr; gap: 30px; }
+    .guia-indice { position: static; padding: 18px; }
+    .guia-indice ol { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+    .guia-indice a { font-size: 13px; min-height: 40px; }
+    .guia-intro h1 { letter-spacing: -1px; }
+    .guia-etapa p { font-size: 15px; }
+    .guia-captura { margin-inline: -2px; padding: 5px; }
+}
