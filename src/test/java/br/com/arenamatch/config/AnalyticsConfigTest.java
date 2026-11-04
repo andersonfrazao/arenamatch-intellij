@@ -16,7 +16,7 @@ class AnalyticsConfigTest {
     @Test void habilitadoIncluiSomenteAsPaginasPublicasPrevistas() {
         AnalyticsConfig config = new AnalyticsConfig(true, " " + ID + " ");
         assertEquals(ID, config.getMeasurementId());
-        for (String pagina : new String[]{"/index.xhtml", "/como-funciona.xhtml", "/privacidade.xhtml", "/login.xhtml", "/cadastro.xhtml"}) {
+        for (String pagina : new String[]{"/index.xhtml", "/como-funciona.xhtml", "/encontrar-times-futebol-amador.xhtml", "/privacidade.xhtml", "/login.xhtml", "/cadastro.xhtml"}) {
             assertTrue(config.habilitadoPara(pagina), pagina);
         }
         for (String pagina : new String[]{"/minha-agenda.xhtml", "/chat.xhtml", "/admin.xhtml", "/recuperar-senha.xhtml", "/ativar-conta.xhtml", "/interno/index.xhtml"}) {

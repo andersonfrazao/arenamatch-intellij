@@ -12,7 +12,7 @@ O JavaScript tambem exige HTTPS e um dos dois hosts de producao do Arena Match.
 - O aviso permite aceitar ou recusar estatisticas com botoes equivalentes.
 - A biblioteca do Google nao e carregada antes de aceitar. Nao ha pings de
   Analytics antes do aceite inicial. A preferencia fica neste navegador.
-- O botao **Cookies de estatisticas** permite reabrir a escolha. Revogar ativa o
+- O botao **Cookies de estatisticas**, no rodape, permite reabrir a escolha. Revogar ativa o
   opt-out do destino GA4 e remove cookies `_ga` e `_ga_*` acessiveis, sem
   recarregar a pagina ou apagar cookies de sessao. Dados ja enviados nao sao
   removidos pela revogacao.
@@ -37,7 +37,7 @@ O JavaScript tambem exige HTTPS e um dos dois hosts de producao do Arena Match.
 2. Antes de escolher, conferir na aba Rede que nao existem requisicoes a
    googletagmanager.com ou google-analytics.com provenientes da integracao.
 3. Recusar, navegar ao guia e confirmar que a recusa foi mantida.
-4. Reabrir **Cookies de estatisticas** e aceitar. Conferir o carregamento da tag
+4. Reabrir **Cookies de estatisticas** pelo rodape e aceitar. Conferir o carregamento da tag
    e os eventos no relatorio **Tempo real** do Google Analytics.
 5. Revogar e confirmar o bloqueio de novas medicoes, preservando o uso do site.
 6. O teste de instalacao do painel pode nao detectar a tag enquanto nao houver

@@ -1,0 +1,47 @@
+[
+  {
+    "Arquivo": "01-destaque-1024x500.png",
+    "Largura": 1024,
+    "Altura": 500,
+    "Bytes": 808394,
+    "MB": 0.77,
+    "Formato": "PNG RGB",
+    "Validado": true
+  },
+  {
+    "Arquivo": "02-busca-1080x1920.png",
+    "Largura": 1080,
+    "Altura": 1920,
+    "Bytes": 2867309,
+    "MB": 2.73,
+    "Formato": "PNG RGB",
+    "Validado": true
+  },
+  {
+    "Arquivo": "03-agenda-1080x1920.png",
+    "Largura": 1080,
+    "Altura": 1920,
+    "Bytes": 3054575,
+    "MB": 2.91,
+    "Formato": "PNG RGB",
+    "Validado": true
+  },
+  {
+    "Arquivo": "04-disponibilidade-1080x1920.png",
+    "Largura": 1080,
+    "Altura": 1920,
+    "Bytes": 2803061,
+    "MB": 2.67,
+    "Formato": "PNG RGB",
+    "Validado": true
+  },
+  {
+    "Arquivo": "05-convite-1080x1920.png",
+    "Largura": 1080,
+    "Altura": 1920,
+    "Bytes": 2881311,
+    "MB": 2.75,
+    "Formato": "PNG RGB",
+    "Validado": true
+  }
+]

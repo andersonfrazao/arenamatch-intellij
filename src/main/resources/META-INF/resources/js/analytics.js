@@ -130,6 +130,14 @@
         preferences.textContent = 'Cookies de estatísticas';
         preferences.setAttribute('aria-controls', banner.id);
 
+        var preferencesHost = document.querySelector('.site-footer nav') || document.querySelector('footer');
+        if (!preferencesHost) {
+            preferencesHost = document.createElement('footer');
+            preferencesHost.id = 'am-analytics-footer';
+            preferencesHost.className = 'am-analytics-footer';
+            document.body.appendChild(preferencesHost);
+        }
+
         function fitSpace() {
             document.body.style.paddingBottom = banner.hidden ? originalPadding :
                 'calc(' + basePadding + ' + ' + (banner.getBoundingClientRect().height + 24) + 'px)';
@@ -158,7 +166,7 @@
         reject.addEventListener('click', function () { choose('denied'); });
         preferences.addEventListener('click', function () { showBanner(true, true); });
         document.body.appendChild(banner);
-        document.body.appendChild(preferences);
+        preferencesHost.appendChild(preferences);
         window.addEventListener('resize', fitSpace);
         if (window.ResizeObserver) new window.ResizeObserver(fitSpace).observe(banner);
         window.addEventListener('storage', function (event) {

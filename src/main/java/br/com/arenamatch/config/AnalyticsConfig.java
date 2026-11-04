@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component("analyticsConfig")
 public class AnalyticsConfig {
     private static final Set<String> PAGINAS_PUBLICAS = Set.of(
-            "/index.xhtml", "/como-funciona.xhtml", "/privacidade.xhtml",
+            "/index.xhtml", "/como-funciona.xhtml", "/encontrar-times-futebol-amador.xhtml", "/privacidade.xhtml",
             "/login.xhtml", "/cadastro.xhtml");
 
     private final boolean enabled;

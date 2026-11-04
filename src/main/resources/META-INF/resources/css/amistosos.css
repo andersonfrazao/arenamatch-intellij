@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+.amistosos-intro { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: center; gap: 68px; padding-block: 54px 76px; }
+.amistosos-intro .eyebrow { margin: 22px 0 0; }
+.amistosos-intro > div > .eyebrow { display: flex; }
+.amistosos-intro h1 { font-size: clamp(36px, 4vw, 56px); line-height: 1.12; letter-spacing: -2px; margin: 18px 0 24px; }
+.amistosos-intro h1 span { color: var(--blue); }
+.amistosos-intro p { max-width: 650px; }
+.amistosos-intro .amistosos-lead { font-size: 18px; line-height: 1.75; color: #c4d1e3; }
+.amistosos-intro .amistosos-note { font-size: 12px; margin-top: 16px; }
+.amistosos-checklist { background: linear-gradient(145deg, #122b42, var(--panel)); border: 1px solid #315471; border-radius: 16px; padding: 30px; }
+.amistosos-checklist .eyebrow { margin: 0; }
+.amistosos-checklist h2 { font-size: 28px; letter-spacing: -.7px; margin-bottom: 24px; }
+.amistosos-checklist li { margin-top: 20px; padding-left: 28px; }
+.amistosos-checklist strong, .amistosos-checklist li span { display: block; }
+.amistosos-checklist strong { color: var(--text); }
+.amistosos-checklist li span { color: #b4c5db; font-size: 13px; margin-top: 4px; }
+.amistosos-checklist > p { border-top: 1px solid #315471; padding-top: 20px; margin: 24px 0 0; font-size: 13px; }
+.amistosos-corpo { display: grid; grid-template-columns: 230px minmax(0, 1fr); align-items: start; gap: 68px; padding-bottom: 30px; }
+.amistosos-indice { position: sticky; top: 118px; padding: 24px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+.amistosos-indice .eyebrow { margin-bottom: 14px; }
+.amistosos-indice a { display: block; padding-block: 12px; font-size: 14px; color: #c5d8ed; }
+.amistosos-indice a:hover { color: var(--blue); }
+.amistosos-artigo { max-width: 790px; min-width: 0; }
+.amistosos-secao { padding-bottom: 48px; margin-bottom: 46px; border-bottom: 1px solid var(--border); }
+.amistosos-secao:last-child { margin-bottom: 0; border-bottom: 0; }
+.amistosos-secao h2 { font-size: clamp(28px, 3vw, 38px); }
+.amistosos-secao p { line-height: 1.85; }
+.amistosos-secao strong { color: #e8f4ff; }
+.amistosos-passos { counter-reset: passo; list-style: none; margin: 30px 0; padding: 0; }
+.amistosos-passos li { counter-increment: passo; padding: 0 0 22px 64px; margin: 0; border-left: 1px solid #315471; margin-left: 20px; }
+.amistosos-passos li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.amistosos-passos li::before { content: counter(passo, decimal-leading-zero); left: -21px; top: 0; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: #12334b; border: 1px solid #326789; font-size: 13px; }
+.amistosos-passos h3 { font-size: 22px; margin: 0; padding-top: 5px; }
+.amistosos-passos p { font-size: 16px; margin: 12px 0 0; }
+.amistosos-alerta { border-left: 3px solid var(--blue); padding: 18px 22px; background: var(--panel); border-radius: 0 10px 10px 0; margin-bottom: 18px; }
+.amistosos-alerta p { margin: 6px 0 0; font-size: 14px; }
+.amistosos-convite { display: flex; justify-content: space-between; align-items: center; gap: 40px; border: 1px solid #315471; border-radius: 16px; background: #111f33; padding: 40px; margin-bottom: 76px; }
+.amistosos-convite h2 { font-size: clamp(28px, 3vw, 38px); }
+.amistosos-convite .hero-actions { margin-top: 22px; }
+.amistosos-app { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; gap: 6px; }
+.amistosos-app > span { font-size: 12px; color: var(--muted); }
+
+@media (max-width: 1020px) {
+    .amistosos-intro, .amistosos-corpo { gap: 36px; }
+    .amistosos-checklist { padding: 24px; }
+    .amistosos-corpo { grid-template-columns: 210px minmax(0, 1fr); }
+}
+
+@media (max-width: 780px) {
+    .amistosos-intro { grid-template-columns: 1fr; padding-block: 28px 48px; gap: 32px; }
+    .amistosos-intro h1 { letter-spacing: -1px; }
+    .amistosos-intro .amistosos-lead { font-size: 16px; }
+    .amistosos-corpo { grid-template-columns: 1fr; gap: 40px; }
+    .amistosos-indice { position: static; padding: 18px 22px; }
+    .amistosos-indice a { padding-block: 10px; }
+    .amistosos-secao { padding-bottom: 32px; margin-bottom: 32px; }
+    .amistosos-passos li { padding-left: 40px; }
+    .amistosos-passos p { font-size: 15px; }
+    .amistosos-convite { flex-direction: column; align-items: flex-start; padding: 26px; margin-bottom: 48px; gap: 30px; }
+    .amistosos-app { align-items: flex-start; }
+}

@@ -18,8 +18,14 @@ p{color:var(--muted)}
 .brand img{width:218px;border-radius:4px}
 .site-nav,.header-actions{display:flex;align-items:center;gap:26px}
 .site-nav a,.login-link{font-size:14px;font-weight:600;color:#c5d0e0;padding-block:12px}
+.site-nav a{white-space:nowrap}
 .site-nav a:hover,.login-link:hover{color:var(--blue)}
 .header-actions{gap:20px;flex-shrink:0;white-space:nowrap}
+.site-nav-toggle,.site-nav .mobile-login-link{display:none}
+.site-nav-toggle{width:44px;height:44px;padding:10px;border:1px solid #42617e;border-radius:6px;background:transparent;cursor:pointer;flex-direction:column;justify-content:center;gap:5px}
+.site-nav-toggle span{display:block;width:22px;height:2px;background:#e2e8f0}
+.site-nav-toggle:hover{background:#192c44}
+.site-nav-toggle:focus-visible{outline:3px solid #65d7ff;outline-offset:3px}
 .button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 25px;border:1px solid var(--blue);border-radius:8px;background:var(--blue);color:#041323;font-size:15px;font-weight:750;line-height:1.4;text-align:center;transition:background .15s,transform .15s}
 .button:hover{background:#64d3fa;border-color:#64d3fa;transform:translateY(-2px)}
 .button-small{min-height:42px;padding:10px 17px;font-size:14px}
@@ -113,7 +119,12 @@ li:before{content:"✓";position:absolute;left:0;color:var(--blue);font-weight:7
 .about{gap:45px}
 }
 
-@media(max-width:780px){html{scroll-padding-top:140px}
+@media(max-width:1100px){html{scroll-padding-top:150px}
+.header-inner{flex-wrap:wrap;row-gap:0;min-height:108px;padding-block:12px}
+.site-nav{order:3;width:100%;justify-content:center;margin-top:7px}
+}
+
+@media(max-width:780px){html{scroll-padding-top:180px}
 .container{width:calc(100% - 40px)}
 .header-inner{min-height:108px;flex-wrap:wrap;gap:0;padding-block:12px}
 .brand img{width:175px}
@@ -160,6 +171,16 @@ li:before{content:"✓";position:absolute;left:0;color:var(--blue);font-weight:7
 @media (max-width: 780px) {
     .site-nav { flex-wrap: wrap; gap: 6px 16px; }
     .site-nav a { min-height: 32px; display: inline-flex; align-items: center; }
+    .site-nav .mobile-login-link { display: none; }
+    html.has-public-menu { scroll-padding-top: 100px; }
+    .site-header.has-menu-toggle .header-inner { min-height: 76px; flex-wrap: nowrap; }
+    .site-header.has-menu-toggle .header-actions .login-link { display: none; }
+    .site-header.has-menu-toggle .site-nav-toggle { display: inline-flex; }
+    .site-header.has-menu-toggle .site-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; width: auto; max-height: calc(100dvh - 76px); overflow-y: auto; margin: 0; padding: 12px 20px; flex-direction: column; align-items: stretch; gap: 0; background: #111d30; border-bottom: 1px solid #42617e; box-shadow: 0 12px 24px #0005; }
+    .site-header.has-menu-toggle .site-nav.is-open { display: flex; }
+    .site-header.has-menu-toggle .site-nav a { min-height: 44px; padding: 10px 12px; border-radius: 5px; font-size: 14px; }
+    .site-header.has-menu-toggle .site-nav a:hover { background: #192c44; }
+    .site-header.has-menu-toggle .site-nav .mobile-login-link { display: flex; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 14px; }
 }
 .passos-resumo .feature-card > p { min-height: 0; }
 .passos-resumo + .text-link { margin-top: 20px; }
