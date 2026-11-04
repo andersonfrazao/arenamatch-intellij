@@ -188,6 +188,10 @@ public class DesafioPartidaService {
         }
 
         int intervaloDias = parametroSistemaService.buscarDiasIntervaloAgendamentoPlanoBasico();
+        if (intervaloDias == 0) {
+            return;
+        }
+
         List<Partida> partidasAtivas = partidaRepository.buscarPartidasFuturasAtivasPorTime(desafiante.getId());
         if (partidasAtivas.isEmpty()) {
             return;

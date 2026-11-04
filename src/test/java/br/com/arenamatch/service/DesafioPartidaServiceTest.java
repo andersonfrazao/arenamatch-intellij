@@ -2,6 +2,8 @@ package br.com.arenamatch.service;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,9 +13,11 @@ import br.com.arenamatch.entity.Agenda;
 import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
+import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -92,8 +96,8 @@ class DesafioPartidaServiceTest {
         org.mockito.Mockito.doThrow(new RuntimeException("Falha ao salvar mensagem"))
                 .when(partidaMensagemService)
                 .criarMensagemInicialDoDesafio(
-                        org.mockito.ArgumentMatchers.any(Partida.class),
-                        org.mockito.ArgumentMatchers.any(Time.class),
+                        any(Partida.class),
+                        any(Time.class),
                         org.mockito.ArgumentMatchers.anyString());
 
         assertThrows(RuntimeException.class, () -> service.criarDesafio(dto));
@@ -101,6 +105,32 @@ class DesafioPartidaServiceTest {
         verify(mensageiro, never()).convertAndSend(
                 org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void devePermitirDesafiosIlimitadosParaPlanoBasicoQuandoIntervaloForZero() {
+        LocalDateTime dataPartida = LocalDateTime.now().plusDays(7);
+        DesafioDTO dto = new DesafioDTO();
+        dto.setIdTimeDesafiante(1L);
+        dto.setIdTimeDesafiado(2L);
+        dto.setDataHoraPartida(dataPartida);
+
+        Time desafiante = criarTimeBasicoAtivo(1L, "SEGUNDA", true);
+        Time desafiado = criarTimeBasicoAtivo(2L, "SEGUNDA", false);
+
+        when(timeRepository.findById(1L)).thenReturn(Optional.of(desafiante));
+        when(timeRepository.findById(2L)).thenReturn(Optional.of(desafiado));
+        when(assinaturaService.temAcessoCompleto(desafiante.getResponsavel())).thenReturn(false);
+        when(parametroSistemaService.buscarDiasIntervaloAgendamentoPlanoBasico()).thenReturn(0);
+        when(partidaHorarioService.traduzirDia(any(DayOfWeek.class))).thenReturn("SEGUNDA");
+        when(partidaHorarioService.definirDataHoraPeloMandante(eq(desafiante), eq("SEGUNDA"), eq(dto)))
+                .thenReturn(dataPartida);
+        when(partidaRepository.save(any(Partida.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.criarDesafio(dto);
+
+        verify(partidaRepository, never()).buscarPartidasFuturasAtivasPorTime(1L);
+        verify(partidaRepository).save(any(Partida.class));
     }
 
     private DesafioDTO prepararCriacaoDeDesafio() {
@@ -135,10 +165,10 @@ class DesafioPartidaServiceTest {
         when(assinaturaService.temAcessoCompleto(responsavelDesafiante)).thenReturn(true);
         when(partidaHorarioService.traduzirDia(dataHora.getDayOfWeek())).thenReturn("DOMINGO");
         when(partidaHorarioService.definirDataHoraPeloMandante(
-                org.mockito.ArgumentMatchers.any(Time.class),
-                org.mockito.ArgumentMatchers.eq("DOMINGO"),
+                any(Time.class),
+                eq("DOMINGO"),
                 org.mockito.ArgumentMatchers.same(dto))).thenReturn(dataHora);
-        when(partidaRepository.save(org.mockito.ArgumentMatchers.any(Partida.class)))
+        when(partidaRepository.save(any(Partida.class)))
                 .thenAnswer(invocacao -> {
                     Partida partida = invocacao.getArgument(0);
                     partida.setId(30L);
@@ -146,5 +176,22 @@ class DesafioPartidaServiceTest {
                 });
 
         return dto;
+    }
+
+    private Time criarTimeBasicoAtivo(Long id, String diaSemana, boolean mandoCampo) {
+        Usuario responsavel = new Usuario();
+        responsavel.setPlanoAssinatura(PlanoAssinatura.BASICO);
+        responsavel.setStatusUsuario(StatusUsuario.ATIVO);
+
+        Time time = new Time();
+        time.setId(id);
+        time.setResponsavel(responsavel);
+        time.setMandoCampo(mandoCampo);
+
+        Agenda agenda = new Agenda();
+        agenda.setDiaSemana(diaSemana);
+        time.setAgendas(List.of(agenda));
+
+        return time;
     }
 }
