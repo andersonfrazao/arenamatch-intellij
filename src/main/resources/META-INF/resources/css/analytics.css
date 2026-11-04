@@ -1,0 +1,13 @@
+@charset "UTF-8";
+.am-analytics-banner,.am-analytics-preferences{box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif;color:#f3f6fc;line-height:1.5}
+.am-analytics-banner[hidden],.am-analytics-preferences[hidden]{display:none!important}
+.am-analytics-banner{position:fixed;right:12px;bottom:12px;z-index:2000;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:20px;background:#111d30;border:1px solid #42617e;border-radius:12px;box-shadow:0 8px 32px #0006;text-align:left}
+.am-analytics-banner h2{margin:0 0 8px;font-size:18px;line-height:1.3;letter-spacing:0;color:#f3f6fc}
+.am-analytics-banner p{margin:0 0 14px;font-size:14px;color:#c5d0e0}
+.am-analytics-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.am-analytics-banner button,.am-analytics-preferences{border:1px solid #75d6ff;border-radius:6px;background:#182d44;color:#f3f6fc;padding:10px 14px;font-size:13px;font-weight:650;cursor:pointer;min-height:44px}
+.am-analytics-banner button:hover,.am-analytics-preferences:hover{background:#244462}
+.am-analytics-banner a{color:#75d6ff;font-size:13px;text-decoration:underline;padding:8px 0}
+.am-analytics-banner button:focus-visible,.am-analytics-banner a:focus-visible,.am-analytics-preferences:focus-visible{outline:3px solid #75d6ff;outline-offset:3px}
+.am-analytics-preferences{position:fixed;left:12px;bottom:12px;z-index:1999;box-shadow:0 3px 14px #0004;font-size:11px;padding:8px 12px}
+@media(max-width:480px){.am-analytics-banner{padding:16px}.am-analytics-actions button{flex:1;padding:10px}.am-analytics-banner p{font-size:13px}.am-analytics-actions a{flex-basis:100%}}

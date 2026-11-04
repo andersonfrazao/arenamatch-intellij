@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="jakarta.faces.facelets">
 
 <h:head>
     <title>Arena Match - Termos e Privacidade</title>
@@ -137,6 +138,7 @@
             }
         }
     </style>
+    <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
 <h:body>
@@ -178,6 +180,8 @@
                 <p><strong>Coleta de Dados:</strong> A plataforma coleta e armazena em banco de dados as informações pessoais fornecidas no cadastro pelos representantes e organizadores dos times para o funcionamento do sistema.</p>
                 <p><strong>Processamento Financeiro:</strong> Atualmente, a plataforma não utiliza sistemas externos para processamento de pagamentos. Quando implementados, os dados financeiros estarão sujeitos aos termos das respectivas operadoras (gateways de pagamento).</p>
                 <p><strong>Compartilhamento e Monetização de Dados:</strong> Ao aceitar estes termos, o usuário compreende e consente que a <strong>JCS Info LTDA ME</strong> poderá compilar, anonimizar ou, mediante consentimento específico, comercializar dados da base de usuários para empresas parceiras interessadas no ecossistema esportivo, respeitando rigorosamente os limites e direitos previstos na Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
+
+                <ui:include src="/WEB-INF/template/privacidade-analytics.xhtml"/>
 
                 <h2>6. DISPOSIÇÕES GERAIS</h2>
                 <p>A <strong>JCS Info LTDA ME</strong> poderá alterar estes Termos de Uso a qualquer momento, notificando os usuários sobre as atualizações. O uso contínuo do sistema após a notificação constituirá a aceitação dos novos termos.</p>
