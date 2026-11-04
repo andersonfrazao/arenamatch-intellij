@@ -37,6 +37,7 @@ public class FiltroAutenticacao implements Filter {
         // Usamos o final da URL para evitar falsos positivos
         boolean isLoginPage = url.endsWith("login.xhtml") || url.equals(path + "/");
         boolean isInstitutionalPage = url.equals(path + "/index.xhtml") || url.equals(path + "/como-funciona.xhtml");
+        boolean isSearchResource = url.equals(path + "/robots.txt") || url.equals(path + "/sitemap.xml");
         
         // MÁGICA AQUI: Libera as rotas de API para o seu AuthClient (Feign) conseguir conversar com o backend!
         // Se a sua API tiver um prefixo diferente (ex: /v1/ ou /rest/), adicione aqui.
@@ -60,7 +61,7 @@ public class FiltroAutenticacao implements Filter {
             return;
         }
 
-        if (isLogado || isPublicPage || isInstitutionalPage || isResource) {
+        if (isLogado || isPublicPage || isInstitutionalPage || isSearchResource || isResource) {
             // Se estiver logado ou for página pública/recurso, segue o jogo!
             chain.doFilter(request, response);
         } else {
