@@ -9,5 +9,8 @@
 .am-analytics-banner button:hover,.am-analytics-preferences:hover{background:#244462}
 .am-analytics-banner a{color:#75d6ff;font-size:13px;text-decoration:underline;padding:8px 0}
 .am-analytics-banner button:focus-visible,.am-analytics-banner a:focus-visible,.am-analytics-preferences:focus-visible{outline:3px solid #75d6ff;outline-offset:3px}
-.am-analytics-preferences{position:fixed;left:12px;bottom:12px;z-index:1999;box-shadow:0 3px 14px #0004;font-size:11px;padding:8px 12px}
+.am-analytics-preferences{position:static;border:0;border-radius:3px;background:transparent;color:#75d6ff;font-size:12px;padding:8px 0;text-decoration:underline;box-shadow:none}
+.am-analytics-preferences:hover{background:transparent;color:#fff}
+.am-analytics-footer{padding:16px;text-align:center;background:#090f1b;border-top:1px solid #25364c}
+.site-footer nav{align-items:center}
 @media(max-width:480px){.am-analytics-banner{padding:16px}.am-analytics-actions button{flex:1;padding:10px}.am-analytics-banner p{font-size:13px}.am-analytics-actions a{flex-basis:100%}}

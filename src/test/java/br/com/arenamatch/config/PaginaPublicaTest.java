@@ -26,7 +26,7 @@ class PaginaPublicaTest {
     private final FiltroAutenticacao filtro = new FiltroAutenticacao();
 
     @Test void visitanteAcessaPaginaInstitucionalSemCriarSessao() throws Exception {
-        for (String pagina : new String[]{"/arena/index.xhtml", "/arena/como-funciona.xhtml"}) {
+        for (String pagina : new String[]{"/arena/index.xhtml", "/arena/como-funciona.xhtml", "/arena/encontrar-times-futebol-amador.xhtml"}) {
             MockHttpServletRequest request = new MockHttpServletRequest("GET", pagina);
             request.setContextPath("/arena");
             MockHttpServletResponse response = new MockHttpServletResponse();
@@ -39,7 +39,7 @@ class PaginaPublicaTest {
     }
 
     @Test void paginasInternasContinuamProtegidas() throws Exception {
-        for (String pagina : new String[]{"/minha-agenda.xhtml", "/fale-conosco.xhtml", "/interno/index.xhtml", "/interno/como-funciona.xhtml", "/interno/robots.txt", "/interno/sitemap.xml"}) {
+        for (String pagina : new String[]{"/minha-agenda.xhtml", "/fale-conosco.xhtml", "/interno/index.xhtml", "/interno/como-funciona.xhtml", "/interno/encontrar-times-futebol-amador.xhtml", "/interno/robots.txt", "/interno/sitemap.xml"}) {
             MockHttpServletRequest request = new MockHttpServletRequest("GET", pagina);
             MockHttpServletResponse response = new MockHttpServletResponse();
             FilterChain chain = mock(FilterChain.class);
@@ -80,9 +80,10 @@ class PaginaPublicaTest {
             mvc.perform(get("/sitemap.xml"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_XML))
-                    .andExpect(xpath("count(/s:urlset/s:url)", Map.of("s", "http://www.sitemaps.org/schemas/sitemap/0.9")).number(3.0))
+                    .andExpect(xpath("count(/s:urlset/s:url)", Map.of("s", "http://www.sitemaps.org/schemas/sitemap/0.9")).number(4.0))
                     .andExpect(content().string(containsString("https://www.arenamatch.app.br/index.xhtml")))
                     .andExpect(content().string(containsString("https://www.arenamatch.app.br/como-funciona.xhtml")))
+                    .andExpect(content().string(containsString("https://www.arenamatch.app.br/encontrar-times-futebol-amador.xhtml")))
                     .andExpect(content().string(containsString("https://www.arenamatch.app.br/privacidade.xhtml")));
         }
     }

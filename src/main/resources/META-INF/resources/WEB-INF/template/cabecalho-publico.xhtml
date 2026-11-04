@@ -2,13 +2,20 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="#{request.contextPath}/index.xhtml" class="brand" aria-label="Arena Match, apresentação"><img src="#{request.contextPath}/images/logo-arena-match.png" alt="Arena Match" width="348" height="68"/></a>
-            <nav aria-label="Navegação principal" class="site-nav">
+            <nav id="siteNav" aria-label="Navegação principal" class="site-nav">
                 <a href="#{request.contextPath}/index.xhtml#quem-somos">Quem somos</a>
                 <a href="#{request.contextPath}/index.xhtml#funcionalidades">Funcionalidades</a>
-                <a href="#{request.contextPath}/como-funciona.xhtml">Como funciona</a>
+                <a href="#{request.contextPath}/encontrar-times-futebol-amador.xhtml">Encontrar adversários</a>
+                <a href="#{request.contextPath}/como-funciona.xhtml">Passo a passo</a>
                 <a href="#{request.contextPath}/index.xhtml#planos">Planos</a>
+                <a href="#{request.contextPath}/login.xhtml" class="mobile-login-link">Entrar na minha conta</a>
             </nav>
-            <div class="header-actions"><h:link outcome="/login" value="Entrar" styleClass="login-link"/><h:link outcome="/cadastro" value="Criar conta" styleClass="button button-small"/></div>
+            <div class="header-actions">
+                <h:link outcome="/login" value="Entrar" styleClass="login-link"/>
+                <h:link outcome="/cadastro" value="Criar conta" styleClass="button button-small"/>
+                <button id="siteNavToggle" class="site-nav-toggle" type="button" aria-label="Abrir menu" aria-controls="siteNav" aria-expanded="false"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></button>
+            </div>
         </div>
     </header>
+    <script defer="defer" src="#{request.contextPath}/js/menu-publico.js?v=66.2"></script>
 </ui:composition>

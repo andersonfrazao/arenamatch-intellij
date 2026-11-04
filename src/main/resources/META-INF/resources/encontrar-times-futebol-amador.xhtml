@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets" lang="pt-BR">
+<h:head>
+    <title>Como encontrar times de futebol amador e marcar amistosos | Arena Match</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Seu time procura adversários? Veja o que combinar antes de um amistoso e como buscar times de futebol amador e várzea no Arena Match."/>
+    <meta name="theme-color" content="#0b1220"/>
+    <link rel="canonical" href="https://www.arenamatch.app.br/encontrar-times-futebol-amador.xhtml"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=66.2"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/amistosos.css?v=66"/>
+    <ui:include src="/WEB-INF/template/analytics.xhtml"/>
+</h:head>
+<h:body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <ui:include src="/WEB-INF/template/cabecalho-publico.xhtml"/>
+    <main id="conteudo" class="amistosos-page" tabindex="-1">
+        <section class="container amistosos-intro" aria-labelledby="amistosos-title">
+            <div>
+                <a class="text-link" href="#{request.contextPath}/index.xhtml">← Conheça o Arena Match</a>
+                <p class="eyebrow">FUTEBOL AMADOR E VÁRZEA</p>
+                <h1 id="amistosos-title">Como encontrar times para jogar <span>futebol amador.</span></h1>
+                <p class="amistosos-lead">Seu time está disponível para jogar, mas falta encontrar um adversário? Organizar o próximo amistoso começa por combinar a categoria, a data, o horário e o mando de campo.</p>
+                <p>O Arena Match conecta representantes de times de várzea e futebol amador para buscar adversários e organizar partidas pelo navegador ou aplicativo Android.</p>
+                <div class="hero-actions">
+                    <h:link outcome="/cadastro" value="Cadastrar meu time grátis →" styleClass="button"/>
+                    <a class="text-link" href="#encontrar-adversarios">Veja como encontrar adversários ↓</a>
+                </div>
+                <p class="amistosos-note">Básico gratuito, com limites de busca e agendamento.</p>
+            </div>
+            <aside class="amistosos-checklist" aria-labelledby="combinar-title">
+                <span class="eyebrow">ANTES DO CONVITE</span>
+                <h2 id="combinar-title">Quatro pontos.<br/>Um jogo bem combinado.</h2>
+                <ul>
+                    <li><strong>Categoria das equipes</strong><span>Confira se os times jogam na mesma categoria.</span></li>
+                    <li><strong>Data e horário</strong><span>Escolha um período disponível para os dois times.</span></li>
+                    <li><strong>Local e deslocamento</strong><span>Verifique o endereço e a distância para o visitante.</span></li>
+                    <li><strong>Mando e taxa de campo</strong><span>Defina quem recebe a partida e confirme os valores envolvidos.</span></li>
+                </ul>
+                <p>Acertar esses detalhes com antecedência ajuda a evitar desencontros no dia do amistoso.</p>
+            </aside>
+        </section>
+
+        <div class="container amistosos-corpo">
+            <nav class="amistosos-indice" aria-label="Neste guia">
+                <span class="eyebrow">NESTE GUIA</span>
+                <a href="#encontrar-adversarios">Como buscar adversários</a>
+                <a href="#sem-resultados">Se nenhum time aparecer</a>
+                <a href="#acesso">Acesso e plano gratuito</a>
+            </nav>
+            <div class="amistosos-artigo">
+                <section id="encontrar-adversarios" class="amistosos-secao" aria-labelledby="buscar-title">
+                    <span class="eyebrow">COMO MARCAR UM AMISTOSO</span>
+                    <h2 id="buscar-title">Da busca ao jogo confirmado.</h2>
+                    <p>Reúna as informações da sua equipe e siga estes passos no Arena Match.</p>
+                    <ol class="amistosos-passos">
+                        <li>
+                            <h3>Cadastre seu time</h3>
+                            <p>Informe os dados do representante, da equipe e sua localização. Confira cidade e bairro para que o local do time esteja correto.</p>
+                            <h:link outcome="/como-funciona" fragment="time" value="Ver a etapa de cadastro do time →" styleClass="text-link"/>
+                        </li>
+                        <li>
+                            <h3>Configure a agenda</h3>
+                            <p>Adicione as categorias, os dias e os horários em que seu time joga. Mantenha a disponibilidade atualizada para ajudar a encontrar adversários compatíveis.</p>
+                        </li>
+                        <li>
+                            <h3>Busque uma data para jogar</h3>
+                            <p>Depois de entrar na aplicação, acesse <strong>Buscar</strong>, escolha a data e utilize os filtros disponíveis de categoria, nome do time e distância.</p>
+                        </li>
+                        <li>
+                            <h3>Confira o adversário e envie o desafio</h3>
+                            <p>Verifique a localização e a disponibilidade do outro time. Revise os dados do convite e, se desejar, envie uma mensagem junto com o desafio.</p>
+                        </li>
+                        <li>
+                            <h3>Acompanhe a resposta</h3>
+                            <p>O convite depende do aceite do outro time. Use o chat para conversar com o representante e confira a data, o horário e o local da partida na agenda.</p>
+                        </li>
+                    </ol>
+                    <div class="amistosos-alerta"><strong>Convite enviado ainda não é jogo confirmado.</strong><p>Aguarde a resposta do adversário e acompanhe o status na aplicação antes de considerar a partida combinada.</p></div>
+                    <h:link outcome="/como-funciona" value="Confira o guia completo com as telas da aplicação →" styleClass="text-link"/>
+                </section>
+
+                <section id="sem-resultados" class="amistosos-secao" aria-labelledby="resultados-title">
+                    <span class="eyebrow">AJUSTE A BUSCA</span>
+                    <h2 id="resultados-title">E se nenhum time aparecer?</h2>
+                    <p>Revise a data, a categoria e os demais filtros. Os resultados dependem dos times cadastrados, de suas disponibilidades e da distância considerada na busca.</p>
+                    <p>O plano Básico possui um limite de distância. Se sua equipe puder jogar em outro dia, tente uma nova data. Antes de enviar um convite, confira também as regras de antecedência e os limites de agendamento informados pela aplicação.</p>
+                </section>
+
+                <section id="acesso" class="amistosos-secao" aria-labelledby="acesso-title">
+                    <span class="eyebrow">PARA COMEÇAR</span>
+                    <h2 id="acesso-title">Navegador ou aplicativo.<br/>O mesmo time em campo.</h2>
+                    <h3>Preciso instalar o aplicativo?</h3>
+                    <p>Você pode usar o Arena Match pelo navegador ou pelo aplicativo Android disponível no Google Play. Escolha a forma de acesso que preferir.</p>
+                    <h3>Preciso pagar para buscar adversários?</h3>
+                    <p>O plano Básico é gratuito, com limites de distância na busca e de intervalo para novos agendamentos. Os limites são informados durante o uso da aplicação.</p>
+                    <a href="#{request.contextPath}/index.xhtml#planos" class="text-link">Conheça os planos e os limites de uso →</a>
+                </section>
+            </div>
+        </div>
+
+        <section class="container amistosos-convite" aria-labelledby="convite-title">
+            <div>
+                <span class="eyebrow">O PRÓXIMO PASSO É DO SEU TIME</span>
+                <h2 id="convite-title">Procure o próximo adversário.</h2>
+                <p>Cadastre sua equipe e configure quando vocês podem jogar.</p>
+                <div class="hero-actions"><h:link outcome="/cadastro" value="Cadastrar meu time grátis →" styleClass="button"/><h:link outcome="/login" value="Já tenho conta. Entrar" styleClass="text-link"/></div>
+            </div>
+            <div class="amistosos-app">
+                <span>Também no Android</span>
+                <a class="google-play-link" href="https://play.google.com/store/apps/details?id=br.app.arenamatch&amp;pcampaignid=web_share"><img src="#{request.contextPath}/images/google-play-badge-pt-br.png" alt="Baixe o Arena Match no Google Play" width="646" height="250" loading="lazy"/></a>
+                <h:link outcome="/como-funciona" value="Veja o passo a passo →" styleClass="text-link"/>
+            </div>
+        </section>
+    </main>
+    <ui:include src="/WEB-INF/template/rodape-publico.xhtml"/>
+</h:body>
+</html>

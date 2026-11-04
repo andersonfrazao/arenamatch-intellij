@@ -38,6 +38,8 @@ function browser(options = {}) {
     }
     const head = new Element('head');
     const body = new Element('body');
+    const existingFooter = options.hasFooter ? body.appendChild(new Element('footer')) : null;
+    const footerNav = existingFooter ? existingFooter.appendChild(new Element('nav')) : null;
     const currentScript = new Element('script');
     currentScript.setAttribute('data-measurement-id', options.id || ID);
     currentScript.setAttribute('data-privacy-url', '/privacidade.xhtml#estatisticas');
@@ -54,6 +56,8 @@ function browser(options = {}) {
         readyState: 'complete',
         referrer: 'https://www.google.com/search?q=futebol&email=example%40example.com#section',
         createElement: tag => new Element(tag),
+        querySelector: selector => selector === '.site-footer nav' ? footerNav :
+            selector === 'footer' ? existingFooter : null,
         getElementById: id => find(body, id) || find(head, id)
     };
     Object.defineProperty(document, 'cookie', {
@@ -83,7 +87,7 @@ function browser(options = {}) {
     const run = () => vm.runInContext(script, context);
     run();
     return {
-        window, document, requests, storage, cookies, run,
+        window, document, requests, storage, cookies, run, footerNav,
         element: id => document.getElementById(id),
         configs: () => (window.dataLayer || []).filter(entry => entry[0] === 'config'),
         storageChanged: choice => {
@@ -134,6 +138,28 @@ test('aceite salvo carrega a tag sem reapresentar o aviso', () => {
     assert.equal(page.requests.length, 1);
     assert.equal(page.element('am-analytics-consent').hidden, true);
     assert.equal(page.element('am-analytics-preferences').hidden, false);
+});
+
+test('preferencias ficam no rodape existente e continuam permitindo revogar', () => {
+    const page = browser({ choice: 'granted', hasFooter: true });
+    const preferences = page.element('am-analytics-preferences');
+    assert.equal(preferences.parent, page.footerNav);
+    assert.equal(page.element('am-analytics-footer'), null);
+    preferences.click();
+    assert.equal(page.element('am-analytics-consent').hidden, false);
+    page.element('am-analytics-reject').click();
+    assert.equal(page.window['ga-disable-' + ID], true);
+    assert.equal(preferences.hidden, false);
+});
+
+test('paginas sem rodape recebem acesso as preferencias no fim da pagina', () => {
+    const page = browser({ choice: 'denied' });
+    const footer = page.element('am-analytics-footer');
+    assert.equal(footer.tagName, 'FOOTER');
+    assert.equal(page.element('am-analytics-preferences').parent, footer);
+    assert.equal(page.document.body.children.at(-2), footer);
+    page.element('am-analytics-preferences').click();
+    assert.equal(page.element('am-analytics-consent').hidden, false);
 });
 
 test('recusa salva continua sem Google e permite mudar a escolha', () => {
