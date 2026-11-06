@@ -16,27 +16,28 @@ public class TimeClient {
     @Autowired
     private RestClient restClient;
 
-    public List<TimeDTO> buscarRankingGeral() {
+    public List<TimeDTO> buscarRankingGeral(br.com.arenamatch.enums.Modalidade modalidade) {
         TimeDTO[] times = restClient.get()
-                .uri("/api/times/ranking")
+                .uri(b -> b.path("/api/times/ranking").queryParam("modalidade", modalidade).build())
                 .retrieve()
                 .body(TimeDTO[].class);
                 
         return times != null ? Arrays.asList(times) : new ArrayList<>();
     }
 
-    public TimeDTO buscarMeuScout() {
+    public TimeDTO buscarMeuScout(br.com.arenamatch.enums.Modalidade modalidade) {
         return restClient.get()
-                .uri("/api/times/scout")
+                .uri(b -> b.path("/api/times/scout").queryParam("modalidade", modalidade).build())
                 .retrieve()
                 .body(TimeDTO.class);
     }
 
-    public PaginaJogosRealizadosDTO buscarJogosRealizadosDoScout(int pagina) {
+    public PaginaJogosRealizadosDTO buscarJogosRealizadosDoScout(int pagina, br.com.arenamatch.enums.Modalidade modalidade) {
         PaginaJogosRealizadosDTO resultado = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/times/scout/jogos")
                         .queryParam("pagina", pagina)
+                        .queryParam("modalidade", modalidade)
                         .build())
                 .retrieve()
                 .body(PaginaJogosRealizadosDTO.class);
@@ -46,9 +47,9 @@ public class TimeClient {
                 : new PaginaJogosRealizadosDTO(List.of(), false);
     }
 
-    public AdversarioDetalhesDTO buscarDetalhesAdversario(Long idAdversario) {
+    public AdversarioDetalhesDTO buscarDetalhesAdversario(Long idAdversario, br.com.arenamatch.enums.Modalidade modalidade) {
         return restClient.get()
-                .uri("/api/times/{id}/adversario-detalhes", idAdversario)
+                .uri(b -> b.path("/api/times/{id}/adversario-detalhes").queryParam("modalidade", modalidade).build(idAdversario))
                 .retrieve()
                 .body(AdversarioDetalhesDTO.class);
     }

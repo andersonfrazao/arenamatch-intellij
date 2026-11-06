@@ -16,6 +16,17 @@ import lombok.Getter;
 @Named
 @ViewScoped
 public class RankingBean implements Serializable {
+    @Getter @lombok.Setter private br.com.arenamatch.enums.Modalidade modalidade = br.com.arenamatch.enums.Modalidade.FUTEBOL_CAMPO;
+
+    public br.com.arenamatch.enums.Modalidade[] getModalidades() { return br.com.arenamatch.enums.Modalidade.values(); }
+
+    public void alterarModalidade() {
+        scout = null; jogosRealizados = new ArrayList<>(); temMaisJogos = false;
+        if (sessaoBean.isAcessoCompleto()) {
+            carregarRanking();
+            if (isScoutAtivo() && sessaoBean.isPossuiTime()) carregarScout();
+        }
+    }
     @Inject private TimeClient timeClient;
     @Inject private SessaoBean sessaoBean;
     @Getter private List<TimeDTO> ranking;
@@ -61,7 +72,7 @@ public class RankingBean implements Serializable {
     }
 
     private void carregarScout() {
-        this.scout = timeClient.buscarMeuScout();
+        this.scout = timeClient.buscarMeuScout(modalidade);
         this.paginaJogos = 0;
         this.jogosRealizados = new ArrayList<>();
         carregarPaginaDeJogos();
@@ -77,12 +88,12 @@ public class RankingBean implements Serializable {
     }
 
     private void carregarPaginaDeJogos() {
-        var resultado = timeClient.buscarJogosRealizadosDoScout(paginaJogos);
+        var resultado = timeClient.buscarJogosRealizadosDoScout(paginaJogos, modalidade);
         this.jogosRealizados.addAll(resultado.getJogos());
         this.temMaisJogos = resultado.isTemMais();
     }
 
     private void carregarRanking() {
-        this.ranking = timeClient.buscarRankingGeral();
+        this.ranking = timeClient.buscarRankingGeral(modalidade);
     }
 }

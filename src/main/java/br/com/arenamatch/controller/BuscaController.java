@@ -38,7 +38,8 @@ public class BuscaController {
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "liga", required = false) String liga,
             @RequestParam("idMeuTime") Long idMeuTime,
-            @RequestParam(value = "categoria", required = false) Categoria categoria) {
-        return ResponseEntity.ok(service.buscarTimesDisponiveis(data, raio, cidade, nome, idMeuTime, categoria));
+            @RequestParam(value = "categoria", required = false) Categoria categoria,
+            @RequestParam("modalidade") br.com.arenamatch.enums.Modalidade modalidade) {
+        return ResponseEntity.ok(service.buscarTimesDisponiveis(data, raio, cidade, nome, idMeuTime, categoria, modalidade));
     }
 }

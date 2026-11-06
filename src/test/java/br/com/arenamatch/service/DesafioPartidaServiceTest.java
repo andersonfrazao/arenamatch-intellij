@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import br.com.arenamatch.dto.DesafioDTO;
@@ -14,6 +15,7 @@ import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.PlanoAssinatura;
+import br.com.arenamatch.enums.Modalidade;
 import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
@@ -57,12 +59,12 @@ class DesafioPartidaServiceTest {
 
     @Test
     void naoDeveAceitarConviteQuandoExistePlacarPendente() {
-        Time mandante = new Time();
+        Time mandante = new Time(); mandante.getModalidades().add(Modalidade.FUTEBOL_CAMPO);
         mandante.setId(10L);
-        Time visitante = new Time();
+        Time visitante = new Time(); visitante.getModalidades().add(Modalidade.FUTEBOL_CAMPO);
         visitante.setId(20L);
 
-        Partida partida = new Partida();
+        Partida partida = new Partida(); partida.setModalidade(Modalidade.FUTEBOL_CAMPO);
         partida.setId(30L);
         partida.setMandante(mandante);
         partida.setVisitante(visitante);
@@ -110,7 +112,7 @@ class DesafioPartidaServiceTest {
     @Test
     void devePermitirDesafiosIlimitadosParaPlanoBasicoQuandoIntervaloForZero() {
         LocalDateTime dataPartida = LocalDateTime.now().plusDays(7);
-        DesafioDTO dto = new DesafioDTO();
+        DesafioDTO dto = new DesafioDTO(); dto.setModalidade(Modalidade.FUTEBOL_CAMPO);
         dto.setIdTimeDesafiante(1L);
         dto.setIdTimeDesafiado(2L);
         dto.setDataHoraPartida(dataPartida);
@@ -141,20 +143,20 @@ class DesafioPartidaServiceTest {
         responsavelDesafiado.setStatusUsuario(StatusUsuario.ATIVO);
 
         Agenda agendaDesafiante = new Agenda();
-        agendaDesafiante.setDiaSemana("DOMINGO");
+        agendaDesafiante.setDiaSemana("DOMINGO"); agendaDesafiante.setModalidade(Modalidade.FUTEBOL_CAMPO);
         Agenda agendaDesafiado = new Agenda();
-        agendaDesafiado.setDiaSemana("DOMINGO");
+        agendaDesafiado.setDiaSemana("DOMINGO"); agendaDesafiado.setModalidade(Modalidade.FUTEBOL_CAMPO);
 
-        Time desafiante = new Time();
+        Time desafiante = new Time(); desafiante.getModalidades().add(Modalidade.FUTEBOL_CAMPO);
         desafiante.setId(10L);
         desafiante.setResponsavel(responsavelDesafiante);
         desafiante.setAgendas(List.of(agendaDesafiante));
-        Time desafiado = new Time();
+        Time desafiado = new Time(); desafiado.getModalidades().add(Modalidade.FUTEBOL_CAMPO);
         desafiado.setId(20L);
         desafiado.setResponsavel(responsavelDesafiado);
         desafiado.setAgendas(List.of(agendaDesafiado));
 
-        DesafioDTO dto = new DesafioDTO();
+        DesafioDTO dto = new DesafioDTO(); dto.setModalidade(Modalidade.FUTEBOL_CAMPO);
         dto.setIdTimeDesafiante(10L);
         dto.setIdTimeDesafiado(20L);
         dto.setDataHoraPartida(dataHora);
@@ -183,15 +185,39 @@ class DesafioPartidaServiceTest {
         responsavel.setPlanoAssinatura(PlanoAssinatura.BASICO);
         responsavel.setStatusUsuario(StatusUsuario.ATIVO);
 
-        Time time = new Time();
+        Time time = new Time(); time.getModalidades().add(Modalidade.FUTEBOL_CAMPO);
         time.setId(id);
         time.setResponsavel(responsavel);
         time.setMandoCampo(mandoCampo);
 
         Agenda agenda = new Agenda();
-        agenda.setDiaSemana(diaSemana);
+        agenda.setDiaSemana(diaSemana); agenda.setModalidade(Modalidade.FUTEBOL_CAMPO);
         time.setAgendas(List.of(agenda));
 
         return time;
+    }
+
+    @Test
+    void rejeitaDesafioDeModalidadeNaoCadastradaNoAdversario() {
+        DesafioDTO dto = new DesafioDTO();
+        dto.setIdTimeDesafiante(1L); dto.setIdTimeDesafiado(2L);
+        dto.setDataHoraPartida(LocalDateTime.now().plusDays(7)); dto.setModalidade(Modalidade.FUTSAL);
+        Time a = criarTimeBasicoAtivo(1L, "Sábado", false); a.getModalidades().add(Modalidade.FUTSAL);
+        Time b = criarTimeBasicoAtivo(2L, "Sábado", true);
+        when(timeRepository.findById(1L)).thenReturn(Optional.of(a));
+        when(timeRepository.findById(2L)).thenReturn(Optional.of(b));
+        assertThrows(RuntimeException.class, () -> service.criarDesafio(dto));
+        verify(partidaRepository, never()).save(any(Partida.class));
+        verifyNoInteractions(mensageiro);
+    }
+
+    @Test
+    void rejeitaAceiteDeConviteComModalidadeIncompativel() {
+        Partida p = new Partida(); p.setId(9L); p.setModalidade(Modalidade.FUTSAL);
+        p.setMandante(criarTimeBasicoAtivo(1L, "Sábado", true));
+        p.setVisitante(criarTimeBasicoAtivo(2L, "Sábado", false));
+        when(partidaRepository.findById(9L)).thenReturn(Optional.of(p));
+        assertThrows(RuntimeException.class, () -> service.aceitarDesafio(9L));
+        verify(partidaRepository, never()).save(any(Partida.class));
     }
 }

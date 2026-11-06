@@ -1,6 +1,7 @@
 package br.com.arenamatch.dto;
 
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
@@ -11,6 +12,7 @@ public class TimeDTO {
     private Long id;
     private String nome;
     private String escudo;
+    private Modalidade modalidade;
     private Integer pontos;
     private Integer partidasJogadas;
     private Integer vitorias;

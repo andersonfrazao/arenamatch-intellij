@@ -32,24 +32,26 @@ public class TimeController {
     }
     
     @GetMapping("/ranking")
-    public ResponseEntity<List<TimeDTO>> buscarRanking() {
-        List<TimeDTO> ranking = timeService.buscarRankingGeral();
+    public ResponseEntity<List<TimeDTO>> buscarRanking(@RequestParam(defaultValue = "FUTEBOL_CAMPO") br.com.arenamatch.enums.Modalidade modalidade) {
+        List<TimeDTO> ranking = timeService.buscarRankingGeral(modalidade);
         return ResponseEntity.ok(ranking);
     }
 
     @GetMapping("/scout")
-    public ResponseEntity<TimeDTO> buscarScout() {
-        return ResponseEntity.ok(timeService.buscarScoutDoUsuarioAutenticado());
+    public ResponseEntity<TimeDTO> buscarScout(@RequestParam(defaultValue = "FUTEBOL_CAMPO") br.com.arenamatch.enums.Modalidade modalidade) {
+        return ResponseEntity.ok(timeService.buscarScoutDoUsuarioAutenticado(modalidade));
     }
 
     @GetMapping("/scout/jogos")
     public ResponseEntity<PaginaJogosRealizadosDTO> buscarJogosRealizadosDoScout(
-            @RequestParam(defaultValue = "0") int pagina) {
-        return ResponseEntity.ok(timeService.buscarJogosRealizadosDoUsuarioAutenticado(pagina));
+            @RequestParam(defaultValue = "0") int pagina,
+            @RequestParam(defaultValue = "FUTEBOL_CAMPO") br.com.arenamatch.enums.Modalidade modalidade) {
+        return ResponseEntity.ok(timeService.buscarJogosRealizadosDoUsuarioAutenticado(pagina, modalidade));
     }
 
     @GetMapping("/{id}/adversario-detalhes")
-    public ResponseEntity<AdversarioDetalhesDTO> buscarDetalhesAdversario(@PathVariable Long id) {
-        return ResponseEntity.ok(timeService.buscarDetalhesAdversario(id));
+    public ResponseEntity<AdversarioDetalhesDTO> buscarDetalhesAdversario(@PathVariable Long id,
+            @RequestParam(defaultValue = "FUTEBOL_CAMPO") br.com.arenamatch.enums.Modalidade modalidade) {
+        return ResponseEntity.ok(timeService.buscarDetalhesAdversario(id, modalidade));
     }
 }

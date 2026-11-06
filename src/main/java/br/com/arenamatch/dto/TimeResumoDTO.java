@@ -5,6 +5,7 @@ import java.util.List;
 
 import br.com.arenamatch.enums.Categoria;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 
 @Data
 public class TimeResumoDTO {
@@ -23,6 +24,7 @@ public class TimeResumoDTO {
     private Integer qtdLigas;   // Contagem de ligas
     private boolean convitePendente;
     private Categoria categoria;
+    private Modalidade modalidade;
     private Long idPartidaPendente;
     private boolean conviteRecebido;
     private boolean historicoDisponivel;
@@ -32,6 +34,7 @@ public class TimeResumoDTO {
     private Long historicoDerrotas = 0L;
     
     private List<DisponibilidadeDTO> disponibilidades = new ArrayList<>();
+    private List<Modalidade> modalidades = new ArrayList<>();
     
     // Construtor
     public TimeResumoDTO() {

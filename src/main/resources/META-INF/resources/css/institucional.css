@@ -1,4 +1,8 @@
 @charset "UTF-8";
+.modalidades-lista{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.modalidades-lista li{margin:0;padding:20px 14px;border:1px solid #284662;border-radius:12px;background:#112238;color:#e8f4ff;font-size:17px;font-weight:700;text-align:center}
+.modalidades-lista li::before{content:none}
+@media(max-width:780px){.modalidades-lista{grid-template-columns:repeat(2,minmax(0,1fr))}.modalidades-lista li{font-size:15px;padding:16px 10px}}
 :root{color-scheme:dark;--bg:#0b1220;--panel:#111d30;--text:#f3f6fc;--muted:#a8b6cc;--blue:#19b5ee;--border:#25364c}
 
 *{box-sizing:border-box}

@@ -4,6 +4,7 @@ import br.com.arenamatch.dto.CadastroDTO;
 import br.com.arenamatch.dto.DisponibilidadeDTO;
 import br.com.arenamatch.dto.EnderecoDTO;
 import br.com.arenamatch.enums.Categoria;
+import br.com.arenamatch.enums.Modalidade;
 import br.com.arenamatch.jsf.client.CadastroClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
@@ -35,6 +36,8 @@ public class CadastroBean implements Serializable {
     private String stepAtual = "responsavel";
 
     @Getter @Setter private Categoria tempCategoria;
+    @Getter @Setter private Modalidade tempModalidade;
+    private List<Modalidade> modalidadesSalvas = new ArrayList<>();
     @Getter @Setter private String tempDia;
     @Getter @Setter private String tempInicio;
     @Getter @Setter private String tempFim;
@@ -55,6 +58,7 @@ public class CadastroBean implements Serializable {
             try {
                 Long idUsuario = sessaoBean.getUsuarioLogado().getId();
                 this.dto = cadastroClient.buscarDadosParaEdicao(idUsuario);
+                this.modalidadesSalvas = new ArrayList<>(dto.getModalidades());
 
                 if (this.dto.getDisponibilidades() != null) {
                     this.agenda = new ArrayList<>(this.dto.getDisponibilidades());
@@ -98,7 +102,7 @@ public class CadastroBean implements Serializable {
     public void adicionarHorario() {
         try {
             DisponibilidadeDTO novoItem = cadastroClient.criarDisponibilidade(
-                    dto, agenda, tempCategoria, tempDia, tempInicio, tempFim);
+                    dto, agenda, tempCategoria, tempModalidade, tempDia, tempInicio, tempFim);
             this.agenda.add(novoItem);
             this.tempInicio = "";
             this.tempFim = "";
@@ -110,6 +114,10 @@ public class CadastroBean implements Serializable {
 
     public void removerHorario(DisponibilidadeDTO item) {
         agenda.remove(item);
+    }
+
+    public Modalidade[] getModalidades() {
+        return Modalidade.values();
     }
 
     public Categoria[] getCategorias() {
@@ -175,6 +183,11 @@ public class CadastroBean implements Serializable {
 
     public String finalizar() {
         try {
+            java.util.Set<Modalidade> modalidades = new java.util.LinkedHashSet<>(modalidadesSalvas);
+            agenda.stream().map(DisponibilidadeDTO::getModalidade)
+                    .filter(java.util.Objects::nonNull).forEach(modalidades::add);
+            dto.setModalidades(new ArrayList<>(modalidades));
+            dto.setDisponibilidades(agenda);
             cadastroClient.validarFinalizacao(dto, agenda, !sessaoBean.isLogado());
             this.dto.setDisponibilidades(agenda);
 

@@ -46,6 +46,7 @@ public class BuscaBean implements Serializable {
     private String mensagemDesafio;
 
     private Long idMeuTimeCache;
+    @Getter private java.util.List<br.com.arenamatch.enums.Modalidade> modalidades = java.util.List.of();
 
     @Getter @Setter
     private Categoria categoriaSelecionada;
@@ -53,12 +54,19 @@ public class BuscaBean implements Serializable {
     @PostConstruct
     public void init() {
         this.resultados = new ArrayList<>();
+        carregarIdMeuTime();
+        if (modalidades.size() == 1) filtro.setModalidade(modalidades.get(0));
         aplicarLimiteRaioBasicoNaTela();
     }
 
     public void pesquisar() {
         aplicarLimiteRaioBasicoNaTela();
 
+        if (filtro.getModalidade() == null) {
+            resultados = new ArrayList<>();
+            msgWarn("Selecione a modalidade para realizar a busca.");
+            return;
+        }
         if (filtro.getDataJogo() == null) {
             this.resultados = new ArrayList<>();
             msgWarn("Selecione uma data para realizar a busca.");
@@ -98,6 +106,7 @@ public class BuscaBean implements Serializable {
             dto.setIdTimeDesafiado(timeSelecionadoParaDesafio.getId());
             dto.setMensagem(mensagemDesafio);
             dto.setCategoria(timeSelecionadoParaDesafio.getCategoria());
+            dto.setModalidade(timeSelecionadoParaDesafio.getModalidade());
 
             if (filtro.getDataJogo() != null) {
                 dto.setDataHoraPartida(filtro.getDataJogo().atStartOfDay());
@@ -138,6 +147,11 @@ public class BuscaBean implements Serializable {
     public void prepararDesafio(TimeResumoDTO timeDesafiado) {
         this.timeSelecionadoParaDesafio = timeDesafiado;
         this.mensagemDesafio = "";
+    }
+
+    public void alterarModalidade() {
+        resultados = new ArrayList<>();
+        cancelarDesafio();
     }
 
     public void cancelarDesafio() {
@@ -203,6 +217,7 @@ public class BuscaBean implements Serializable {
             TimeResumoDTO meuTime = agendaClient.buscarMeuTime(idUsuario);
             if (meuTime != null) {
                 this.idMeuTimeCache = meuTime.getId();
+                this.modalidades = meuTime.getModalidades();
                 return this.idMeuTimeCache;
             }
         } catch (Exception e) {

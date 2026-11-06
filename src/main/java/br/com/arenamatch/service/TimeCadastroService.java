@@ -28,16 +28,21 @@ public class TimeCadastroService {
         Time time = new Time();
         aplicarDados(time, dto);
         time.setResponsavel(responsavel);
-        return timeRepository.save(time);
+        return timeRepository.saveAndFlush(time);
     }
 
     public Time atualizarTime(Time time, CadastroDTO dto) {
         aplicarDados(time, dto);
-        return timeRepository.save(time);
+        return timeRepository.saveAndFlush(time);
     }
 
     private void aplicarDados(Time time, CadastroDTO dto) {
         time.setNome(dto.getNomeTime());
+        cadastroValidacaoService.validarModalidades(dto);
+        if (!dto.getModalidades().containsAll(time.getModalidades())) {
+            throw new RuntimeException("As modalidades ja cadastradas nao podem ser removidas ou substituidas. Voce pode acrescentar novas modalidades.");
+        }
+        time.getModalidades().addAll(dto.getModalidades());
         time.setCep(dto.getCep());
         time.setLogradouro(dto.getLogradouro());
         time.setBairro(dto.getBairro());

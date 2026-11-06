@@ -113,7 +113,7 @@ public class NotificacaoService {
             LocalDateTime dataHoraJogo = horarioJogoService.resolverDataHoraMandante(p);
             String dataHoraFormatada = dataHoraJogo != null ? dataHoraJogo.format(formatador) : "Data a definir";
             
-            dto.setSubtitulo(prefixo + nomeAdversario + " — " + dataHoraFormatada);
+            dto.setSubtitulo(prefixo + nomeAdversario + " — " + p.getModalidade().getDescricao() + " — " + dataHoraFormatada);
             dto.setDataCriacao(p.getDataSolicitacao());
             dto.setValorTaxa(donoDoCampo != null ? donoDoCampo.getValorTaxa() : null);
             if (!fuiEuQueEnviei && !souMandante) {

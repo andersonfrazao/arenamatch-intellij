@@ -179,6 +179,49 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             @Param("meuTimeId") Long meuTimeId,
             @Param("adversariosIds") List<Long> adversariosIds);
 
+
+
+    @Query(value = """
+            SELECT
+                confronto.adversario_id AS adversarioId,
+                COUNT(*) AS jogos,
+                SUM(CASE
+                    WHEN confronto.gols_meu_time > confronto.gols_adversario
+                    THEN 1 ELSE 0 END) AS vitorias,
+                SUM(CASE
+                    WHEN confronto.gols_meu_time = confronto.gols_adversario
+                    THEN 1 ELSE 0 END) AS empates,
+                SUM(CASE
+                    WHEN confronto.gols_meu_time < confronto.gols_adversario
+                    THEN 1 ELSE 0 END) AS derrotas,
+                SUM(confronto.gols_meu_time) AS golsMeuTime,
+                SUM(confronto.gols_adversario) AS golsAdversario
+            FROM (
+                SELECT
+                    CASE
+                        WHEN p.id_mandante = :meuTimeId THEN p.id_visitante
+                        ELSE p.id_mandante
+                    END AS adversario_id,
+                    CASE
+                        WHEN p.id_mandante = :meuTimeId THEN p.gols_mandante
+                        ELSE p.gols_visitante
+                    END AS gols_meu_time,
+                    CASE
+                        WHEN p.id_mandante = :meuTimeId THEN p.gols_visitante
+                        ELSE p.gols_mandante
+                    END AS gols_adversario
+                FROM partida p
+                WHERE p.status_placar = 'CONFIRMADO' AND p.modalidade = :modalidade
+                  AND ((p.id_mandante = :meuTimeId AND p.id_visitante IN (:adversariosIds))
+                    OR (p.id_visitante = :meuTimeId AND p.id_mandante IN (:adversariosIds)))
+            ) confronto
+            GROUP BY confronto.adversario_id
+            """, nativeQuery = true)
+    List<Tuple> buscarResumoConfrontosPorModalidade(
+            @Param("meuTimeId") Long meuTimeId,
+            @Param("adversariosIds") List<Long> adversariosIds,
+            @Param("modalidade") String modalidade);
+
     @Query("""
             SELECT p FROM Partida p
             WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
@@ -218,15 +261,47 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
                OR (p.mandante.id = :adversarioId AND p.visitante.id = :meuTimeId)) 
             AND p.dataHora >= :inicioDia AND p.dataHora <= :fimDia 
             AND p.status IN ('PENDENTE', 'AGENDADO')
+            AND p.modalidade = :modalidade
         """)
         Partida buscarPartidaPendente(
             @Param("meuTimeId") Long meuTimeId,
             @Param("adversarioId") Long adversarioId,
             @Param("inicioDia") LocalDateTime inicioDia,
-            @Param("fimDia") LocalDateTime fimDia
+            @Param("fimDia") LocalDateTime fimDia,
+            @Param("modalidade") br.com.arenamatch.enums.Modalidade modalidade
         );
     
     @Query("SELECT p FROM Partida p WHERE p.mandante.id = :idTime OR p.visitante.id = :idTime")
     List<Partida> buscarPartidasParaChat(@Param("idTime") Long idTime);
-    
+    @Query(value = """
+            SELECT t.id AS id, t.nome AS nome, t.escudo_url AS escudo,
+                   COUNT(*) AS jogos,
+                   SUM(CASE WHEN r.pro > r.contra THEN 3 WHEN r.pro = r.contra THEN 1 ELSE 0 END) AS pontos,
+                   SUM(CASE WHEN r.pro > r.contra THEN 1 ELSE 0 END) AS vitorias,
+                   SUM(CASE WHEN r.pro = r.contra THEN 1 ELSE 0 END) AS empates,
+                   SUM(CASE WHEN r.pro < r.contra THEN 1 ELSE 0 END) AS derrotas,
+                   SUM(r.pro) AS golsPro, SUM(r.contra) AS golsContra
+            FROM time t
+            JOIN (
+                SELECT id_mandante AS time_id, gols_mandante AS pro, gols_visitante AS contra
+                FROM partida WHERE modalidade = :modalidade AND status_placar = 'CONFIRMADO'
+                UNION ALL
+                SELECT id_visitante AS time_id, gols_visitante AS pro, gols_mandante AS contra
+                FROM partida WHERE modalidade = :modalidade AND status_placar = 'CONFIRMADO'
+            ) r ON r.time_id = t.id
+            GROUP BY t.id, t.nome, t.escudo_url
+            ORDER BY SUM(CASE WHEN r.pro > r.contra THEN 1 ELSE 0 END) DESC,
+                     (SUM(r.pro) - SUM(r.contra)) DESC, SUM(r.pro) DESC, t.id ASC
+            """, nativeQuery = true)
+    List<Tuple> buscarRankingPorModalidade(@Param("modalidade") String modalidade);
+
+    @Query("""
+            SELECT p FROM Partida p
+            WHERE (p.mandante.id = :timeId OR p.visitante.id = :timeId)
+            AND p.modalidade = :modalidade AND p.statusPlacar = 'CONFIRMADO'
+            AND p.dataHora < CURRENT_TIMESTAMP ORDER BY p.dataHora DESC, p.id DESC
+            """)
+    Page<Partida> buscarJogosConfirmadosPorModalidade(@Param("timeId") Long timeId,
+            @Param("modalidade") br.com.arenamatch.enums.Modalidade modalidade, Pageable pageable);
 }
+

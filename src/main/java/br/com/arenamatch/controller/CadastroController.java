@@ -49,7 +49,7 @@ public class CadastroController {
     @PostMapping("/disponibilidades")
     public ResponseEntity<DisponibilidadeDTO> criarDisponibilidade(@RequestBody CadastroDisponibilidadeRequestDTO request) {
         return ResponseEntity.ok(formularioService.criarDisponibilidade(request.getCadastro(), request.getAgenda(),
-                request.getCategoria(), request.getDia(), request.getInicio(), request.getFim()));
+                request.getCategoria(), request.getModalidade(), request.getDia(), request.getInicio(), request.getFim()));
     }
 
     @PostMapping("/validacoes/finalizacao")

@@ -32,6 +32,7 @@ public class CadastroValidacaoService {
         validarEnderecoCompleto(dto);
         validarNomeCampo(dto);
         validarHorariosMandante(dto);
+        validarModalidades(dto);
 
         if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new RuntimeException("Este E-mail já está em uso.");
@@ -51,6 +52,18 @@ public class CadastroValidacaoService {
         validarEnderecoCompleto(dto);
         validarNomeCampo(dto);
         validarHorariosMandante(dto);
+        validarModalidades(dto);
+    }
+
+    public void validarModalidades(CadastroDTO dto) {
+        if (dto == null || dto.getModalidades() == null || dto.getModalidades().isEmpty()
+                || dto.getModalidades().contains(null)) {
+            throw new RuntimeException("Cadastre pelo menos uma modalidade para o time.");
+        }
+        if (dto.getDisponibilidades() != null && dto.getDisponibilidades().stream()
+                .anyMatch(a -> a == null || a.getModalidade() == null || !dto.getModalidades().contains(a.getModalidade()))) {
+            throw new RuntimeException("Cada horario deve informar uma modalidade cadastrada no time.");
+        }
     }
 
     private void validarNomeCampo(CadastroDTO dto) {

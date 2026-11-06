@@ -81,9 +81,10 @@ public class CadastroClient {
     }
 
     public DisponibilidadeDTO criarDisponibilidade(CadastroDTO dto, List<DisponibilidadeDTO> agenda,
-            Categoria categoria, String dia, String inicio, String fim) {
+            Categoria categoria, br.com.arenamatch.enums.Modalidade modalidade, String dia, String inicio, String fim) {
         CadastroDisponibilidadeRequestDTO request = new CadastroDisponibilidadeRequestDTO();
         request.setCadastro(dto); request.setAgenda(agenda); request.setCategoria(categoria);
+        request.setModalidade(modalidade);
         request.setDia(dia); request.setInicio(inicio); request.setFim(fim);
         return restClient.post().uri("/api/cadastro/disponibilidades")
                 .contentType(MediaType.APPLICATION_JSON).body(request).retrieve().body(DisponibilidadeDTO.class);

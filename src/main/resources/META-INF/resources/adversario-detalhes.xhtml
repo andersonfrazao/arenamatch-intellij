@@ -9,6 +9,7 @@
         <f:viewParam name="id" value="#{adversarioDetalhesBean.idAdversario}"/>
         <f:viewParam name="data" value="#{adversarioDetalhesBean.data}"/>
         <f:viewParam name="categoria" value="#{adversarioDetalhesBean.categoria}"/>
+        <f:viewParam name="modalidade" value="#{adversarioDetalhesBean.modalidade}"/>
         <f:viewAction action="#{adversarioDetalhesBean.carregar}" onPostback="false"/>
     </f:metadata>
 
@@ -113,6 +114,7 @@
                     <p:button outcome="/busca-time" value="Voltar para busca" icon="fas fa-arrow-left"
                               styleClass="back-button ui-button-secondary ui-button-outlined rounded-btn ui-button-sm">
                         <f:param name="data" value="#{adversarioDetalhesBean.data}"/>
+                        <f:param name="modalidade" value="#{adversarioDetalhesBean.modalidade}"/>
                     </p:button>
                 </div>
 
@@ -140,6 +142,7 @@
                                 <h2 class="team-name text-white mt-0 mb-2">#{adversarioDetalhesBean.adversario.nome}</h2>
                                 <div class="team-pills flex gap-2 flex-wrap justify-content-center md:justify-content-start">
                                     <span class="am-pill"><i class="fas fa-map-marker-alt text-blue-400"></i> #{adversarioDetalhesBean.adversario.cidade}-#{adversarioDetalhesBean.adversario.uf}</span>
+                                    <span class="am-pill">#{adversarioDetalhesBean.adversario.modalidade.descricao}</span>
                                     <span class="am-pill"><i class="fas fa-layer-group text-purple-400"></i> #{adversarioDetalhesBean.adversario.categoria.descricao}</span>
                                     <span class="am-pill"><i class="fas #{adversarioDetalhesBean.adversario.mandoCampo ? 'fa-home' : 'fa-bus'} text-green-400"></i> #{adversarioDetalhesBean.adversario.mandoCampo ? 'Mandante' : 'Visitante'}</span>
                                     <span class="am-pill"><i class="fas fa-route text-yellow-400"></i> #{adversarioDetalhesBean.adversario.distanciaKm} km</span>
@@ -158,6 +161,7 @@
                             <h:panelGroup rendered="#{adversarioDetalhesBean.preparandoDesafio}" layout="block"
                                           styleClass="mt-3 p-3 bg-bluegray-900 border-round-xl">
                                 <div class="text-white font-bold text-sm mb-2">
+                                    <div class="text-cyan-300">Modalidade: #{adversarioDetalhesBean.adversario.modalidade.descricao}</div>
                                     Desafio para <h:outputText value="#{adversarioDetalhesBean.dataJogo}">
                                         <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
                                     </h:outputText>

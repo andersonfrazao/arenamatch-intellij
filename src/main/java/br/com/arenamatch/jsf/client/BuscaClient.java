@@ -34,6 +34,8 @@ public class BuscaClient {
                         .queryParam("data", filtro.getDataJogo().toString()) // Envia yyyy-MM-dd
                         .queryParam("raio", filtro.getRaioKm())
                         .queryParam("cidade", filtro.getCidade())
+                        .queryParam("nome", filtro.getNomeTime())
+                        .queryParam("modalidade", filtro.getModalidade())
                         .queryParam("idMeuTime", idMeuTime)
                         .queryParam("categoria", filtro.getCategoria())// Importante para o cálculo de distância
                         .build())

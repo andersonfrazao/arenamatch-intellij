@@ -59,8 +59,15 @@ public class SessaoBean implements Serializable {
         return switch (usuarioLogado.getPlanoAssinatura()) {
             case TRIAL -> "Período de teste";
             case PRO -> "Pró";
+            case PREMIUM -> "Premium";
             case BASICO -> "Básico";
         };
+    }
+
+    public boolean isPlanoPagoAtivo() {
+        return usuarioLogado != null && usuarioLogado.getPlanoAssinatura() != null
+                && usuarioLogado.getPlanoAssinatura().incluiPro()
+                && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO;
     }
 
     public String getResumoPlano() {
@@ -71,8 +78,8 @@ public class SessaoBean implements Serializable {
         }
 
         PlanoAssinatura plano = usuarioLogado.getPlanoAssinatura();
-        if (plano == PlanoAssinatura.PRO && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO) {
-            return "Recursos premium ativos";
+        if (plano != null && plano.incluiPro() && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO) {
+            return plano == PlanoAssinatura.PREMIUM ? "Recursos PREMIUM ativos" : "Recursos PRO ativos";
         }
 
         if (plano == PlanoAssinatura.BASICO || usuarioLogado.isExpirado()) {
@@ -107,7 +114,7 @@ public class SessaoBean implements Serializable {
             return "basico";
         }
 
-        if (usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
+        if (usuarioLogado.getPlanoAssinatura().incluiPro()
                 && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO) {
             return "pro";
         }
@@ -119,6 +126,7 @@ public class SessaoBean implements Serializable {
         return switch (usuarioLogado.getPlanoAssinatura()) {
             case TRIAL -> "trial";
             case PRO -> "pro";
+            case PREMIUM -> "pro";
             case BASICO -> "basico";
         };
     }
@@ -134,7 +142,7 @@ public class SessaoBean implements Serializable {
             return true;
         }
 
-        boolean proValido = usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.PRO
+        boolean proValido = usuarioLogado.getPlanoAssinatura() != null && usuarioLogado.getPlanoAssinatura().incluiPro()
                 && usuarioLogado.getStatusPagamento() == StatusPagamento.PAGO;
         boolean trialValido = usuarioLogado.getPlanoAssinatura() == PlanoAssinatura.TRIAL
                 && usuarioLogado.getStatusPagamento() == StatusPagamento.TRIAL

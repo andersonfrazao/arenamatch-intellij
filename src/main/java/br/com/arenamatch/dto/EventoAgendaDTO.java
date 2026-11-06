@@ -1,11 +1,13 @@
 package br.com.arenamatch.dto;
 
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 import java.time.LocalDateTime;
 
 @Data
 public class EventoAgendaDTO {
     private Long idPartida;
+    private Modalidade modalidade;
     private String titulo;      // Ex: "Contra Tabajara FC"
     private String subtitulo;   // Ex: "14:00 - 16:00 • Quadra ZN"
     private String tipo;        // "GAME" (Confirmado) ou "INVITE" (Pendente)

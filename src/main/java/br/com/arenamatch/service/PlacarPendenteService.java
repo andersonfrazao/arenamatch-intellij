@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PlacarPendenteService {
 
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
+
     private static final DateTimeFormatter DATA_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final PartidaRepository partidaRepository;
@@ -80,6 +83,10 @@ public class PlacarPendenteService {
 
     @Transactional
     public void confirmarPlacar(Partida partida) {
+        entityManager.refresh(partida, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (partida.getStatusPlacar() == StatusPlacar.CONFIRMADO) {
+            return;
+        }
         atualizarEstatisticasTime(partida.getMandante(), partida.getGolsMandante(), partida.getGolsVisitante());
         atualizarEstatisticasTime(partida.getVisitante(), partida.getGolsVisitante(), partida.getGolsMandante());
 

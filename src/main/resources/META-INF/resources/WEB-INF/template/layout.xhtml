@@ -279,11 +279,11 @@
                     <div class="am-plan-card">
                         <div class="am-plan-line">
                             <span class="am-plan-badge #{sessaoBean.planoCssClass}">
-                                <i class="fas fa-crown"></i> #{sessaoBean.planoAssinaturaLabel}
+                                <i class="fas fa-crown"></i> Plano: #{sessaoBean.planoAssinaturaLabel}
                             </span>
-                            <span class="am-plan-days">#{sessaoBean.resumoPlano}</span>
+                            <h:panelGroup styleClass="am-plan-days" rendered="#{not sessaoBean.planoPagoAtivo}">#{sessaoBean.resumoPlano}</h:panelGroup>
                         </div>
-                        <div class="am-plan-hint">
+                        <h:panelGroup layout="block" styleClass="am-plan-hint" rendered="#{not sessaoBean.planoPagoAtivo}">
                             <h:panelGroup rendered="#{sessaoBean.planoCssClass eq 'trial'}">
                                 Acesso completo durante o período de avaliação.
                             </h:panelGroup>
@@ -293,7 +293,7 @@
                             <h:panelGroup rendered="#{sessaoBean.planoCssClass eq 'basico'}">
                                 Assine para liberar agenda, ranking e ligas.
                             </h:panelGroup>
-                        </div>
+                        </h:panelGroup>
                     </div>
                     <h:form>
                         <p:commandLink action="#{sessaoBean.logout}" ajax="false" 
@@ -348,9 +348,9 @@
                                 <div class="font-bold text-xs uppercase" style="color: #cbd5e1;">#{dashboardBean.time.mandoCampo ? 'Mandante' : 'Visitante'}</div>
                                 <div class="am-mobile-plan">
                                     <span class="am-plan-badge #{sessaoBean.planoCssClass}">
-                                        <i class="fas fa-crown"></i> #{sessaoBean.planoAssinaturaLabel}
+                                        <i class="fas fa-crown"></i> Plano: #{sessaoBean.planoAssinaturaLabel}
                                     </span>
-                                    <span class="am-plan-days">#{sessaoBean.resumoPlano}</span>
+                                    <h:panelGroup styleClass="am-plan-days" rendered="#{not sessaoBean.planoPagoAtivo}">#{sessaoBean.resumoPlano}</h:panelGroup>
                                 </div>
                             </div>
                         </div>
@@ -359,7 +359,8 @@
                     <div class="flex align-items-center gap-2 flex-wrap">
                         <span class="am-pill am-topbar-plan-pill">
                             <i class="fas fa-crown" style="color: #fde68a;"></i>
-                            #{sessaoBean.planoAssinaturaLabel}: <b class="text-white">#{sessaoBean.resumoPlano}</b>
+                            Plano: <b class="text-white" style="text-transform:uppercase;">#{sessaoBean.planoAssinaturaLabel}</b>
+                            <h:panelGroup rendered="#{not sessaoBean.planoPagoAtivo}"> · #{sessaoBean.resumoPlano}</h:panelGroup>
                         </span>
                     
                         <div class="am-pill cursor-pointer relative transition-colors hover:bg-white-alpha-10 ml-2"

@@ -22,6 +22,7 @@ public class CadastroMapper {
         dto.setCelular(usuario.getCelular());
 
         dto.setNomeTime(time.getNome());
+        dto.setModalidades(new java.util.ArrayList<>(time.getModalidades()));
         dto.setCep(time.getCep());
         dto.setLogradouro(time.getLogradouro());
         dto.setBairro(time.getBairro());

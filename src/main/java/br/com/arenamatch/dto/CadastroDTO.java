@@ -1,6 +1,7 @@
 package br.com.arenamatch.dto;
 
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,4 +32,5 @@ public class CadastroDTO {
     private Boolean termosAceitos;
     
     private List<DisponibilidadeDTO> disponibilidades = new ArrayList<>();
+    private List<Modalidade> modalidades = new ArrayList<>();
 }

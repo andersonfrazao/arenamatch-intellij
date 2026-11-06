@@ -4,12 +4,14 @@ import java.time.LocalDate;
 
 import br.com.arenamatch.enums.Categoria;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 
 @Data
 public class FiltroBuscaDTO {
     private String cidade;
     private String diaSemana;
     private Categoria categoria;
+    private Modalidade modalidade;
     private String cepReferencia;
     private String nomeTime; 
     private String nomeLiga;

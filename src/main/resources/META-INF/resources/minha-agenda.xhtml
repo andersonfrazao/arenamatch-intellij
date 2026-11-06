@@ -317,6 +317,7 @@
                                             <h:graphicImage value="#{jogo.escudoTimeMandante}" rendered="#{not empty jogo.escudoTimeMandante}" styleClass="match-card-shield"/>
                                             <h:panelGroup rendered="#{empty jogo.escudoTimeMandante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
                                             <span class="match-card-team-name">#{jogo.nomeTimeMandante}</span>
+                                            <span class="text-xs text-cyan-300">#{jogo.modalidade.descricao}</span>
                                         </div>
                                         <div class="match-card-vs">VS</div>
                                         <div class="match-card-team">
@@ -487,6 +488,7 @@
                                 
                                 <h:panelGroup rendered="#{evento.tipo ne 'GAME'}" layout="block" styleClass="font-bold text-white text-xl flex align-items-center gap-2 flex-wrap mb-2">
                                     #{evento.titulo}
+                                    <span class="text-sm text-cyan-300 font-bold"> · #{evento.modalidade.descricao}</span>
                                     <h:panelGroup rendered="#{evento.tipo eq 'GAME' or evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'INVITE_SENT'}">
                                         <span class="role-badge">
                                             <i class="fas fa-users"></i> Adversário: #{evento.posicaoAdversario}

@@ -22,6 +22,7 @@ public class HorarioJogoService {
             return partida != null ? partida.getDataHora() : null;
         }
 
+        if (partida.getModalidade() != null) return partida.getDataHora();
         String diaBanco = traduzirDia(partida.getDataHora().getDayOfWeek());
         return agendaRepository.findFirstByTimeIdAndDiaSemanaOrderByHoraInicioAsc(partida.getMandante().getId(), diaBanco)
                 .map(Agenda::getHoraInicio)

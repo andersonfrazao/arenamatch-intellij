@@ -22,5 +22,9 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
 
     Optional<Agenda> findFirstByTimeIdAndDiaSemanaAndCategoriaOrderByHoraInicioAsc(Long timeId, String diaSemana, Categoria categoria);
 
+    Optional<Agenda> findFirstByTimeIdAndDiaSemanaAndModalidadeAndCategoriaOrderByHoraInicioAsc(Long timeId, String diaSemana, br.com.arenamatch.enums.Modalidade modalidade, Categoria categoria);
+
+    Optional<Agenda> findFirstByTimeIdAndDiaSemanaAndModalidadeOrderByHoraInicioAsc(Long timeId, String diaSemana, br.com.arenamatch.enums.Modalidade modalidade);
+
     Optional<Agenda> findFirstByTimeIdAndDiaSemanaOrderByHoraInicioAsc(Long timeId, String diaSemana);
 }

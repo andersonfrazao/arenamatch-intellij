@@ -3,6 +3,7 @@ package br.com.arenamatch.entity;
 import br.com.arenamatch.enums.Categoria;
 import jakarta.persistence.*;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 
 @Entity
 @Table(name = "agenda")
@@ -25,6 +26,10 @@ public class Agenda {
 
     @Enumerated(EnumType.STRING)
     private Categoria categoria;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 40)
+    private Modalidade modalidade;
 
     @ManyToOne
     @JoinColumn(name = "id_time")
