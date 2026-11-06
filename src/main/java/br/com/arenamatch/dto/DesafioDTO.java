@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import br.com.arenamatch.enums.Categoria;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 
 @Data
 public class DesafioDTO {
@@ -12,4 +13,5 @@ public class DesafioDTO {
     private String mensagem; // Preparando o terreno para o futuro chat/negociação
     private LocalDateTime dataHoraPartida;
     private Categoria categoria;
+    private Modalidade modalidade;
 }

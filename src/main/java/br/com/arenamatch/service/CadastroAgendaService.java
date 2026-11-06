@@ -41,6 +41,10 @@ public class CadastroAgendaService {
             Agenda agenda = new Agenda();
             agenda.setTime(time);
             agenda.setDiaSemana(item.getDiaSemana());
+            if (item.getModalidade() == null || !time.getModalidades().contains(item.getModalidade())) {
+                throw new RuntimeException("Selecione uma modalidade cadastrada no time para cada horario.");
+            }
+            agenda.setModalidade(item.getModalidade());
             agenda.setHoraInicio(item.getInicio());
             agenda.setHoraFim(item.getFim());
             agenda.setCategoria(converterCategoria(item.getCategoria()));
@@ -55,6 +59,7 @@ public class CadastroAgendaService {
         for (Agenda agenda : agendaRepository.findByTimeId(timeId)) {
             DisponibilidadeDTO dto = new DisponibilidadeDTO();
             dto.setDiaSemana(agenda.getDiaSemana());
+            dto.setModalidade(agenda.getModalidade());
             dto.setInicio(agenda.getHoraInicio());
             dto.setFim(agenda.getHoraFim());
 

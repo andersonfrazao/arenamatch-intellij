@@ -464,15 +464,20 @@
                             <h:panelGroup id="painelAgenda" layout="block" style="background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                                 <div class="input-grid">
                                     <div class="form-group full-width">
-                                        <label class="form-label">1. Categoria</label>
-                                        <h:selectOneMenu value="#{cadastroBean.tempCategoria}" styleClass="custom-input">
+                                        <h:outputLabel for="modalidadeHorario" value="Modalidades *" styleClass="form-label"/>
+                                        <h:selectOneMenu id="modalidadeHorario" value="#{cadastroBean.tempModalidade}" styleClass="custom-input mb-3">
+                                            <f:selectItem itemLabel="Selecione a modalidade..." noSelectionOption="true"/>
+                                            <f:selectItems value="#{cadastroBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
+                                        </h:selectOneMenu>
+                                        <h:outputLabel for="categoriaHorario" value="Categoria *" styleClass="form-label"/>
+                                        <h:selectOneMenu id="categoriaHorario" value="#{cadastroBean.tempCategoria}" styleClass="custom-input">
                                             <f:selectItem itemLabel="Selecione a categoria..." noSelectionOption="true"/>
                                             <f:selectItems value="#{cadastroBean.categorias}" var="c" itemLabel="#{c.descricao}" itemValue="#{c}"/>
                                         </h:selectOneMenu>
                                     </div>
 
                                     <div class="form-group full-width week-selector">
-                                        <label class="form-label">2. Dia da Semana</label>
+                                        <label class="form-label">Dia da Semana</label>
                                         <p:selectOneButton value="#{cadastroBean.tempDia}" unselectable="false">
                                             <f:selectItem itemLabel="SEG" itemValue="Segunda"/>
                                             <f:selectItem itemLabel="TER" itemValue="Terça"/>
@@ -512,6 +517,9 @@
                                              rowStyleClass="bg-transparent text-white"
                                              reflow="true">
                                     
+                                    <p:column headerText="Modalidade" style="background:transparent; color:#38bdf8; border-color:#334155">
+                                        <h:outputText value="#{item.modalidade.descricao}"/>
+                                    </p:column>
                                     <p:column headerText="Categoria" style="background:transparent; color:#fff; border-color:#334155">
                                         <h:outputText value="#{item.categoria.descricao}" style="font-weight:bold"/>
                                     </p:column>

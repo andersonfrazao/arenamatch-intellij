@@ -1,6 +1,11 @@
 package br.com.arenamatch.entity;
 
 import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CollectionTable;
+import br.com.arenamatch.enums.Modalidade;
 
 import br.com.arenamatch.enums.Categoria;
 import jakarta.persistence.Column;
@@ -32,6 +37,12 @@ public class Time {
 
     @Enumerated(EnumType.STRING)
     private Categoria categoria;
+
+    @ElementCollection
+    @CollectionTable(name = "time_modalidade", joinColumns = @JoinColumn(name = "id_time"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "modalidade", nullable = false, length = 40)
+    private Set<Modalidade> modalidades = new LinkedHashSet<>();
 
     // Endereço
     private String cep;

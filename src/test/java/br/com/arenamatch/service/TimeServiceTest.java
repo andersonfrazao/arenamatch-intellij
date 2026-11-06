@@ -37,6 +37,7 @@ import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import br.com.arenamatch.repository.UsuarioRepository;
 import jakarta.persistence.Tuple;
+import br.com.arenamatch.enums.Modalidade;
 
 @ExtendWith(MockitoExtension.class)
 class TimeServiceTest {
@@ -81,7 +82,7 @@ class TimeServiceTest {
     @Test
     void deveRetornarSomenteOTimeDoUsuarioAutenticado() {
         Time time = new Time();
-        time.setNome("Arena FC");
+        time.setNome("Arena FC"); time.setId(1L);
         time.setPartidasJogadas(8);
         time.setVitorias(5);
         time.setDerrotas(3);
@@ -93,6 +94,8 @@ class TimeServiceTest {
         when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
         when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(time));
 
+        var linhasRanking = List.of(estatisticas(time));
+        when(partidaRepository.buscarRankingPorModalidade("FUTEBOL_CAMPO")).thenReturn(linhasRanking);
         var scout = timeService.buscarScoutDoUsuarioAutenticado();
 
         assertEquals("Arena FC", scout.getNome());
@@ -137,7 +140,7 @@ class TimeServiceTest {
         when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
         when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
         PageRequest primeiraPagina = PageRequest.of(0, 10);
-        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, primeiraPagina))
+        when(partidaRepository.buscarJogosConfirmadosPorModalidade(10L, Modalidade.FUTEBOL_CAMPO, primeiraPagina))
                 .thenReturn(new PageImpl<>(
                         List.of(maisRecente, maisAntiga),
                         primeiraPagina,
@@ -156,7 +159,7 @@ class TimeServiceTest {
         assertEquals(4, jogos.get(1).getGolsMeuTime());
         assertEquals(1, jogos.get(1).getGolsAdversario());
         assertEquals("Unidos", jogos.get(1).getNomeAdversario());
-        verify(partidaRepository).buscarJogosComPlacarConfirmado(10L, primeiraPagina);
+        verify(partidaRepository).buscarJogosConfirmadosPorModalidade(10L, Modalidade.FUTEBOL_CAMPO, primeiraPagina);
     }
 
     @Test
@@ -170,7 +173,7 @@ class TimeServiceTest {
         when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
         when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
         when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
-        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, segundaPagina))
+        when(partidaRepository.buscarJogosConfirmadosPorModalidade(10L, Modalidade.FUTEBOL_CAMPO, segundaPagina))
                 .thenReturn(new PageImpl<>(List.of(), segundaPagina, 10));
 
         var pagina = timeService.buscarJogosRealizadosDoUsuarioAutenticado(1);
@@ -190,12 +193,12 @@ class TimeServiceTest {
         when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
         when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
         when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
-        when(partidaRepository.buscarJogosComPlacarConfirmado(10L, primeiraPagina))
+        when(partidaRepository.buscarJogosConfirmadosPorModalidade(10L, Modalidade.FUTEBOL_CAMPO, primeiraPagina))
                 .thenReturn(new PageImpl<>(List.of(), primeiraPagina, 0));
 
         timeService.buscarJogosRealizadosDoUsuarioAutenticado(-3);
 
-        verify(partidaRepository).buscarJogosComPlacarConfirmado(10L, primeiraPagina);
+        verify(partidaRepository).buscarJogosConfirmadosPorModalidade(10L, Modalidade.FUTEBOL_CAMPO, primeiraPagina);
     }
 
     @Test
@@ -255,7 +258,8 @@ class TimeServiceTest {
         when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
         when(assinaturaService.atualizarTrialExpirado(usuario)).thenReturn(usuario);
         when(assinaturaService.temAcessoCompleto(usuario)).thenReturn(true);
-        when(timeRepository.buscarRankingGeral()).thenReturn(List.of(primeiro, segundo));
+        var linhasRanking = List.of(estatisticas(primeiro), estatisticas(segundo));
+        when(partidaRepository.buscarRankingPorModalidade("FUTEBOL_CAMPO")).thenReturn(linhasRanking);
 
         var ranking = timeService.buscarRankingGeral();
 
@@ -271,7 +275,7 @@ class TimeServiceTest {
         usuario.setStatusPagamento(StatusPagamento.EXPIRADO);
 
         when(usuarioRepository.findByEmail("time@arena.com")).thenReturn(Optional.of(usuario));
-        when(timeRepository.buscarRankingGeral()).thenReturn(List.of());
+        when(partidaRepository.buscarRankingPorModalidade("FUTEBOL_CAMPO")).thenReturn(List.of());
 
         assertEquals(0, timeService.buscarRankingGeral().size());
     }
@@ -317,10 +321,11 @@ class TimeServiceTest {
         when(timeRepository.findByResponsavel(usuario)).thenReturn(Optional.of(meuTime));
         when(timeRepository.findById(20L)).thenReturn(Optional.of(adversario));
         when(distanciaService.calcularDistancia(-23.5, -46.6, -23.6, -46.7)).thenReturn(12.4);
-        when(partidaRepository.buscarResumoConfrontos(10L, List.of(20L))).thenReturn(List.of(resumo));
-        when(partidaRepository.buscarJogosComPlacarConfirmado(20L, cincoPrimeiros))
+        when(partidaRepository.buscarResumoConfrontosPorModalidade(10L, List.of(20L), "FUTEBOL_CAMPO")).thenReturn(List.of(resumo));
+        when(partidaRepository.buscarJogosConfirmadosPorModalidade(20L, Modalidade.FUTEBOL_CAMPO, cincoPrimeiros))
                 .thenReturn(new PageImpl<>(List.of(confronto)));
-        when(timeRepository.buscarRankingGeral()).thenReturn(List.of(meuTime, adversario));
+        var linhasRanking = List.of(estatisticas(meuTime), estatisticas(adversario));
+        when(partidaRepository.buscarRankingPorModalidade("FUTEBOL_CAMPO")).thenReturn(linhasRanking);
 
         var detalhes = timeService.buscarDetalhesAdversario(20L);
 
@@ -370,6 +375,21 @@ class TimeServiceTest {
                 () -> timeService.buscarDetalhesAdversario(20L));
 
         assertEquals(404, erro.getStatusCode().value());
+    }
+
+    private Tuple estatisticas(Time time) {
+        Tuple t = mock(Tuple.class);
+        when(t.get("id")).thenReturn(time.getId());
+        when(t.get("nome", String.class)).thenReturn(time.getNome());
+        when(t.get("escudo", String.class)).thenReturn(time.getEscudo());
+        when(t.get("jogos")).thenReturn(time.getPartidasJogadas());
+        when(t.get("pontos")).thenReturn(time.getPontos());
+        when(t.get("vitorias")).thenReturn(time.getVitorias());
+        when(t.get("empates")).thenReturn(time.getEmpates());
+        when(t.get("derrotas")).thenReturn(time.getDerrotas());
+        when(t.get("golsPro")).thenReturn(time.getGolsPro());
+        when(t.get("golsContra")).thenReturn(time.getGolsContra());
+        return t;
     }
 
     private Time criarTime(Long id, String nome) {

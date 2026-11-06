@@ -1,6 +1,7 @@
 package br.com.arenamatch.service;
 
 import java.util.List;
+import br.com.arenamatch.enums.Modalidade;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -62,34 +63,69 @@ public class TimeService {
 	    return dtos;
     }
     
-    public List<TimeDTO> buscarRankingGeral(){
-        buscarUsuarioAutenticadoComAcessoDesempenho();
-
-    	var times =  timeRepository.buscarRankingGeral();
-    	
-    	var dtos = times.stream().map(this::converterParaDTO).collect(Collectors.toList());
-    	
-    	return dtos;
+    public List<TimeDTO> buscarRankingGeral() {
+        return buscarRankingGeral(Modalidade.FUTEBOL_CAMPO);
     }
 
-    public TimeDTO buscarScoutDoUsuarioAutenticado() {
+    public List<TimeDTO> buscarRankingGeral(Modalidade modalidade) {
+        buscarUsuarioAutenticadoComAcessoDesempenho();
+        return carregarRanking(modalidade);
+    }
+
+    private List<TimeDTO> carregarRanking(Modalidade modalidade) {
+        if (modalidade == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selecione a modalidade.");
+        return partidaRepository.buscarRankingPorModalidade(modalidade.name()).stream().map(t -> {
+            TimeDTO dto = new TimeDTO();
+            dto.setId(numeroLong(t.get("id")));
+            dto.setNome(t.get("nome", String.class));
+            dto.setEscudo(t.get("escudo", String.class));
+            dto.setModalidade(modalidade);
+            dto.setPontos(numeroLong(t.get("pontos")).intValue());
+            dto.setPartidasJogadas(numeroLong(t.get("jogos")).intValue());
+            dto.setVitorias(numeroLong(t.get("vitorias")).intValue());
+            dto.setEmpates(numeroLong(t.get("empates")).intValue());
+            dto.setDerrotas(numeroLong(t.get("derrotas")).intValue());
+            dto.setGolsPro(numeroLong(t.get("golsPro")).intValue());
+            dto.setGolsContra(numeroLong(t.get("golsContra")).intValue());
+            return dto;
+        }).toList();
+    }
+
+    private TimeDTO buscarEstatisticas(Time time, Modalidade modalidade) {
+        return carregarRanking(modalidade).stream().filter(t -> t.getId().equals(time.getId())).findFirst()
+                .orElseGet(() -> {
+                    TimeDTO dto = new TimeDTO();
+                    dto.setId(time.getId()); dto.setNome(time.getNome()); dto.setEscudo(time.getEscudo());
+                    dto.setModalidade(modalidade); dto.setPontos(0); dto.setPartidasJogadas(0);
+                    dto.setVitorias(0); dto.setEmpates(0); dto.setDerrotas(0); dto.setGolsPro(0); dto.setGolsContra(0);
+                    return dto;
+                });
+    }
+
+    public TimeDTO buscarScoutDoUsuarioAutenticado() { return buscarScoutDoUsuarioAutenticado(Modalidade.FUTEBOL_CAMPO); }
+
+    public TimeDTO buscarScoutDoUsuarioAutenticado(Modalidade modalidade) {
         var usuario = buscarUsuarioAutenticadoComAcessoDesempenho();
 
         return timeRepository.findByResponsavel(usuario)
-                .map(this::converterParaDTO)
+                .map(time -> buscarEstatisticas(time, modalidade))
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Time do usuario nao encontrado."));
     }
 
     public PaginaJogosRealizadosDTO buscarJogosRealizadosDoUsuarioAutenticado(int pagina) {
+        return buscarJogosRealizadosDoUsuarioAutenticado(pagina, Modalidade.FUTEBOL_CAMPO);
+    }
+
+    public PaginaJogosRealizadosDTO buscarJogosRealizadosDoUsuarioAutenticado(int pagina, Modalidade modalidade) {
         var usuario = buscarUsuarioAutenticadoComAcessoDesempenho();
         Time meuTime = timeRepository.findByResponsavel(usuario)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Time do usuario nao encontrado."));
 
         int paginaNormalizada = Math.max(pagina, 0);
-        var resultado = partidaRepository.buscarJogosComPlacarConfirmado(
-                meuTime.getId(),
+        var resultado = partidaRepository.buscarJogosConfirmadosPorModalidade(
+                meuTime.getId(), modalidade,
                 PageRequest.of(paginaNormalizada, TAMANHO_PAGINA_JOGOS));
 
         List<JogoRealizadoDTO> jogos = resultado.getContent().stream()
@@ -100,6 +136,10 @@ public class TimeService {
     }
 
     public AdversarioDetalhesDTO buscarDetalhesAdversario(Long adversarioId) {
+        return buscarDetalhesAdversario(adversarioId, Modalidade.FUTEBOL_CAMPO);
+    }
+
+    public AdversarioDetalhesDTO buscarDetalhesAdversario(Long adversarioId, Modalidade modalidade) {
         Usuario usuario = buscarUsuarioAutenticadoComAcessoDesempenho();
         Time meuTime = timeRepository.findByResponsavel(usuario)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -116,16 +156,16 @@ public class TimeService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Adversario nao encontrado.");
         }
 
-        AdversarioDetalhesDTO dto = converterParaDetalhes(adversario, meuTime);
-        dto.setConfronto(buscarResumoConfronto(meuTime.getId(), adversario.getId()));
+        AdversarioDetalhesDTO dto = converterParaDetalhes(adversario, meuTime, modalidade);
+        dto.setConfronto(buscarResumoConfronto(meuTime.getId(), adversario.getId(), modalidade));
 
-        var recentes = partidaRepository.buscarJogosComPlacarConfirmado(
-                adversario.getId(), PageRequest.of(0, 5));
+        var recentes = partidaRepository.buscarJogosConfirmadosPorModalidade(
+                adversario.getId(), modalidade, PageRequest.of(0, 5));
         dto.setResultadosRecentes(recentes.getContent().stream()
                 .map(partida -> converterParaJogoRealizado(partida, adversario))
                 .toList());
 
-        List<Time> ranking = timeRepository.buscarRankingGeral();
+        List<TimeDTO> ranking = carregarRanking(modalidade);
         for (int indice = 0; indice < ranking.size(); indice++) {
             if (ranking.get(indice).getId().equals(adversario.getId())) {
                 dto.setPosicaoRanking(indice + 1);
@@ -162,31 +202,13 @@ public class TimeService {
         return usuario;
     }
     
- // Método auxiliar para fazer a conversão de forma limpa
-    private TimeDTO converterParaDTO(br.com.arenamatch.entity.Time time) {
-        TimeDTO dto = new TimeDTO();
-        dto.setId(time.getId());
-        dto.setNome(time.getNome());
-        dto.setEscudo(time.getEscudo());
-        
-        // Dados do Ranking (usando os campos que criamos na V20)
-        dto.setPontos(time.getPontos());
-        dto.setPartidasJogadas(time.getPartidasJogadas());
-        dto.setVitorias(time.getVitorias());
-        dto.setEmpates(time.getEmpates());
-        dto.setDerrotas(time.getDerrotas());
-        dto.setGolsPro(time.getGolsPro());
-        dto.setGolsContra(time.getGolsContra());
-        
-        return dto;
-    }
-
-    private AdversarioDetalhesDTO converterParaDetalhes(Time adversario, Time meuTime) {
+    private AdversarioDetalhesDTO converterParaDetalhes(Time adversario, Time meuTime, Modalidade modalidade) {
         AdversarioDetalhesDTO dto = new AdversarioDetalhesDTO();
         dto.setId(adversario.getId());
         dto.setNome(adversario.getNome());
         dto.setEscudo(adversario.getEscudo());
         dto.setCategoria(adversario.getCategoria());
+        dto.setModalidade(modalidade);
         dto.setCidade(adversario.getCidade());
         dto.setUf(adversario.getUf());
         dto.setRegiao(adversario.getRegiao());
@@ -194,17 +216,18 @@ public class TimeService {
         dto.setDistanciaKm(distanciaService.calcularDistancia(
                 meuTime.getLatitude(), meuTime.getLongitude(),
                 adversario.getLatitude(), adversario.getLongitude()));
-        dto.setPartidasJogadas(adversario.getPartidasJogadas());
-        dto.setVitorias(adversario.getVitorias());
-        dto.setEmpates(adversario.getEmpates());
-        dto.setDerrotas(adversario.getDerrotas());
-        dto.setGolsPro(adversario.getGolsPro());
-        dto.setGolsContra(adversario.getGolsContra());
+        TimeDTO estatisticas = buscarEstatisticas(adversario, modalidade);
+        dto.setPartidasJogadas(estatisticas.getPartidasJogadas());
+        dto.setVitorias(estatisticas.getVitorias());
+        dto.setEmpates(estatisticas.getEmpates());
+        dto.setDerrotas(estatisticas.getDerrotas());
+        dto.setGolsPro(estatisticas.getGolsPro());
+        dto.setGolsContra(estatisticas.getGolsContra());
         return dto;
     }
 
-    private ConfrontoResumoDTO buscarResumoConfronto(Long meuTimeId, Long adversarioId) {
-        return partidaRepository.buscarResumoConfrontos(meuTimeId, List.of(adversarioId)).stream()
+    private ConfrontoResumoDTO buscarResumoConfronto(Long meuTimeId, Long adversarioId, Modalidade modalidade) {
+        return partidaRepository.buscarResumoConfrontosPorModalidade(meuTimeId, List.of(adversarioId), modalidade.name()).stream()
                 .findFirst()
                 .map(tuple -> new ConfrontoResumoDTO(
                         numeroLong(tuple.get("jogos")),
@@ -226,6 +249,7 @@ public class TimeService {
 
         JogoRealizadoDTO dto = new JogoRealizadoDTO();
         dto.setDataHora(partida.getDataHora());
+        dto.setModalidade(partida.getModalidade());
         dto.setNomeMeuTime(meuTime.getNome());
         dto.setGolsMeuTime(souMandante ? partida.getGolsMandante() : partida.getGolsVisitante());
         dto.setGolsAdversario(souMandante ? partida.getGolsVisitante() : partida.getGolsMandante());
@@ -243,6 +267,7 @@ public class TimeService {
                 time.isMandoCampo()
         );
         dto.setEscudo(time.getEscudo());
+        dto.setModalidades(new java.util.ArrayList<>(time.getModalidades()));
         return dto;
     }
 

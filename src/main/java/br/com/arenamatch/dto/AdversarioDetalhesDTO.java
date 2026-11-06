@@ -4,6 +4,7 @@ import java.util.List;
 
 import br.com.arenamatch.enums.Categoria;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 
 @Data
 public class AdversarioDetalhesDTO {
@@ -11,6 +12,7 @@ public class AdversarioDetalhesDTO {
     private String nome;
     private String escudo;
     private Categoria categoria;
+    private Modalidade modalidade;
     private String cidade;
     private String uf;
     private String regiao;

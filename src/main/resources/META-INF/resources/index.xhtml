@@ -3,10 +3,10 @@
 <h:head>
     <title>Arena Match | Jogos de várzea e futebol amador</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="Encontre adversários para jogos de várzea, organize a agenda do seu time e acompanhe resultados com o Arena Match, a plataforma para o futebol amador."/>
+    <meta name="description" content="Encontre adversários de Futebol de Campo, Futsal, Fut 7 e Futebol Society. Organize amistosos, a agenda do seu time de várzea e acompanhe resultados no Arena Match."/>
     <meta name="theme-color" content="#0b1220"/>
     <link rel="canonical" href="https://www.arenamatch.app.br/index.xhtml"/>
-    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=66.2"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=67"/>
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 <h:body>
@@ -37,10 +37,18 @@
             <div class="section-heading"><span class="eyebrow">PASSO A PASSO</span><h2 id="resumo-title">Seu time está<br/>procurando adversário?</h2><p>Três passos para começar a organizar seus amistosos.</p></div>
             <div class="feature-grid passos-resumo">
                 <article class="feature-card"><span class="feature-icon" aria-hidden="true">01</span><h3>Cadastre seu time</h3><p>Preencha o perfil do representante, os dados da equipe e o local em que vocês jogam.</p><h:link outcome="/como-funciona" fragment="conta" value="Ver como cadastrar →" styleClass="text-link"/></article>
-                <article class="feature-card"><span class="feature-icon" aria-hidden="true">02</span><h3>Configure a disponibilidade</h3><p>Adicione as categorias, os dias e os horários em que seu time pode disputar amistosos.</p><h:link outcome="/como-funciona" fragment="disponibilidade" value="Entender os horários →" styleClass="text-link"/></article>
-                <article class="feature-card"><span class="feature-icon" aria-hidden="true">03</span><h3>Encontre adversários</h3><p>Pesquise por data e localização, confira os times e envie um convite para jogar.</p><h:link outcome="/como-funciona" fragment="adversarios" value="Ver como marcar um jogo →" styleClass="text-link"/></article>
+                <article class="feature-card"><span class="feature-icon" aria-hidden="true">02</span><h3>Configure a disponibilidade</h3><p>Escolha modalidade, categoria, dias e horários em que seu time pode disputar amistosos.</p><h:link outcome="/como-funciona" fragment="disponibilidade" value="Entender os horários →" styleClass="text-link"/></article>
+                <article class="feature-card"><span class="feature-icon" aria-hidden="true">03</span><h3>Encontre adversários</h3><p>Selecione a modalidade e a data, encontre adversários compatíveis na sua região e envie um convite para jogar.</p><h:link outcome="/como-funciona" fragment="adversarios" value="Ver como marcar um jogo →" styleClass="text-link"/></article>
             </div>
             <h:link outcome="/encontrar-times-futebol-amador" value="Como encontrar times de futebol amador e marcar amistosos →" styleClass="text-link"/>
+        </section>
+        <section id="modalidades" class="section container" aria-labelledby="modalidades-title">
+            <div class="section-heading"><span class="eyebrow">MODALIDADES</span><h2 id="modalidades-title">Seu time joga onde?</h2><p>No campo, na quadra ou no society, encontre adversários da mesma modalidade.</p></div>
+            <ul class="modalidades-lista" aria-label="Modalidades disponíveis">
+                <li>Futebol de Campo</li><li>Futsal</li><li>Fut 7</li><li>Futebol Society</li>
+            </ul>
+            <p>O mesmo time pode cadastrar horários em mais de uma modalidade. Na busca, escolha qual deseja jogar; os convites e o ranking mantêm os resultados de cada modalidade separados.</p>
+            <h:link outcome="/como-funciona" fragment="disponibilidade" value="Veja como configurar as modalidades →" styleClass="text-link"/>
         </section>
         <section id="quem-somos" class="section container about" aria-labelledby="about-title">
             <div><span class="eyebrow">QUEM SOMOS</span><h2 id="about-title">Para quem faz<br/>o jogo acontecer.</h2></div>
@@ -50,7 +58,7 @@
             <div class="container">
                 <div class="section-heading"><span class="eyebrow">FUNCIONALIDADES</span><h2 id="features-title">Mais organização.<br/>Mais tempo para o futebol.</h2><p>Do convite ao placar, acompanhe o que já pode usar e o que vem pela frente.</p></div>
                 <div class="feature-grid">
-                    <article class="feature-card"><div class="feature-top"><span class="feature-icon" aria-hidden="true">01</span><span class="availability">Disponível</span></div><h3>Organize seus jogos</h3><p>A próxima partida começa com o adversário certo e uma agenda organizada.</p><ul><li>Busca de adversários e agenda</li><li>Envio e resposta a convites</li><li>Chat entre os times</li><li>Registro de resultados e histórico</li></ul><h:link outcome="/cadastro" value="Começar gratuitamente →" styleClass="text-link"/></article>
+                    <article class="feature-card"><div class="feature-top"><span class="feature-icon" aria-hidden="true">01</span><span class="availability">Disponível</span></div><h3>Organize seus jogos</h3><p>A próxima partida começa com o adversário certo e uma agenda organizada.</p><ul><li>Busca de adversários por modalidade e agenda</li><li>Envio e resposta a convites</li><li>Chat entre os times</li><li>Registro de resultados e histórico</li></ul><h:link outcome="/cadastro" value="Começar gratuitamente →" styleClass="text-link"/></article>
                     <article class="feature-card"><div class="feature-top"><span class="feature-icon" aria-hidden="true">02</span><span class="availability upcoming">Em breve · PRO</span></div><h3>Gerencie seu time</h3><p>Conheça seu elenco e acompanhe o que cada jogador entrega em campo.</p><ul><li>Cadastro e gestão de jogadores</li><li>Escalação e organização das partidas</li><li>Substituições e minutos jogados</li><li>Estatísticas do time e dos atletas</li></ul><a href="#planos" class="text-link">Conheça o PRO →</a></article>
                     <article class="feature-card"><div class="feature-top"><span class="feature-icon" aria-hidden="true">03</span><span class="availability upcoming">Em breve · PREMIUM</span></div><h3>Organize campeonatos</h3><p>Uma competição com as regras e a categoria que fazem sentido para seus times.</p><ul><li>Liga, grupos e mata-mata</li><li>Jogos de ida ou ida e volta</li><li>Categorias e regras de disputa</li><li>Configuração de até 3 campeonatos simultâneos</li></ul><a href="#planos" class="text-link">Conheça o PREMIUM →</a></article>
                 </div>
@@ -60,7 +68,7 @@
             <div class="section-heading"><span class="eyebrow">PLANOS</span><h2 id="plans-title">Seu time tem um momento.<br/>Temos um plano para ele.</h2><p>Comece gratuitamente e conheça os próximos recursos do Arena Match.</p></div>
             <div class="plan-grid">
                 <article class="plan-card"><div class="plan-heading"><span class="plan-label">PARA ENTRAR EM CAMPO</span></div><h3>Básico</h3><p class="plan-description">O essencial para conectar seu time, com limites de uso.</p><p class="price">Gratuito</p><h:link outcome="/cadastro" value="Criar conta grátis" styleClass="button button-outline"/><ul><li>Busca de adversários com raio limitado</li><li>Convites com intervalo entre agendamentos</li><li>Chat entre os times</li><li>Registro de resultados</li></ul><span class="plan-note">Limites definidos pelo sistema e informados durante o uso.</span></article>
-                <article class="plan-card pro-plan"><div class="plan-heading"><span class="plan-label">PARA IR ALÉM DO BÁSICO</span><span class="availability">Recursos atuais</span></div><h3>PRO</h3><p class="plan-description">Busca ampliada e acompanhamento do desempenho. Gestão de elenco em breve.</p><p class="price"><small>R$</small> 19,90 <span>/mês</span></p><a href="#contato" class="button">Conhecer o plano PRO</a><ul><li>Todos os recursos do Básico</li><li>Ajuste de distância na busca</li><li>Histórico de confrontos</li><li>Ranking Geral e Meu Scout</li></ul><span class="plan-note">Gestão de elenco em desenvolvimento. Consulte a contratação.</span></article>
+                <article class="plan-card pro-plan"><div class="plan-heading"><span class="plan-label">PARA IR ALÉM DO BÁSICO</span><span class="availability">Recursos atuais</span></div><h3>PRO</h3><p class="plan-description">Busca ampliada e acompanhamento do desempenho. Gestão de elenco em breve.</p><p class="price"><small>R$</small> 19,90 <span>/mês</span></p><a href="#contato" class="button">Conhecer o plano PRO</a><ul><li>Todos os recursos do Básico</li><li>Ajuste de distância na busca</li><li>Histórico de confrontos</li><li>Ranking e Meu Scout por modalidade</li></ul><span class="plan-note">Gestão de elenco em desenvolvimento. Consulte a contratação.</span></article>
                 <article class="plan-card premium-plan"><div class="plan-heading"><span class="plan-label">PARA ORGANIZAR COMPETIÇÕES</span><span class="availability upcoming">Em breve</span></div><h3>PREMIUM</h3><p class="plan-description">Gestão do time e organização dos seus campeonatos.</p><p class="price"><small>R$</small> 59,90 <span>/mês</span></p><a href="#contato" class="button button-outline">Conhecer o plano PREMIUM</a><ul><li>Todos os recursos do PRO</li><li>Organização de campeonatos</li><li>Formatos e regras configuráveis</li><li>Até 3 campeonatos simultâneos por conta</li></ul><span class="plan-note">Módulo de campeonatos em desenvolvimento.</span></article>
             </div>
             <div class="plans-info"><span aria-hidden="true">ⓘ</span><p><strong>Participar é diferente de organizar.</strong> Participar de campeonatos e responder a convites não exigirá PREMIUM. Rascunhos e campeonatos abertos ocupam as três vagas; ao finalizar ou cancelar, a vaga é liberada e o histórico é preservado.</p></div>

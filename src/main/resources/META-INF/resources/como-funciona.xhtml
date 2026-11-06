@@ -3,7 +3,7 @@
 <h:head>
     <title>Como funciona o Arena Match | Cadastre seu time e marque amistosos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="description" content="Veja como cadastrar seu time de várzea, configurar categorias e horários, encontrar adversários e enviar convites para amistosos no Arena Match."/>
+    <meta name="description" content="Cadastre seu time de várzea, configure Futebol de Campo, Futsal, Fut 7 ou Futebol Society e use a busca por modalidade para organizar seus amistosos no Arena Match."/>
     <meta name="theme-color" content="#0b1220"/>
     <link rel="canonical" href="https://www.arenamatch.app.br/como-funciona.xhtml"/>
     <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=66.2"/>
@@ -24,7 +24,7 @@
             <p class="guia-observacao">As imagens mostram telas reais com dados demonstrativos. Abra uma imagem para ampliá-la. Os limites de uso e o período de teste seguem a configuração vigente do seu plano.</p>
         </section>
         <div class="container guia-corpo">
-            <nav class="guia-indice" aria-label="Etapas do guia"><span class="eyebrow">PASSO A PASSO</span><ol><li><a href="#conta">Criar sua conta</a></li><li><a href="#time">Cadastrar seu time</a></li><li><a href="#disponibilidade">Categorias e horários</a></li><li><a href="#adversarios">Encontrar adversários</a></li><li><a href="#convites">Enviar um convite</a></li></ol></nav>
+            <nav class="guia-indice" aria-label="Etapas do guia"><span class="eyebrow">PASSO A PASSO</span><ol><li><a href="#conta">Criar sua conta</a></li><li><a href="#time">Cadastrar seu time</a></li><li><a href="#disponibilidade">Modalidades e horários</a></li><li><a href="#adversarios">Encontrar adversários</a></li><li><a href="#convites">Enviar um convite</a></li></ol></nav>
             <div class="guia-etapas">
                 <section id="conta" class="guia-etapa" aria-labelledby="conta-title">
                     <span class="eyebrow">PASSO 01</span><h2 id="conta-title">Comece pelo representante.</h2>
@@ -41,25 +41,25 @@
                     <a class="text-link" href="#disponibilidade">Próxima etapa: disponibilidade →</a>
                 </section>
                 <section id="disponibilidade" class="guia-etapa" aria-labelledby="disponibilidade-title">
-                    <span class="eyebrow">PASSO 03</span><h2 id="disponibilidade-title">Escolha quando seu time joga.</h2>
-                    <p>Na etapa <strong>Agenda</strong>, selecione uma categoria, o dia da semana e os horários. Para mandantes, o intervalo de cada horário deve ter duas horas. Adicione o item à lista de disponibilidades. Repita para cadastrar outras categorias ou horários.</p>
-                    <p>Revise a lista, remova itens incorretos e finalize em <strong>Finalizar Cadastro</strong> (ou <strong>Atualizar os dados</strong>, se estiver editando). Essas informações ajudam a encontrar adversários compatíveis. Depois, você pode consultar seus dados pelo aplicativo.</p>
-                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/disponibilidade.png"><img src="#{request.contextPath}/images/guia/disponibilidade.png" alt="Tela real da etapa Agenda com seleção de categoria, dia e horários e lista de disponibilidades" width="1200" height="850" loading="lazy"/></a><figcaption>Agenda · categorias e horários do time demonstrativo.</figcaption></figure>
+                    <span class="eyebrow">PASSO 03</span><h2 id="disponibilidade-title">Escolha a modalidade e os horários.</h2>
+                    <p>Na etapa <strong>Agenda</strong>, escolha no combo <strong>Modalidades</strong> uma opção: Futebol de Campo, Futsal, Fut 7 ou Futebol Society. Selecione também a <strong>Categoria</strong>, o dia da semana e os horários. Modalidade e categoria são obrigatórias ao clicar em <strong>Adicionar horário</strong>. Para mandantes, o intervalo de cada horário deve ter duas horas.</p>
+                    <p>O item aparece em <strong>Horários Configurados</strong>. Repita para outras modalidades, categorias ou horários e salve em <strong>Finalizar Cadastro</strong> (ou <strong>Atualizar os dados</strong>, na edição). Não há uma etapa separada para acrescentar modalidade: ela é cadastrada ao salvar os horários. Depois de salva, a modalidade permanece vinculada ao time, mesmo se seus horários forem removidos; seu histórico e ranking são preservados.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/disponibilidade.png"><img src="#{request.contextPath}/images/guia/disponibilidade.png" alt="Tela real da etapa Agenda com seleção de categoria, dia e horários e lista de disponibilidades" width="1200" height="850" loading="lazy"/></a><figcaption>Agenda · captura anterior à inclusão do combo Modalidades. Consulte o fluxo atualizado acima.</figcaption></figure>
                     <a class="text-link" href="#adversarios">Próxima etapa: encontrar adversários →</a>
                 </section>
                 <section id="adversarios" class="guia-etapa" aria-labelledby="adversarios-title">
                     <span class="eyebrow">PASSO 04</span><h2 id="adversarios-title">Encontre o próximo adversário.</h2>
-                    <p>Após entrar, acesse <strong>Buscar</strong>, escolha a data do jogo e utilize os filtros de categoria, nome do time e distância disponíveis. Confira a localização e a disponibilidade dos times nos resultados.</p>
-                    <p>O raio de busca do Básico tem um limite definido pelo sistema. Se não aparecerem adversários, revise a data e os filtros. Novos convites também precisam respeitar as regras de antecedência.</p>
-                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/busca.png"><img src="#{request.contextPath}/images/guia/busca.png" alt="Tela real da busca de adversários com filtros de data, categoria e localização e times demonstrativos" width="1200" height="850" loading="lazy"/></a><figcaption>Busca de adversários · resultados com dados demonstrativos.</figcaption></figure>
+                    <p>Após entrar, acesse <strong>Buscar</strong> e escolha a data e a <strong>Modalidade</strong> do jogo. Esse filtro é obrigatório e mostra apenas as modalidades cadastradas no seu time. Se houver somente uma, ela já vem selecionada; se houver várias, escolha qual deseja jogar. Você também pode usar os filtros de categoria, nome do time e distância.</p>
+                    <p>Os resultados mostram a modalidade e somente adversários com disponibilidade compatível para ela na data escolhida. O raio de busca do Básico é limitado pelo sistema. Se não aparecerem adversários, revise data, modalidade e demais filtros. Novos convites também precisam respeitar as regras de antecedência.</p>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/busca.png"><img src="#{request.contextPath}/images/guia/busca.png" alt="Tela real da busca de adversários com filtros de data, categoria e localização e times demonstrativos" width="1200" height="850" loading="lazy"/></a><figcaption>Busca · captura anterior ao filtro obrigatório de modalidade. Consulte o fluxo atualizado acima.</figcaption></figure>
                     <a class="text-link" href="#convites">Próxima etapa: convite para jogar →</a>
                 </section>
                 <section id="convites" class="guia-etapa" aria-labelledby="convites-title">
                     <span class="eyebrow">PASSO 05</span><h2 id="convites-title">Envie o convite e acompanhe a resposta.</h2>
-                    <p>Confira o adversário e use a ação de desafio na busca. Revise os dados apresentados e, se desejar, envie uma mensagem junto com o convite. O sistema considera a disponibilidade dos times e o mando de campo.</p>
+                    <p>Confira a modalidade no card do adversário e use a ação de desafio. Na confirmação, revise novamente a modalidade, o adversário e a data; se desejar, inclua uma mensagem. A modalidade escolhida fica registrada no convite e na partida, sem possibilidade de alteração. O sistema considera a disponibilidade dos times e o mando de campo.</p>
                     <p><strong>Convite enviado não é jogo confirmado.</strong> Aguarde o aceite do outro time e acompanhe o status na agenda e nas notificações. O Básico possui um intervalo para novos agendamentos; a aplicação informa quando for necessário aguardar. Use o chat para conversar com o outro representante.</p>
-                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/convite.png"><img src="#{request.contextPath}/images/guia/convite.png" alt="Tela real de revisão de um desafio entre times demonstrativos antes de enviar o convite" width="1200" height="850" loading="lazy"/></a><figcaption>Desafio · confira os dados antes de enviar.</figcaption></figure>
-                    <p>Com a partida confirmada, confira data, local e horário na agenda antes de sair para jogar.</p><a class="text-link" href="#conta">Voltar ao início do guia ↑</a>
+                    <figure class="guia-captura"><a href="#{request.contextPath}/images/guia/convite.png"><img src="#{request.contextPath}/images/guia/convite.png" alt="Tela real de revisão de um desafio entre times demonstrativos antes de enviar o convite" width="1200" height="850" loading="lazy"/></a><figcaption>Desafio · captura anterior à identificação da modalidade no convite. Consulte o fluxo atualizado acima.</figcaption></figure>
+                    <p>Com a partida confirmada, confira modalidade, data, local e horário na agenda. No ranking, selecione a modalidade: cada uma tem seus próprios resultados e só exibe times com pelo menos um jogo com placar confirmado. O ranking e o scout seguem as permissões do plano.</p><a class="text-link" href="#conta">Voltar ao início do guia ↑</a>
                 </section>
             </div>
         </div>

@@ -49,17 +49,24 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
                 (SELECT count(*) FROM partida p 
                  WHERE ((p.id_mandante = t.id AND p.id_visitante = :meuId) OR (p.id_mandante = :meuId AND p.id_visitante = t.id)) 
                  AND DATE(p.data_hora) = :dataBusca 
-                 AND p.status = 'PENDENTE') AS convitePendente,
+                 AND p.status = 'PENDENTE' AND p.modalidade = :modalidade) AS convitePendente,
                  a.dia_semana as diaSemana,
                  a.hora_inicio as horaInicio,
                  a.hora_fim as horaFim,
-                 a.categoria as categoria                
+                 a.categoria as categoria,
+                 a.modalidade as modalidade                
             FROM time t
             INNER JOIN usuario u ON u.id = t.id_responsavel
             INNER JOIN agenda a ON a.id_time = t.id
             WHERE t.id != :meuId
             AND u.status_usuario = 'ATIVO'
             AND a.dia_semana = :diaSemana
+            AND a.modalidade = :modalidade
+            AND EXISTS (SELECT 1 FROM agenda minha_agenda
+                        WHERE minha_agenda.id_time = :meuId
+                        AND minha_agenda.dia_semana = :diaSemana
+                        AND minha_agenda.modalidade = a.modalidade
+                        AND minha_agenda.categoria = a.categoria)
             AND t.mando_campo != :minhaCasa
             AND (:nome IS NULL OR LOWER(t.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
             AND (6371 * acos(cos(radians(:minhaLat)) * cos(radians(t.latitude)) * cos(radians(t.longitude) - radians(:minhaLon)) + sin(radians(:minhaLat)) * sin(radians(t.latitude)))) <= :raio
@@ -80,7 +87,8 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
             @Param("dataBusca") java.time.LocalDate dataBusca,
             @Param("diaSemana") String diaSemana,
             @Param("minhaCasa") Boolean minhaCasa,
-            @Param("categoria") String categoria
+            @Param("categoria") String categoria,
+            @Param("modalidade") String modalidade
         );
     
     Optional<Time> findByResponsavelId(Long idResponsavel);

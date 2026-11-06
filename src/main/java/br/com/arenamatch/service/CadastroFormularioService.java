@@ -4,6 +4,7 @@ import br.com.arenamatch.dto.CadastroDTO;
 import br.com.arenamatch.dto.CategoriaDTO;
 import br.com.arenamatch.dto.DisponibilidadeDTO;
 import br.com.arenamatch.enums.Categoria;
+import br.com.arenamatch.enums.Modalidade;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -42,9 +43,13 @@ public class CadastroFormularioService {
             CadastroDTO dto,
             List<DisponibilidadeDTO> agenda,
             Categoria categoria,
+            Modalidade modalidade,
             String dia,
             String inicio,
             String fim) {
+        if (modalidade == null) {
+            throw new RuntimeException("Selecione a modalidade.");
+        }
         if (categoria == null) {
             throw new RuntimeException("Selecione a categoria.");
         }
@@ -54,7 +59,8 @@ public class CadastroFormularioService {
         }
 
         boolean existeConflito = agenda.stream().anyMatch(item ->
-                item.getCategoria().getDescricao().equals(categoria.getDescricao())
+                item.getModalidade() == modalidade
+                        && item.getCategoria().getDescricao().equals(categoria.getDescricao())
                         && item.getDiaSemana().equals(dia));
         if (existeConflito) {
             throw new RuntimeException("Você já adicionou a categoria " + categoria.getDescricao()
@@ -64,6 +70,7 @@ public class CadastroFormularioService {
         CadastroDTO dtoValidacao = new CadastroDTO();
         dtoValidacao.setMandoCampo(dto.getMandoCampo());
         DisponibilidadeDTO itemValidacao = montarDisponibilidade(categoria, dia, inicio, fim);
+        itemValidacao.setModalidade(modalidade);
         dtoValidacao.setDisponibilidades(List.of(itemValidacao));
         cadastroValidacaoService.validarHorariosMandante(dtoValidacao);
 
@@ -71,6 +78,10 @@ public class CadastroFormularioService {
     }
 
     public void validarFinalizacao(CadastroDTO dto, List<DisponibilidadeDTO> agenda, boolean novoCadastro) {
+        cadastroValidacaoService.validarModalidades(dto);
+        if (agenda != null && agenda.stream().anyMatch(a -> a.getModalidade() == null || !dto.getModalidades().contains(a.getModalidade()))) {
+            throw new RuntimeException("Cada horario deve informar uma modalidade cadastrada no time.");
+        }
         if (novoCadastro) {
             cadastroValidacaoService.validarTermosAceitos(dto);
         }

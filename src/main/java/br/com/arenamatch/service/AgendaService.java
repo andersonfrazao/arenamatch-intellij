@@ -109,6 +109,7 @@ public class AgendaService {
     private ProximoJogoDTO converterParaProximoJogo(Partida partida) {
         ProximoJogoDTO dto = new ProximoJogoDTO();
         dto.setIdPartida(partida.getId());
+        dto.setModalidade(partida.getModalidade());
         dto.setDataHora(horarioJogoService.resolverDataHoraMandante(partida));
         dto.setNomeTimeMandante(partida.getMandante() != null ? partida.getMandante().getNome() : "Mandante");
         dto.setNomeTimeVisitante(partida.getVisitante() != null ? partida.getVisitante().getNome() : "Visitante");
@@ -125,6 +126,7 @@ public class AgendaService {
     private EventoAgendaDTO converterParaEvento(Partida p, Long meuTimeId) {
         EventoAgendaDTO dto = new EventoAgendaDTO();
         dto.setIdPartida(p.getId());
+        dto.setModalidade(p.getModalidade());
         dto.setDataHora(horarioJogoService.resolverDataHoraMandante(p));
         dto.setMensagem(p.getMensagem()); 
 

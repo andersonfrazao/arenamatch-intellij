@@ -34,16 +34,19 @@ public class PartidaHorarioService {
         Agenda agendaMandante = null;
         if (dto.getCategoria() != null) {
             agendaMandante = agendaRepository
-                    .findFirstByTimeIdAndDiaSemanaAndCategoriaOrderByHoraInicioAsc(mandante.getId(), diaBanco, dto.getCategoria())
+                    .findFirstByTimeIdAndDiaSemanaAndModalidadeAndCategoriaOrderByHoraInicioAsc(mandante.getId(), diaBanco, dto.getModalidade(), dto.getCategoria())
                     .orElse(null);
         }
 
-        if (agendaMandante == null) {
+        if (agendaMandante == null && dto.getCategoria() == null) {
             agendaMandante = agendaRepository
-                    .findFirstByTimeIdAndDiaSemanaOrderByHoraInicioAsc(mandante.getId(), diaBanco)
+                    .findFirstByTimeIdAndDiaSemanaAndModalidadeOrderByHoraInicioAsc(mandante.getId(), diaBanco, dto.getModalidade())
                     .orElseThrow(() -> new RuntimeException("O time mandante não possui horário cadastrado para " + diaBanco + "."));
         }
 
+        if (agendaMandante == null) {
+            throw new RuntimeException("O mandante nao possui horario para a modalidade e categoria selecionadas.");
+        }
         LocalTime horaInicio = LocalTime.parse(agendaMandante.getHoraInicio());
         return dto.getDataHoraPartida().toLocalDate().atTime(horaInicio);
     }

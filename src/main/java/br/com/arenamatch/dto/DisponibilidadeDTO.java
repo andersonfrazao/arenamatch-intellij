@@ -5,6 +5,7 @@ import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -19,6 +20,7 @@ public class DisponibilidadeDTO {
     private String inicio;    
     private String fim;       
     private CategoriaDTO categoria;
+    private Modalidade modalidade;
     private List<DisponibilidadeDTO> disponibilidades = new ArrayList<>();
     
     // Construtor utilitário para facilitar a criação rápida

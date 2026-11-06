@@ -33,6 +33,7 @@ public class AdversarioDetalhesBean implements Serializable {
 
     @Getter @Setter
     private String categoria;
+    @Getter @Setter private br.com.arenamatch.enums.Modalidade modalidade = br.com.arenamatch.enums.Modalidade.FUTEBOL_CAMPO;
 
     @Getter
     private AdversarioDetalhesDTO adversario;
@@ -65,7 +66,7 @@ public class AdversarioDetalhesBean implements Serializable {
         }
 
         try {
-            adversario = timeClient.buscarDetalhesAdversario(idAdversario);
+            adversario = timeClient.buscarDetalhesAdversario(idAdversario, modalidade);
         } catch (RestClientResponseException e) {
             msgErro(e.getResponseBodyAsString());
         } catch (Exception e) {
@@ -96,6 +97,7 @@ public class AdversarioDetalhesBean implements Serializable {
             dto.setIdTimeDesafiado(adversario.getId());
             dto.setDataHoraPartida(dataJogo.atStartOfDay());
             dto.setCategoria(getCategoriaDesafio());
+            dto.setModalidade(adversario.getModalidade());
             dto.setMensagem(mensagemDesafio);
             partidaClient.enviarDesafio(dto);
             preparandoDesafio = false;

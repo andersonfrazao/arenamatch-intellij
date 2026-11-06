@@ -44,7 +44,10 @@ public class BuscaService {
         return limpo.substring(0, 1).toUpperCase() + limpo.substring(1).toLowerCase();
     }
     
-    public List<TimeResumoDTO> buscarTimesDisponiveis(LocalDate data, Double raio, String cidade, String nome, Long idMeuTime, Categoria categoria) {
+    public List<TimeResumoDTO> buscarTimesDisponiveis(LocalDate data, Double raio, String cidade, String nome, Long idMeuTime, Categoria categoria, br.com.arenamatch.enums.Modalidade modalidade) {
+        if (modalidade == null) {
+            throw new RuntimeException("Selecione a modalidade para buscar adversarios.");
+        }
         placarPendenteService.validarSemPlacarPendente(idMeuTime);
 
         if (data.isBefore(LocalDate.now())) {
@@ -60,10 +63,15 @@ public class BuscaService {
             Time meuTime = timeRepository.findById(idMeuTime)
                 .orElseThrow(() -> new RuntimeException("Time logado não encontrado"));
 
+            if (!meuTime.getModalidades().contains(modalidade)) {
+                throw new RuntimeException("A modalidade selecionada nao esta cadastrada no seu time.");
+            }
+
             Double raioEfetivo = aplicarLimiteRaioPlanoBasico(meuTime, raio);
 
             boolean euJogoNesseDia = meuTime.getAgendas().stream()
-                .anyMatch(agenda -> agenda.getDiaSemana().equalsIgnoreCase(diaSemanaBanco));
+                .anyMatch(agenda -> agenda.getDiaSemana().equalsIgnoreCase(diaSemanaBanco)
+                        && agenda.getModalidade() == modalidade);
 
             if (!euJogoNesseDia) {
                 return new ArrayList<>(); 
@@ -79,7 +87,8 @@ public class BuscaService {
                     data,
                     diaSemanaBanco, 
                     meuTime.isMandoCampo(), // O filtro que traz apenas o "oposto"
-                    categoria != null ? categoria.name() : null
+                    categoria != null ? categoria.name() : null,
+                    modalidade.name()
             );
 
             List<TimeResumoDTO> times = resultados.stream().map(t -> {
@@ -106,9 +115,10 @@ public class BuscaService {
                     t.get("casa", Boolean.class), valorTaxa, 0L, isPendente, categoriaEnum
                 );
                 dto.setEscudo(t.get("escudo", String.class));
+                dto.setModalidade(modalidade);
 
                 // --- 🚨 FORMATANDO O HORÁRIO PARA A TELA ---
-                String horarioAgenda = formatarHorarioMandante(meuTime, diaSemanaBanco, categoriaEnum, t);
+                String horarioAgenda = formatarHorarioMandante(meuTime, diaSemanaBanco, categoriaEnum, modalidade, t);
                 /*
                 Object horaInicioObj = t.get("horaInicio");
                 Object horaFimObj = t.get("horaFim");
@@ -130,7 +140,7 @@ public class BuscaService {
                     java.time.LocalDateTime inicioDia = data.atStartOfDay();
                     java.time.LocalDateTime fimDia = data.atTime(23, 59, 59);
                     try {
-                        Partida partida = partidaRepo.buscarPartidaPendente(meuTime.getId(), idAdversario, inicioDia, fimDia);
+                        Partida partida = partidaRepo.buscarPartidaPendente(meuTime.getId(), idAdversario, inicioDia, fimDia, modalidade);
                         if (partida != null) {
                             dto.setIdPartidaPendente(partida.getId());
                             if (partida.getDesafiante() != null && !partida.getDesafiante().getId().equals(meuTime.getId())) {
@@ -146,7 +156,7 @@ public class BuscaService {
                 return dto;
             }).collect(Collectors.toList());
 
-            enriquecerHistoricoConfrontos(meuTime, times);
+            enriquecerHistoricoConfrontos(meuTime, times, modalidade);
             return times;
             
         } catch (Exception e) {
@@ -155,7 +165,7 @@ public class BuscaService {
         }
     }
 
-    private void enriquecerHistoricoConfrontos(Time meuTime, List<TimeResumoDTO> times) {
+    private void enriquecerHistoricoConfrontos(Time meuTime, List<TimeResumoDTO> times, br.com.arenamatch.enums.Modalidade modalidade) {
         if (times.isEmpty() || meuTime.getResponsavel() == null
                 || !assinaturaService.temAcessoCompleto(meuTime.getResponsavel())) {
             return;
@@ -165,7 +175,7 @@ public class BuscaService {
         List<Long> adversariosIds = times.stream().map(TimeResumoDTO::getId).toList();
         Map<Long, Tuple> historicosPorAdversario = new HashMap<>();
 
-        partidaRepo.buscarResumoConfrontos(meuTime.getId(), adversariosIds)
+        partidaRepo.buscarResumoConfrontosPorModalidade(meuTime.getId(), adversariosIds, modalidade.name())
                 .forEach(tuple -> historicosPorAdversario.put(
                         numeroLong(tuple.get("adversarioId")),
                         tuple));
@@ -213,11 +223,12 @@ public class BuscaService {
         return raioSolicitado;
     }
 
-    private String formatarHorarioMandante(Time meuTime, String diaSemanaBanco, Categoria categoria, Tuple adversarioAgenda) {
+    private String formatarHorarioMandante(Time meuTime, String diaSemanaBanco, Categoria categoria, br.com.arenamatch.enums.Modalidade modalidade, Tuple adversarioAgenda) {
         if (meuTime.isMandoCampo()) {
             return meuTime.getAgendas().stream()
                     .filter(a -> a.getDiaSemana().equalsIgnoreCase(diaSemanaBanco))
                     .filter(a -> categoria == null || a.getCategoria() == categoria)
+                    .filter(a -> a.getModalidade() == modalidade)
                     .findFirst()
                     .map(a -> formatarHorario(diaSemanaBanco, a.getHoraInicio(), a.getHoraFim()))
                     .orElse(diaSemanaBanco);

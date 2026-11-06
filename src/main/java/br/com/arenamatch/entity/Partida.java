@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.Data;
+import br.com.arenamatch.enums.Modalidade;
 
 @Entity
 @Table(name = "partida")
@@ -38,6 +39,10 @@ public class Partida {
     
     @Enumerated(EnumType.STRING)
     private StatusPartida status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false, length = 40)
+    private Modalidade modalidade;
     
     @Column(name = "mensagem")
     private String mensagem;

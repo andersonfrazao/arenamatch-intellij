@@ -58,6 +58,9 @@ public class DesafioPartidaService {
         Time desafiante = timeRepository.findById(dto.getIdTimeDesafiante()).orElseThrow();
         Time desafiado = timeRepository.findById(dto.getIdTimeDesafiado()).orElseThrow();
 
+        validarModalidade(desafiante, dto.getModalidade());
+        validarModalidade(desafiado, dto.getModalidade());
+
         validarTimeAtivo(desafiante, "O seu time nao esta ativo para criar desafios.");
         validarTimeAtivo(desafiado, "Este time nao esta ativo para receber desafios.");
 
@@ -66,7 +69,7 @@ public class DesafioPartidaService {
 
         DayOfWeek diaEscolhido = dto.getDataHoraPartida().getDayOfWeek();
         String diaBanco = partidaHorarioService.traduzirDia(diaEscolhido);
-        validarAgendaDosTimes(desafiante, desafiado, diaBanco);
+        validarAgendaDosTimes(desafiante, desafiado, diaBanco, dto);
 
         Partida partida = new Partida();
         Time mandante = definirMandante(desafiante, desafiado);
@@ -79,6 +82,7 @@ public class DesafioPartidaService {
         partida.setDataSolicitacao(LocalDateTime.now());
         partida.setDesafiante(desafiante);
         partida.setMensagem(dto.getMensagem());
+        partida.setModalidade(dto.getModalidade());
 
         partida = partidaRepository.save(partida);
         partidaMensagemService.criarMensagemInicialDoDesafio(partida, desafiante, dto.getMensagem());
@@ -91,6 +95,8 @@ public class DesafioPartidaService {
     public void aceitarDesafio(Long idPartida) {
         Partida partida = partidaRepository.findById(idPartida).orElseThrow();
 
+        validarModalidade(partida.getMandante(), partida.getModalidade());
+        validarModalidade(partida.getVisitante(), partida.getModalidade());
         placarPendenteService.validarSemPlacarPendente(partida.getMandante().getId());
         placarPendenteService.validarSemPlacarPendente(partida.getVisitante().getId());
 
@@ -150,17 +156,27 @@ public class DesafioPartidaService {
         }
     }
 
-    private void validarAgendaDosTimes(Time desafiante, Time desafiado, String diaBanco) {
+    private void validarAgendaDosTimes(Time desafiante, Time desafiado, String diaBanco, DesafioDTO dto) {
         boolean desafianteJogaNesseDia = desafiante.getAgendas().stream()
-                .anyMatch(a -> a.getDiaSemana().equalsIgnoreCase(diaBanco));
+                .anyMatch(a -> a.getDiaSemana().equalsIgnoreCase(diaBanco)
+                        && a.getModalidade() == dto.getModalidade()
+                        && (dto.getCategoria() == null || a.getCategoria() == dto.getCategoria()));
         if (!desafianteJogaNesseDia) {
             throw new RuntimeException("O seu time não possui agenda cadastrada para jogar de " + diaBanco + "!");
         }
 
         boolean desafiadoJogaNesseDia = desafiado.getAgendas().stream()
-                .anyMatch(a -> a.getDiaSemana().equalsIgnoreCase(diaBanco));
+                .anyMatch(a -> a.getDiaSemana().equalsIgnoreCase(diaBanco)
+                        && a.getModalidade() == dto.getModalidade()
+                        && (dto.getCategoria() == null || a.getCategoria() == dto.getCategoria()));
         if (!desafiadoJogaNesseDia) {
             throw new RuntimeException("O time " + desafiado.getNome() + " não joga de " + diaBanco + "!");
+        }
+    }
+
+    private void validarModalidade(Time time, br.com.arenamatch.enums.Modalidade modalidade) {
+        if (modalidade == null || !time.getModalidades().contains(modalidade)) {
+            throw new RuntimeException("A modalidade do desafio deve estar cadastrada nos dois times.");
         }
     }
 
