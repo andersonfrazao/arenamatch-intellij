@@ -35,7 +35,18 @@ public class SecurityConfig {
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/cadastro").permitAll()
+                .requestMatchers(HttpMethod.POST,
+                    "/api/cadastro",
+                    "/api/cadastro/validacoes/responsavel",
+                    "/api/cadastro/validacoes/time",
+                    "/api/cadastro/validacoes/finalizacao",
+                    "/api/cadastro/disponibilidades",
+                    "/api/cadastro/escudo"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET,
+                    "/api/cadastro/endereco/cep",
+                    "/api/cadastro/endereco/coordenadas"
+                ).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

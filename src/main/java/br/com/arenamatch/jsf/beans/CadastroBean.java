@@ -153,14 +153,23 @@ public class CadastroBean implements Serializable {
         if (dto.getCep() != null && !dto.getCep().isEmpty()) {
             String cepLimpo = dto.getCep().replaceAll("\\D", "");
             if (cepLimpo.length() == 8) {
-                EnderecoDTO endereco = cadastroClient.buscarEnderecoPorCep(cepLimpo);
-                if (endereco != null && !endereco.isErro()) {
-                    preencherEndereco(endereco);
-                    dto.setLatitude(null);
-                    dto.setLongitude(null);
-                } else {
-                    msgErro("Não foi possível encontrar o endereço deste CEP. "
-                            + "Tente outro CEP ou use a localização atual do seu smartphone.");
+                try {
+                    EnderecoDTO endereco = cadastroClient.buscarEnderecoPorCep(cepLimpo);
+                    if (endereco != null && !endereco.isErro()) {
+                        preencherEndereco(endereco);
+                        dto.setLatitude(null);
+                        dto.setLongitude(null);
+                    } else {
+                        informarCepNaoEncontrado();
+                    }
+                } catch (org.springframework.web.client.RestClientResponseException e) {
+                    if (e.getStatusCode().value() == 400 || e.getStatusCode().value() == 404) {
+                        informarCepNaoEncontrado();
+                    } else {
+                        msgErro("Não foi possível consultar o CEP agora. Tente novamente em instantes.");
+                    }
+                } catch (org.springframework.web.client.RestClientException e) {
+                    msgErro("Não foi possível consultar o CEP agora. Tente novamente em instantes.");
                 }
             } else {
                 msgErro("Digite um CEP completo com 8 números para realizar a busca.");
@@ -168,6 +177,10 @@ public class CadastroBean implements Serializable {
         } else {
             msgErro("Digite o CEP antes de clicar na luneta.");
         }
+    }
+
+    private void informarCepNaoEncontrado() {
+        msgErro("CEP não encontrado. Confira os números e tente novamente ou use a localização atual do seu smartphone.");
     }
 
     public void buscarEnderecoPorLocalizacao() {
