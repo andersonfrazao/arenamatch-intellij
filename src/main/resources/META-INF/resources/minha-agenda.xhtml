@@ -7,6 +7,7 @@
                 template="/WEB-INF/template/layout.xhtml">
 
     <ui:define name="conteudo">
+        <h:outputStylesheet library="css" name="partidas-externas.css"/>
         
         <style>
             .agenda-container { font-family: system-ui, -apple-system, sans-serif; color: rgba(255,255,255,0.92); }
@@ -290,6 +291,8 @@
                 
                 <div class="flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
                     <h1 class="text-white text-2xl font-bold m-0"><i class="fas fa-calendar-alt text-neon mr-2"></i> Minha Agenda</h1>
+                    <p:commandButton value="Registrar jogo" action="#{minhaAgendaBean.registrarJogo}" ajax="false" immediate="true"
+                                     icon="fas fa-plus" styleClass="ui-button-outlined font-bold"/>
                     <div class="todos-jogos-action" id="todosMeusJogosBtn" title="Ver todos meus jogos">
                         Todos meus jogos
                     </div>
@@ -311,6 +314,7 @@
                                            styleClass="todos-jogos-row">
                                 <div class="match-card">
                                     <div class="match-card-date"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="dd MMM - EEE" locale="pt_BR" type="localDateTime"/></h:outputText></div>
+                                    <h:panelGroup rendered="#{jogo.registroManual}" layout="block" styleClass="jogo-externo-origem">Registrado por você</h:panelGroup>
                                     <div class="match-card-hour"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></div>
                                     <div class="match-card-versus">
                                         <div class="match-card-team">
@@ -451,6 +455,25 @@
                     </h:panelGroup>
 
                     <ui:repeat value="#{minhaAgendaBean.eventosDoDia}" var="evento">
+                        <h:panelGroup rendered="#{evento.registroManual}" layout="block" styleClass="jogo-externo-card">
+                            <div class="jogo-externo-cabecalho">
+                                <span class="jogo-externo-origem"><i class="fas fa-calendar-plus mr-1"></i> Registrado por você</span>
+                                <span class="jogo-externo-status #{evento.passouDaHora ? 'pendente' : ''}">#{evento.passouDaHora ? 'Aguardando placar' : 'Agendado'}</span>
+                            </div>
+                            <div class="jogo-externo-times">#{evento.nomeTimeMandante} <span class="text-gray-400 mx-2">×</span> #{evento.nomeTimeVisitante}</div>
+                            <div class="jogo-externo-info">#{evento.modalidade.descricao} · #{evento.categoria.descricao} · Seu time: #{evento.posicaoMeuTime}</div>
+                            <div class="jogo-externo-info"><i class="far fa-clock mr-1"></i>
+                                <h:outputText value="#{evento.dataHora}"><f:convertDateTime type="localDateTime" pattern="HH:mm"/></h:outputText>
+                                às <h:outputText value="#{evento.dataHoraFim}"><f:convertDateTime type="localDateTime" pattern="HH:mm"/></h:outputText>
+                            </div>
+                            <div class="jogo-externo-info"><i class="fas fa-map-marker-alt mr-1"></i> #{evento.nomeCampo}</div>
+                            <h:panelGroup rendered="#{not empty evento.endereco}" layout="block" styleClass="jogo-externo-info">#{evento.endereco}</h:panelGroup>
+                            <div class="jogo-externo-info">Taxa de jogo:
+                                <h:outputText value="#{evento.taxaRegistroManual}"><f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/></h:outputText>
+                            </div>
+                            <h:panelGroup rendered="#{not empty evento.mensagem}" layout="block" styleClass="jogo-externo-info">#{evento.mensagem}</h:panelGroup>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not evento.registroManual}" layout="block">
                         <div class="item-lista
                                     #{evento.tipo eq 'GAME' and not evento.passouDaHora ? 'game-upcoming' : ''}
                                     #{evento.tipo eq 'GAME' and evento.passouDaHora ? 'game-played' : ''}
@@ -812,6 +835,7 @@
 
                             </div>
                         </div>
+                        </h:panelGroup>
                     </ui:repeat>
 
                     <h:panelGroup rendered="#{not empty minhaAgendaBean.convitesLigaDoDia}">

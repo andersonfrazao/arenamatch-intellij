@@ -9,6 +9,8 @@ import br.com.arenamatch.enums.Modalidade;
 public class ProximoJogoDTO {
 
     private Long idPartida;
+    private Long idPartidaExterna;
+    private boolean registroManual;
     private Modalidade modalidade;
     private LocalDateTime dataHora;
     private String nomeAdversario;

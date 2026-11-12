@@ -4,15 +4,20 @@ import br.com.arenamatch.dto.DesafioDTO;
 import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.PlanoAssinatura;
+import br.com.arenamatch.enums.Modalidade;
 import br.com.arenamatch.enums.StatusPartida;
 import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.PartidaRepository;
+import br.com.arenamatch.repository.PartidaExternaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Comparator;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +34,9 @@ public class DesafioPartidaService {
     private final PartidaHorarioService partidaHorarioService;
     private final SimpMessagingTemplate mensageiro;
 
+    private final PartidaExternaRepository partidaExternaRepository;
+    private final EntityManager entityManager;
+
     public DesafioPartidaService(
             PartidaRepository partidaRepository,
             TimeRepository timeRepository,
@@ -37,7 +45,9 @@ public class DesafioPartidaService {
             PlacarPendenteService placarPendenteService,
             PartidaMensagemService partidaMensagemService,
             PartidaHorarioService partidaHorarioService,
-            SimpMessagingTemplate mensageiro) {
+            SimpMessagingTemplate mensageiro,
+            PartidaExternaRepository partidaExternaRepository,
+            EntityManager entityManager) {
         this.partidaRepository = partidaRepository;
         this.timeRepository = timeRepository;
         this.assinaturaService = assinaturaService;
@@ -46,6 +56,8 @@ public class DesafioPartidaService {
         this.partidaMensagemService = partidaMensagemService;
         this.partidaHorarioService = partidaHorarioService;
         this.mensageiro = mensageiro;
+        this.partidaExternaRepository = partidaExternaRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -63,6 +75,8 @@ public class DesafioPartidaService {
 
         validarTimeAtivo(desafiante, "O seu time nao esta ativo para criar desafios.");
         validarTimeAtivo(desafiado, "Este time nao esta ativo para receber desafios.");
+        validarDisponibilidadeExterna(desafiante.getId(), dto.getModalidade(), dataJogo);
+        validarDisponibilidadeExterna(desafiado.getId(), dto.getModalidade(), dataJogo);
 
         placarPendenteService.validarSemPlacarPendente(desafiante.getId());
         validarPermissaoParaCriarDesafio(desafiante);
@@ -94,6 +108,12 @@ public class DesafioPartidaService {
     @Transactional
     public void aceitarDesafio(Long idPartida) {
         Partida partida = partidaRepository.findById(idPartida).orElseThrow();
+
+        List.of(partida.getMandante(), partida.getVisitante()).stream()
+                .sorted(Comparator.comparing(Time::getId))
+                .forEach(time -> entityManager.lock(time, LockModeType.PESSIMISTIC_WRITE));
+        validarDisponibilidadeExterna(partida.getMandante().getId(), partida.getModalidade(), partida.getDataHora().toLocalDate());
+        validarDisponibilidadeExterna(partida.getVisitante().getId(), partida.getModalidade(), partida.getDataHora().toLocalDate());
 
         validarModalidade(partida.getMandante(), partida.getModalidade());
         validarModalidade(partida.getVisitante(), partida.getModalidade());
@@ -130,6 +150,13 @@ public class DesafioPartidaService {
     @Transactional
     public void cancelarConvitePorAdversario(Long meuTimeId, Long adversarioId) {
         partidaRepository.deletarConvitePendente(meuTimeId, adversarioId);
+    }
+
+    private void validarDisponibilidadeExterna(Long timeId, Modalidade modalidade, LocalDate data) {
+        if (partidaExternaRepository.existsByTimeIdAndModalidadeAndDataHoraInicioBetween(
+                timeId, modalidade, data.atStartOfDay(), data.atTime(23, 59, 59))) {
+            throw new RuntimeException("O time já possui um jogo externo dessa modalidade registrado para esta data.");
+        }
     }
 
     private void validarDisponibilidadeDoDesafiado(DesafioDTO dto, LocalDate dataJogo) {

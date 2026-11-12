@@ -71,6 +71,12 @@ public interface TimeRepository extends JpaRepository<Time, Long> {
             AND (:nome IS NULL OR LOWER(t.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
             AND (6371 * acos(cos(radians(:minhaLat)) * cos(radians(t.latitude)) * cos(radians(t.longitude) - radians(:minhaLon)) + sin(radians(:minhaLat)) * sin(radians(t.latitude)))) <= :raio
             AND NOT EXISTS (
+                SELECT 1 FROM partida_externa externa
+                WHERE externa.id_time = t.id
+                AND DATE(externa.data_hora_inicio) = :dataBusca
+                AND externa.modalidade = :modalidade
+            )
+            AND NOT EXISTS (
                 SELECT 1 FROM partida p 
                 WHERE (p.id_mandante = t.id OR p.id_visitante = t.id)
                 AND DATE(p.data_hora) = :dataBusca

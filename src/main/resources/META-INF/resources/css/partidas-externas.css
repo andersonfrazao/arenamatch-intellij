@@ -1,0 +1,35 @@
+.registro-jogo-container { max-width: 720px; margin: 0 auto; }
+.registro-jogo-heading { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.registro-jogo-heading > i { font-size: 1.8rem; }
+.registro-jogo-heading h1 { margin: 0; color: #f8fafc; font-size: 1.6rem; }
+.registro-jogo-heading p { color: #b6c7d8; margin: .4rem 0 0; }
+.registro-jogo-panel { background: rgba(30, 41, 59, .96); border: 1px solid #38485d; border-radius: 14px; padding: 1.5rem; }
+.registro-jogo-panel h2 { margin: 0 0 1.2rem; padding-top: .5rem; color: #67d4f5; font-size: 1.1rem; }
+.registro-jogo-field { display: flex; flex-direction: column; gap: .5rem; min-width: 0; margin-bottom: 1.2rem; }
+.registro-jogo-field > label { color: #eef4fc; font-weight: 600; }
+.registro-jogo-field small, .registro-jogo-ajuda { color: #b6c7d8; font-size: .82rem; line-height: 1.5; }
+.registro-jogo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.registro-jogo-field .ui-autocomplete, .registro-jogo-field .ui-inputnumber, .registro-jogo-field .ui-datepicker { width: 100%; min-width: 0; }
+.registro-jogo-field .ui-autocomplete-input, .registro-jogo-field .ui-inputnumber-input { width: 100%; box-sizing: border-box; }
+.registro-jogo-field .ui-selectonemenu { min-width: 0 !important; max-width: 100%; }
+.registro-jogo-field input[type=time] { min-height: 44px; color-scheme: dark; box-sizing: border-box; font: inherit; }
+.registro-jogo-atalho { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: rgba(14, 64, 82, .5); border: 1px solid #286b80; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
+.registro-jogo-atalho > i { color: #38c9ef; font-size: 1.4rem; }
+.registro-jogo-atalho > div { flex: 1; min-width: 180px; }
+.registro-jogo-atalho h2 { color: #f8fafc; font-size: 1rem; margin: 0 0 .3rem; }
+.registro-jogo-atalho p { color: #bed0df; margin: 0; font-size: .9rem; line-height: 1.5; }
+.jogo-externo-card { border: 1px solid #365b6d; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; background: rgba(24, 46, 60, .95); color: #eef4fc; overflow-wrap: anywhere; }
+.jogo-externo-cabecalho { display: flex; justify-content: space-between; align-items: center; gap: .7rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.jogo-externo-origem { color: #86def7; font-size: .8rem; font-weight: 600; }
+.jogo-externo-status { border: 1px solid #4b7b91; border-radius: 20px; padding: .3rem .6rem; color: #c8edff; font-size: .8rem; }
+.jogo-externo-status.pendente { color: #ffe49a; border-color: #87733d; }
+.jogo-externo-times { text-align: center; font-size: 1.15rem; font-weight: 700; margin: 1rem 0; }
+.jogo-externo-info { color: #bfd0df; font-size: .9rem; margin-top: .7rem; line-height: 1.6; }
+@media (max-width: 600px) {
+    .registro-jogo-panel { padding: 1rem; }
+    .registro-jogo-atalho .ui-button { width: 100%; }
+    .registro-jogo-field input, .registro-jogo-field textarea { font-size: 16px !important; }
+}
+@media (max-width: 380px) {
+    .registro-jogo-grid { grid-template-columns: 1fr; gap: 0; }
+}

@@ -1,0 +1,121 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                template="/WEB-INF/template/layout.xhtml">
+    <ui:define name="conteudo">
+        <h:outputStylesheet library="css" name="partidas-externas.css"/>
+        <div class="registro-jogo-container">
+            <p:button value="Voltar à agenda" outcome="/minha-agenda.xhtml" icon="fas fa-arrow-left"
+                      styleClass="ui-button-outlined ui-button-sm mb-3"/>
+            <div class="registro-jogo-heading">
+                <i class="fas fa-calendar-plus text-neon"></i>
+                <div><h1>Registrar jogo</h1><p>Adicione à agenda os jogos combinados fora do Arena Match.</p></div>
+            </div>
+            <h:form id="formRegistroJogo">
+                <p:messages id="mensagens" showDetail="true" closable="true"/>
+                <h:panelGroup rendered="#{registroPartidaBean.pronto}" layout="block" styleClass="registro-jogo-panel">
+                    <h2>Quem vai jogar?</h2>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="adversario" value="Nome do adversário"/>
+                        <p:autoComplete id="adversario" value="#{registroPartidaBean.dto.nomeAdversario}"
+                                        completeMethod="#{registroPartidaBean.completarAdversario}" forceSelection="false"
+                                        minQueryLength="1" maxResults="15" maxlength="120" required="true"
+                                        requiredMessage="Informe o nome do adversário." placeholder="Ex.: União da Vila"
+                                        styleClass="w-full" inputStyleClass="w-full custom-input"/>
+                        <small>Digite o nome ou reutilize um adversário de outros jogos.</small>
+                        <p:message for="adversario"/>
+                    </div>
+                    <div class="registro-jogo-grid">
+                        <div class="registro-jogo-field">
+                            <p:outputLabel for="modalidade" value="Modalidade"/>
+                            <p:selectOneMenu id="modalidade" value="#{registroPartidaBean.dto.modalidade}" required="true"
+                                             requiredMessage="Selecione a modalidade." styleClass="w-full custom-input">
+                                <f:selectItem itemLabel="Selecione a modalidade" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{registroPartidaBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
+                            </p:selectOneMenu>
+                            <p:message for="modalidade"/>
+                        </div>
+                        <div class="registro-jogo-field">
+                            <p:outputLabel for="categoria" value="Categoria"/>
+                            <p:selectOneMenu id="categoria" value="#{registroPartidaBean.dto.categoria}" required="true"
+                                             requiredMessage="Selecione a categoria." styleClass="w-full custom-input">
+                                <f:selectItem itemLabel="Selecione a categoria" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{registroPartidaBean.categorias}" var="c" itemLabel="#{c.descricao}" itemValue="#{c}"/>
+                            </p:selectOneMenu>
+                            <p:message for="categoria"/>
+                        </div>
+                    </div>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="mando" value="Seu time joga como"/>
+                        <p:selectOneMenu id="mando" value="#{registroPartidaBean.dto.mando}" required="true"
+                                         requiredMessage="Selecione o mando do seu time." styleClass="w-full custom-input">
+                            <f:selectItem itemLabel="Selecione o mando" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{registroPartidaBean.mandos}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
+                            <p:ajax process="@this" update="orientacaoTaxa"/>
+                        </p:selectOneMenu>
+                        <p:message for="mando"/>
+                    </div>
+                    <h2>Quando e onde?</h2>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="data" value="Data do jogo"/>
+                        <p:datePicker id="data" value="#{registroPartidaBean.dto.data}" locale="pt_BR" pattern="dd/MM/yyyy"
+                                      showIcon="true" required="true" requiredMessage="Informe a data do jogo."
+                                      styleClass="w-full" inputStyleClass="w-full custom-input"/>
+                        <small>Você pode registrar jogos futuros ou já realizados.</small>
+                        <p:message for="data"/>
+                    </div>
+                    <div class="registro-jogo-grid">
+                        <div class="registro-jogo-field">
+                            <p:outputLabel for="inicio" value="Início"/>
+                            <h:inputText id="inicio" value="#{registroPartidaBean.dto.horaInicio}" pt:type="time"
+                                         required="true" requiredMessage="Informe o horário de início." styleClass="ui-inputfield custom-input w-full">
+                                <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                            </h:inputText>
+                            <p:message for="inicio"/>
+                        </div>
+                        <div class="registro-jogo-field">
+                            <p:outputLabel for="fim" value="Fim"/>
+                            <h:inputText id="fim" value="#{registroPartidaBean.dto.horaFim}" pt:type="time"
+                                         required="true" requiredMessage="Informe o horário de término." styleClass="ui-inputfield custom-input w-full">
+                                <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                            </h:inputText>
+                            <p:message for="fim"/>
+                        </div>
+                    </div>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="campo" value="Campo ou quadra do jogo"/>
+                        <p:inputText id="campo" value="#{registroPartidaBean.dto.nomeCampo}" required="true" maxlength="160"
+                                     requiredMessage="Informe o campo ou a quadra do jogo." placeholder="Nome do campo ou da quadra"
+                                     styleClass="w-full custom-input"/>
+                        <p:message for="campo"/>
+                    </div>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="endereco" value="Endereço ou complemento (opcional)"/>
+                        <p:inputText id="endereco" value="#{registroPartidaBean.dto.endereco}" maxlength="300"
+                                     placeholder="Rua, número, bairro ou referência" styleClass="w-full custom-input"/>
+                    </div>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="taxa" value="Taxa de jogo (R$)"/>
+                        <p:inputNumber id="taxa" value="#{registroPartidaBean.dto.valorTaxa}" required="true"
+                                       requiredMessage="Informe a taxa. Use zero para jogo sem cobrança."
+                                       decimalPlaces="2" decimalSeparator="," thousandSeparator="." minValue="0" maxValue="9999999999.99"
+                                       styleClass="w-full" inputStyleClass="w-full custom-input"/>
+                        <h:outputText id="orientacaoTaxa" value="#{registroPartidaBean.orientacaoTaxa}" styleClass="registro-jogo-ajuda"/>
+                        <p:message for="taxa"/>
+                    </div>
+                    <div class="registro-jogo-field">
+                        <p:outputLabel for="observacoes" value="Observações (opcional)"/>
+                        <p:inputTextarea id="observacoes" value="#{registroPartidaBean.dto.observacoes}" maxlength="1000" rows="3"
+                                         placeholder="Informações combinadas para a partida" styleClass="w-full custom-input"/>
+                    </div>
+                    <p:commandButton id="salvar" value="Salvar na agenda" icon="fas fa-calendar-plus"
+                                     action="#{registroPartidaBean.salvar}" process="@form" update="@form"
+                                     disableOnAjax="true" styleClass="w-full font-bold"/>
+                </h:panelGroup>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

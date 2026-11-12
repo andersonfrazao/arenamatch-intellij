@@ -11,6 +11,7 @@
     </f:metadata>
 
     <ui:define name="conteudo">
+        <h:outputStylesheet library="css" name="partidas-externas.css"/>
         <style>
             @media (max-width: 1500px) {
                 .team-search-results .ui-dataview-column {
@@ -90,6 +91,13 @@
                     </div>
                 </div>
             </div>
+
+            <section class="registro-jogo-atalho" aria-label="Registrar partida externa">
+                <i class="fas fa-calendar-plus" aria-hidden="true"></i>
+                <div><h2>Já tem um jogo combinado?</h2><p>Registre na agenda, mesmo se o adversário ainda não tiver cadastro.</p></div>
+                <p:commandButton value="Registrar jogo" action="#{buscaBean.registrarJogo}" ajax="false"
+                                 icon="fas fa-plus" styleClass="ui-button-outlined font-bold"/>
+            </section>
 
             <p:dataView id="dataView" var="time" value="#{buscaBean.resultados}" layout="grid" 
                         paginator="true" rows="12" gridIcon="pi pi-th-large" listIcon="pi pi-bars"

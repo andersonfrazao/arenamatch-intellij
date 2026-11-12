@@ -1,6 +1,9 @@
 package br.com.arenamatch.service;
 
+import br.com.arenamatch.enums.StatusPartida;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,6 +44,8 @@ class DesafioPartidaServiceTest {
     @Mock private PartidaMensagemService partidaMensagemService;
     @Mock private PartidaHorarioService partidaHorarioService;
     @Mock private SimpMessagingTemplate mensageiro;
+    @Mock private br.com.arenamatch.repository.PartidaExternaRepository partidaExternaRepository;
+    @Mock private jakarta.persistence.EntityManager entityManager;
 
     private DesafioPartidaService service;
 
@@ -54,7 +59,27 @@ class DesafioPartidaServiceTest {
                 placarPendenteService,
                 partidaMensagemService,
                 partidaHorarioService,
-                mensageiro);
+                mensageiro, partidaExternaRepository, entityManager);
+    }
+
+    @Test
+    void bloqueiaAceiteQuandoVisitanteRegistrouJogoExternoNaModalidade() {
+        Time mandante = new Time();
+        mandante.setId(10L);
+        Time visitante = new Time();
+        visitante.setId(20L);
+        Partida partida = new Partida();
+        partida.setMandante(mandante);
+        partida.setVisitante(visitante);
+        partida.setModalidade(Modalidade.FUTEBOL_CAMPO);
+        partida.setStatus(StatusPartida.PENDENTE);
+        partida.setDataHora(LocalDateTime.now().plusDays(3));
+        when(partidaRepository.findById(30L)).thenReturn(Optional.of(partida));
+        when(partidaExternaRepository.existsByTimeIdAndModalidadeAndDataHoraInicioBetween(
+                eq(20L), eq(Modalidade.FUTEBOL_CAMPO), any(), any())).thenReturn(true);
+        assertThrows(RuntimeException.class, () -> service.aceitarDesafio(30L));
+        assertEquals(StatusPartida.PENDENTE, partida.getStatus());
+        verify(partidaRepository, never()).save(any());
     }
 
     @Test

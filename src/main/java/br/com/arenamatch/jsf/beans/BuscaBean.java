@@ -93,6 +93,14 @@ public class BuscaBean implements Serializable {
         }
     }
 
+    public String registrarJogo() {
+        String destino = "/registrar-jogo.xhtml?faces-redirect=true";
+        if (filtro.getDataJogo() != null) destino += "&data=" + filtro.getDataJogo();
+        if (filtro.getModalidade() != null) destino += "&modalidade=" + filtro.getModalidade().name();
+        if (filtro.getCategoria() != null) destino += "&categoria=" + filtro.getCategoria().name();
+        return destino;
+    }
+
     public void confirmarDesafio() {
         try {
             Long meuId = carregarIdMeuTime();

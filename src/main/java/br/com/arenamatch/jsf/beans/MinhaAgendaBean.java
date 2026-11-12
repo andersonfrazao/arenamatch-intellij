@@ -197,6 +197,11 @@ public class MinhaAgendaBean implements Serializable {
                 .ifPresent(this::selecionarDia);
     }
 
+    public String registrarJogo() {
+        LocalDate data = diaSelecionado != null ? diaSelecionado.getData() : dataBaseCalendario;
+        return "/registrar-jogo.xhtml?faces-redirect=true&data=" + data;
+    }
+
     public void selecionarDia(ResumoAgendaDTO dia) {
         this.diaSelecionado = dia;
         try {

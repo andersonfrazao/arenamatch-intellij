@@ -2,11 +2,18 @@ package br.com.arenamatch.dto;
 
 import lombok.Data;
 import br.com.arenamatch.enums.Modalidade;
+import br.com.arenamatch.enums.Categoria;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 public class EventoAgendaDTO {
     private Long idPartida;
+    private Long idPartidaExterna;
+    private boolean registroManual;
+    private Categoria categoria;
+    private LocalDateTime dataHoraFim;
+    private BigDecimal taxaRegistroManual;
     private Modalidade modalidade;
     private String titulo;      // Ex: "Contra Tabajara FC"
     private String subtitulo;   // Ex: "14:00 - 16:00 • Quadra ZN"

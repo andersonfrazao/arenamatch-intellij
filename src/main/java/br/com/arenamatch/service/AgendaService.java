@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +23,7 @@ import br.com.arenamatch.enums.StatusPlacar;
 import br.com.arenamatch.repository.PartidaRepository;
 
 @Service
+@org.springframework.transaction.annotation.Transactional(readOnly = true)
 public class AgendaService {
 
     @Autowired
@@ -30,9 +32,15 @@ public class AgendaService {
     @Autowired
     private HorarioJogoService horarioJogoService;
 
+    @Autowired
+    private PartidaExternaService partidaExternaService;
+
     public List<ResumoAgendaDTO> montarCalendario(Long timeId, LocalDate dataInicio, int dias) {
         List<ResumoAgendaDTO> calendario = new ArrayList<>();
         LocalDate dataFim = dataInicio.plusDays(dias - 1);
+        Map<LocalDate, List<EventoAgendaDTO>> externosPorDia = partidaExternaService
+                .buscarEventos(timeId, dataInicio, dataFim).stream()
+                .collect(Collectors.groupingBy(evento -> evento.getDataHora().toLocalDate()));
 
         // Busca partidas onde sou Mandante OU Visitante
         List<Partida> partidas = partidaRepository.buscarPartidasPorIntervalo(
@@ -83,6 +91,11 @@ public class AgendaService {
                 diaDto.setTemPlacarPendente(temPlacarPendente);
             }
 
+            List<EventoAgendaDTO> externos = externosPorDia.getOrDefault(dataAtual, List.of());
+            diaDto.setTemJogoConfirmado(diaDto.isTemJogoConfirmado()
+                    || externos.stream().anyMatch(evento -> !evento.isPassouDaHora()));
+            diaDto.setTemPlacarPendente(diaDto.isTemPlacarPendente()
+                    || externos.stream().anyMatch(EventoAgendaDTO::isPassouDaHora));
             calendario.add(diaDto);
         }
 
@@ -90,20 +103,26 @@ public class AgendaService {
     }
 
     public List<EventoAgendaDTO> buscarDetalhesDoDia(Long timeId, LocalDate data) {
+        List<EventoAgendaDTO> eventos = new ArrayList<>(partidaExternaService.buscarEventos(timeId, data, data));
         List<Partida> partidas = partidaRepository.buscarPartidasPorIntervalo(
                 timeId, data.atStartOfDay(), data.atTime(23, 59, 59));
         
-        return partidas.stream()
+        eventos.addAll(partidas.stream()
                 .map(p -> converterParaEvento(p, timeId))
-                .collect(Collectors.toList());
+                .toList());
+        eventos.sort(Comparator.comparing(EventoAgendaDTO::getDataHora));
+        return eventos;
     }
 
  // ... restante do seu código (montarCalendario) ...
 
     public List<ProximoJogoDTO> buscarJogosAgendadosFuturos(Long timeId) {
-        return partidaRepository.buscarJogosAgendadosAPartirDe(timeId, LocalDate.now().atStartOfDay()).stream()
+        List<ProximoJogoDTO> jogos = new ArrayList<>(partidaExternaService.buscarProximosJogos(timeId));
+        jogos.addAll(partidaRepository.buscarJogosAgendadosAPartirDe(timeId, LocalDate.now().atStartOfDay()).stream()
                 .map(this::converterParaProximoJogo)
-                .collect(Collectors.toList());
+                .toList());
+        jogos.sort(Comparator.comparing(ProximoJogoDTO::getDataHora));
+        return jogos;
     }
 
     private ProximoJogoDTO converterParaProximoJogo(Partida partida) {
