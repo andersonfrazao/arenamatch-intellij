@@ -1,0 +1,123 @@
+name: Deploy main - Hetzner (producao)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arenamatch-deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: arenamatch_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d arenamatch_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Testar e empacotar
+        env:
+          ARENA67_TEST_DB_URL: jdbc:postgresql://localhost:5432/arenamatch_test
+          ARENA67_TEST_DB_USER: postgres
+          ARENA67_TEST_DB_PASSWORD: ci_test_password
+        run: |
+          mvn --batch-mode --no-transfer-progress clean verify
+          node --test src/test/js/analytics.test.cjs
+
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Construir imagem ARM64 do commit
+        run: docker buildx build --platform linux/arm64 --load --tag "arenamatch-main:$GITHUB_SHA" .
+
+      - name: Publicar em producao por SSH
+        env:
+          PROD_SSH_HOST: ${{ vars.PROD_SSH_HOST || '178.105.94.89' }}
+          PROD_SSH_PORT: ${{ vars.PROD_SSH_PORT || '22' }}
+          PROD_SSH_USER: ${{ vars.PROD_SSH_USER || 'root' }}
+          PROD_DEPLOY_PATH: ${{ vars.PROD_DEPLOY_PATH || '/opt/arenamatch' }}
+          PROD_COMPOSE_FILE: ${{ vars.PROD_COMPOSE_FILE || 'docker-compose.yml' }}
+          PROD_COMPOSE_PROJECT: ${{ vars.PROD_COMPOSE_PROJECT || 'arenamatch' }}
+          PROD_COMPOSE_SERVICE: ${{ vars.PROD_COMPOSE_SERVICE || 'app' }}
+          PROD_COMPOSE_DB_SERVICE: ${{ vars.PROD_COMPOSE_DB_SERVICE || 'db' }}
+          PROD_SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          PROD_SSH_KNOWN_HOSTS: ${{ secrets.PROD_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          : "${PROD_SSH_USER:?Configure PROD_SSH_USER}"
+          : "${PROD_DEPLOY_PATH:?Configure PROD_DEPLOY_PATH}"
+          : "${PROD_COMPOSE_FILE:?Configure PROD_COMPOSE_FILE}"
+          : "${PROD_COMPOSE_PROJECT:?Configure PROD_COMPOSE_PROJECT}"
+          : "${PROD_COMPOSE_SERVICE:?Configure PROD_COMPOSE_SERVICE}"
+          : "${PROD_COMPOSE_DB_SERVICE:?Configure PROD_COMPOSE_DB_SERVICE}"
+          : "${PROD_SSH_PRIVATE_KEY:?Configure PROD_SSH_PRIVATE_KEY}"
+          : "${PROD_SSH_KNOWN_HOSTS:?Configure PROD_SSH_KNOWN_HOSTS}"
+          [[ "$PROD_SSH_HOST" =~ ^[a-zA-Z0-9.-]+$ ]]
+          [[ "$PROD_SSH_PORT" =~ ^[0-9]+$ ]]
+          [[ "$PROD_SSH_USER" =~ ^[a-zA-Z_][a-zA-Z0-9_-]*$ ]]
+          [[ "$PROD_DEPLOY_PATH" =~ ^/[a-zA-Z0-9_./-]+$ ]]
+          [[ "$PROD_COMPOSE_FILE" =~ ^[a-zA-Z0-9_./-]+$ ]]
+          [[ "$PROD_COMPOSE_PROJECT" =~ ^[a-z0-9][a-z0-9_-]*$ ]]
+          [[ "$PROD_COMPOSE_SERVICE" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]]
+          [[ "$PROD_COMPOSE_DB_SERVICE" =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]]
+
+          ssh_dir="$(mktemp -d)"
+          trap 'rm -f -- "$ssh_dir/key" "$ssh_dir/known_hosts"; rmdir -- "$ssh_dir"' EXIT
+          printf '%s\n' "$PROD_SSH_PRIVATE_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$PROD_SSH_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          chmod 600 "$ssh_dir/key" "$ssh_dir/known_hosts"
+          ssh_options=(-i "$ssh_dir/key" -p "$PROD_SSH_PORT"
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes
+            -o "UserKnownHostsFile=$ssh_dir/known_hosts" -o ConnectTimeout=15
+            -o ServerAliveInterval=15 -o ServerAliveCountMax=4)
+          remote="$PROD_SSH_USER@$PROD_SSH_HOST"
+
+          architecture=$(ssh "${ssh_options[@]}" "$remote" "docker info --format '{{.Architecture}}'")
+          if [[ "$architecture" != "aarch64" && "$architecture" != "arm64" ]]; then
+            echo "Arquitetura do servidor: $architecture. Esta pipeline publica imagens ARM64." >&2
+            exit 1
+          fi
+
+          ssh "${ssh_options[@]}" "$remote" \
+            "bash -s -- '$PROD_DEPLOY_PATH' '$PROD_COMPOSE_FILE' '$PROD_COMPOSE_PROJECT' '$PROD_COMPOSE_SERVICE' '$PROD_COMPOSE_DB_SERVICE' '$GITHUB_SHA' --check" \
+            < scripts/deploy-main.sh
+
+          # A imagem e enviada diretamente, sem registry nem acesso Git no servidor.
+          docker image save "arenamatch-main:$GITHUB_SHA" | gzip -1 |
+            ssh "${ssh_options[@]}" "$remote" 'bash -o pipefail -c "gunzip | docker image load"'
+          ssh "${ssh_options[@]}" "$remote" \
+            "bash -s -- '$PROD_DEPLOY_PATH' '$PROD_COMPOSE_FILE' '$PROD_COMPOSE_PROJECT' '$PROD_COMPOSE_SERVICE' '$PROD_COMPOSE_DB_SERVICE' '$GITHUB_SHA'" \
+            < scripts/deploy-main.sh
