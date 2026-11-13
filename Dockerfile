@@ -1,5 +1,5 @@
-# Usa uma imagem do Java 17 (se usar o 21, mude aqui)
-FROM eclipse-temurin:17-jre-alpine
+# Mesma versao Java definida no pom.xml.
+FROM eclipse-temurin:21-jre-alpine
 
 # Cria uma pasta de trabalho lá dentro
 WORKDIR /app
