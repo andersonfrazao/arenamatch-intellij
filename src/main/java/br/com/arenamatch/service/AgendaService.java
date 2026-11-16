@@ -19,6 +19,7 @@ import br.com.arenamatch.dto.ResumoAgendaDTO;
 import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.StatusPartida;
+import br.com.arenamatch.enums.SituacaoPartidaExterna;
 import br.com.arenamatch.enums.StatusPlacar;
 import br.com.arenamatch.repository.PartidaRepository;
 
@@ -91,15 +92,22 @@ public class AgendaService {
                 diaDto.setTemPlacarPendente(temPlacarPendente);
             }
 
+            // Jogos externos usam a mesma legenda dos oficiais: Confirmado, Placar pendente e Realizado.
             List<EventoAgendaDTO> externos = externosPorDia.getOrDefault(dataAtual, List.of());
             diaDto.setTemJogoConfirmado(diaDto.isTemJogoConfirmado()
-                    || externos.stream().anyMatch(evento -> !evento.isPassouDaHora()));
+                    || temSituacao(externos, SituacaoPartidaExterna.AGENDADO));
             diaDto.setTemPlacarPendente(diaDto.isTemPlacarPendente()
-                    || externos.stream().anyMatch(EventoAgendaDTO::isPassouDaHora));
+                    || temSituacao(externos, SituacaoPartidaExterna.AGUARDANDO_PLACAR));
+            diaDto.setTemJogoRealizado(diaDto.isTemJogoRealizado()
+                    || temSituacao(externos, SituacaoPartidaExterna.REALIZADO));
             calendario.add(diaDto);
         }
 
         return calendario;
+    }
+
+    private boolean temSituacao(List<EventoAgendaDTO> externos, SituacaoPartidaExterna situacao) {
+        return externos.stream().anyMatch(evento -> evento.getSituacaoRegistroManual() == situacao);
     }
 
     public List<EventoAgendaDTO> buscarDetalhesDoDia(Long timeId, LocalDate data) {

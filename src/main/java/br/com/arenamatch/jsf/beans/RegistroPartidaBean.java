@@ -29,6 +29,8 @@ public class RegistroPartidaBean implements Serializable {
     @Getter private RegistroPartidaExternaDTO dto = new RegistroPartidaExternaDTO();
     @Getter private List<Modalidade> modalidades = List.of();
     @Getter private String nomeTime;
+    /** Mando do time logado, vindo do cadastro. O adversário sempre joga com o mando oposto. */
+    @Getter private MandoPartida mandoTime;
     private List<String> adversarios = List.of();
     @Getter private boolean pronto;
 
@@ -45,7 +47,9 @@ public class RegistroPartidaBean implements Serializable {
             modalidades = opcoes.getModalidades();
             adversarios = opcoes.getAdversarios();
             nomeTime = opcoes.getNomeTime();
+            mandoTime = opcoes.getMandoTime();
             if (modalidades.size() == 1) dto.setModalidade(modalidades.getFirst());
+            dto.setValorTaxa(opcoes.getValorTaxa());
             aplicarParametros();
             pronto = true;
         } catch (RestClientResponseException e) {
@@ -96,12 +100,16 @@ public class RegistroPartidaBean implements Serializable {
         return Categoria.values();
     }
 
-    public MandoPartida[] getMandos() {
-        return MandoPartida.values();
+    public boolean isMandante() {
+        return mandoTime == MandoPartida.MANDANTE;
+    }
+
+    public MandoPartida getMandoAdversario() {
+        return isMandante() ? MandoPartida.VISITANTE : MandoPartida.MANDANTE;
     }
 
     public String getOrientacaoTaxa() {
-        if (dto.getMando() == MandoPartida.VISITANTE) {
+        if (!isMandante()) {
             return "Valor que seu time pagará ou pagou ao mandante. Informe zero se não houver cobrança.";
         }
         return "Valor combinado com o adversário. Informe zero se não houver cobrança.";

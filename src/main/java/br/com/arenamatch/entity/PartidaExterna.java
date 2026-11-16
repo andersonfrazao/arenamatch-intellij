@@ -61,6 +61,12 @@ public class PartidaExterna {
     @Column(length = 1000)
     private String observacoes;
 
+    @Column(name = "gols_mandante")
+    private Integer golsMandante;
+
+    @Column(name = "gols_visitante")
+    private Integer golsVisitante;
+
     @Column(nullable = false, updatable = false, length = 20)
     private String origem = "MANUAL";
 

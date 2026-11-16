@@ -10,7 +10,6 @@ import org.springframework.web.client.RestClientResponseException;
 import br.com.arenamatch.jsf.client.LigaClient;
 import br.com.arenamatch.dto.ConviteLigaDTO;
 import br.com.arenamatch.dto.LigaDetalheDTO;
-import br.com.arenamatch.entity.ConviteLiga;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;

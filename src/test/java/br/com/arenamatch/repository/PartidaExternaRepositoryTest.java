@@ -92,6 +92,20 @@ class PartidaExternaRepositoryTest {
         assertFalse(calendarioFuturo.isTemPlacarPendente());
         var calendarioPassado = agendaService.montarCalendario(time.getId(), passado.getData(), 1).getFirst();
         assertTrue(calendarioPassado.isTemPlacarPendente());
+        assertFalse(calendarioPassado.isTemJogoRealizado());
+        var realizado = dados();
+        realizado.setData(LocalDate.now().minusDays(9));
+        realizado.setGolsMandante(3);
+        realizado.setGolsVisitante(2);
+        service.registrar(realizado);
+        var calendarioRealizado = agendaService.montarCalendario(time.getId(), realizado.getData(), 1).getFirst();
+        assertTrue(calendarioRealizado.isTemJogoRealizado());
+        assertFalse(calendarioRealizado.isTemPlacarPendente());
+        assertFalse(calendarioRealizado.isTemJogoConfirmado());
+        var detalheRealizado = agendaService.buscarDetalhesDoDia(time.getId(), realizado.getData()).getFirst();
+        assertEquals(SituacaoPartidaExterna.REALIZADO, detalheRealizado.getSituacaoRegistroManual());
+        assertEquals(3, detalheRealizado.getGolsMandante());
+        assertEquals(2, detalheRealizado.getGolsVisitante());
         var detalhes = agendaService.buscarDetalhesDoDia(time.getId(), futuro.getData());
         assertEquals(1, detalhes.size());
         assertTrue(detalhes.getFirst().isRegistroManual());
@@ -132,6 +146,19 @@ class PartidaExternaRepositoryTest {
                 "Sábado", false, "ESPORTE", "FUTSAL");
         assertEquals(1, futsal.size());
         assertEquals(adversario.getId().longValue(), ((Number) futsal.getFirst().get("id")).longValue());
+    }
+
+    @Test
+    void bancoRejeitaPlacarIncompleto() {
+        Time time = criarTime();
+        autenticar(time.getResponsavel().getEmail());
+        var passado = dados();
+        passado.setData(LocalDate.now().minusDays(3));
+        var evento = service.registrar(passado);
+        em.flush();
+        assertThrows(RuntimeException.class, () -> em.createNativeQuery(
+                "update partida_externa set gols_mandante = 1 where id = :id")
+                .setParameter("id", evento.getIdPartidaExterna()).executeUpdate());
     }
 
     @Test
@@ -200,7 +227,6 @@ class PartidaExternaRepositoryTest {
         dto.setNomeAdversario("União de teste");
         dto.setModalidade(Modalidade.FUTEBOL_CAMPO);
         dto.setCategoria(Categoria.ESPORTE);
-        dto.setMando(MandoPartida.VISITANTE);
         dto.setData(LocalDate.now().plusDays(13));
         dto.setHoraInicio(LocalTime.NOON);
         dto.setHoraFim(LocalTime.of(14, 0));

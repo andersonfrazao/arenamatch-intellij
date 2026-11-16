@@ -3,7 +3,9 @@ package br.com.arenamatch.jsf.beans;
 import br.com.arenamatch.dto.EventoAgendaDTO;
 import br.com.arenamatch.dto.OpcoesPartidaExternaDTO;
 import br.com.arenamatch.enums.Categoria;
+import br.com.arenamatch.enums.MandoPartida;
 import br.com.arenamatch.enums.Modalidade;
+import java.math.BigDecimal;
 import br.com.arenamatch.jsf.client.PartidaExternaClient;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
@@ -95,6 +97,55 @@ class RegistroPartidaBeanTest {
         }
         verify(flash).setKeepMessages(true);
         verify(externo).redirect("/minha-agenda.xhtml?data=2026-01-02");
+    }
+
+    @Test
+    void mandantePreCarregaTaxaDoCadastroEAdversarioFicaVisitante() {
+        var opcoes = opcoes(MandoPartida.MANDANTE);
+        opcoes.setValorTaxa(new BigDecimal("120.00"));
+        RegistroPartidaBean bean = iniciar(opcoes);
+        assertTrue(bean.isMandante());
+        assertEquals(MandoPartida.VISITANTE, bean.getMandoAdversario());
+        assertEquals(new BigDecimal("120.00"), bean.getDto().getValorTaxa());
+        assertNull(bean.getDto().getNomeCampo());
+        assertNull(bean.getDto().getEndereco());
+    }
+
+    @Test
+    void visitanteVeAdversarioComoMandanteETaxaVazia() {
+        RegistroPartidaBean bean = iniciar(opcoes(MandoPartida.VISITANTE));
+        assertFalse(bean.isMandante());
+        assertEquals(MandoPartida.MANDANTE, bean.getMandoAdversario());
+        assertNull(bean.getDto().getValorTaxa());
+        assertEquals("Valor que seu time pagará ou pagou ao mandante. Informe zero se não houver cobrança.",
+                bean.getOrientacaoTaxa());
+    }
+
+    private OpcoesPartidaExternaDTO opcoes(MandoPartida mando) {
+        var opcoes = new OpcoesPartidaExternaDTO();
+        opcoes.setNomeTime("Mocidade FC");
+        opcoes.setModalidades(List.of(Modalidade.FUTEBOL_CAMPO));
+        opcoes.setAdversarios(List.of());
+        opcoes.setMandoTime(mando);
+        return opcoes;
+    }
+
+    private RegistroPartidaBean iniciar(OpcoesPartidaExternaDTO opcoes) {
+        FacesContext contexto = mock(FacesContext.class);
+        ExternalContext externo = mock(ExternalContext.class);
+        when(contexto.getExternalContext()).thenReturn(externo);
+        when(externo.getRequestParameterMap()).thenReturn(Map.of());
+        SessaoBean sessao = mock(SessaoBean.class);
+        when(sessao.isLogado()).thenReturn(true);
+        PartidaExternaClient client = mock(PartidaExternaClient.class);
+        when(client.buscarOpcoes()).thenReturn(opcoes);
+        RegistroPartidaBean bean = bean(client, sessao);
+        try (var faces = mockStatic(FacesContext.class)) {
+            faces.when(FacesContext::getCurrentInstance).thenReturn(contexto);
+            bean.init();
+        }
+        assertTrue(bean.isPronto());
+        return bean;
     }
 
     private RegistroPartidaBean bean(PartidaExternaClient client, SessaoBean sessao) {

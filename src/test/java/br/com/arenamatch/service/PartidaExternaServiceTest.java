@@ -57,7 +57,6 @@ class PartidaExternaServiceTest {
         dto.setNomeAdversario("União da Vila");
         dto.setModalidade(Modalidade.FUTEBOL_CAMPO);
         dto.setCategoria(Categoria.ESPORTE);
-        dto.setMando(MandoPartida.VISITANTE);
         dto.setData(LocalDate.now().plusDays(3));
         dto.setHoraInicio(LocalTime.NOON);
         dto.setHoraFim(LocalTime.of(14, 0));
@@ -114,13 +113,96 @@ class PartidaExternaServiceTest {
         permitirPersistencia();
         dto.setData(LocalDate.now().minusYears(1));
         dto.setValorTaxa(BigDecimal.ZERO);
-        dto.setMando(MandoPartida.MANDANTE);
+        time.setMandoCampo(true);
         var evento = service.registrar(dto);
         assertTrue(evento.isPassouDaHora());
         assertEquals("PENDENTE", evento.getStatusPlacar());
+        assertEquals(SituacaoPartidaExterna.AGUARDANDO_PLACAR, evento.getSituacaoRegistroManual());
         assertNull(evento.getGolsMandante());
         assertNull(evento.getGolsVisitante());
         assertEquals("Mocidade FC", evento.getNomeTimeMandante());
+        assertEquals("União da Vila", evento.getNomeTimeVisitante());
+    }
+
+    @Test
+    void mandoVemDoCadastroEAdversarioFicaComOMandoOposto() {
+        autenticar();
+        permitirPersistencia();
+        time.setMandoCampo(true);
+        var evento = service.registrar(dto);
+        assertEquals("Mandante", evento.getPosicaoMeuTime());
+        assertEquals("Mocidade FC", evento.getNomeTimeMandante());
+        assertEquals("União da Vila", evento.getNomeTimeVisitante());
+        var captor = ArgumentCaptor.forClass(PartidaExterna.class);
+        verify(partidas).save(captor.capture());
+        assertEquals(MandoPartida.MANDANTE, captor.getValue().getMando());
+    }
+
+    @Test
+    void opcoesDoMandanteTrazemATaxaDoCadastro() {
+        autenticar();
+        time.setMandoCampo(true);
+        time.setValorTaxa(120.0);
+        var opcoes = service.buscarOpcoes();
+        assertEquals(MandoPartida.MANDANTE, opcoes.getMandoTime());
+        assertEquals(new BigDecimal("120.00"), opcoes.getValorTaxa());
+    }
+
+    @Test
+    void opcoesDoVisitanteNaoTrazemTaxaDoProprioCadastro() {
+        autenticar();
+        time.setMandoCampo(false);
+        time.setValorTaxa(120.0);
+        var opcoes = service.buscarOpcoes();
+        assertEquals(MandoPartida.VISITANTE, opcoes.getMandoTime());
+        assertNull(opcoes.getValorTaxa());
+    }
+
+    @Test
+    void registraRetroativoComPlacarComoRealizado() {
+        autenticar();
+        permitirPersistencia();
+        dto.setData(LocalDate.now().minusDays(2));
+        dto.setGolsMandante(0);
+        dto.setGolsVisitante(0);
+        var evento = service.registrar(dto);
+        assertEquals(SituacaoPartidaExterna.REALIZADO, evento.getSituacaoRegistroManual());
+        assertEquals("INFORMADO", evento.getStatusPlacar());
+        assertEquals(0, evento.getGolsMandante());
+        assertEquals(0, evento.getGolsVisitante());
+        var captor = ArgumentCaptor.forClass(PartidaExterna.class);
+        verify(partidas).save(captor.capture());
+        assertEquals(0, captor.getValue().getGolsMandante());
+        assertEquals(0, captor.getValue().getGolsVisitante());
+    }
+
+    @Test
+    void jogoFuturoFicaAgendado() {
+        autenticar();
+        permitirPersistencia();
+        var evento = service.registrar(dto);
+        assertEquals(SituacaoPartidaExterna.AGENDADO, evento.getSituacaoRegistroManual());
+        assertFalse(evento.isPassouDaHora());
+    }
+
+    @Test
+    void rejeitaPlacarEmJogoFuturoIncompletoOuForaDoLimite() {
+        autenticar();
+        dto.setGolsMandante(1);
+        dto.setGolsVisitante(0);
+        assertEquals(HttpStatus.BAD_REQUEST, assertThrows(ResponseStatusException.class,
+                () -> service.registrar(dto)).getStatusCode());
+        dto.setData(LocalDate.now().minusDays(1));
+        dto.setGolsVisitante(null);
+        assertEquals(HttpStatus.BAD_REQUEST, assertThrows(ResponseStatusException.class,
+                () -> service.registrar(dto)).getStatusCode());
+        dto.setGolsVisitante(-1);
+        assertEquals(HttpStatus.BAD_REQUEST, assertThrows(ResponseStatusException.class,
+                () -> service.registrar(dto)).getStatusCode());
+        dto.setGolsVisitante(100);
+        assertEquals(HttpStatus.BAD_REQUEST, assertThrows(ResponseStatusException.class,
+                () -> service.registrar(dto)).getStatusCode());
+        verify(partidas, never()).save(any());
     }
 
     @Test

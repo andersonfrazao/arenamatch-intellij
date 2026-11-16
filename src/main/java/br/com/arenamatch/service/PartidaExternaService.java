@@ -3,6 +3,7 @@ package br.com.arenamatch.service;
 import br.com.arenamatch.dto.*;
 import br.com.arenamatch.entity.*;
 import br.com.arenamatch.enums.MandoPartida;
+import br.com.arenamatch.enums.SituacaoPartidaExterna;
 import br.com.arenamatch.enums.StatusPartida;
 import br.com.arenamatch.enums.StatusUsuario;
 import br.com.arenamatch.repository.*;
@@ -69,7 +70,19 @@ public class PartidaExternaService {
         dto.setModalidades(time.getModalidades().stream().sorted().toList());
         dto.setAdversarios(adversarios.findByTimeIdOrderByNomeAsc(time.getId()).stream()
                 .map(AdversarioExterno::getNome).toList());
+        MandoPartida mando = mandoDoTime(time);
+        dto.setMandoTime(mando);
+        if (mando == MandoPartida.MANDANTE) {
+            // O mandante cobra a taxa definida no cadastro do time; o visitante informa a taxa do adversário.
+            dto.setValorTaxa(time.getValorTaxa() == null ? null
+                    : BigDecimal.valueOf(time.getValorTaxa()).setScale(2, RoundingMode.HALF_UP));
+        }
         return dto;
+    }
+
+    /** O mando vem do cadastro do time; o adversário externo sempre joga com o mando oposto. */
+    private MandoPartida mandoDoTime(Time time) {
+        return time.isMandoCampo() ? MandoPartida.MANDANTE : MandoPartida.VISITANTE;
     }
 
     @Transactional
@@ -88,6 +101,7 @@ public class PartidaExternaService {
         }
         LocalDateTime inicio = dto.getData().atTime(dto.getHoraInicio());
         LocalDateTime fim = dto.getData().atTime(dto.getHoraFim());
+        validarPlacar(dto, inicio);
         validarDisponibilidade(time.getId(), dto, inicio, fim);
 
         String nome = dto.getNomeAdversario();
@@ -107,7 +121,9 @@ public class PartidaExternaService {
         partida.setNomeAdversario(nome);
         partida.setModalidade(dto.getModalidade());
         partida.setCategoria(dto.getCategoria());
-        partida.setMando(dto.getMando());
+        partida.setMando(mandoDoTime(time));
+        partida.setGolsMandante(dto.getGolsMandante());
+        partida.setGolsVisitante(dto.getGolsVisitante());
         partida.setDataHoraInicio(inicio);
         partida.setDataHoraFim(fim);
         partida.setNomeCampo(dto.getNomeCampo());
@@ -172,9 +188,42 @@ public class PartidaExternaService {
         dto.setEndereco(partida.getEndereco());
         dto.setTaxaRegistroManual(partida.getValorTaxa());
         dto.setMensagem(partida.getObservacoes());
-        dto.setPassouDaHora(!partida.getDataHoraFim().isAfter(LocalDateTime.now()));
-        dto.setStatusPlacar("PENDENTE");
+        SituacaoPartidaExterna situacao = calcularSituacao(partida);
+        dto.setSituacaoRegistroManual(situacao);
+        dto.setPassouDaHora(situacao != SituacaoPartidaExterna.AGENDADO);
+        dto.setStatusPlacar(situacao == SituacaoPartidaExterna.REALIZADO ? "INFORMADO" : "PENDENTE");
+        dto.setGolsMandante(partida.getGolsMandante());
+        dto.setGolsVisitante(partida.getGolsVisitante());
         return dto;
+    }
+
+    /** Mesma regra das partidas oficiais na agenda: depois do horário de início, o jogo aguarda o placar. */
+    private SituacaoPartidaExterna calcularSituacao(PartidaExterna partida) {
+        if (partida.getDataHoraInicio().isAfter(LocalDateTime.now())) {
+            return SituacaoPartidaExterna.AGENDADO;
+        }
+        return partida.getGolsMandante() != null && partida.getGolsVisitante() != null
+                ? SituacaoPartidaExterna.REALIZADO
+                : SituacaoPartidaExterna.AGUARDANDO_PLACAR;
+    }
+
+    private void validarPlacar(RegistroPartidaExternaDTO dto, LocalDateTime inicio) {
+        Integer golsMandante = dto.getGolsMandante();
+        Integer golsVisitante = dto.getGolsVisitante();
+        if (golsMandante == null && golsVisitante == null) {
+            return;
+        }
+        if (golsMandante == null || golsVisitante == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Informe os gols dos dois times. Para empate sem gols, preencha 0 nos dois campos.");
+        }
+        if (golsMandante < 0 || golsVisitante < 0 || golsMandante > 99 || golsVisitante > 99) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe um placar entre 0 e 99 gols para cada time.");
+        }
+        if (inicio.isAfter(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "O placar só pode ser informado para jogos que já começaram ou foram realizados.");
+        }
     }
 
     private void validarDisponibilidade(Long timeId, RegistroPartidaExternaDTO dto,
@@ -198,8 +247,8 @@ public class PartidaExternaService {
         dto.setNomeCampo(validarTexto(dto.getNomeCampo(), "Campo ou quadra", 160, true));
         dto.setEndereco(validarTexto(dto.getEndereco(), "Endereço", 300, false));
         dto.setObservacoes(validarTexto(dto.getObservacoes(), "Observações", 1000, false));
-        if (dto.getModalidade() == null || dto.getCategoria() == null || dto.getMando() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe modalidade, categoria e mando de campo.");
+        if (dto.getModalidade() == null || dto.getCategoria() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe a modalidade e a categoria.");
         }
         if (dto.getData() == null || dto.getHoraInicio() == null || dto.getHoraFim() == null
                 || !dto.getHoraFim().isAfter(dto.getHoraInicio())) {
@@ -225,7 +274,8 @@ public class PartidaExternaService {
     private void conferirReenvio(PartidaExterna partida, RegistroPartidaExternaDTO dto) {
         boolean mesmosDados = Objects.equals(partida.getNomeAdversario(), dto.getNomeAdversario())
                 && partida.getModalidade() == dto.getModalidade() && partida.getCategoria() == dto.getCategoria()
-                && partida.getMando() == dto.getMando()
+                && Objects.equals(partida.getGolsMandante(), dto.getGolsMandante())
+                && Objects.equals(partida.getGolsVisitante(), dto.getGolsVisitante())
                 && partida.getDataHoraInicio().equals(dto.getData().atTime(dto.getHoraInicio()))
                 && partida.getDataHoraFim().equals(dto.getData().atTime(dto.getHoraFim()))
                 && partida.getNomeCampo().equals(dto.getNomeCampo())

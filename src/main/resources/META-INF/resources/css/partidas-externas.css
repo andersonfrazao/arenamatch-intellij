@@ -21,9 +21,15 @@
 .jogo-externo-card { border: 1px solid #365b6d; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; background: rgba(24, 46, 60, .95); color: #eef4fc; overflow-wrap: anywhere; }
 .jogo-externo-cabecalho { display: flex; justify-content: space-between; align-items: center; gap: .7rem; flex-wrap: wrap; margin-bottom: 1rem; }
 .jogo-externo-origem { color: #86def7; font-size: .8rem; font-weight: 600; }
-.jogo-externo-status { border: 1px solid #4b7b91; border-radius: 20px; padding: .3rem .6rem; color: #c8edff; font-size: .8rem; }
-.jogo-externo-status.pendente { color: #ffe49a; border-color: #87733d; }
+/* Situação do jogo externo: mesmas cores da legenda da agenda (Confirmado, Placar pendente, Realizado). */
+.jogo-externo-status { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #4b7b91; border-radius: 999px; padding: .3rem .65rem; color: #c8edff; font-size: .8rem; font-weight: 700; }
+.jogo-externo-status .dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+.jogo-externo-status.AGENDADO { color: #86efac; border-color: rgba(37, 211, 102, .45); background: rgba(37, 211, 102, .1); }
+.jogo-externo-status.AGUARDANDO_PLACAR { color: #d8b4fe; border-color: rgba(168, 85, 247, .55); background: rgba(168, 85, 247, .12); }
+.jogo-externo-status.REALIZADO { color: #93c5fd; border-color: rgba(59, 130, 246, .5); background: rgba(59, 130, 246, .12); }
 .jogo-externo-times { text-align: center; font-size: 1.15rem; font-weight: 700; margin: 1rem 0; }
+.jogo-externo-placar { display: inline-block; margin: 0 .6rem; padding: .1rem .6rem; border-radius: 8px; background: rgba(59, 130, 246, .15); color: #fff; font-variant-numeric: tabular-nums; }
+
 .jogo-externo-info { color: #bfd0df; font-size: .9rem; margin-top: .7rem; line-height: 1.6; }
 @media (max-width: 600px) {
     .registro-jogo-panel { padding: 1rem; }

@@ -19,7 +19,7 @@
                 <h:panelGroup rendered="#{registroPartidaBean.pronto}" layout="block" styleClass="registro-jogo-panel">
                     <h2>Quem vai jogar?</h2>
                     <div class="registro-jogo-field">
-                        <p:outputLabel for="adversario" value="Nome do adversário"/>
+                        <p:outputLabel for="adversario" value="Nome do adversário (#{registroPartidaBean.mandoAdversario.descricao})"/>
                         <p:autoComplete id="adversario" value="#{registroPartidaBean.dto.nomeAdversario}"
                                         completeMethod="#{registroPartidaBean.completarAdversario}" forceSelection="false"
                                         minQueryLength="1" maxResults="15" maxlength="120" required="true"
@@ -47,16 +47,6 @@
                             </p:selectOneMenu>
                             <p:message for="categoria"/>
                         </div>
-                    </div>
-                    <div class="registro-jogo-field">
-                        <p:outputLabel for="mando" value="Seu time joga como"/>
-                        <p:selectOneMenu id="mando" value="#{registroPartidaBean.dto.mando}" required="true"
-                                         requiredMessage="Selecione o mando do seu time." styleClass="w-full custom-input">
-                            <f:selectItem itemLabel="Selecione o mando" itemValue="#{null}" noSelectionOption="true"/>
-                            <f:selectItems value="#{registroPartidaBean.mandos}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
-                            <p:ajax process="@this" update="orientacaoTaxa"/>
-                        </p:selectOneMenu>
-                        <p:message for="mando"/>
                     </div>
                     <h2>Quando e onde?</h2>
                     <div class="registro-jogo-field">

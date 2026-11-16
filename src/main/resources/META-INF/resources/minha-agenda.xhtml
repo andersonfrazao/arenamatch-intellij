@@ -458,9 +458,17 @@
                         <h:panelGroup rendered="#{evento.registroManual}" layout="block" styleClass="jogo-externo-card">
                             <div class="jogo-externo-cabecalho">
                                 <span class="jogo-externo-origem"><i class="fas fa-calendar-plus mr-1"></i> Registrado por você</span>
-                                <span class="jogo-externo-status #{evento.passouDaHora ? 'pendente' : ''}">#{evento.passouDaHora ? 'Aguardando placar' : 'Agendado'}</span>
+                                <span class="jogo-externo-status #{evento.situacaoRegistroManual}">
+                                    <span class="dot #{evento.situacaoRegistroManual eq 'AGENDADO' ? 'game' : evento.situacaoRegistroManual eq 'REALIZADO' ? 'played' : 'score-pending'}" aria-hidden="true"></span>
+                                    #{evento.situacaoRegistroManual.descricao}
+                                </span>
                             </div>
-                            <div class="jogo-externo-times">#{evento.nomeTimeMandante} <span class="text-gray-400 mx-2">×</span> #{evento.nomeTimeVisitante}</div>
+                            <div class="jogo-externo-times">
+                                #{evento.nomeTimeMandante}
+                                <h:panelGroup rendered="#{evento.situacaoRegistroManual eq 'REALIZADO'}" styleClass="jogo-externo-placar">#{evento.golsMandante} × #{evento.golsVisitante}</h:panelGroup>
+                                <h:panelGroup rendered="#{evento.situacaoRegistroManual ne 'REALIZADO'}" styleClass="text-gray-400 mx-2">×</h:panelGroup>
+                                #{evento.nomeTimeVisitante}
+                            </div>
                             <div class="jogo-externo-info">#{evento.modalidade.descricao} · #{evento.categoria.descricao} · Seu time: #{evento.posicaoMeuTime}</div>
                             <div class="jogo-externo-info"><i class="far fa-clock mr-1"></i>
                                 <h:outputText value="#{evento.dataHora}"><f:convertDateTime type="localDateTime" pattern="HH:mm"/></h:outputText>
