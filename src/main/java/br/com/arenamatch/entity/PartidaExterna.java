@@ -3,6 +3,7 @@ package br.com.arenamatch.entity;
 import br.com.arenamatch.enums.Categoria;
 import br.com.arenamatch.enums.MandoPartida;
 import br.com.arenamatch.enums.Modalidade;
+import br.com.arenamatch.enums.OrigemPartida;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -67,8 +68,9 @@ public class PartidaExterna {
     @Column(name = "gols_visitante")
     private Integer golsVisitante;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false, length = 20)
-    private String origem = "MANUAL";
+    private OrigemPartida origem = OrigemPartida.MANUAL;
 
     @Column(name = "chave_solicitacao", nullable = false, updatable = false)
     private UUID chaveSolicitacao;

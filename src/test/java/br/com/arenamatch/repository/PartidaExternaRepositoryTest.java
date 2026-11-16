@@ -63,7 +63,7 @@ class PartidaExternaRepositoryTest {
         em.flush();
         em.clear();
         PartidaExterna partida = partidas.findById(evento.getIdPartidaExterna()).orElseThrow();
-        assertEquals("MANUAL", partida.getOrigem());
+        assertEquals(OrigemPartida.MANUAL, partida.getOrigem());
         assertNotNull(partida.getCriadoEm());
         assertNotNull(partida.getAtualizadoEm());
         assertEquals(new BigDecimal("150.00"), partida.getValorTaxa());

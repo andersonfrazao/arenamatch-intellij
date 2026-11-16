@@ -102,7 +102,7 @@ class PartidaExternaServiceTest {
         verify(partidas).save(captor.capture());
         assertSame(time, captor.getValue().getTime());
         assertSame(usuario, captor.getValue().getAutor());
-        assertEquals("MANUAL", captor.getValue().getOrigem());
+        assertEquals(OrigemPartida.MANUAL, captor.getValue().getOrigem());
         verify(times, never()).save(any());
         verify(partidasOficiais, never()).save(any());
     }
