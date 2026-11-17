@@ -82,6 +82,30 @@ class RecursosVisuaisTest {
         }
     }
 
+    @Test
+    void paginasDeAcessoCompartilhamRecursosEFormulariosAcessiveis() throws Exception {
+        for (String pagina : List.of("login.xhtml", "ativar-conta.xhtml", "recuperar-senha.xhtml")) {
+            Document documento = lerPagina(pagina);
+            assertTrue(consultar(documento, "string(//*[local-name()='body']/@styleClass)").contains("am-access"), pagina);
+            assertEquals("0", consultar(documento, "count(//*[local-name()='style'])"), pagina);
+            assertEquals("1", consultar(documento,
+                    "count(//*[local-name()='link'][contains(@href,'css:acesso.css')])"), pagina);
+            assertEquals("1", consultar(documento,
+                    "count(//*[local-name()='script'][contains(@src,'js:acesso.js')])"), pagina);
+            assertEquals("1", consultar(documento, "count(//*[local-name()='main'])"), pagina);
+            assertEquals("1", consultar(documento, "count(//*[local-name()='defaultCommand'])"), pagina);
+            assertEquals("0", consultar(documento,
+                    "count(//*[local-name()='inputText' or local-name()='password' or local-name()='inputMask'][not(@id)])"), pagina);
+            assertEquals("0", consultar(documento,
+                    "count(//*[local-name()='commandButton'][not(ancestor::*[local-name()='form'])])"), pagina);
+            assertEquals("1", consultar(documento,
+                    "count(//*[local-name()='inputMask'][@*[local-name()='inputmode']='numeric'][@*[local-name()='autocomplete']='one-time-code'])"), pagina);
+        }
+        Document ativacao = lerPagina("ativar-conta.xhtml");
+        assertEquals("@this email", consultar(ativacao,
+                "string(//*[local-name()='commandLink'][@id='reenviar']/@process)"));
+    }
+
     private String consultar(Document documento, String expressao) throws Exception {
         return XPathFactory.newInstance().newXPath().evaluate(expressao, documento);
     }

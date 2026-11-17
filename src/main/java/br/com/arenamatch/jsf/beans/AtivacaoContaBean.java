@@ -61,6 +61,7 @@ public class AtivacaoContaBean implements Serializable {
     public void reenviarCodigo() {
         try {
             authClient.reenviarCodigoAtivacao(email);
+            codigo = null;
             adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Codigo de ativacao reenviado.");
         } catch (RestClientResponseException e) {
             String mensagem = e.getResponseBodyAsString();

@@ -113,6 +113,7 @@ public class LoginBean implements Serializable {
     public void reenviarCodigoAdmin() {
         try {
             authClient.reenviarCodigoAcessoAdmin(desafioAdmin);
+            codigoAdmin = null;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Codigo reenviado",
                             "Enviamos um novo codigo para " + emailAdminMascarado + "."));
