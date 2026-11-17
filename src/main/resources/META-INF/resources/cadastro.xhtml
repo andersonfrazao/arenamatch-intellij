@@ -3,482 +3,228 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pt="jakarta.faces.passthrough"
                 template="/WEB-INF/template/layout.xhtml">
 
+    <ui:define name="estilosPagina">
+        <link href="#{resource['css:cadastro.css']}&amp;rev=78.2" rel="stylesheet"/>
+    </ui:define>
+
     <ui:define name="conteudo">
-        
-        <style>
-            /* --- ESTILOS GERAIS --- */
-            .wizard-card {
-                background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(15px);
-                border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
-                width: 95%; max-width: 900px; overflow: hidden; margin: 20px auto; position: relative;
-            }
-            .wizard-card::before {
-                content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-                background: linear-gradient(90deg, #0ea5e9, #22c55e); z-index: 10;
-            }
-
-            /* Header e Steps */
-            .wizard-header { background: rgba(15, 23, 42, 0.95); padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-            .wizard-topbar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
-            .restart-link {
-                display: inline-flex; align-items: center; gap: 8px; color: #94a3b8;
-                border: 1px solid #475569; border-radius: 8px; padding: 8px 12px;
-                text-decoration: none; font-size: 0.85rem; font-weight: 700;
-                background: rgba(15, 23, 42, 0.45); transition: all 0.2s;
-            }
-            .restart-link:hover { color: #fff; border-color: #0ea5e9; background: rgba(14, 165, 233, 0.12); }
-            .steps-container { display: flex; align-items: center; justify-content: center; gap: 10px; }
-            .step-line { width: 30px; height: 2px; background: #334155; }
-            
-            /* Inputs Customizados */
-            .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .full-width { grid-column: span 2; }
-            .form-group { margin-bottom: 5px; }
-            .form-label { display: block; color: #94a3b8; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600; }
-            .info-box {
-                background: rgba(14, 165, 233, 0.1); border-left: 4px solid #0ea5e9;
-                padding: 15px; border-radius: 4px; color: #e2e8f0; font-size: 0.85rem;
-                margin-bottom: 20px; display: flex; gap: 10px; align-items: start; line-height: 1.4;
-            }
-            
-            body .custom-input, body .ui-inputfield.custom-input {
-                width: 100%; padding: 12px; background: rgba(15, 23, 42, 0.6) !important;
-                border: 1px solid #475569 !important; border-radius: 8px !important;
-                color: #fff !important; font-size: 0.95rem; box-shadow: none !important;
-            }
-            
-            /* CSS para ERRO DE VALIDAÇÃO (Borda Vermelha) */
-            body .ui-inputfield.ui-state-error, 
-            body .ui-inputfield.custom-input.ui-state-error {
-                border-color: #ef4444 !important;
-                box-shadow: 0 0 0 1px #ef4444 !important;
-            }
-
-            /* Campo Readonly */
-            body .ui-inputfield.custom-input[readonly] { 
-                background: rgba(15, 23, 42, 0.9) !important; color: #64748b !important; opacity: 1 !important;
-            }
-
-            body .foco-busca-cep {
-                border-color: #ef4444 !important;
-                box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35) !important;
-            }
-
-            /* Estilos dos Botões de Dias */
-            body .week-selector .ui-selectonebutton { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
-            body .week-selector .ui-button {
-                flex: 1; min-width: 45px; height: 45px; border-radius: 8px !important;
-                background: #1e293b !important; border: 1px solid #475569 !important; color: #94a3b8 !important;
-                font-weight: bold; font-size: 0.8rem; box-shadow: none !important;
-            }
-            body .week-selector .ui-button.ui-state-active {
-                background: #0ea5e9 !important; color: #fff !important; border-color: #0ea5e9 !important;
-            }
-            body .week-selector .ui-button:hover { border-color: #0ea5e9 !important; color: #fff !important; }
-
-            body .mando-campo-radio {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                width: 100%;
-            }
-            body .mando-campo-radio tbody {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-            }
-            body .mando-campo-radio tr {
-                display: block;
-            }
-            body .mando-campo-radio td {
-                display: inline-flex;
-                align-items: center;
-                padding: 0 6px 0 0;
-            }
-            body .mando-campo-radio .ui-radiobutton {
-                margin-right: 8px;
-            }
-            body .mando-campo-radio label {
-                color: #fff;
-                margin-right: 0;
-                line-height: 1.25;
-            }
-            body .agenda-table-prime {
-                min-width: 0 !important;
-            }
-            body .agenda-table-prime .ui-column-title {
-                color: #94a3b8;
-                font-weight: 800;
-                margin-right: 8px;
-            }
-            
-            /* Ajustes Mobile */
-            @media (max-width: 600px) {
-                .input-grid { grid-template-columns: 1fr; }
-                .full-width { grid-column: span 1; }
-                .wizard-topbar { justify-content: center; }
-                .steps-container { flex-wrap: wrap; }
-                .wizard-card { width: 100%; margin: 10px auto; }
-                .wizard-card > div,
-                .wizard-card [style*="padding: 30px 40px"] {
-                    padding-left: 16px !important;
-                    padding-right: 16px !important;
-                }
-                body .week-selector .ui-button {
-                    flex: 0 0 calc(25% - 8px);
-                }
-                body .agenda-table-prime .ui-datatable-reflow .ui-datatable-data td,
-                body .agenda-table-prime.ui-datatable-reflow .ui-datatable-data td {
-                    display: flex !important;
-                    justify-content: space-between;
-                    align-items: center;
-                    min-height: 0;
-                    gap: 8px;
-                    padding: .38rem .55rem !important;
-                    line-height: 1.15;
-                    text-align: right;
-                    border-color: rgba(255,255,255,0.08) !important;
-                }
-                body .agenda-table-prime .ui-column-title {
-                    flex: 0 0 72px;
-                    margin-right: 0;
-                    font-size: .76rem;
-                    line-height: 1.1;
-                    text-align: left;
-                }
-                body .agenda-table-prime.ui-datatable-reflow .ui-datatable-data tr {
-                    border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 10px;
-                    background: rgba(15, 23, 42, 0.45);
-                    margin-bottom: 7px;
-                    overflow: hidden;
-                }
-                body .agenda-table-prime .agenda-action-column {
-                    min-height: 38px;
-                    justify-content: flex-end !important;
-                    padding: .25rem .55rem !important;
-                    overflow: visible !important;
-                }
-                body .agenda-table-prime .agenda-action-column .ui-column-title {
-                    display: none !important;
-                }
-                body .agenda-table-prime .agenda-delete-button {
-                    display: inline-flex !important;
-                    align-items: center;
-                    justify-content: center;
-                    visibility: visible !important;
-                    opacity: 1 !important;
-                    width: 34px !important;
-                    min-width: 34px !important;
-                    height: 34px !important;
-                    margin: 0 !important;
-                }
-            }
-            .ui-wizard-navbar { display: none; }
-        </style>
-
-        <h:form id="formCadastro" enctype="multipart/form-data">
-            <p:growl id="msgs" showDetail="true" life="12000" />
-            <h:inputHidden id="geoLat" value="#{cadastroBean.dto.latitude}" />
-            <h:inputHidden id="geoLon" value="#{cadastroBean.dto.longitude}" />
+        <h:form id="formCadastro" enctype="multipart/form-data" styleClass="am-cadastro" pt:aria-busy="false">
+            <h:inputHidden id="geoLat" value="#{cadastroBean.dto.latitude}"/>
+            <h:inputHidden id="geoLon" value="#{cadastroBean.dto.longitude}"/>
 
             <div class="wizard-card">
-                
                 <h:panelGroup id="wizardHeader" layout="block" styleClass="wizard-header">
                     <h:panelGroup rendered="#{not sessaoBean.logado}" layout="block" styleClass="wizard-topbar">
                         <h:link outcome="/login.xhtml" styleClass="restart-link">
-                            <i class="fas fa-arrow-left"></i>
+                            <i class="fas fa-arrow-left" aria-hidden="true"></i>
                             <span>Voltar ao login</span>
                         </h:link>
                     </h:panelGroup>
-
-                    <div class="steps-container">
-                        <div class="step-item #{cadastroBean.stepAtual == 'responsavel' ? 'active' : ''}" style="display: flex; align-items: center; gap: 10px; opacity: #{cadastroBean.stepAtual == 'responsavel' ? '1' : '0.4'};">
-                            <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: #{cadastroBean.stepAtual == 'responsavel' ? '#0ea5e9' : '#334155'}; color: #fff; display: flex; align-items: center; justify-content: center;">1</div>
-                            <span class="step-label" style="color:#fff; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Representante</span>
-                        </div>
-                        <div class="step-line"></div>
-                        <div class="step-item #{cadastroBean.stepAtual == 'time' ? 'active' : ''}" style="display: flex; align-items: center; gap: 10px; opacity: #{cadastroBean.stepAtual == 'time' ? '1' : '0.4'};">
-                            <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: #{cadastroBean.stepAtual == 'time' ? '#0ea5e9' : '#334155'}; color: #fff; display: flex; align-items: center; justify-content: center;">2</div>
-                            <span class="step-label" style="color:#fff; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Time</span>
-                        </div>
-                         <div class="step-line"></div>
-                        <div class="step-item #{cadastroBean.stepAtual == 'agenda' ? 'active' : ''}" style="display: flex; align-items: center; gap: 10px; opacity: #{cadastroBean.stepAtual == 'agenda' ? '1' : '0.4'};">
-                            <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: #{cadastroBean.stepAtual == 'agenda' ? '#0ea5e9' : '#334155'}; color: #fff; display: flex; align-items: center; justify-content: center;">3</div>
-                            <span class="step-label" style="color:#fff; font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Agenda</span>
-                        </div>
-                    </div>
+                    <ol class="steps-container" aria-label="Etapas do cadastro">
+                        <li class="step-item #{cadastroBean.stepAtual eq 'responsavel' ? 'active' : ''}" aria-current="#{cadastroBean.stepAtual eq 'responsavel' ? 'step' : 'false'}">
+                            <span class="step-circle">1</span><span class="step-label">Responsável</span>
+                        </li>
+                        <li class="step-item #{cadastroBean.stepAtual eq 'time' ? 'active' : ''}" aria-current="#{cadastroBean.stepAtual eq 'time' ? 'step' : 'false'}">
+                            <span class="step-circle">2</span><span class="step-label">Time</span>
+                        </li>
+                        <li class="step-item #{cadastroBean.stepAtual eq 'agenda' ? 'active' : ''}" aria-current="#{cadastroBean.stepAtual eq 'agenda' ? 'step' : 'false'}">
+                            <span class="step-circle">3</span><span class="step-label">Agenda</span>
+                        </li>
+                    </ol>
                 </h:panelGroup>
-
-                <div style="padding: 30px 40px; min-height: 400px;">
-                    <p:wizard flowListener="#{cadastroBean.onFlowProcess}" showNavBar="false" widgetVar="wiz">
-                        <p:ajax event="next" update=":formCadastro:wizardHeader :formCadastro:wizardFooter msgs"/>
-                        <p:ajax event="back" update=":formCadastro:wizardHeader :formCadastro:wizardFooter"/>
+                <div class="cadastro-mensagens">
+                    <p:messages id="msgs" showDetail="true" showSummary="false" closable="true" pt:tabindex="-1">
+                        <p:autoUpdate/>
+                    </p:messages>
+                </div>
+                <div class="wizard-body">
+                    <p:wizard id="cadastroWizard" flowListener="#{cadastroBean.onFlowProcess}" showNavBar="false" showStepStatus="false" widgetVar="wiz">
+                        <p:ajax event="next" update=":formCadastro:wizardHeader :formCadastro:wizardFooter msgs" onstart="iniciarEnvioAcesso('formCadastro')" oncomplete="concluirEtapaCadastro()"/>
+                        <p:ajax event="back" update=":formCadastro:wizardHeader :formCadastro:wizardFooter msgs" onstart="iniciarEnvioAcesso('formCadastro')" oncomplete="concluirEtapaCadastro()"/>
 
                         <p:tab id="responsavel">
-                            <h2 style="margin-top: 0; color: #fff; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-user-tie" style="color: #0ea5e9;"></i> Responsável
-                            </h2>
+                            <h2 class="cadastro-titulo" tabindex="-1"><i class="fas fa-user-tie" aria-hidden="true"></i> Responsável</h2>
                             <div class="input-grid">
                                 <div class="form-group full-width">
-                                    <label class="form-label">Nome Completo</label>
-                                    <p:inputText value="#{cadastroBean.dto.nomeResponsavel}" styleClass="custom-input" required="true" requiredMessage="Nome é obrigatório"/>
+                                    <p:outputLabel for="nomeResponsavel" value="Nome Completo" styleClass="form-label"/>
+                                    <p:inputText id="nomeResponsavel" value="#{cadastroBean.dto.nomeResponsavel}" autocomplete="name" styleClass="custom-input" required="true" requiredMessage="Nome é obrigatório"/>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">CPF</label>
-                                    <p:inputMask value="#{cadastroBean.dto.cpf}" 
-                                                 mask="999.999.999-99" 
-                                                 styleClass="custom-input" 
-                                                 required="true" 
-                                                 requiredMessage="CPF é obrigatório"
-                                                 rendered="#{not sessaoBean.logado}" />
-                                    <h:outputText value="#{cadastroBean.cpfMascarado}"
-                                                  styleClass="custom-input"
-                                                  style="display:block;"
-                                                  rendered="#{sessaoBean.logado}" />
+                                    <p:outputLabel for="cpf" value="CPF" styleClass="form-label" rendered="#{not sessaoBean.logado}"/>
+                                    <h:outputText value="CPF" styleClass="form-label" rendered="#{sessaoBean.logado}"/>
+                                    <p:inputMask id="cpf" value="#{cadastroBean.dto.cpf}" mask="999.999.999-99" pt:inputmode="numeric"
+                                                 styleClass="custom-input" required="true" requiredMessage="CPF é obrigatório" rendered="#{not sessaoBean.logado}"/>
+                                    <h:outputText value="#{cadastroBean.cpfMascarado}" styleClass="cadastro-dado-fixo" rendered="#{sessaoBean.logado}"/>
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Celular</label>
-                                    <p:inputMask value="#{cadastroBean.dto.celular}" mask="(99) 99999-9999" styleClass="custom-input" required="true" requiredMessage="Celular é obrigatório"/>
+                                    <p:outputLabel for="celular" value="Celular" styleClass="form-label"/>
+                                    <p:inputMask id="celular" value="#{cadastroBean.dto.celular}" mask="(99) 99999-9999" pt:inputmode="tel" pt:autocomplete="tel"
+                                                 styleClass="custom-input" required="true" requiredMessage="Celular é obrigatório"/>
                                 </div>
                                 <div class="form-group full-width">
-                                    <h:panelGroup rendered="#{not sessaoBean.logado and cadastroBean.ativacaoEmailHabilitada}" layout="block" styleClass="info-box">
-                                        <i class="fas fa-envelope-circle-check" style="font-size: 1.2rem; margin-top:2px;"></i>
-                                        <div>
-                                            Informe um e-mail válido. Ao finalizar o cadastro, enviaremos um código de verificação para ativar sua conta no primeiro acesso.
-                                        </div>
+                                    <h:panelGroup rendered="#{not sessaoBean.logado and cadastroBean.ativacaoEmailHabilitada}" layout="block" styleClass="info-box mb-3">
+                                        <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
+                                        <div>Informe um e-mail válido. Ao finalizar o cadastro, enviaremos um código de verificação para ativar sua conta no primeiro acesso.</div>
                                     </h:panelGroup>
-                                    <p:outputLabel for="email" value="E-mail" styleClass="text-gray-300 font-bold mb-2 block"/>
-                                    <p:inputText id="email" value="#{cadastroBean.dto.email}" 
-                                                 styleClass="w-full custom-input" 
-                                                 required="true" 
-                                                 requiredMessage="E-mail é obrigatório"
-                                                 disabled="#{sessaoBean.logado}"/>  
+                                    <p:outputLabel for="email" value="E-mail" styleClass="form-label"/>
+                                    <p:inputText id="email" value="#{cadastroBean.dto.email}" type="email" autocomplete="email" pt:inputmode="email"
+                                                 styleClass="custom-input" required="true" requiredMessage="E-mail é obrigatório" disabled="#{sessaoBean.logado}"/>
                                 </div>
-
-                                <h:panelGroup rendered="#{not sessaoBean.logado}">
-                                    <div class="field col-12 md:col-6">
-                                        <p:outputLabel for="senha" value="Senha *" styleClass="text-gray-300 font-bold mb-2 block"/>
-                                        <p:password id="senha" value="#{cadastroBean.dto.senha}" 
-                                                    styleClass="w-full custom-input" 
+                                <h:panelGroup rendered="#{not sessaoBean.logado}" layout="block" styleClass="cadastro-senhas">
+                                    <div class="form-group">
+                                        <p:outputLabel for="senha" value="Senha" styleClass="form-label"/>
+                                        <p:password id="senha" value="#{cadastroBean.dto.senha}" autocomplete="new-password" toggleMask="true"
                                                     required="true" requiredMessage="A senha é obrigatória"
                                                     feedback="true" promptLabel="Digite uma senha" weakLabel="Fraca" goodLabel="Boa" strongLabel="Forte"/>
                                     </div>
-                                    <div class="field col-12 md:col-6">
-                                        <p:outputLabel for="confirmaSenha" value="Confirmar Senha *" styleClass="text-gray-300 font-bold mb-2 block"/>
-                                        <p:password id="confirmaSenha" value="#{cadastroBean.confirmarSenha}" 
-                                                    styleClass="w-full custom-input" 
+                                    <div class="form-group">
+                                        <p:outputLabel for="confirmaSenha" value="Confirmar Senha" styleClass="form-label"/>
+                                        <p:password id="confirmaSenha" value="#{cadastroBean.confirmarSenha}" autocomplete="new-password" toggleMask="true"
                                                     required="true" requiredMessage="A confirmação de senha é obrigatória"/>
-                                            </div>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" styleClass="form-group full-width">
-                                    <div style="margin-top: 18px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1);">
-                                        <p:commandButton value="Desativar Minha Conta"
-                                                         icon="fas fa-user-slash"
-                                                         type="button"
-                                                         onclick="PF('dialogDesativarConta').show();"
-                                                         style="background: transparent; color: #f87171; border: 1px solid rgba(248,113,113,0.6); padding: 9px 14px; border-radius: 8px; font-weight: 700;"/>
                                     </div>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" styleClass="form-group full-width cadastro-grupo-separado">
+                                    <p:commandButton value="Desativar Minha Conta" icon="fas fa-user-slash" type="button"
+                                                     onclick="PF('dialogDesativarConta').show();" styleClass="cadastro-desativar"/>
                                 </h:panelGroup>
                             </div>
                         </p:tab>
 
                         <p:tab id="time">
-                            <h2 style="margin-top: 0; color: #fff; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                                <i class="fas fa-shield-alt" style="color: #0ea5e9;"></i> Time e Local
-                            </h2>
-
+                            <h2 class="cadastro-titulo" tabindex="-1"><i class="fas fa-shield-alt" aria-hidden="true"></i> Time e Local</h2>
                             <div class="input-grid">
                                 <div class="form-group full-width">
                                     <h:panelGroup id="painelEscudo" layout="block" styleClass="upload-area">
-                                        <h:panelGroup rendered="#{not empty cadastroBean.dto.escudo}" layout="block" style="margin-bottom: 12px;">
-                                            <h:graphicImage value="#{cadastroBean.dto.escudo}"
-                                                            style="width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25);"/>
+                                        <h:panelGroup rendered="#{not empty cadastroBean.dto.escudo}" layout="block" styleClass="cadastro-escudo-preview">
+                                            <h:graphicImage value="#{cadastroBean.dto.escudo}" styleClass="cadastro-escudo" alt="Escudo do time"/>
                                         </h:panelGroup>
-                                        <h:panelGroup rendered="#{empty cadastroBean.dto.escudo}" layout="block" style="margin-bottom: 12px;">
-                                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem;"></i>
+                                        <h:panelGroup rendered="#{empty cadastroBean.dto.escudo}" layout="block" styleClass="cadastro-escudo-preview">
+                                            <i class="fas fa-cloud-upload-alt cadastro-upload-icon" aria-hidden="true"></i>
                                         </h:panelGroup>
-                                        <p:fileUpload listener="#{cadastroBean.uploadEscudo}"
-                                                      mode="advanced"
-                                                      auto="true"
-                                                      dragDropSupport="true"
-                                                      label="Escolher escudo"
-                                                      uploadLabel="Enviar"
-                                                      cancelLabel="Cancelar"
-                                                      allowTypes="/(\.|\/)(jpg|jpeg|png|webp)$/"
-                                                      sizeLimit="2097152"
-                                                      invalidFileMessage="Envie uma imagem JPG, PNG ou WEBP."
-                                                      invalidSizeMessage="O escudo deve ter no maximo 2 MB."
-                                                      update="painelEscudo msgs"/>
+                                        <p:fileUpload id="escudo" listener="#{cadastroBean.uploadEscudo}" mode="advanced" auto="true" dragDropSupport="true"
+                                                      label="Escolher escudo" uploadLabel="Enviar" cancelLabel="Cancelar"
+                                                      allowTypes="/(\.|\/)(jpg|jpeg|png|webp)$/" sizeLimit="2097152"
+                                                      invalidFileMessage="Envie uma imagem JPG, PNG ou WEBP." invalidSizeMessage="O escudo deve ter no maximo 2 MB."
+                                                      update="painelEscudo msgs" oncomplete="concluirEnvioAcesso('formCadastro', '[type=file].ui-state-error')"/>
                                     </h:panelGroup>
                                 </div>
-
                                 <div class="form-group full-width">
-                                    <label class="form-label">Nome do Time</label>
-                                    <p:inputText value="#{cadastroBean.dto.nomeTime}" styleClass="custom-input" 
-                                                 required="true" 
-                                                 requiredMessage="Por favor, informe o Nome do Time."
-                                                 placeholder="Ex: Tabajara FC"/>
+                                    <p:outputLabel for="nomeTime" value="Nome do Time" styleClass="form-label"/>
+                                    <p:inputText id="nomeTime" value="#{cadastroBean.dto.nomeTime}" styleClass="custom-input" required="true"
+                                                 requiredMessage="Por favor, informe o Nome do Time." placeholder="Ex: Tabajara FC"/>
                                 </div>
-
                                 <div class="full-width info-box">
-                                    <i class="fas fa-info-circle" style="font-size: 1.2rem; margin-top:2px;"></i>
-                                    <div>
-                                        <strong>Dica de Localização:</strong><br/>
-                                        Mesmo que o time não tenha uma "casa" fixa, coloque um CEP aproximado da região do seu time. Isso é essencial para aparecer nas buscas de proximidade!
-                                    </div>
+                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                    <div><strong>Dica de Localização:</strong><br/>Mesmo que o time não tenha uma "casa" fixa, coloque um CEP aproximado da região do seu time. Isso é essencial para aparecer nas buscas de proximidade!</div>
                                 </div>
-
                                 <div class="form-group full-width">
-                                    <div class="info-box" style="margin-bottom: 14px;">
-                                        <i class="fas fa-map-location-dot" style="font-size: 1.2rem; margin-top:2px;"></i>
-                                        <div>
-                                            <strong>Escolha uma das opções abaixo para preencher o endereço:</strong><br/>
-                                            busque pelo CEP ou use a localização atual do seu smartphone. Não é necessário usar as duas opções.
-                                        </div>
+                                    <div class="info-box mb-3">
+                                        <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+                                        <div><strong>Escolha uma das opções abaixo para preencher o endereço:</strong><br/>busque pelo CEP ou use a localização atual do seu smartphone. Não é necessário usar as duas opções.</div>
                                     </div>
-                                    <label class="form-label">Opção 1: Digite o CEP e aperte a luneta para buscar o endereço</label>
-                                    <p:remoteCommand name="usarLocalizacaoAtual"
-                                                     action="#{cadastroBean.buscarEnderecoPorLocalizacao}"
-                                                     process="@this :formCadastro:geoLat :formCadastro:geoLon"
-                                                     update="inputCep painelEndereco msgs" />
-                                    <div style="display:flex; gap:10px;">
-                                        <p:inputMask id="inputCep" value="#{cadastroBean.dto.cep}" mask="99999-999" 
-                                                     styleClass="custom-input" 
-                                                     required="true" 
-                                                     requiredMessage="O CEP é obrigatório."
-                                                     placeholder="00000-000"
-                                                     onchange="limparLocalizacaoAtual();"/>
-                                        <p:commandButton id="botaoBuscarCep"
-                                                         icon="fas fa-search" action="#{cadastroBean.buscarCep}" 
-                                                         process="@this inputCep" update="painelEndereco msgs"
-                                                         style="background:#334155; border:1px solid #475569; color:#fff; border-radius:8px; width:50px; height: 46px"/>
+                                    <p:outputLabel for="inputCep" value="Opção 1: Digite o CEP e aperte a luneta para buscar o endereço" styleClass="form-label"/>
+                                    <p:remoteCommand name="usarLocalizacaoAtual" action="#{cadastroBean.buscarEnderecoPorLocalizacao}"
+                                                     process="@this :formCadastro:geoLat :formCadastro:geoLon" update="inputCep painelEndereco msgs"
+                                                     onstart="iniciarEnvioAcesso('formCadastro')" oncomplete="concluirEnvioAcesso('formCadastro', '[id$=inputCep].ui-state-error')"/>
+                                    <div class="cadastro-cep">
+                                        <p:inputMask id="inputCep" value="#{cadastroBean.dto.cep}" mask="99999-999" styleClass="custom-input"
+                                                     required="true" requiredMessage="O CEP é obrigatório." placeholder="00000-000"
+                                                     pt:inputmode="numeric" pt:autocomplete="postal-code" onchange="limparLocalizacaoAtual();"/>
+                                        <p:commandButton id="botaoBuscarCep" icon="fas fa-search" action="#{cadastroBean.buscarCep}"
+                                                         process="@this inputCep" update="painelEndereco msgs" title="Buscar endereço pelo CEP"
+                                                         styleClass="cadastro-buscar-cep" onstart="iniciarEnvioAcesso('formCadastro')" oncomplete="concluirEnvioAcesso('formCadastro', '[id$=inputCep].ui-state-error')"/>
                                     </div>
-                                    <div style="display:flex; align-items:center; gap:12px; margin:16px 0; color:#94a3b8;">
-                                        <span style="height:1px; background:#475569; flex:1;"></span>
-                                        <strong>OU</strong>
-                                        <span style="height:1px; background:#475569; flex:1;"></span>
-                                    </div>
-                                    <label class="form-label">Opção 2: usar o GPS do aparelho</label>
-                                    <p:commandButton value="Usar a localização atual do seu smartphone"
-                                                     icon="fas fa-location-crosshairs"
-                                                     type="button"
-                                                     onclick="obterLocalizacaoAtual();"
-                                                     styleClass="mt-2"
-                                                     style="width:100%; background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.45); color:#86efac; padding:10px; border-radius:8px; font-weight:700;"/>
-                                    <small style="color:#94a3b8; display:block; margin-top:6px;">
-                                        O navegador solicitará permissão para acessar a localização do smartphone.
-                                    </small>
+                                    <div class="cadastro-divisor"><strong>OU</strong></div>
+                                    <span class="form-label">Opção 2: usar o GPS do aparelho</span>
+                                    <p:commandButton value="Usar a localização atual do seu smartphone" icon="fas fa-location-crosshairs" type="button"
+                                                     onclick="obterLocalizacaoAtual();" styleClass="cadastro-localizacao"/>
+                                    <small class="cadastro-ajuda">O navegador solicitará permissão para acessar a localização do smartphone.</small>
+                                    <p id="mensagemLocalizacao" class="cadastro-localizacao-aviso" role="alert" hidden="hidden"></p>
                                 </div>
-
-                                <h:panelGroup id="painelEndereco" layout="block" styleClass="input-grid full-width p-0 gap-0" style="display: contents;">
+                                <h:panelGroup id="painelEndereco" layout="block" styleClass="cadastro-endereco">
                                     <div class="form-group full-width">
-                                        <label class="form-label">Logradouro</label>
-                                        <p:inputText value="#{cadastroBean.dto.logradouro}" styleClass="custom-input" 
-                                                     readonly="true"
-                                                     required="true"
-                                                     requiredMessage="O endereço é obrigatório (busque pelo CEP)."/>
+                                        <p:outputLabel for="logradouro" value="Logradouro" styleClass="form-label"/>
+                                        <p:inputText id="logradouro" value="#{cadastroBean.dto.logradouro}" styleClass="custom-input" readonly="true"
+                                                     required="true" requiredMessage="O endereço é obrigatório (busque pelo CEP)."/>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Número <span style="font-weight:normal; opacity:0.6">(Opcional)</span></label>
-                                        <p:inputText value="#{cadastroBean.dto.numero}" styleClass="custom-input" placeholder="S/N"/>
+                                        <p:outputLabel for="numero" value="Número (Opcional)" styleClass="form-label"/>
+                                        <p:inputText id="numero" value="#{cadastroBean.dto.numero}" styleClass="custom-input" placeholder="S/N"/>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Complemento <span style="font-weight:normal; opacity:0.6">(Opcional)</span></label>
-                                        <p:inputText value="#{cadastroBean.dto.complemento}" styleClass="custom-input"/>
+                                        <p:outputLabel for="complemento" value="Complemento (Opcional)" styleClass="form-label"/>
+                                        <p:inputText id="complemento" value="#{cadastroBean.dto.complemento}" styleClass="custom-input"/>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Bairro</label>
-                                        <p:inputText value="#{cadastroBean.dto.bairro}" styleClass="custom-input" 
-                                                     readonly="true"
-                                                     required="true"
-                                                     requiredMessage="O bairro é obrigatório."/>
+                                        <p:outputLabel for="bairro" value="Bairro" styleClass="form-label"/>
+                                        <p:inputText id="bairro" value="#{cadastroBean.dto.bairro}" styleClass="custom-input" readonly="true"
+                                                     required="true" requiredMessage="O bairro é obrigatório."/>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Região</label>
-                                        <p:inputText value="#{cadastroBean.dto.regiao}" styleClass="custom-input" readonly="true"/>
+                                        <p:outputLabel for="regiao" value="Região" styleClass="form-label"/>
+                                        <p:inputText id="regiao" value="#{cadastroBean.dto.regiao}" styleClass="custom-input" readonly="true"/>
                                     </div>
                                     <div class="form-group full-width">
-                                        <label class="form-label">Cidade / UF</label>
-                                        <p:inputText value="#{cadastroBean.dto.cidade} - #{cadastroBean.dto.uf}" styleClass="custom-input" 
-                                                     readonly="true"
-                                                     required="true"
-                                                     requiredMessage="Cidade e UF são obrigatórios."/>
+                                        <p:outputLabel for="cidadeUf" value="Cidade / UF" styleClass="form-label"/>
+                                        <p:inputText id="cidadeUf" value="#{cadastroBean.dto.cidade} - #{cadastroBean.dto.uf}" styleClass="custom-input" readonly="true"
+                                                     required="true" requiredMessage="Cidade e UF são obrigatórios."/>
                                     </div>
                                 </h:panelGroup>
-
                                 <div class="form-group full-width">
-                                    <label class="form-label">Mando de Campo</label>
-                                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px solid #334155;">
-                                        <p:selectOneRadio value="#{cadastroBean.dto.mandoCampo}" unselectable="true" style="color:#fff;"
-                                                          rendered="#{not sessaoBean.logado}"
-                                                          layout="pageDirection" styleClass="mando-campo-radio"
-                                                          required="true" requiredMessage="Selecione se é Mandante ou Visitante.">
-                                            <f:selectItem itemValue="true" itemLabel="Mandante" />
-                                            <f:selectItem itemValue="false" itemLabel="Visitante" />
-                                            <p:ajax update="painelTaxa" event="valueChange" />
+                                    <fieldset class="cadastro-mando">
+                                        <legend class="form-label">Mando de Campo</legend>
+                                        <p:selectOneRadio id="mandoCampo" value="#{cadastroBean.dto.mandoCampo}" unselectable="true" rendered="#{not sessaoBean.logado}"
+                                                          layout="pageDirection" styleClass="mando-campo-radio" required="true"
+                                                          requiredMessage="Selecione se é Mandante ou Visitante.">
+                                            <f:selectItem itemValue="true" itemLabel="Mandante"/>
+                                            <f:selectItem itemValue="false" itemLabel="Visitante"/>
+                                            <p:ajax update="painelTaxa" event="valueChange"/>
                                         </p:selectOneRadio>
-                                        <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" style="color:#fff; font-weight:700;">
+                                        <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" styleClass="cadastro-mando-fixo">
                                             #{cadastroBean.dto.mandoCampo ? 'Mandante' : 'Visitante'}
                                         </h:panelGroup>
-                                    </div>
+                                    </fieldset>
                                 </div>
-                                
-                                <h:panelGroup id="painelTaxa" layout="block">
-                                    <h:panelGroup rendered="#{cadastroBean.dto.mandoCampo eq 'true'}" layout="block" styleClass="form-group full-width mt-3">
-                                        <label class="form-label" for="nomeCampo">Nome do Campo <span style="color: #94a3b8; font-weight: normal;">(opcional)</span></label>
-                                        <p:inputText id="nomeCampo" value="#{cadastroBean.dto.nomeCampo}"
-                                                     maxlength="120"
-                                                     placeholder="Ex: Arena Central"
-                                                     styleClass="w-full custom-input mb-3"/>
-
-                                        <label class="form-label" style="color: #4ade80;">Valor da Taxa / Racha</label>
+                                <h:panelGroup id="painelTaxa" layout="block" styleClass="full-width">
+                                    <h:panelGroup rendered="#{cadastroBean.dto.mandoCampo eq 'true'}" layout="block" styleClass="form-group">
+                                        <p:outputLabel for="nomeCampo" value="Nome do Campo (opcional)" styleClass="form-label"/>
+                                        <p:inputText id="nomeCampo" value="#{cadastroBean.dto.nomeCampo}" maxlength="120" placeholder="Ex: Arena Central" styleClass="custom-input mb-3"/>
+                                        <p:outputLabel for="valorTaxa" value="Valor da Taxa / Racha" styleClass="form-label cadastro-taxa-label"/>
                                         <div class="ui-inputgroup">
-                                            <span class="ui-inputgroup-addon" style="background: #334155; border: none; color: #fff;">
-                                                <i class="fas fa-money-bill-wave"></i>
-                                            </span>
-                                            <p:inputNumber value="#{cadastroBean.dto.valorTaxa}" 
-                                                           symbol="R$ " symbolPosition="p" 
-                                                           decimalSeparator="," thousandSeparator="."
-                                                           placeholder="0,00"
-                                                           styleClass="w-full" 
-                                                           inputStyleClass="w-full custom-input" 
-                                                           style="width: 100%;"/>
+                                            <span class="ui-inputgroup-addon"><i class="fas fa-money-bill-wave" aria-hidden="true"></i></span>
+                                            <p:inputNumber id="valorTaxa" value="#{cadastroBean.dto.valorTaxa}" symbol="R$ " symbolPosition="p"
+                                                           decimalSeparator="," thousandSeparator="." placeholder="0,00" pt:inputmode="decimal" inputStyleClass="custom-input"/>
                                         </div>
-                                        <small style="color: #94a3b8; display: block; margin-top: 5px;">
-                                            Informe o valor cobrado por jogo. Deixe 0,00 se for grátis.
-                                        </small>
+                                        <small class="cadastro-ajuda">Informe o valor cobrado por jogo. Deixe 0,00 se for grátis.</small>
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </div>
                         </p:tab>
 
                         <p:tab id="agenda">
-                            <h2 style="margin-top: 0; color: #fff; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                                <i class="far fa-calendar-alt" style="color: #0ea5e9;"></i> Disponibilidade
-                            </h2>
-
-                            <h:panelGroup id="painelAgenda" layout="block" style="background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                            <h2 class="cadastro-titulo" tabindex="-1"><i class="far fa-calendar-alt" aria-hidden="true"></i> Disponibilidade</h2>
+                            <h:panelGroup id="painelAgenda" layout="block" styleClass="cadastro-agenda-form">
                                 <div class="input-grid">
-                                    <div class="form-group full-width">
+                                    <div class="form-group">
                                         <h:outputLabel for="modalidadeHorario" value="Modalidades *" styleClass="form-label"/>
-                                        <h:selectOneMenu id="modalidadeHorario" value="#{cadastroBean.tempModalidade}" styleClass="custom-input mb-3">
+                                        <h:selectOneMenu id="modalidadeHorario" value="#{cadastroBean.tempModalidade}" styleClass="custom-input" pt:aria-required="true">
                                             <f:selectItem itemLabel="Selecione a modalidade..." noSelectionOption="true"/>
                                             <f:selectItems value="#{cadastroBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
                                         </h:selectOneMenu>
+                                    </div>
+                                    <div class="form-group">
                                         <h:outputLabel for="categoriaHorario" value="Categoria *" styleClass="form-label"/>
-                                        <h:selectOneMenu id="categoriaHorario" value="#{cadastroBean.tempCategoria}" styleClass="custom-input">
+                                        <h:selectOneMenu id="categoriaHorario" value="#{cadastroBean.tempCategoria}" styleClass="custom-input" pt:aria-required="true">
                                             <f:selectItem itemLabel="Selecione a categoria..." noSelectionOption="true"/>
                                             <f:selectItems value="#{cadastroBean.categorias}" var="c" itemLabel="#{c.descricao}" itemValue="#{c}"/>
                                         </h:selectOneMenu>
                                     </div>
-
                                     <div class="form-group full-width week-selector">
-                                        <label class="form-label">Dia da Semana</label>
-                                        <p:selectOneButton value="#{cadastroBean.tempDia}" unselectable="false">
+                                        <p:outputLabel for="diaSemana" value="Dia da Semana" styleClass="form-label"/>
+                                        <p:selectOneButton id="diaSemana" value="#{cadastroBean.tempDia}" unselectable="false">
                                             <f:selectItem itemLabel="SEG" itemValue="Segunda"/>
                                             <f:selectItem itemLabel="TER" itemValue="Terça"/>
                                             <f:selectItem itemLabel="QUA" itemValue="Quarta"/>
@@ -488,101 +234,63 @@
                                             <f:selectItem itemLabel="DOM" itemValue="Domingo"/>
                                         </p:selectOneButton>
                                     </div>
-
                                     <div class="form-group">
-                                        <label class="form-label">Início</label>
-                                        <p:inputMask value="#{cadastroBean.tempInicio}" mask="99:99" styleClass="custom-input"/>
+                                        <p:outputLabel for="inicio" value="Início" styleClass="form-label"/>
+                                        <p:inputMask id="inicio" value="#{cadastroBean.tempInicio}" mask="99:99" styleClass="custom-input" pt:inputmode="numeric"/>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Fim</label>
-                                        <p:inputMask value="#{cadastroBean.tempFim}" mask="99:99" styleClass="custom-input"/>
+                                        <p:outputLabel for="fim" value="Fim" styleClass="form-label"/>
+                                        <p:inputMask id="fim" value="#{cadastroBean.tempFim}" mask="99:99" styleClass="custom-input" pt:inputmode="numeric"/>
                                     </div>
                                 </div>
-                                
-                                <p:commandButton value="ADICIONAR HORÁRIO" action="#{cadastroBean.adicionarHorario}" 
-                                                 update="painelAgenda tabelaAgenda msgs" process="painelAgenda"
-                                                 styleClass="btn-add" 
-                                                 style="width: 100%; background: #0ea5e9; color: #fff; border: none; padding: 10px; margin-top: 15px;"/>
+                                <p:commandButton id="adicionarHorario" value="ADICIONAR HORÁRIO" action="#{cadastroBean.adicionarHorario}"
+                                                 update="painelAgenda tabelaAgenda msgs" process="painelAgenda" styleClass="cadastro-primario cadastro-adicionar"
+                                                 onstart="iniciarEnvioAcesso('formCadastro')" oncomplete="concluirEnvioAcesso('formCadastro')"/>
                             </h:panelGroup>
-
-                            <div style="margin-top: 30px;">
-                                <h3 style="color:#fff; font-size: 1rem; border-bottom: 1px solid #334155; padding-bottom: 10px;">
-                                    Horários Configurados
-                                </h3>
-                                
-                                <div class="am-table-scroll">
-                                <p:dataTable id="tabelaAgenda" value="#{cadastroBean.agenda}" var="item" 
-                                             emptyMessage="Nenhum horário adicionado ainda."
-                                             styleClass="agenda-table-prime"
-                                             rowStyleClass="bg-transparent text-white"
-                                             reflow="true">
-                                    
-                                    <p:column headerText="Modalidade" style="background:transparent; color:#38bdf8; border-color:#334155">
-                                        <h:outputText value="#{item.modalidade.descricao}"/>
-                                    </p:column>
-                                    <p:column headerText="Categoria" style="background:transparent; color:#fff; border-color:#334155">
-                                        <h:outputText value="#{item.categoria.descricao}" style="font-weight:bold"/>
-                                    </p:column>
-                                    <p:column headerText="Dia" style="background:transparent; color:#0ea5e9; border-color:#334155">
-                                        <h:outputText value="#{item.diaSemana}"/>
-                                    </p:column>
-                                    <p:column headerText="Horário" style="background:transparent; color:#cbd5e1; border-color:#334155">
-                                        <h:outputText value="#{item.inicio} - #{item.fim}"/>
-                                    </p:column>
-                                    <p:column headerText="Ação" styleClass="agenda-action-column" style="background:transparent; border-color:#334155; text-align:right; width:50px">
-                                        <p:commandButton icon="fas fa-trash" action="#{cadastroBean.removerHorario(item)}" 
-                                                         update="tabelaAgenda" process="@this"
-                                                         style="background:transparent; color:#ef4444; border:1px solid #ef4444"
-                                                         styleClass="rounded-button ui-button-flat agenda-delete-button"
-                                                         title="Excluir horário"/>
-                                    </p:column>
-                                </p:dataTable>
+                            <div class="cadastro-lista-agenda">
+                                <h3 class="cadastro-subtitulo">Horários Configurados</h3>
+                                <div class="cadastro-agenda-lista">
+                                    <p:dataTable id="tabelaAgenda" value="#{cadastroBean.agenda}" var="item" emptyMessage="Nenhum horário adicionado ainda."
+                                                 styleClass="agenda-table-prime" reflow="true">
+                                        <p:column headerText="Modalidade" styleClass="cadastro-modalidade"><h:outputText value="#{item.modalidade.descricao}"/></p:column>
+                                        <p:column headerText="Categoria" styleClass="cadastro-categoria"><h:outputText value="#{item.categoria.descricao}"/></p:column>
+                                        <p:column headerText="Dia" styleClass="cadastro-dia"><h:outputText value="#{item.diaSemana}"/></p:column>
+                                        <p:column headerText="Horário"><h:outputText value="#{item.inicio} - #{item.fim}"/></p:column>
+                                        <p:column headerText="Ação" styleClass="agenda-action-column">
+                                            <p:commandButton id="excluirHorario" value="Excluir" icon="fas fa-trash" action="#{cadastroBean.removerHorario(item)}"
+                                                             update="tabelaAgenda msgs" process="@this" title="Excluir horário" styleClass="agenda-delete-button"/>
+                                        </p:column>
+                                    </p:dataTable>
                                 </div>
                             </div>
-
-                            <h:panelGroup rendered="#{not sessaoBean.logado}" layout="block" styleClass="field mb-4 flex align-items-center mt-4 p-3 border-round-lg" style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.1);">
-                                
-                                <p:selectBooleanCheckbox id="aceiteTermos" value="#{cadastroBean.dto.termosAceitos}" widgetVar="chkTermos" style="pointer-events: none;" />
-                                
-                                <p:outputLabel styleClass="ml-3 text-gray-300 text-sm">
-                                    Para continuar, você precisa ler e aceitar os <p:commandLink value="Termos de Uso e Política de Privacidade" type="button" onclick="abrirTermos();" styleClass="text-blue-400 font-bold no-underline hover:underline"/>
-                                </p:outputLabel>
+                            <h:panelGroup rendered="#{not sessaoBean.logado}" layout="block" styleClass="cadastro-termos">
+                                <p:selectBooleanCheckbox id="aceiteTermos" value="#{cadastroBean.dto.termosAceitos}" widgetVar="chkTermos"
+                                                         tabindex="-1" pt:aria-readonly="true" styleClass="cadastro-termos-checkbox"/>
+                                <div class="cadastro-termos-texto">
+                                    Para continuar, você precisa ler e aceitar os
+                                    <p:commandLink id="abrirTermos" value="Termos de Uso e Política de Privacidade" type="button"
+                                                   onclick="abrirTermos(); return false;" styleClass="cadastro-termos-link"/>
+                                </div>
                             </h:panelGroup>
-
-                            <p:commandButton value="#{sessaoBean.logado ? 'Atualizar os dados' : 'Finalizar Cadastro'}" 
-                                             action="#{cadastroBean.finalizar}" 
-                                             update="@form" 
-                                             icon="fas #{sessaoBean.logado ? 'fa-sync-alt' : 'fa-check'}" 
-                                             styleClass="mt-3"
-                                             style="background: #0ea5e9; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; width: 100%;" />
-                                             
+                            <p:commandButton id="finalizar" value="#{sessaoBean.logado ? 'Atualizar os dados' : 'Finalizar Cadastro'}"
+                                             action="#{cadastroBean.finalizar}" update="@form" icon="fas #{sessaoBean.logado ? 'fa-sync-alt' : 'fa-check'}"
+                                             styleClass="cadastro-primario cadastro-finalizar" onstart="iniciarEnvioAcesso('formCadastro')" oncomplete="concluirEnvioAcesso('formCadastro')"/>
                         </p:tab>
                     </p:wizard>
                 </div>
-                
-                <h:panelGroup id="wizardFooter" layout="block" 
-                              style="padding: 20px 40px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;">
-                    
-                    <p:commandButton value="Voltar" onclick="PF('wiz').back()" type="button" 
-                                     rendered="#{cadastroBean.stepAtual != 'responsavel'}"
-                                     style="background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 8px 20px; border-radius: 8px; font-weight: bold;"/>
-                    
-                    <h:panelGroup rendered="#{cadastroBean.stepAtual == 'responsavel'}" style="width: 10px;"/>
-                
-                    <p:commandButton value="Próximo" onclick="PF('wiz').next()" type="button" 
-                                         rendered="#{cadastroBean.stepAtual != 'agenda'}"
-                                         style="background: #0ea5e9; color: #fff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold;"/>
-                                     
+                <div class="cadastro-status" role="status" aria-live="polite">Processando...</div>
+                <h:panelGroup id="wizardFooter" layout="block" styleClass="wizard-footer">
+                    <p:commandButton id="voltar" value="Voltar" onclick="PF('wiz').back()" type="button"
+                                     rendered="#{cadastroBean.stepAtual ne 'responsavel'}" styleClass="cadastro-voltar"/>
+                    <p:commandButton id="proximo" value="Próximo" onclick="PF('wiz').next()" type="button"
+                                     rendered="#{cadastroBean.stepAtual ne 'agenda'}" styleClass="cadastro-proximo"/>
                 </h:panelGroup>
             </div>
 
-			<p:dialog header="Termos de Uso e Política de Privacidade" widgetVar="dialogTermos" modal="true" width="90%" fitViewport="true" responsive="true" style="max-width: 600px;" styleClass="bg-bluegray-900 text-white shadow-6 border-round-xl" closable="false">
-                
-                <div id="boxTextosTermo" onscroll="verificarScrollTermos()" style="max-height: 55vh; overflow-y: auto; padding-right: 10px;" class="line-height-3 text-gray-300 text-sm font-family-sans">
-                    <div style="background: rgba(14, 165, 233, 0.1); border-left: 4px solid #0ea5e9; padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #e2e8f0;">
-                        <i class="fas fa-info-circle mr-2"></i> Role o texto até o final para habilitar o botão de aceite.
-                    </div>
-
+            <p:dialog header="Termos de Uso e Política de Privacidade" widgetVar="dialogTermos" modal="true" fitViewport="true" responsive="true" draggable="false" resizable="false"
+                      styleClass="am-cadastro-dialog cadastro-dialog-termos bg-bluegray-900 text-white" closable="false" onShow="focarLeituraTermos()">
+                <div id="boxTextosTermo" onscroll="verificarScrollTermos()" class="cadastro-leitura-termos" tabindex="0" role="document" aria-label="Termos de Uso e Política de Privacidade">
+                    <div class="cadastro-termos-aviso"><i class="fas fa-info-circle mr-2" aria-hidden="true"></i>Role o texto até o final para habilitar o botão de aceite.</div>
                     <h3 class="text-white font-bold mb-3">TERMOS DE USO E POLÍTICA DE PRIVACIDADE - ARENA MATCH</h3>
                     <p class="mb-3">Estes Termos de Uso regulam o acesso e a utilização do sistema Arena Match, hospedado no domínio arenamatch.app.br, de propriedade da <strong>JCS Info LTDA ME</strong>. Ao criar uma conta e utilizar a plataforma, você concorda expressamente com as regras abaixo.</p>
 
@@ -622,101 +330,31 @@
                     <br/><br/><br/>
                     <div class="text-center text-gray-500 italic">Fim do documento.</div>
                 </div>
-                
                 <f:facet name="footer">
-                    <div class="flex justify-content-between p-2 border-top-1 border-white-alpha-10 mt-2">
-                        <p:commandButton value="Cancelar" type="button" onclick="PF('dialogTermos').hide();" styleClass="ui-button-secondary font-bold rounded-btn"/>
-                        
-                        <p:commandButton widgetVar="btnAceitar" value="Eu Li e Aceito" type="button" onclick="confirmarAceite();" disabled="true" styleClass="ui-button-success font-bold rounded-btn" icon="fas fa-check"/>
+                    <div class="cadastro-dialog-acoes">
+                        <p:commandButton value="Cancelar" type="button" onclick="PF('dialogTermos').hide();" styleClass="ui-button-secondary"/>
+                        <p:commandButton widgetVar="btnAceitar" value="Eu Li e Aceito" type="button" onclick="confirmarAceite();"
+                                         disabled="true" styleClass="ui-button-success" icon="fas fa-check"/>
                     </div>
                 </f:facet>
             </p:dialog>
-
-            <p:dialog header="Desativar conta" widgetVar="dialogDesativarConta" modal="true" width="90%" fitViewport="true" responsive="true" style="max-width: 520px;" styleClass="bg-bluegray-900 text-white shadow-6 border-round-xl">
-                <div class="line-height-3 text-gray-300 text-sm">
-                    <p style="margin-top:0;">
-                        Tem certeza que deseja desativar sua conta? Apos confirmar, nao sera mais possivel acessar o sistema com este usuario.
-                    </p>
-                    <p style="margin-bottom:0;">
-                        Para solicitar a reativacao, envie um email para arenamatch.app@gmail.com com o assunto "Ativacao" informando seu CPF e nome do time.
-                    </p>
+            <p:dialog header="Desativar conta" widgetVar="dialogDesativarConta" modal="true" fitViewport="true" responsive="true" draggable="false" resizable="false"
+                      styleClass="am-cadastro-dialog bg-bluegray-900 text-white">
+                <p:messages id="msgsDesativacao" showDetail="true" showSummary="false" closable="true"><p:autoUpdate/></p:messages>
+                <div class="cadastro-dialog-descricao line-height-3 text-gray-300 text-sm">
+                    <p>Tem certeza que deseja desativar sua conta? Apos confirmar, nao sera mais possivel acessar o sistema com este usuario.</p>
+                    <p>Para solicitar a reativacao, envie um email para arenamatch.app@gmail.com com o assunto "Ativacao" informando seu CPF e nome do time.</p>
                 </div>
-
                 <f:facet name="footer">
-                    <div class="flex justify-content-end gap-2">
-                        <p:commandButton value="Cancelar" type="button" onclick="PF('dialogDesativarConta').hide();" styleClass="ui-button-secondary font-bold rounded-btn"/>
-                        <p:commandButton value="Confirmar desativacao"
-                                         action="#{cadastroBean.desativarConta}"
-                                         process="@this"
-                                         update="msgs"
-                                         icon="fas fa-user-slash"
-                                         styleClass="ui-button-danger font-bold rounded-btn"/>
+                    <div class="cadastro-dialog-acoes">
+                        <p:commandButton value="Cancelar" type="button" onclick="PF('dialogDesativarConta').hide();" styleClass="ui-button-secondary"/>
+                        <p:commandButton value="Confirmar desativacao" action="#{cadastroBean.desativarConta}" process="@this" update="msgs msgsDesativacao"
+                                         icon="fas fa-user-slash" styleClass="ui-button-danger"/>
                     </div>
                 </f:facet>
             </p:dialog>
-
-            <script>
-                function focarLunetaCep() {
-                    var botao = document.getElementById('formCadastro:botaoBuscarCep');
-                    if (!botao) {
-                        return;
-                    }
-
-                    botao.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    botao.focus();
-                    botao.classList.add('foco-busca-cep');
-                    setTimeout(function() {
-                        botao.classList.remove('foco-busca-cep');
-                    }, 5000);
-                }
-
-                function obterLocalizacaoAtual() {
-                    if (!navigator.geolocation) {
-                        alert('Seu navegador não permite usar a localização atual.');
-                        return;
-                    }
-
-                    navigator.geolocation.getCurrentPosition(
-                        function(posicao) {
-                            document.getElementById('formCadastro:geoLat').value = posicao.coords.latitude;
-                            document.getElementById('formCadastro:geoLon').value = posicao.coords.longitude;
-                            usarLocalizacaoAtual();
-                        },
-                        function() {
-                            alert('Não foi possível obter sua localização. Verifique a permissão do navegador.');
-                        },
-                        {
-                            enableHighAccuracy: true,
-                            timeout: 12000,
-                            maximumAge: 60000
-                        }
-                    );
-                }
-
-                function limparLocalizacaoAtual() {
-                    document.getElementById('formCadastro:geoLat').value = '';
-                    document.getElementById('formCadastro:geoLon').value = '';
-                }
-
-                function abrirTermos() {
-                    document.getElementById('boxTextosTermo').scrollTop = 0;
-                    PF('btnAceitar').disable();
-                    PF('dialogTermos').show();
-                }
-
-                function verificarScrollTermos() {
-                    var caixa = document.getElementById('boxTextosTermo');
-                    if (caixa.scrollTop + caixa.clientHeight >= caixa.scrollHeight - 10) {
-                        PF('btnAceitar').enable();
-                    }
-                }
-
-                function confirmarAceite() {
-                    PF('chkTermos').check();
-                    PF('dialogTermos').hide();
-                }
-            </script>
-
         </h:form>
+        <script src="#{resource['js:acesso.js']}&amp;rev=78.1"></script>
+        <script src="#{resource['js:cadastro.js']}&amp;rev=78.1"></script>
     </ui:define>
 </ui:composition>

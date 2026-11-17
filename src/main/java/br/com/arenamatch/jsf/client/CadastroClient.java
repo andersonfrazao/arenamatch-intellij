@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.util.List;
 import org.primefaces.model.file.UploadedFile;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.LinkedMultiValueMap;
 
 @Component
 public class CadastroClient {
@@ -108,14 +110,17 @@ public class CadastroClient {
     }
 
     public String uploadEscudo(UploadedFile arquivo) {
-        try {
-            byte[] conteudo = arquivo.getInputStream().readAllBytes();
-            MultipartBodyBuilder multipart = new MultipartBodyBuilder();
-            multipart.part("arquivo", new ByteArrayResource(conteudo) {
+        try (var entrada = arquivo.getInputStream()) {
+            byte[] conteudo = entrada.readAllBytes();
+            ByteArrayResource recurso = new ByteArrayResource(conteudo) {
                 @Override public String getFilename() { return arquivo.getFileName(); }
-            }).contentType(MediaType.parseMediaType(arquivo.getContentType()));
+            };
+            HttpHeaders cabecalhos = new HttpHeaders();
+            cabecalhos.setContentType(MediaType.parseMediaType(arquivo.getContentType()));
+            var multipart = new LinkedMultiValueMap<String, Object>();
+            multipart.add("arquivo", new HttpEntity<>(recurso, cabecalhos));
             return restClient.post().uri("/api/cadastro/escudo")
-                    .contentType(MediaType.MULTIPART_FORM_DATA).body(multipart.build())
+                    .contentType(MediaType.MULTIPART_FORM_DATA).body(multipart)
                     .retrieve().body(String.class);
         } catch (IOException e) {
             throw new RuntimeException("Nao foi possivel ler o arquivo do escudo.", e);

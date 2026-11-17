@@ -106,6 +106,30 @@ class RecursosVisuaisTest {
                 "string(//*[local-name()='commandLink'][@id='reenviar']/@process)"));
     }
 
+    @Test
+    void cadastroMantemComponentesProcessamentoEAcoesDeHorarioAcessiveis() throws Exception {
+        Document cadastro = lerPagina("cadastro.xhtml");
+        Document layout = lerPagina("WEB-INF/template/layout.xhtml");
+        assertEquals("1", consultar(layout,
+                "count(//*[local-name()='head']/*[local-name()='insert'][@name='estilosPagina'])"));
+        assertEquals("1", consultar(cadastro,
+                "count(//*[local-name()='define'][@name='estilosPagina']/*[local-name()='link'][contains(@href,'css:cadastro.css')])"));
+        assertEquals("0", consultar(cadastro, "count(//*[local-name()='style'] | //@style)"));
+        assertEquals("3", consultar(cadastro, "count(//*[local-name()='ol'][@aria-label='Etapas do cadastro']/*[local-name()='li'])"));
+        assertEquals("1", consultar(cadastro,
+                "count(//*[local-name()='wizard'][@widgetVar='wiz'][@showStepStatus='false'])"));
+        assertEquals("@this", consultar(cadastro,
+                "string(//*[local-name()='commandButton'][@id='excluirHorario']/@process)"));
+        assertEquals("Excluir", consultar(cadastro,
+                "string(//*[local-name()='commandButton'][@id='excluirHorario']/@value)"));
+        assertEquals("0", consultar(cadastro,
+                "count(//*[local-name()='selectOneMenu'][@id='modalidadeHorario' or @id='categoriaHorario'][@required='true'])"));
+        assertEquals("1", consultar(cadastro,
+                "count(//*[local-name()='div'][@id='boxTextosTermo'][@tabindex='0'][@onscroll])"));
+        assertEquals("0", consultar(cadastro,
+                "count(//*[local-name()='form']//*[local-name()='form'])"));
+    }
+
     private String consultar(Document documento, String expressao) throws Exception {
         return XPathFactory.newInstance().newXPath().evaluate(expressao, documento);
     }

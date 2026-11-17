@@ -217,6 +217,7 @@ public class CadastroBean implements Serializable {
             cadastroClient.salvarTime(this.dto);
             FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
             if (ativacaoEmailHabilitada) {
+                FacesContext.getCurrentInstance().getExternalContext().getFlash().put("emailAtivacao", dto.getEmail());
                 msgInfo("Cadastro finalizado com sucesso! Foi enviado um codigo para seu e-mail para a ativacao da conta no primeiro acesso.");
                 return "/ativar-conta.xhtml?faces-redirect=true";
             }

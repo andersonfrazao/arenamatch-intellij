@@ -16,12 +16,12 @@
         document.getElementById(idFormulario).setAttribute("aria-busy", "true");
     };
 
-    window.concluirEnvioAcesso = function (idFormulario) {
+    window.concluirEnvioAcesso = function (idFormulario, seletorInvalidos = "input.ui-state-error") {
         const formulario = document.getElementById(idFormulario);
         if (!formulario) return;
         formulario.setAttribute("aria-busy", "false");
         const aviso = formulario.querySelector(".ui-messages-error, .ui-messages-warn");
-        const destino = formulario.querySelector("input.ui-state-error") ||
+        const destino = formulario.querySelector(seletorInvalidos) ||
             (aviso && aviso.closest(".ui-messages")) ||
             formulario.querySelector("input[autocomplete='one-time-code']");
         if (destino) {

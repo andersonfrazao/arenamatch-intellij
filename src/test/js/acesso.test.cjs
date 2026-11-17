@@ -57,6 +57,17 @@ test('avança o foco para o código após envio bem sucedido', () => {
     assert.ok(codigo.focado);
 });
 
+test('consulta parcial focaliza sua mensagem sem voltar a um campo inválido de outra ação', () => {
+    const app = ambienteFormulario();
+    const invalidoAnterior = campo();
+    const mensagens = campo();
+    app.seletores['input.ui-state-error'] = invalidoAnterior;
+    app.seletores['.ui-messages-error, .ui-messages-warn'] = { closest: () => mensagens };
+    app.janela.concluirEnvioAcesso('formCadastro', '[id$=inputCep].ui-state-error');
+    assert.ok(mensagens.focado);
+    assert.ok(!invalidoAnterior.focado);
+});
+
 test('redução do viewport revela o campo em edição', () => {
     const app = ambienteFormulario();
     const senha = campo();
