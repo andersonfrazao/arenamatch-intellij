@@ -223,6 +223,16 @@ Assistente de três etapas (ARENA-91):
 - **Consentimento:** painel na base da tela no celular e cartão no canto a partir de 576px; rola por dentro em telas baixas. Após a escolha, o foco vai para "Cookies de estatísticas" no rodapé; reaberto, Esc fecha mantendo a escolha.
 - **Capturas do guia:** cada imagem é um link para o arquivo em tamanho real ("Ampliar"). As capturas ainda são anteriores às telas migradas e precisam ser refeitas com o app em execução.
 
+## 5.9 Administração, início e fale conosco (`css/admin.css`, `dashboard.css`, `suporte.css`)
+
+ARENA-98. Prefixos `adm-`, `dsh-` e `sup-`; sem `<style>` nas páginas e sem growl local.
+
+- **Mensagens junto da ação:** cada ação atualiza só o próprio painel e mostra um `p:messages` filtrado pela origem (`param['jakarta.faces.source']`). Em lista (`ui:repeat`), o botão envia um `f:param` com a chave da linha, e a mensagem aparece só nela (parâmetros do admin).
+- **Admin, usuários:** uma única lista de cartões com pares rótulo/valor (`dl`). Ela substitui a tabela de 820px e a segunda lista que só aparecia abaixo de 700px. Fica em 1 coluna no celular e 2 a partir de 768px; a partir de 1200px, a edição fica ao lado (sticky). "Editar", "Buscar" e "Fechar" levam o foco ao título correspondente (`js/admin.js`). Enter na busca aciona "Buscar" (`p:defaultCommand` com `scope`).
+- **Admin, parâmetros:** um cartão por parâmetro, com rótulo associado ao valor; chave, descrição e valor ficam em linha a partir de 992px.
+- **Início:** o título vai para o cabeçalho do layout (antes havia dois `h1`). O administrador vê o atalho da administração em vez do cartão do time, e uma falha de carga mostra aviso com "Tentar novamente". As ligas em alta viram lista (antes `p:dataTable`), legível em 320px com nomes longos. A barra de progresso só aparece no período de teste e é limitada a 15 dias.
+- **Fale conosco:** "Assunto" e "Mensagem" só são obrigatórios no envio. Assim, a troca de assunto (AJAX) guarda o texto já digitado; antes, o `update="@form"` o apagava. A exclusão pendente mostra aviso com "Ver confirmação"; depois de confirmada, um alerta lembra o efeito. No diálogo, o foco começa em "Cancelar" e as ações ficam empilhadas no celular.
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).

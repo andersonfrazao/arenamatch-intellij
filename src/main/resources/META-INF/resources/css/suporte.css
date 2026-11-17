@@ -1,0 +1,98 @@
+@charset "UTF-8";
+/* =====================================================================
+   Fale conosco (fale-conosco.xhtml), ARENA-98. Prefixo sup-. Mobile first.
+   - Cartão com largura total no celular; até 36rem a partir de 768px.
+   - Botão de envio com largura total no celular.
+   - Diálogo de exclusão: texto rola por dentro (base styles.css) e as
+     ações ficam empilhadas no celular, lado a lado a partir de 576px.
+   ===================================================================== */
+
+.sup { min-width: 0; }
+
+.sup-cartao {
+    display: grid;
+    gap: var(--am-space-4);
+    width: 100%;
+    margin-inline: auto;
+}
+
+.sup-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--am-space-3);
+}
+
+.sup-cabecalho > i {
+    flex-shrink: 0;
+    color: var(--am-color-info);
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+.sup-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-xl);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+}
+
+.sup-texto {
+    margin: var(--am-space-1) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.sup-texto strong { color: var(--am-color-text-strong); }
+
+.sup-corpo {
+    display: grid;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+.sup-alerta-corpo {
+    display: grid;
+    gap: var(--am-space-2);
+    justify-items: start;
+}
+
+.am-ui .sup .ui-inputtextarea {
+    width: 100%;
+    min-height: 9rem;
+    resize: vertical;
+}
+
+.sup-campo-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0 var(--am-space-3);
+}
+
+.sup-contador { margin-left: auto; }
+.sup-msgs:not(:has(li)) { display: none; }
+.am-ui .sup-msgs .ui-messages { margin: 0; }
+
+.am-ui .sup .sup-enviar { width: 100%; }
+
+/* --- Diálogo --- */
+.sup-dialogo-texto {
+    margin: 0 0 var(--am-space-3);
+    color: var(--am-color-text);
+    line-height: var(--am-line-height);
+}
+
+.sup-dialogo-texto:last-child { margin-bottom: 0; }
+.sup-dialogo-acoes { width: 100%; }
+
+@media (min-width: 576px) {
+    .am-ui .sup .sup-enviar { width: auto; justify-self: end; }
+}
+
+@media (min-width: 768px) {
+    .sup-cartao { max-width: 36rem; }
+    .sup-cabecalho > i { font-size: 2.25rem; }
+}

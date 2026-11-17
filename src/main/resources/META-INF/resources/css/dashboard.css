@@ -1,0 +1,229 @@
+@charset "UTF-8";
+/* =====================================================================
+   Início (dashboard.xhtml), ARENA-98. Prefixo dsh-. Mobile first.
+   - Cartões empilhados; ações com largura total no celular (am-actions).
+   - Resumo do time: escudo + nome (quebra nomes longos) + plano.
+   - Ligas em alta: lista em vez de tabela, legível em 320px.
+   - >= 768px: ligas lado a lado; cartões de texto + ação em linha.
+   ===================================================================== */
+
+.dsh {
+    display: grid;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+.dsh-cartao {
+    display: grid;
+    gap: var(--am-space-4);
+    align-content: start;
+}
+
+.dsh-cartao-texto { min-width: 0; }
+
+.dsh-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-xl);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+}
+
+.dsh-titulo > i { margin-right: var(--am-space-2); color: var(--am-color-accent); }
+.dsh-titulo--sm { font-size: var(--am-font-size-lg); }
+
+.dsh-texto {
+    margin: var(--am-space-2) 0 0;
+    color: var(--am-color-text-muted);
+    line-height: var(--am-line-height);
+}
+
+.dsh-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--am-space-1);
+    min-height: var(--am-touch-target);
+    color: var(--am-color-accent);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.dsh-link:hover { color: var(--am-color-text-strong); text-decoration: underline; }
+
+/* --- Resumo do time --- */
+.dsh-time-identidade {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--am-space-3);
+    min-width: 0;
+}
+
+.dsh-escudo {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    border: 1px solid var(--am-color-border-strong);
+    border-radius: 50%;
+    background: var(--am-color-surface-sunken);
+    color: var(--am-color-text-strong);
+    font-size: 1.5rem;
+}
+
+.dsh-escudo img { width: 100%; height: 100%; object-fit: cover; }
+
+.dsh-saudacao {
+    margin: 0 0 2px;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.dsh-time-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--am-space-1) var(--am-space-2);
+    margin-top: var(--am-space-2);
+}
+
+.dsh-plano {
+    display: grid;
+    gap: var(--am-space-2);
+    padding-top: var(--am-space-3);
+    border-top: 1px solid var(--am-color-border);
+}
+
+.dsh-plano-linha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 var(--am-space-3);
+}
+
+.dsh-plano-rotulo {
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+}
+
+.dsh-progresso {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border: 0;
+    border-radius: var(--am-radius-pill);
+    background: var(--am-color-surface-sunken);
+    appearance: none;
+}
+
+.dsh-progresso::-webkit-progress-bar { border-radius: var(--am-radius-pill); background: var(--am-color-surface-sunken); }
+.dsh-progresso::-webkit-progress-value { border-radius: var(--am-radius-pill); background: var(--am-color-warning); }
+.dsh-progresso::-moz-progress-bar { border-radius: var(--am-radius-pill); background: var(--am-color-warning); }
+
+/* Agenda em destaque; convites e ligas lado a lado abaixo dela quando cabem
+   (em 320px ficam empilhados, sem quebrar o rótulo). */
+.dsh-time-acoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+}
+
+.dsh-time-acoes > :first-child { grid-column: 1 / -1; }
+.dsh-time-acoes > .ui-button { width: 100%; }
+
+/* --- Ligas --- */
+.dsh-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--am-space-4);
+}
+
+.dsh-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 var(--am-space-3);
+}
+
+.dsh-ligas {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dsh-liga {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--am-space-3);
+    padding: var(--am-space-3) 0;
+    border-bottom: 1px solid var(--am-color-border);
+}
+
+.dsh-liga:last-child { border-bottom: 0; }
+.dsh-liga-icone { color: var(--am-color-warning); }
+
+.dsh-liga-nome {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.dsh-liga-regiao {
+    margin: 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.dsh-liga-times { white-space: nowrap; }
+
+/* =====================================================================
+   >= 576px
+   ===================================================================== */
+@media (min-width: 576px) {
+    .dsh-escudo { width: 72px; height: 72px; font-size: 2rem; }
+
+    .dsh-time-acoes { display: flex; }
+    .dsh-time-acoes > .ui-button { width: auto; }
+}
+
+/* =====================================================================
+   >= 768px
+   ===================================================================== */
+@media (min-width: 768px) {
+    .dsh-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dsh-grade > .dsh-cartao { height: 100%; }
+    .dsh-cartao--ligas { grid-template-rows: 1fr auto; }
+
+    .dsh-cartao--busca,
+    .dsh-cartao--admin {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--am-space-6);
+    }
+}
+
+/* =====================================================================
+   >= 992px: resumo do time com plano e ações à direita
+   ===================================================================== */
+@media (min-width: 992px) {
+    .dsh-titulo { font-size: var(--am-font-size-2xl); }
+    .dsh-titulo--sm { font-size: var(--am-font-size-lg); }
+
+    .dsh-time {
+        grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
+        align-items: center;
+        column-gap: var(--am-space-8);
+    }
+
+    .dsh-time .dsh-plano { padding-top: 0; border-top: 0; }
+    .dsh-time-acoes { grid-column: 1 / -1; }
+}
