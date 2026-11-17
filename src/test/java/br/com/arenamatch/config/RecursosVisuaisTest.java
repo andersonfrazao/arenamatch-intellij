@@ -154,6 +154,26 @@ class RecursosVisuaisTest {
         assertEquals("0", consultar(antiga, "count(//*[local-name()='form'])"));
     }
 
+    @Test
+    void agendaUsaCssEscopadoEProcessaSomenteOCartaoDoPlacar() throws Exception {
+        Document agenda = lerPagina("minha-agenda.xhtml");
+        assertEquals("0", consultar(agenda, "count(//*[local-name()='style'] | //@style | //@inputStyle)"));
+        assertEquals("1", consultar(agenda,
+                "count(//*[local-name()='define'][@name='estilosPagina']/*[local-name()='link'][contains(@href,'css:agenda.css')])"));
+        assertEquals("1", consultar(agenda,
+                "count(//*[local-name()='button'][@id='todosMeusJogosBtn'][@aria-controls='todosMeusJogosPanel'])"));
+        assertEquals("1", consultar(agenda,
+                "count(//*[local-name()='dialog'][@widgetVar='flyerDialog'][not(@width)][@draggable='false'])"));
+        assertEquals("4", consultar(agenda,
+                "count(//*[local-name()='inputNumber'][@inputStyleClass='placar-input'])"));
+        assertEquals("2", consultar(agenda,
+                "count(//*[local-name()='commandButton'][contains(@action,'salvarPlacarInline')][@process='@this @parent'])"));
+        assertEquals("1", consultar(agenda,
+                "count(//*[local-name()='remoteCommand'][@name='atualizarCalendarioAjax'])"));
+        assertEquals("0", consultar(agenda,
+                "count(//*[local-name()='messages'][@id='msgs']/*[local-name()='autoUpdate'])"));
+    }
+
     private String consultar(Document documento, String expressao) throws Exception {
         return XPathFactory.newInstance().newXPath().evaluate(expressao, documento);
     }

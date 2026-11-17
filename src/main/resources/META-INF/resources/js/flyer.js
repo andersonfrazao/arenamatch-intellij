@@ -13,6 +13,8 @@
     let flyerBlob = null;
     let flyerFile = null;
     let previewUrl = null;
+    let geracaoAtual = 0;
+    let botaoOrigem = null;
 
     function text(root, selector, fallback) {
         const element = root.querySelector(selector);
@@ -491,7 +493,30 @@
     }
 
     function showError(message) {
-        window.alert(message || "Não foi possível gerar o flyer. Tente novamente.");
+        informar(message || "Não foi possível gerar o flyer. Tente novamente.", true);
+        if (window.PF) window.PF("flyerDialog").show();
+    }
+
+    function informar(message, erro) {
+        const feedback = document.getElementById("flyerFeedback");
+        if (!feedback) return;
+        feedback.textContent = message;
+        feedback.setAttribute("role", erro ? "alert" : "status");
+        if (erro) feedback.focus({ preventScroll: true });
+    }
+
+    function close() {
+        geracaoAtual += 1;
+        flyerBlob = null;
+        flyerFile = null;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+        if (botaoOrigem && botaoOrigem.isConnected) {
+            botaoOrigem.disabled = false;
+            botaoOrigem.classList.remove("ui-state-disabled");
+            botaoOrigem.focus({ preventScroll: true });
+        }
+        botaoOrigem = null;
     }
 
     async function generate(button) {
@@ -506,8 +531,18 @@
             return;
         }
 
+        close();
+        botaoOrigem = button;
         button.disabled = true;
         button.classList.add("ui-state-disabled");
+        const geracao = geracaoAtual;
+        const preview = document.getElementById("flyerPreviewImage");
+        preview.hidden = true;
+        preview.removeAttribute("src");
+        document.getElementById("flyerDownloadButton").disabled = true;
+        document.getElementById("flyerShareButton").hidden = true;
+        informar("Gerando imagem…", false);
+        window.PF("flyerDialog").show();
 
         try {
             const homeName = text(data, ".flyer-home-name", "Mandante");
@@ -526,6 +561,7 @@
                 loadImage(awayElement ? awayElement.src : null),
                 loadImage(button.dataset.flyerLogo)
             ]);
+            if (geracao !== geracaoAtual || !button.isConnected) return;
             if (!images[0]) {
                 throw new Error("O fundo do flyer não pôde ser carregado.");
             }
@@ -562,8 +598,8 @@
             drawShieldImage(ctx, images[2], 805, 425, 236, "VISITANTE");
             drawVersus(ctx, WIDTH / 2, 425);
 
-            drawCenteredLines(ctx, homeName, 275, 608, 400, 2, 42, 28, 44);
-            drawCenteredLines(ctx, awayName, 805, 608, 400, 2, 42, 28, 44);
+            drawCenteredLines(ctx, homeName.toUpperCase(), 275, 590, 400, 4, 36, 20, 32);
+            drawCenteredLines(ctx, awayName.toUpperCase(), 805, 590, 400, 4, 36, 20, 32);
 
             panel(ctx, 70, 700, 940, 198);
             drawCalendarIcon(ctx, 138, 780);
@@ -627,7 +663,9 @@
             ctx.lineWidth = 2;
             ctx.strokeRect(18, 18, WIDTH - 36, HEIGHT - 36);
 
-            flyerBlob = await canvasToBlob(canvas);
+            const blob = await canvasToBlob(canvas);
+            if (geracao !== geracaoAtual || !button.isConnected) return;
+            flyerBlob = blob;
             const name = "arena-match-" + safeFilename(homeName) + "-x-" + safeFilename(awayName) + "-" + date.replace(/\D/g, "-") + ".png";
             flyerFile = new File([flyerBlob], name, { type: "image/png" });
 
@@ -635,25 +673,27 @@
                 URL.revokeObjectURL(previewUrl);
             }
             previewUrl = URL.createObjectURL(flyerBlob);
-            const preview = document.getElementById("flyerPreviewImage");
             if (preview) {
                 preview.src = previewUrl;
                 preview.alt = "Flyer de " + homeName + " contra " + awayName;
+                preview.hidden = false;
             }
 
             const shareButton = document.getElementById("flyerShareButton");
-            const isMobileViewport = window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
+            const podeCompartilhar = typeof navigator.share === "function" &&
+                (typeof navigator.canShare !== "function" || navigator.canShare({ files: [flyerFile] }));
             if (shareButton) {
-                shareButton.style.display = isMobileViewport ? "inline-flex" : "none";
+                shareButton.hidden = !podeCompartilhar;
             }
-            if (window.PF) {
-                window.PF("flyerDialog").show();
-            }
+            document.getElementById("flyerDownloadButton").disabled = false;
+            informar(podeCompartilhar ? "Imagem pronta." : "Imagem pronta. Baixe para compartilhar.", false);
         } catch (error) {
-            showError(error && error.message);
+            if (geracao === geracaoAtual) showError(error && error.message);
         } finally {
-            button.disabled = false;
-            button.classList.remove("ui-state-disabled");
+            if (geracao === geracaoAtual) {
+                button.disabled = false;
+                button.classList.remove("ui-state-disabled");
+            }
         }
     }
 
@@ -680,7 +720,7 @@
         }
         try {
             if (typeof navigator.canShare === "function" && !navigator.canShare({ files: [flyerFile] })) {
-                showError("Este navegador não permite compartilhar a imagem. Use a opção Baixar PNG.");
+                showError("Este navegador não permite compartilhar a imagem. Use Baixar imagem.");
                 return;
             }
             await navigator.share({
@@ -698,6 +738,7 @@
     window.ArenaMatchFlyer = {
         gerar: generate,
         baixar: download,
-        compartilhar: share
+        compartilhar: share,
+        fechar: close
     };
 })(window, document);

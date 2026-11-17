@@ -1,0 +1,966 @@
+@charset "UTF-8";
+
+.am-agenda {
+    width: 100%;
+    min-width: 0;
+    max-width: 80rem;
+    margin-inline: auto;
+}
+
+.am-agenda [hidden],
+.agenda-flyer [hidden] {
+    display: none !important;
+}
+
+.am-agenda .agenda-navegacao {
+    display: grid;
+    grid-template-columns: var(--am-touch) minmax(0, 1fr) var(--am-touch);
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+
+.am-agenda .agenda-navegacao > .ui-button {
+    width: var(--am-touch);
+    min-height: var(--am-touch);
+    padding: 0;
+}
+
+.am-agenda .agenda-navegacao > span {
+    grid-column: 1 / -1;
+}
+
+.am-agenda .agenda-navegacao > span .ui-button {
+    width: 100%;
+    margin: 0 !important;
+}
+
+.am-agenda .agenda-navegacao > .agenda-hoje.ui-button {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.am-agenda .agenda-subtitulo {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+}
+
+.am-agenda .placar-grid,
+.am-agenda .placar-espera > .flex.align-items-center.justify-content-center {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .5rem;
+    align-items: end;
+}
+
+.am-agenda .placar-grid > span,
+.am-agenda .placar-espera > .flex > span {
+    text-align: center;
+}
+
+.am-agenda .placar-grid > div,
+.am-agenda .placar-espera > .flex > div {
+    min-width: 0;
+    width: 100%;
+}
+
+.am-agenda .placar-controle.ui-inputnumber,
+.am-agenda input.placar-input {
+    width: 100%;
+    min-width: 0;
+}
+
+.am-agenda input.placar-input {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.am-agenda .placar-final {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+    align-items: center;
+}
+
+.am-agenda .placar-espera .text-xs {
+    font-size: .85rem !important;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.am-agenda .agenda-acoes {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.am-agenda .event-actions .ui-button,
+.am-agenda .agenda-acoes .ui-button {
+    width: 100%;
+    min-height: var(--am-touch);
+    margin: 0;
+}
+
+.am-agenda .agenda-label {
+    display: block;
+    margin-bottom: .5rem;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.am-agenda .agenda-modalidade {
+    margin-block: .75rem;
+    font-size: .875rem;
+    line-height: 1.5;
+}
+
+.am-agenda .agenda-modalidade strong {
+    display: block;
+    color: #86efac;
+}
+
+.am-agenda .agenda-cancelamento textarea {
+    width: 100%;
+    font-size: 1rem;
+}
+
+.am-agenda .agenda-status {
+    display: none;
+    margin-bottom: 1rem;
+    color: var(--am-text);
+    text-align: center;
+}
+
+.am-agenda[aria-busy='true'] .agenda-status {
+    display: block;
+}
+
+.am-agenda .ui-messages > div {
+    position: relative;
+}
+
+.am-agenda .ui-messages-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: .25rem;
+    right: .25rem;
+    width: var(--am-touch);
+    height: var(--am-touch);
+}
+
+.am-agenda .ui-messages ul {
+    margin-right: 2.5rem;
+}
+
+.agenda-flyer.ui-dialog {
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%);
+    width: calc(100vw - 2rem) !important;
+    max-width: 37.5rem;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    overflow: auto;
+    background: #101c2f;
+    border: 1px solid rgba(148, 163, 184, .25);
+}
+
+.agenda-flyer[aria-hidden='false'] {
+    display: flex !important;
+    flex-direction: column;
+}
+
+.agenda-flyer .ui-dialog-titlebar,
+.agenda-flyer .ui-dialog-footer {
+    flex-shrink: 0;
+}
+
+.agenda-flyer .ui-dialog-titlebar {
+    padding: .75rem;
+}
+
+.agenda-flyer.ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--am-touch);
+    height: var(--am-touch);
+}
+
+.agenda-flyer .ui-dialog-content {
+    min-height: 0;
+    overflow: auto;
+    padding: .75rem;
+}
+
+.agenda-flyer .flyer-preview-image {
+    display: block;
+    width: 100%;
+    max-height: 50vh;
+    max-height: 50dvh;
+    object-fit: contain;
+}
+
+.agenda-flyer .flyer-feedback {
+    color: var(--am-text);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.agenda-flyer .flyer-dialog-actions {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.agenda-flyer .flyer-dialog-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    min-height: var(--am-touch);
+    padding: .65rem;
+    border: 1px solid var(--am-border);
+    border-radius: .5rem;
+    font-size: .9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.agenda-flyer .download {
+    background: var(--am-accent);
+    color: var(--am-navy);
+}
+
+.agenda-flyer .share {
+    background: #86efac;
+    color: #052e16;
+}
+
+.agenda-flyer .close {
+    background: transparent;
+    color: var(--am-text);
+}
+
+.am-agenda .agenda-container {
+    font-family: inherit;
+    color: rgba(255,255,255,0.92);
+    min-width: 0;
+}
+
+.am-agenda .panel-glass {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 18px;
+    backdrop-filter: blur(12px);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.am-agenda .calendarHeader {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .9rem;
+    flex-direction: column;
+}
+
+.am-agenda .legend {
+    display: grid;
+    gap: .5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.am-agenda .pill {
+    padding: .35rem .6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.82);
+    font-size: .8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+.am-agenda .todos-jogos-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .58rem .85rem;
+    border-radius: 12px;
+    border: 1px solid rgba(56,189,248,0.30);
+    background: rgba(56,189,248,0.10);
+    color: #bae6fd;
+    font-weight: 900;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+    width: 100%;
+    min-height: var(--am-touch);
+    font-size: .9rem;
+}
+
+.am-agenda .todos-jogos-action:hover {
+    background: rgba(56,189,248,0.16);
+    border-color: rgba(56,189,248,0.46);
+}
+
+.am-agenda .todos-jogos-panel {
+    display: none;
+    margin-bottom: 1rem;
+}
+
+.am-agenda .todos-jogos-panel.open {
+    display: block;
+    animation: amFadeIn 0.25s ease;
+}
+
+.am-agenda .todos-jogos-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: .75rem;
+}
+
+.am-agenda .todos-jogos-row {
+    display: block;
+    min-width: 0;
+    color: white;
+    text-decoration: none !important;
+}
+
+.am-agenda .match-card {
+    padding: .9rem;
+    border-radius: 15px;
+    border: 1px solid rgba(56,189,248,.18);
+    background: linear-gradient(145deg, rgba(8,39,72,.96), rgba(4,25,48,.96));
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    color: white;
+}
+
+.am-agenda .todos-jogos-row:hover .match-card {
+    transform: translateY(-2px);
+    border-color: rgba(56,189,248,.46);
+    box-shadow: 0 13px 28px rgba(0,0,0,.26);
+}
+
+.am-agenda .todos-jogos-row .match-card {
+    padding: .65rem .75rem;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.am-agenda .todos-jogos-row .match-card-versus {
+    margin: .45rem 0 .35rem;
+}
+
+.am-agenda .todos-jogos-row .match-card-team {
+    gap: .2rem;
+}
+
+.am-agenda .todos-jogos-row .match-card-shield,
+.am-agenda .todos-jogos-row .match-card-shield-fallback {
+    width: 48px;
+    height: 48px;
+}
+
+.am-agenda .todos-jogos-row .match-card-shield-fallback {
+    font-size: 2.1rem;
+}
+
+.am-agenda .match-card-date {
+    color: rgba(255,255,255,.74);
+    font-size: .7rem;
+    font-weight: 900;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .035em;
+}
+
+.am-agenda .match-card-hour {
+    color: #fff;
+    font-size: .76rem;
+    font-weight: 900;
+    text-align: center;
+    margin-top: .12rem;
+}
+
+.am-agenda .match-card-versus {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: .4rem;
+    margin: .7rem 0 .55rem;
+}
+
+.am-agenda .match-card-team {
+    display: grid;
+    grid-template-columns: 3.625rem minmax(0, 1fr);
+    align-items: center;
+    min-width: 0;
+    gap: .35rem;
+}
+
+.am-agenda .match-card-team > .text-xs {
+    grid-column: 2;
+}
+
+.am-agenda .match-card-shield {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,.35));
+}
+
+.am-agenda .match-card-shield-fallback {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    color: #bae6fd;
+    font-size: 2.55rem;
+}
+
+.am-agenda .match-card-team-name {
+    width: 100%;
+    color: #fff;
+    font-size: .875rem;
+    line-height: 1.45;
+    font-weight: 900;
+    text-align: left;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.am-agenda .match-card-vs {
+    color: #38bdf8;
+    font-size: 1rem;
+    font-weight: 1000;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.am-agenda .match-card-location {
+    color: rgba(255,255,255,.58);
+    font-size: .85rem;
+    text-align: center;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+}
+
+.am-agenda .match-card-detail {
+    max-width: 100%;
+    margin: 0 auto .85rem;
+    width: 100%;
+}
+
+.am-agenda .todos-jogos-empty {
+    padding: .85rem;
+    border-radius: 14px;
+    border: 1px dashed rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.58);
+    background: rgba(255,255,255,0.03);
+    font-size: .9rem;
+}
+
+.am-agenda .gridWeek {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .5rem;
+}
+
+.am-agenda .gridWeek > a {
+    display: block;
+    min-width: 0;
+    text-decoration: none !important;
+}
+
+.am-agenda .day-card {
+    padding: .45rem;
+    border-radius: .75rem;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+    min-height: 7rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none !important;
+    color: white !important;
+    transition: transform .08s ease, border-color .08s ease;
+}
+
+.am-agenda .day-card:hover {
+    transform: translateY(-1px);
+    background: rgba(255,255,255,0.08);
+}
+
+.am-agenda .day-card.selected {
+    border-color: rgba(255,255,255,0.5);
+    box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.1);
+}
+
+.am-agenda .day-card.hasGame {
+    border-color: rgba(37,211,102,0.30);
+    background: rgba(37,211,102,0.06);
+}
+
+.am-agenda .day-card.hasInvite {
+    border-color: rgba(255,204,0,0.35);
+    background: rgba(255,204,0,0.05);
+}
+
+.am-agenda .day-card.hasCancelled {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.am-agenda .day-card.hasPlayed {
+    border-color: rgba(59,130,246,0.38);
+    background: rgba(59,130,246,0.08);
+}
+
+.am-agenda .day-card.hasScorePending {
+    border-color: rgba(168,85,247,0.55);
+    background: rgba(168,85,247,0.12);
+    box-shadow: 0 0 12px rgba(168,85,247,0.18);
+}
+
+.am-agenda .dow {
+    color: rgba(255,255,255,0.72);
+    font-size: .85rem;
+}
+
+.am-agenda .dnum {
+    font-weight: 900;
+    font-size: 1.2rem;
+    margin-top: 5px;
+}
+
+.am-agenda .dots {
+    display: flex;
+    gap: .35rem;
+    margin-top: auto;
+}
+
+.am-agenda .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.12);
+}
+
+.am-agenda .dot.game {
+    background: #25d366;
+    border-color: rgba(37,211,102,0.35);
+    box-shadow: 0 0 5px #25d366;
+}
+
+.am-agenda .dot.invite {
+    background: #ffcc00;
+    border-color: rgba(255,204,0,0.45);
+    box-shadow: 0 0 5px #ffcc00;
+}
+
+.am-agenda .dot.cancelled {
+    background: #ef4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 5px #ef4444;
+}
+
+.am-agenda .dot.played {
+    background: #3b82f6;
+    border-color: rgba(59,130,246,0.45);
+    box-shadow: 0 0 5px #3b82f6;
+}
+
+.am-agenda .dot.score-pending {
+    background: #a855f7;
+    border-color: rgba(168,85,247,0.60);
+    box-shadow: 0 0 6px #a855f7;
+}
+
+.am-agenda .event-tags {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    margin-top: .55rem;
+    min-height: 22px;
+}
+
+.am-agenda .event-tag {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    padding: .2rem .15rem;
+    border-radius: 999px;
+    font-size: .7rem;
+    font-weight: 900;
+    border: 1px solid rgba(255,255,255,0.14);
+    white-space: normal;
+    overflow: visible;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
+    text-align: center;
+}
+
+.am-agenda .event-tag i {
+    display: none;
+}
+
+.am-agenda .event-tag.game {
+    color: #86efac;
+    background: rgba(37,211,102,0.12);
+    border-color: rgba(37,211,102,0.28);
+}
+
+.am-agenda .event-tag.invite {
+    color: #fde68a;
+    background: rgba(255,204,0,0.10);
+    border-color: rgba(255,204,0,0.30);
+}
+
+.am-agenda .event-tag.liga {
+    color: #d8b4fe;
+    background: rgba(168,85,247,0.12);
+    border-color: rgba(168,85,247,0.30);
+}
+
+.am-agenda .event-tag.cancelled {
+    color: #fecaca;
+    background: rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.32);
+}
+
+.am-agenda .event-tag.played {
+    color: #bfdbfe;
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.32);
+}
+
+.am-agenda .event-tag.score-pending {
+    color: #e9d5ff;
+    background: rgba(168,85,247,0.14);
+    border-color: rgba(168,85,247,0.40);
+}
+
+.am-agenda .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .28rem .55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(56,189,248,0.28);
+    background: rgba(56,189,248,0.10);
+    color: #bae6fd;
+    font-size: .75rem;
+    font-weight: 900;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.am-agenda .match-location {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    width: 100%;
+    margin: .65rem 0 .35rem;
+    padding: .75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(56,189,248,0.20);
+    background: rgba(15, 23, 42, 0.50);
+}
+
+.am-agenda .match-location-icon {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
+    background: rgba(56,189,248,0.10);
+    border: 1px solid rgba(56,189,248,0.25);
+}
+
+.am-agenda .match-location-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.am-agenda .match-location-title {
+    color: #bae6fd;
+    font-size: .72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: .2rem;
+}
+
+.am-agenda .match-location-address {
+    color: rgba(255,255,255,0.88);
+    font-size: .88rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.am-agenda .match-location-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem .8rem;
+    margin: -.05rem 0 .65rem;
+    padding: 0 .25rem;
+    color: #bae6fd;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.am-agenda .detailsHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .8rem;
+}
+
+.am-agenda .item-lista {
+    display: block;
+    gap: .85rem;
+    padding: .85rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.04);
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.am-agenda .event-content {
+    flex: 1;
+    min-width: 0;
+    padding-right: 0;
+    overflow-wrap: anywhere;
+}
+
+.am-agenda .event-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.am-agenda .event-actions > span {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    max-width: 100%;
+    flex-direction: column;
+    width: 100%;
+}
+
+.am-agenda .item-lista.game-upcoming {
+    border-color: rgba(37,211,102,0.26);
+    background: rgba(37,211,102,0.05);
+}
+
+.am-agenda .item-lista.game-played {
+    border-color: rgba(59,130,246,0.30);
+    background: rgba(59,130,246,0.06);
+}
+
+.am-agenda .item-lista.score-pending {
+    border-color: rgba(168,85,247,0.45);
+    background: rgba(168,85,247,0.10);
+}
+
+.am-agenda .item-lista.score-waiting {
+    border-color: rgba(168,85,247,0.45);
+    background: rgba(168,85,247,0.10);
+}
+
+.am-agenda .item-lista.score-confirmed {
+    border-color: rgba(45,212,191,0.34);
+    background: rgba(45,212,191,0.07);
+}
+
+.am-agenda .item-lista.score-dispute {
+    border-color: rgba(239,68,68,0.44);
+    background: rgba(239,68,68,0.10);
+}
+
+.am-agenda .badge-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    display: none;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06);
+    flex-shrink: 0;
+}
+
+.am-agenda .agenda-periodo-label {
+    font-weight: 900;
+    font-size: 1rem;
+    text-align: center;
+    min-width: 0;
+    line-height: 1.5;
+}
+
+.am-agenda .agenda-borda-liga {
+    border-color: #a855f7;
+}
+
+.am-agenda .agenda-dia-titulo {
+    font-weight: 900;
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+.am-agenda .agenda-icone-confirmado {
+    color: #25d366;
+}
+
+.am-agenda .agenda-icone-placar {
+    color: #a855f7;
+}
+
+.am-agenda .agenda-icone-alerta {
+    color: #ef4444;
+}
+
+.am-agenda .agenda-icone-validado {
+    color: #2dd4bf;
+}
+
+.am-agenda .agenda-icone-convite {
+    color: #ffcc00;
+}
+
+.am-agenda .agenda-icone-enviado {
+    color: #60a5fa;
+}
+
+.am-agenda .agenda-distancia {
+    white-space: nowrap;
+}
+
+.am-agenda .agenda-oculto {
+    display: none;
+}
+
+.am-agenda .placar-pendente {
+    background: rgba(168, 85, 247, 0.12);
+}
+
+.am-agenda .placar-time-label {
+    max-width: 100%;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: ellipsis;
+    display: block;
+    line-height: 1.5;
+    font-size: .85rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.am-agenda .placar-espera {
+    background: rgba(45, 212, 191, 0.1);
+    border-color: rgba(45, 212, 191, 0.3);
+}
+
+.am-agenda .placar-disputa {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.am-agenda .placar-time-final {
+    flex: 1;
+    overflow: visible;
+    min-width: 0;
+    text-align: center;
+    text-overflow: clip;
+}
+
+.am-agenda .placar-nome-final {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+}
+
+.am-agenda .agenda-cancelamento {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.am-agenda .agenda-acao {
+    width: 100%;
+    height: auto;
+    min-height: var(--am-touch);
+}
+
+.am-agenda .agenda-separador {
+    border: 0;
+    border-top: 1px dashed rgba(255,255,255,0.2);
+    margin: 1.5rem 0;
+}
+
+.am-agenda .agenda-superficie {
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.am-agenda .agenda-conteudo-liga {
+    flex-grow: 1;
+    padding-right: 5px;
+}
+
+@media (min-width: 36rem) {
+    .am-agenda .placar-grid,
+    .am-agenda .placar-espera > .flex.align-items-center.justify-content-center {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+    .am-agenda .gridWeek { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .am-agenda .todos-jogos-action { width: auto; }
+    .agenda-flyer .flyer-dialog-actions { flex-direction: row; flex-wrap: wrap; }
+    .agenda-flyer .flyer-dialog-button { width: auto; flex: 1; }
+}
+@media (min-width: 48rem) {
+    .am-agenda .item-lista .match-card-versus {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+
+    .am-agenda .item-lista .match-card-team {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .am-agenda .item-lista .match-card-team-name {
+        text-align: center;
+    }
+    .am-agenda .todos-jogos-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .am-agenda .item-lista { display: flex; }
+    .am-agenda .badge-icon { display: grid; }
+    .am-agenda .legend { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .am-agenda .agenda-acoes { flex-direction: row; }
+    .am-agenda .placar-final { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+}
+@media (min-width: 75rem) {
+    .am-agenda .gridWeek { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .am-agenda .todos-jogos-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

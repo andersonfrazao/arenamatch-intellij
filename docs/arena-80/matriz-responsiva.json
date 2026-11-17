@@ -1,0 +1,191 @@
+[
+  {
+    "dialog": {
+      "bottom": 746.34375,
+      "left": 8.5,
+      "right": 336.5,
+      "top": 33.65625
+    },
+    "estado": "flyer",
+    "h": 780,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 360
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 780,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 360
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 844,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 390
+  },
+  {
+    "dialog": {
+      "bottom": 797.09375,
+      "left": 8.5,
+      "right": 366.5,
+      "top": 46.90625
+    },
+    "estado": "flyer",
+    "h": 844,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 390
+  },
+  {
+    "dialog": {
+      "bottom": 894.59375,
+      "left": 76.5,
+      "right": 676.5,
+      "top": 129.40625
+    },
+    "estado": "flyer",
+    "h": 1024,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 768
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 1024,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 768
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 900,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 992
+  },
+  {
+    "dialog": {
+      "bottom": 801.59375,
+      "left": 188.5,
+      "right": 788.5,
+      "top": 98.40625
+    },
+    "estado": "flyer",
+    "h": 900,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 992
+  },
+  {
+    "dialog": {
+      "bottom": 801.59375,
+      "left": 204.5,
+      "right": 804.5,
+      "top": 98.40625
+    },
+    "estado": "flyer",
+    "h": 900,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 1024
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 900,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 1024
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 1000,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 1440
+  },
+  {
+    "dialog": {
+      "bottom": 876.59375,
+      "left": 412.5,
+      "right": 1012.5,
+      "top": 123.40625
+    },
+    "estado": "flyer",
+    "h": 1000,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 1440
+  },
+  {
+    "dialog": {
+      "bottom": 373.3984375,
+      "left": 114.5,
+      "right": 714.5,
+      "top": 16.6015625
+    },
+    "estado": "flyer",
+    "h": 390,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 844
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 390,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 844
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 430,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 320
+  },
+  {
+    "dialog": {
+      "bottom": 413.3984375,
+      "left": 8.5,
+      "right": 296.5,
+      "top": 16.6015625
+    },
+    "estado": "flyer",
+    "h": 430,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 320
+  },
+  {
+    "dialog": {
+      "bottom": 721.34375,
+      "left": 8.5,
+      "right": 296.5,
+      "top": 58.65625
+    },
+    "estado": "flyer",
+    "h": 780,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 320
+  },
+  {
+    "dialog": null,
+    "estado": "jogo",
+    "h": 780,
+    "overflow": -15,
+    "pequenos": [],
+    "w": 320
+  }
+]

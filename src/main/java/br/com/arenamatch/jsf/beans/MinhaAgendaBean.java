@@ -141,6 +141,7 @@ public class MinhaAgendaBean implements Serializable {
     }
 
     public void carregarCalendario() {
+        LocalDate dataSelecionada = diaSelecionado != null ? diaSelecionado.getData() : null;
         try {
             log.info("Buscando no banco a partir de: {}", this.dataBaseCalendario);
             
@@ -157,7 +158,14 @@ public class MinhaAgendaBean implements Serializable {
             }
 
             if (!diasCalendario.isEmpty()) {
-                selecionarDia(diasCalendario.get(0));
+                ResumoAgendaDTO dia = diasCalendario.stream()
+                        .filter(item -> item.getData().equals(dataSelecionada))
+                        .findFirst().orElse(diasCalendario.get(0));
+                selecionarDia(dia);
+            } else {
+                diaSelecionado = null;
+                eventosDoDia = new ArrayList<>();
+                convitesLigaDoDia = new ArrayList<>();
             }
             carregarTodosMeusJogos();
         } catch (Exception e) {
@@ -198,6 +206,11 @@ public class MinhaAgendaBean implements Serializable {
     }
 
     public void selecionarDia(ResumoAgendaDTO dia) {
+        if (diaSelecionado == null || !dia.getData().equals(diaSelecionado.getData())) {
+            golsMandanteInformado = null;
+            golsVisitanteInformado = null;
+            abortarCancelamento();
+        }
         this.diaSelecionado = dia;
         try {
             this.eventosDoDia = agendaClient.buscarDetalhesDia(meuTimeId, dia.getData());
@@ -392,6 +405,7 @@ public class MinhaAgendaBean implements Serializable {
         this.dataBaseCalendario = LocalDate.now();
         log.info("== VOLTANDO PARA HOJE: {}", this.dataBaseCalendario);
         carregarCalendario();
+        selecionarData(LocalDate.now());
     }
 
     public boolean isMostrandoHoje() {
@@ -508,7 +522,7 @@ public class MinhaAgendaBean implements Serializable {
             
          // Repete a mesma lógica aqui para o sininho sumir ao contestar
             sessaoBean.atualizarNotificacoesGlobais();
-            org.primefaces.PrimeFaces.current().ajax().update(":painelNotificacoesGlobais");
+            org.primefaces.PrimeFaces.current().ajax().update("@([id$=painelNotificacoesGlobais])");
             
             msgInfo("Placar contestado. O jogo entrou em disputa.");
             carregarCalendario();
