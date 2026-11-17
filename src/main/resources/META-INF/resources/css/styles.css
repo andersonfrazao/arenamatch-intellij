@@ -210,6 +210,23 @@ summary,
     cursor: not-allowed;
 }
 
+/* Mostrar/ocultar senha (toggleMask): o ícone do tema tem 16px; a área de
+   toque passa a ter 44px no lado direito do campo. */
+.am-ui .ui-password.ui-input-icon-right > .ui-inputfield {
+    padding-right: var(--am-touch-target);
+}
+
+.am-ui .ui-password.ui-input-icon-right > .ui-password-icon {
+    top: 50%;
+    right: 0;
+    width: var(--am-touch-target);
+    height: var(--am-touch-target);
+    margin-top: calc(var(--am-touch-target) / -2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Opções de listas e autocomplete com altura de toque. */
 .am-ui .ui-selectonemenu-items .ui-selectonemenu-item,
 .am-ui .ui-autocomplete-items .ui-autocomplete-item {

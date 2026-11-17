@@ -98,6 +98,23 @@ Removidas por não terem uso: `.navbar`, `.logo`, `.app-container`, `.sidebar-ne
   - `(orientation: landscape) and (max-height: 480px)` usa a barra inferior baixa, com ícone e rótulo lado a lado.
 - **Camadas:** cabeçalho 90, sidebar 100, barra inferior 999. Diálogos e growl ficam a partir de 1000 (PrimeFaces). O banner de analytics usa 2000.
 
+## 5.2 Páginas de acesso (`css/acesso.css`, `css/login-publico.css`)
+
+Login, ativação e recuperação de senha (ARENA-90):
+
+- **Cabeçalho compartilhado:** `WEB-INF/template/cabecalho-acesso.xhtml` traz logo, menu e "Saiba mais", e carrega `js/login-publico.js`.
+  - **Abaixo de `lg`:** menu recolhido em botão de 44px. Ele fecha com Esc, ao tocar fora ou ao sair pelo Tab, e o cabeçalho rola com a página.
+  - **A partir de `lg`:** menu em linha e cabeçalho fixo.
+- **Cartão:** `.acesso-card` com `am-card am-card--elevated am-card--accent`. No celular começa no topo; a partir de `md` fica centralizado.
+- **Mensagens:** erros e avisos vão em `p:messages` dentro do cartão, não em growl, para não cobrir o título nem o campo.
+- **Ação principal:** `p:commandButton` com `.acesso-cta` (52px). Ser um botão de envio permite enviar o formulário pela tecla "Ir"/Enter do teclado.
+- **Teclado do celular**, por atributos passthrough (`xmlns:pt`):
+  - e-mail: `type="email"`, `autocomplete` e `autocapitalize="none"`;
+  - código: `inputmode="numeric"` e `autocomplete="one-time-code"`;
+  - senha: `autocomplete="current-password"` ou `"new-password"`.
+- **Exceção registrada:** `(max-height: 520px)` compacta o topo do cartão (teclado aberto ou celular na horizontal).
+- **Campos de senha:** a área de toque de 44px do mostrar/ocultar senha (`toggleMask`) vale para todas as páginas `.am-ui` (`styles.css`).
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).
