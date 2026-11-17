@@ -8,187 +8,24 @@
 
 <h:head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Arena Match</title>
 
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
     <link rel="canonical" href="https://www.arenamatch.app.br/" />
-    <h:outputStylesheet library="css" name="styles.css" />
-    <link href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <ui:include src="/WEB-INF/template/recursos-visuais.xhtml"/>
+    <link href="#{resource['css:styles.css']}&amp;rev=75" rel="stylesheet"/>
 
 
 
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-    <style>
-        /* Estrutura Principal */
-        .am-layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
-        .am-layout-login { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
-
-        .am-sidebar {
-            background: rgba(15, 23, 42, 0.95); border-right: 1px solid rgba(255,255,255,0.08);
-            position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 1.5rem 1rem; z-index: 100;
-            overflow-y: auto; overflow-x: hidden;
-        }
-
-        .am-brand {
-            display: flex; align-items: center; gap: 1rem; padding-bottom: 1.5rem;
-            margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .am-logo-icon {
-            width: 42px; height: 42px; border-radius: 12px;
-            background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.4);
-            display: flex; align-items: center; justify-content: center; color: #38bdf8; font-size: 1.2rem;
-        }
-
-        .am-nav a {
-            display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 12px;
-            color: #94a3b8; text-decoration: none; font-weight: 600; margin-bottom: 0.5rem; transition: all 0.2s;
-        }
-        .am-nav a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .am-nav a.active {
-            background: rgba(14, 165, 233, 0.15); color: #38bdf8;
-            border-left: 4px solid #38bdf8; border-radius: 0 12px 12px 0;
-        }
-
-        .am-team-box {
-            margin-top: auto; padding: 1rem; background: rgba(0,0,0,0.2);
-            border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
-        }
-
-        .am-plan-card {
-            margin: .85rem 0 1rem; padding: .8rem; border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.05);
-        }
-
-        .am-plan-line {
-            display: flex; align-items: center; justify-content: space-between; gap: .7rem;
-        }
-
-        .am-plan-badge {
-            display: inline-flex; align-items: center; gap: .4rem; padding: .28rem .55rem;
-            border-radius: 999px; font-size: .74rem; font-weight: 900; text-transform: uppercase;
-            border: 1px solid rgba(255,255,255,0.14); white-space: nowrap;
-        }
-
-        .am-plan-badge.trial { color: #fde68a; background: rgba(234, 179, 8, 0.14); border-color: rgba(234, 179, 8, 0.35); }
-        .am-plan-badge.pro { color: #86efac; background: rgba(34, 197, 94, 0.14); border-color: rgba(34, 197, 94, 0.35); }
-        .am-plan-badge.basico { color: #cbd5e1; background: rgba(148, 163, 184, 0.12); border-color: rgba(148, 163, 184, 0.28); }
-
-        .am-plan-days {
-            color: rgba(255,255,255,0.86); font-size: .78rem; font-weight: 800; text-align: right;
-        }
-
-        .am-plan-hint {
-            color: rgba(255,255,255,0.55); font-size: .72rem; margin-top: .45rem; line-height: 1.25;
-        }
-
-        .am-main { display: flex; flex-direction: column; width: 100%; max-width: 100vw; overflow-x: hidden; }
-
-        .am-topbar {
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,0.08); padding: 1.2rem 2rem;
-            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 90; flex-wrap: wrap; gap: 1rem;
-        }
-
-        .am-mobile-team { display: none; }
-
-        .am-mobile-plan {
-            display: none;
-        }
-
-        .am-content-area { padding: 2rem; flex-grow: 1; }
-
-        /* NOVAS CLASSES DO PROTÓTIPO (NOTIFICAÇÕES) */
-        .am-pill {
-            padding: .35rem .6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); font-size: .85rem;
-            display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap;
-        }
-        .am-topbar-plan-pill { display: inline-flex; }
-
-        .am-badge-total {
-            position: absolute; top: -10px; right: -10px; min-width: 20px; height: 20px; padding: 0 .34rem;
-            display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
-            font-size: .72rem; font-weight: 900; line-height: 1; border: 2px solid #0f172a;
-            background: #ef4444; color: white; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25), 0 6px 14px rgba(239, 68, 68, 0.35);
-        }
-
-        .am-notif-panel {
-            display: none; padding: 1rem; border-radius: 18px; border: 1px solid rgba(255,255,255,0.10);
-            background: rgba(15, 23, 42, 0.95); margin-bottom: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .am-notif-panel.open { display: block; animation: amFadeIn 0.3s ease; }
-        
-        .am-notif-row {
-            display: flex; align-items: flex-start; justify-content: space-between; gap: .8rem;
-            padding: .85rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.10);
-            background: rgba(255,255,255,0.04); flex-wrap: wrap; margin-top: 0.5rem;
-        }
-
-        @keyframes amFadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* MENU MOBILE */
-        .am-bottom-nav { display: none; }
-
-        @media (max-height: 760px) and (min-width: 981px){
-            .am-sidebar { padding: 1rem .85rem; }
-            .am-brand { padding-bottom: 1rem; margin-bottom: 1rem; }
-            .am-nav a { padding: .75rem .85rem; margin-bottom: .35rem; }
-            .am-team-box { padding: .85rem; }
-            .am-plan-card { margin: .65rem 0 .8rem; padding: .65rem; }
-            .am-plan-hint { display: none; }
-        }
-
-        @media (max-width: 980px){
-            .am-layout { grid-template-columns: 1fr; }
-            .am-sidebar { display: none; }
-            .am-content-area { padding: 1rem; padding-bottom: 6rem; }
-            .am-topbar { flex-direction: column; align-items: flex-start; padding: 1rem; gap: .75rem; }
-            .am-mobile-team {
-                display: flex; align-items: center; gap: .7rem; width: 100%; max-width: 100%;
-                padding: .65rem .75rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.10);
-                background: rgba(0,0,0,0.18);
-            }
-            .am-mobile-team-icon {
-                width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(14, 165, 233, 0.35);
-                color: #38bdf8;
-            }
-            .am-mobile-team-text { min-width: 0; flex: 1; }
-            .am-mobile-team-text div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .am-mobile-plan {
-                display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; margin-top: .55rem;
-            }
-            .am-topbar > .flex-grow-1, .am-topbar > .flex { width: 100%; }
-            .am-topbar > .flex { justify-content: flex-start; }
-            .am-topbar-plan-pill { display: none; }
-            .am-bottom-nav {
-                display: flex; position: fixed; left: 0; right: 0; bottom: 0;
-                background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
-                border-top: 1px solid rgba(255,255,255,0.1); z-index: 999; padding: 0.5rem 0;
-            }
-            .am-b-item {
-                flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
-                color: #94a3b8; text-decoration: none; font-size: 0.75rem; padding: 0.5rem;
-            }
-            .am-b-item.active { color: #38bdf8; font-weight: bold; }
-        }
-
-        @media (max-width: 420px){
-            .am-bottom-nav { padding: .35rem 0; }
-            .am-b-item { font-size: .66rem; gap: .2rem; padding: .45rem .15rem; }
-            .am-b-item i { font-size: 1rem !important; }
-        }
-    </style>
+    <link href="#{resource['css:layout.css']}&amp;rev=75" rel="stylesheet"/>
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body>
+<h:body styleClass="am-ui">
     <h:outputScript library="primefaces" name="locales/locale-pt.js" />
     <script type="text/javascript">
         //<![CDATA[

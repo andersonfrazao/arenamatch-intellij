@@ -1,0 +1,251 @@
+@charset "UTF-8";
+
+/* Paleta do Arena Match compartilhada entre páginas públicas e autenticadas. */
+:root {
+    color-scheme: dark;
+    --am-font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --am-bg: #0b1220;
+    --am-navy: #0f172a;
+    --am-panel: #111d30;
+    --am-glass: rgba(30, 41, 59, .7);
+    --am-primary: #0ea5e9;
+    --am-accent: #38bdf8;
+    --am-brand: #19b5ee;
+    --am-brand-hover: #64d3fa;
+    --am-text: #e2e8f0;
+    --am-text-public: #f3f6fc;
+    --am-white: #fff;
+    --am-muted: #94a3b8;
+    --am-muted-public: #a8b6cc;
+    --am-disabled: #64748b;
+    --am-border: rgba(255, 255, 255, .1);
+    --am-border-public: #25364c;
+    --am-border-strong: #334155;
+    --am-focus: #65d7ff;
+    --am-success: #22c55e;
+    --am-warning: #eab308;
+    --am-danger: #ef4444;
+    --am-space-1: .25rem;
+    --am-space-2: .5rem;
+    --am-space-3: .75rem;
+    --am-space-4: 1rem;
+    --am-space-6: 1.5rem;
+    --am-space-8: 2rem;
+    --am-radius-button: .5rem;
+    --am-radius-card: .75rem;
+    --am-radius-large: 1rem;
+    --am-touch: 2.75rem;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* O escopo acompanha os overlays que o PrimeFaces acrescenta ao body. */
+.am-ui {
+    font-family: var(--am-font);
+    color: var(--am-text);
+}
+
+.am-ui .ui-widget {
+    font-family: var(--am-font);
+}
+
+.am-ui :where(.login-card, .wizard-card) {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    border-radius: var(--am-radius-large);
+}
+
+.am-ui :where(form, fieldset, .field, .formgrid, .ui-inputgroup, .ui-password, .ui-calendar) {
+    min-inline-size: 0;
+}
+
+.am-ui :where(input.ui-inputfield, textarea.ui-inputfield, input.custom-input, select.custom-input,
+              .ui-selectonemenu, .ui-password, .ui-calendar) {
+    max-inline-size: 100%;
+}
+
+.am-ui :where(input.ui-inputfield:not([type="hidden"]), textarea.ui-inputfield, select.custom-input,
+              input.custom-input, .ui-selectonemenu, .ui-button) {
+    min-block-size: var(--am-touch);
+}
+
+.am-ui :where(input.ui-inputfield, textarea.ui-inputfield, select.custom-input) {
+    font-size: 1rem;
+}
+
+.am-ui .ui-selectonemenu {
+    padding-inline-end: var(--am-touch);
+}
+
+.am-ui .ui-selectonemenu .ui-selectonemenu-trigger {
+    width: var(--am-touch);
+}
+
+.am-ui :where(.ui-button-icon-only, .ui-datepicker-trigger) {
+    min-inline-size: var(--am-touch);
+}
+
+.am-ui .ui-password input {
+    padding-inline-end: var(--am-touch) !important;
+}
+
+.am-ui .ui-password.ui-inputwrapper .ui-password-icon {
+    width: var(--am-touch);
+    height: var(--am-touch);
+    right: 0;
+    top: 50%;
+    margin-top: calc(var(--am-touch) / -2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.am-ui .ui-button .ui-button-text {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.am-ui :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--am-focus) !important;
+    outline-offset: 2px;
+}
+
+.am-ui :where(input, select, textarea, button):disabled,
+.am-ui .ui-state-disabled {
+    cursor: not-allowed;
+}
+
+.am-ui .ui-inputfield.ui-state-error,
+.am-ui .ui-selectonemenu.ui-state-error {
+    border-color: var(--am-danger) !important;
+}
+
+.am-ui .ui-messages-success {
+    border-inline-start: 3px solid var(--am-success);
+}
+
+.am-ui .ui-messages-warn {
+    border-inline-start: 3px solid var(--am-warning);
+}
+
+.am-ui .ui-messages-error {
+    border-inline-start: 3px solid var(--am-danger);
+}
+
+.am-ui :where(.ui-message, .ui-messages, .ui-growl-message, .ui-dialog-content) {
+    overflow-wrap: anywhere;
+}
+
+.am-ui .ui-growl {
+    width: min(24rem, calc(100% - 2rem));
+    right: var(--am-space-4);
+}
+
+.am-ui .ui-datepicker {
+    width: min(23rem, calc(100vw - 2rem));
+    min-width: 0;
+    max-width: calc(100vw - 2rem);
+}
+
+.am-ui .ui-datepicker table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.am-ui .ui-datepicker table td {
+    padding: .125rem;
+}
+
+.am-ui .ui-datepicker table td > a,
+.am-ui .ui-datepicker table td > span {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--am-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.am-ui :where(.ui-dialog, .ui-selectonemenu-panel) {
+    max-width: calc(100vw - 2rem);
+}
+
+.am-ui .ui-selectonemenu-panel .ui-selectonemenu-item {
+    min-block-size: var(--am-touch);
+    display: flex;
+    align-items: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.am-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--am-space-3);
+}
+
+.am-actions > a {
+    min-block-size: var(--am-touch);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.am-ui .am-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--am-touch);
+}
+
+.am-ui .back-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--am-touch);
+}
+
+.am-table-scroll {
+    width: 100%;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.am-table-scroll .ui-datatable {
+    min-width: 30rem;
+}
+
+@media (min-width: 40rem) {
+    .am-table-scroll .ui-datatable {
+        min-width: 32.5rem;
+    }
+}
+
+@media (min-width: 48rem) {
+    .am-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .am-ui {
+        scroll-behavior: auto;
+    }
+
+    .am-ui :where(.ui-button, .am-nav a, .am-notif-panel, .btn-action) {
+        animation: none;
+        transition: none;
+    }
+}

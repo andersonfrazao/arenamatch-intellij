@@ -6,10 +6,9 @@
 <h:head>
     <title>Arena Match - Termos e Privacidade</title>
     <link rel="canonical" href="https://www.arenamatch.app.br/privacidade.xhtml"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
-    <h:outputStylesheet library="css" name="styles.css" />
-    <link href="https://unpkg.com/primeflex@3.1.2/primeflex.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <ui:include src="/WEB-INF/template/recursos-visuais.xhtml"/>
+    <link href="#{resource['css:styles.css']}&amp;rev=75" rel="stylesheet"/>
 
     <style>
         body {
@@ -141,7 +140,7 @@
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body>
+<h:body styleClass="am-ui">
     <main class="public-page">
         <section class="public-card">
             <header class="public-header">

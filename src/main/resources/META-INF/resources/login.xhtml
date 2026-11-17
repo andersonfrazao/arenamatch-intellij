@@ -8,9 +8,8 @@
     <title>Arena Match - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="#{request.contextPath}/css/login-publico.css?v=61"/>
-    <h:outputStylesheet library="css" name="styles.css"/>
-    <link href="https://unpkg.com/primeflex@3.1.2/primeflex.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <ui:include src="/WEB-INF/template/recursos-visuais.xhtml"/>
+    <link href="#{resource['css:styles.css']}&amp;rev=75" rel="stylesheet"/>
 
     <style>
         body {
@@ -134,7 +133,7 @@
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body>
+<h:body styleClass="am-ui">
     <header class="login-public-header">
         <div class="login-public-header-inner">
             <a href="#{request.contextPath}/login.xhtml" class="login-public-brand" aria-label="Arena Match, login">
@@ -188,7 +187,7 @@
                 </div>
 
                 <div class="flex justify-content-end align-items-center mb-4 text-sm">
-                    <a href="recuperar-senha.xhtml" class="text-neon no-underline hover:text-white font-bold">Esqueci a senha</a>
+                    <a href="recuperar-senha.xhtml" class="am-action-link text-neon no-underline hover:text-white font-bold">Esqueci a senha</a>
                 </div>
 
                 <p:commandButton value="ENTRAR EM CAMPO"
@@ -227,7 +226,7 @@
                                  styleClass="w-full rounded-btn font-bold border-none shadow-4"
                                  style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); padding: 12px 0;"/>
 
-                <div class="flex justify-content-center gap-4 mt-4 text-sm">
+                <div class="am-actions justify-content-center mt-4 text-sm">
                     <p:commandLink value="Reenviar codigo"
                                    action="#{loginBean.reenviarCodigoAdmin}"
                                    process="@this"
