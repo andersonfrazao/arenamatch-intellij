@@ -170,6 +170,32 @@ Assistente de três etapas (ARENA-91):
   - "Compartilhar" aparece só quando `navigator.canShare({files})` aceita a imagem.
   - Ao fechar, o foco volta a "Gerar flyer".
 
+## 5.6 Chat (`css/chat.css`, `js/chat.js`)
+
+`chat.xhtml` (ARENA-94):
+
+- **Celular (< 768px):** mostra a caixa de entrada **ou** a conversa.
+  - **Tela cheia:** a conversa aberta é `position: fixed`, com topo e altura vindos do `visualViewport` (`--chat-vv-topo`, `--chat-vv-altura`, calculados por `chat.js`). Assim o campo e o botão de envio ficam acima do teclado, também com o teclado aberto e na horizontal. Sem JS, vale `100dvh`.
+  - **Bloqueio de rolagem:** `html.chat-tela-cheia` impede a página de rolar por trás.
+  - **Voltar:** botão de 44px ou Esc.
+- **≥768px:** os dois painéis lado a lado, com altura da tela (desconta a barra inferior abaixo de 992px e o cabeçalho fixo acima).
+- **Atualizações parciais:**
+  - Abrir ou voltar recria o bloco `chat`.
+  - Mensagem nova (WebSocket) e envio recriam só `chatCabecalho`, `chatMensagens` e a inbox. O campo de digitação não é recriado: o texto e o teclado continuam.
+  - **Rascunho:** fica no `sessionStorage` por conversa. Quando `painelNotificacoesGlobais` recria a página, o rascunho e o foco voltam ao campo.
+- **Rolagem:**
+  - O contêiner de rolagem fica fora da área atualizada, então a posição de leitura se mantém.
+  - Só desce sozinho se o leitor já estava no fim. Caso contrário, mostra o botão "Novas mensagens".
+- **WebSocket:**
+  - Uma única conexão, com inscrição na sala da conversa aberta, sincronizada pelos atributos `data-conversa-*`.
+  - Reconecta com espera progressiva e, ao reconectar, ao voltar do segundo plano ou ao recuperar a rede, busca o que chegou nesse intervalo.
+  - O estado da conexão aparece no cabeçalho (`role="status"`).
+- **Envio:**
+  - Enter envia só com teclado físico (`hover: hover` e `pointer: fine`). No celular, Enter quebra a linha.
+  - Tocar no botão não tira o foco do campo.
+  - O campo cresce até 8rem.
+- **Segurança:** o texto das mensagens agora é escapado (antes `escape="false"`, um XSS armazenado). As quebras de linha aparecem por `white-space: pre-wrap`.
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).
