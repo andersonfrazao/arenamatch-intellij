@@ -1,0 +1,789 @@
+@charset "UTF-8";
+
+/* =====================================================================
+   Arena Match — layout autenticado (ARENA-89)
+
+   Estrutura do WEB-INF/template/layout.xhtml, mobile first:
+   - base (celular/tablet, < 992px): coluna única, cabeçalho rolando com
+     a página, barra de navegação inferior fixa com safe area;
+   - lg (>= 992px): sidebar de 280px + conteúdo, cabeçalho fixo no topo.
+
+   Carregar depois de tokens.css e styles.css.
+   Convenções: docs/frontend-mobile-first.md
+   ===================================================================== */
+
+:root {
+    --am-sidebar-width: 280px;
+    --am-bottom-nav-height: 3.5rem;
+    /* Espaço reservado no fim do conteúdo para a barra inferior. */
+    --am-bottom-nav-space: calc(var(--am-bottom-nav-height) + var(--am-safe-bottom) + var(--am-space-6));
+    --am-topbar-height: 0px;
+}
+
+/* Campos focados nunca ficam escondidos atrás da barra inferior. */
+html {
+    scroll-padding-bottom: var(--am-bottom-nav-space);
+}
+
+
+/* =====================================================================
+   1. ESTRUTURA
+   ===================================================================== */
+
+.am-layout {
+    display: block;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.am-layout-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: var(--am-space-4) max(var(--am-gutter), var(--am-safe-left)) calc(var(--am-space-4) + var(--am-safe-bottom)) max(var(--am-gutter), var(--am-safe-right));
+}
+
+.am-main {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* min-width: 0 permite que o conteúdo encolha dentro do grid sem
+       precisar esconder o estouro horizontal. */
+    min-width: 0;
+}
+
+.am-content-area {
+    flex-grow: 1;
+    min-width: 0;
+    padding: var(--am-space-4) max(var(--am-gutter), var(--am-safe-right)) var(--am-bottom-nav-space) max(var(--am-gutter), var(--am-safe-left));
+}
+
+.am-content-area:focus {
+    outline: none;
+}
+
+@media (min-width: 992px) {
+    :root {
+        --am-topbar-height: 5.5rem;
+    }
+
+    html {
+        scroll-padding-top: var(--am-topbar-height);
+        scroll-padding-bottom: 0;
+    }
+
+    .am-layout {
+        display: grid;
+        grid-template-columns: var(--am-sidebar-width) minmax(0, 1fr);
+    }
+
+    .am-content-area {
+        padding: var(--am-space-8);
+    }
+}
+
+
+/* =====================================================================
+   2. SIDEBAR (somente lg+)
+   ===================================================================== */
+
+.am-sidebar {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .am-sidebar {
+        position: sticky;
+        top: 0;
+        z-index: var(--am-z-sidebar);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        height: 100dvh;
+        padding: var(--am-space-6) var(--am-space-4);
+        background: var(--am-color-surface-bar);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+}
+
+.am-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-4);
+    padding-bottom: var(--am-space-6);
+    margin-bottom: var(--am-space-6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.am-logo-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: var(--am-radius-md);
+    background: var(--am-color-accent-bg);
+    border: 1px solid var(--am-color-accent-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--am-color-accent-soft);
+    font-size: 1.2rem;
+}
+
+.am-brand-name {
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-xl);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.am-brand-name span { color: var(--am-color-accent-soft); }
+
+.am-brand-tagline {
+    color: var(--am-color-text-muted);
+    font-size: 0.8rem;
+}
+
+.am-nav a {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-4);
+    min-height: var(--am-touch-target);
+    padding: var(--am-space-3) var(--am-space-4);
+    margin-bottom: var(--am-space-2);
+    border-radius: var(--am-radius-md);
+    color: var(--am-color-text-muted);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--am-transition), color var(--am-transition);
+}
+
+.am-nav a:hover {
+    background: var(--am-color-surface-hover);
+    color: var(--am-color-text-strong);
+}
+
+.am-nav a.active {
+    background: var(--am-color-accent-bg);
+    color: var(--am-color-accent-soft);
+    border-left: 4px solid var(--am-color-accent-soft);
+    border-radius: 0 var(--am-radius-md) var(--am-radius-md) 0;
+}
+
+.am-nav-icon {
+    width: 2rem;
+    flex: 0 0 2rem;
+    text-align: center;
+    font-size: 1.125rem;
+}
+
+.am-nav-section {
+    margin-top: var(--am-space-6);
+    padding-top: var(--am-space-4);
+    border-top: 1px solid var(--am-color-border);
+}
+
+.am-nav-section-title {
+    padding: 0 var(--am-space-3);
+    margin-bottom: var(--am-space-2);
+    color: var(--am-color-text-subtle);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.am-team-box {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding: var(--am-space-4);
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--am-radius-md);
+}
+
+.am-team-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-3);
+    min-width: 0;
+}
+
+.am-team-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: var(--am-line-height-tight);
+}
+
+.am-team-user {
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+}
+
+.am-team-name {
+    color: var(--am-color-accent-soft);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+}
+
+.am-team-mando {
+    color: #cbd5e1;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* Escudo do time: imagem ou ícone padrão. */
+.am-team-shield {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--am-shield-size, 42px);
+    height: var(--am-shield-size, 42px);
+    flex: 0 0 var(--am-shield-size, 42px);
+    border-radius: 50%;
+    background: var(--am-color-accent-bg);
+    border: 1px solid var(--am-color-accent-border);
+    color: var(--am-color-accent-soft);
+    overflow: hidden;
+}
+
+.am-team-shield img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.am-plan-card {
+    margin: 0.85rem 0 var(--am-space-4);
+    padding: 0.8rem;
+    border-radius: var(--am-radius-md);
+    border: 1px solid var(--am-color-border);
+    background: var(--am-color-surface-hover);
+}
+
+.am-plan-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--am-space-2);
+}
+
+.am-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.28rem 0.55rem;
+    border-radius: var(--am-radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.74rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.am-plan-badge.trial { color: var(--am-color-warning-text); background: var(--am-color-warning-bg); border-color: var(--am-color-warning-border); }
+.am-plan-badge.pro { color: var(--am-color-success-text); background: var(--am-color-success-bg); border-color: var(--am-color-success-border); }
+.am-plan-badge.basico { color: #cbd5e1; background: rgba(148, 163, 184, 0.12); border-color: rgba(148, 163, 184, 0.28); }
+
+.am-plan-days {
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.am-plan-hint {
+    margin-top: 0.45rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.72rem;
+    line-height: var(--am-line-height-tight);
+}
+
+/* Botão "Sair" (sidebar e cabeçalho do celular). */
+.am-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--am-space-2);
+    min-height: var(--am-touch-target);
+    padding: 0 var(--am-space-3);
+    border-radius: var(--am-radius-md);
+    border: 1px solid var(--am-color-danger-border);
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--am-color-text-strong);
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color var(--am-transition);
+}
+
+.am-logout:hover {
+    background: rgba(239, 68, 68, 0.35);
+    color: var(--am-color-text-strong);
+}
+
+.am-logout--block { width: 100%; }
+
+/* Exceção registrada (altura): notebooks com pouca altura compactam a sidebar
+   para manter o time, o plano e o "Sair" visíveis sem rolagem. */
+@media (min-width: 992px) and (max-height: 760px) {
+    .am-sidebar { padding: var(--am-space-4) 0.85rem; }
+    .am-brand { padding-bottom: var(--am-space-4); margin-bottom: var(--am-space-4); }
+    .am-nav a { padding: 0.6rem 0.85rem; margin-bottom: 0.3rem; }
+    .am-nav-section { margin-top: var(--am-space-3); padding-top: var(--am-space-3); }
+    .am-team-box { padding: 0.85rem; }
+    .am-plan-card { margin: 0.65rem 0 0.8rem; padding: 0.65rem; }
+    .am-plan-hint { display: none; }
+}
+
+
+/* =====================================================================
+   3. CABEÇALHO DA PÁGINA
+   ===================================================================== */
+
+.am-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--am-space-3);
+    padding: calc(var(--am-space-4) + var(--am-safe-top)) max(var(--am-gutter), var(--am-safe-right)) var(--am-space-4) max(var(--am-gutter), var(--am-safe-left));
+    background: rgba(15, 23, 42, 0.8);
+    -webkit-backdrop-filter: var(--am-blur);
+    backdrop-filter: var(--am-blur);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Base de 10rem: a partir de 360px título, sino e "Sair" cabem na mesma
+   linha; em 320px as ações descem para a linha seguinte. */
+.am-topbar-heading {
+    flex: 1 1 10rem;
+    min-width: 0;
+}
+
+.am-page-title {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-xl);
+    font-weight: 700;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.am-page-subtitle {
+    margin-top: var(--am-space-1);
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.am-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    flex: 0 0 auto;
+}
+
+.am-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--am-radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--am-color-surface-hover);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.am-topbar-plan-pill { display: none; }
+.am-topbar-plan-pill .fa-crown { color: var(--am-color-warning-text); }
+.am-topbar-plan-pill b { color: var(--am-color-text-strong); text-transform: uppercase; }
+
+/* Sino: botão real (teclado e leitor de tela). Ícone com 44px no celular;
+   textos aparecem conforme houver espaço. */
+.am-bell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-width: var(--am-touch-target);
+    min-height: var(--am-touch-target);
+    padding: 0 var(--am-space-3);
+    border-radius: var(--am-radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--am-color-surface-hover);
+    color: rgba(255, 255, 255, 0.82);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color var(--am-transition);
+}
+
+.am-bell:hover,
+.am-bell[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.am-bell-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    color: var(--am-color-text-strong);
+    font-size: 1.25rem;
+}
+
+.am-bell-label,
+.am-bell-hint {
+    display: none;
+}
+
+.am-bell-label { font-weight: 700; }
+.am-bell-hint { color: rgba(255, 255, 255, 0.62); font-size: 0.78rem; }
+
+.am-badge-total {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 0.34rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--am-radius-pill);
+    border: 2px solid var(--am-color-bg);
+    background: var(--am-color-danger);
+    color: var(--am-color-text-strong);
+    font-size: 0.72rem;
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25), 0 6px 14px rgba(239, 68, 68, 0.35);
+}
+
+/* Identificação do time no celular (no desktop ela fica na sidebar). */
+.am-mobile-team {
+    --am-shield-size: 36px;
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-3);
+    flex: 1 1 100%;
+    min-width: 0;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--am-radius-md);
+    border: 1px solid var(--am-color-border);
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.am-mobile-team .am-team-text > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.am-mobile-plan {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.4rem;
+}
+
+@media (min-width: 576px) {
+    .am-bell-label { display: inline; }
+}
+
+@media (min-width: 992px) {
+    .am-topbar {
+        position: sticky;
+        top: 0;
+        z-index: var(--am-z-sticky);
+        align-items: center;
+        gap: var(--am-space-4);
+        padding: 1.2rem var(--am-space-8);
+    }
+
+    .am-page-title { font-size: var(--am-font-size-2xl); }
+    .am-page-subtitle { font-size: 0.9rem; }
+
+    .am-topbar-plan-pill { display: inline-flex; }
+    .am-topbar-logout,
+    .am-mobile-team { display: none; }
+}
+
+/* Descrição do sino só quando sobra espaço ao lado da sidebar. */
+@media (min-width: 1200px) {
+    .am-bell-hint { display: inline; }
+}
+
+
+/* =====================================================================
+   4. PAINEL DE NOTIFICAÇÕES
+   ===================================================================== */
+
+.am-notif-panel {
+    display: none;
+    margin-bottom: var(--am-space-6);
+    padding: var(--am-space-4);
+    border-radius: var(--am-radius-lg);
+    border: 1px solid var(--am-color-border);
+    background: var(--am-color-surface-bar);
+    box-shadow: var(--am-shadow-popover);
+    scroll-margin-top: calc(var(--am-topbar-height) + var(--am-space-4));
+}
+
+.am-notif-panel.open {
+    display: block;
+    animation: amFadeIn 0.3s ease;
+}
+
+.am-notif-panel:focus { outline: none; }
+.am-notif-panel:focus-visible { outline: var(--am-focus-ring); outline-offset: 2px; }
+
+.am-notif-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--am-space-3);
+    margin-bottom: var(--am-space-2);
+}
+
+.am-notif-heading {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: var(--am-line-height-tight);
+}
+
+.am-notif-heading small {
+    display: block;
+    margin-top: 0.2rem;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.am-notif-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: var(--am-touch-target);
+    height: var(--am-touch-target);
+    border: 1px solid var(--am-color-border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--am-color-text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.am-notif-close:hover { color: var(--am-color-text-strong); background: var(--am-color-surface-hover); }
+
+.am-notif-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+    margin-top: var(--am-space-2);
+    padding: 0.85rem;
+    border-radius: var(--am-radius-lg);
+    border: 1px solid var(--am-color-border);
+    background: rgba(255, 255, 255, 0.04);
+    overflow-wrap: anywhere;
+}
+
+.am-notif-body { min-width: 0; }
+
+.am-notif-title {
+    color: var(--am-color-text-strong);
+    font-weight: 900;
+}
+
+.am-notif-title i { margin-right: 0.4rem; }
+.am-notif-title .am-notif-icon-liga { color: #3aa0ff; }
+.am-notif-title .am-notif-icon-jogo { color: var(--am-agenda-invite); }
+
+.am-notif-text {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.9rem;
+}
+
+.am-notif-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--am-space-2);
+}
+
+/* Placar pendente: campos lado a lado com o nome do time acima. */
+.am-score-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--am-space-2);
+}
+
+.am-score-team {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-1);
+    max-width: 9rem;
+}
+
+.am-score-team > span {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.am-score-input {
+    width: 3.5rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.am-score-x {
+    margin-bottom: 0.7rem;
+    color: var(--am-color-text-muted);
+    font-weight: 700;
+}
+
+@media (min-width: 768px) {
+    .am-notif-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .am-notif-body { flex: 1 1 auto; }
+    .am-notif-actions { flex: 0 1 auto; justify-content: flex-end; }
+}
+
+@keyframes amFadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =====================================================================
+   5. NAVEGAÇÃO INFERIOR (celular e tablet)
+   ===================================================================== */
+
+.am-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--am-z-fixed-nav);
+    display: flex;
+    align-items: stretch;
+    /* Com zoom ou fonte ampliada os itens não somem: a barra passa a rolar. */
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    min-height: var(--am-bottom-nav-height);
+    padding: var(--am-space-1) var(--am-safe-right) var(--am-safe-bottom) var(--am-safe-left);
+    background: var(--am-color-surface-bar);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--am-color-border);
+    transition: transform var(--am-transition), visibility var(--am-transition);
+}
+
+.am-bottom-nav::-webkit-scrollbar { display: none; }
+
+.am-bottom-nav > .am-b-slot {
+    display: flex;
+    flex: 1 1 0;
+    min-width: var(--am-touch-target);
+}
+
+.am-b-item {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: var(--am-touch-target);
+    min-height: 3rem;
+    padding: var(--am-space-1) 0.15rem;
+    border-radius: var(--am-radius-sm);
+    color: var(--am-color-text-muted);
+    font-size: clamp(0.64rem, 2.6vw, 0.75rem);
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.am-b-item > span:last-child {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.am-b-item.active {
+    color: var(--am-color-accent-soft);
+    font-weight: 700;
+}
+
+.am-b-icon {
+    position: relative;
+    font-size: 1.15rem;
+}
+
+/* Indicador de mensagens não lidas (chat). */
+.am-unread-dot {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--am-color-bg);
+    background: var(--am-color-danger);
+}
+
+.am-nav .am-unread-dot { top: -7px; right: -3px; }
+
+/* Teclado aberto: a barra sai da frente do campo em edição (classe aplicada
+   por js/layout.js quando um campo de texto recebe foco). */
+.am-editando .am-bottom-nav {
+    transform: translateY(110%);
+    visibility: hidden;
+}
+
+/* Exceção registrada (orientação/altura): celular na horizontal tem pouca
+   altura, então ícone e rótulo ficam lado a lado em uma barra mais baixa. */
+@media (orientation: landscape) and (max-height: 480px) {
+    :root { --am-bottom-nav-height: 2.75rem; }
+    .am-b-item { flex-direction: row; gap: 0.4rem; min-height: var(--am-touch-target); }
+}
+
+@media (min-width: 992px) {
+    .am-bottom-nav { display: none; }
+}
+
+
+/* =====================================================================
+   6. INDICADOR GLOBAL DE CARREGAMENTO (p:ajaxStatus)
+   ===================================================================== */
+
+.am-status-spinner {
+    font-size: 3rem;
+    color: var(--am-color-accent-soft);
+}

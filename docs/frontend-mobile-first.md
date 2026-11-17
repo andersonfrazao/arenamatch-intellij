@@ -16,7 +16,8 @@ Paleta e regras gerais de UI: `CLAUDE.md` (seções "Paleta de cores" e "Regras 
 - Não carregar outra versão de PrimeFlex/Font Awesome nem outra biblioteca de CSS ou ícones.
 - O tema arya entra antes dos recursos `h:outputStylesheet`; por isso as sobrescritas de `styles.css` vencem o tema com o escopo `.am-ui` (ver item 4) sem `!important`.
 - Viewport padrão: `<meta name="viewport" content="width=device-width, initial-scale=1.0"/>`. **Não** usar `maximum-scale` nem `user-scalable=0`: o usuário precisa conseguir ampliar a tela. Os campos usam 16px, o que evita o zoom automático do iOS ao focar.
-- `viewport-fit=cover` será ativado junto com o tratamento das áreas seguras do layout (ARENA-89). Até lá os tokens `--am-safe-*` valem `0px`.
+- O layout autenticado usa `viewport-fit=cover` (ARENA-89), com as áreas seguras tratadas pelos tokens `--am-safe-*`. Uma página que adotar `viewport-fit=cover` precisa aplicar esses tokens nos elementos fixos e nas bordas.
+- O layout autenticado carrega ainda `css/layout.css` (depois de `styles.css`) e `js/layout.js`.
 
 ## 2. Breakpoints
 
@@ -32,7 +33,7 @@ O CSS fora de media query é o do **celular, a partir de 320px**. Telas maiores 
 
 Larguras de validação: 320, 360, 390, 430, 768, 1024 e 1440 CSS px, mais uma orientação horizontal de celular.
 
-Os breakpoints legados (`980px`/`420px` do `layout.xhtml`, `991px` do antigo `styles.css`) migram para essa escala nas histórias de cada tela; o do layout, na ARENA-89.
+Os breakpoints legados migram para essa escala na história de cada tela. O `991px` do antigo `styles.css` saiu na ARENA-88. O `980px`/`420px` do layout foi trocado por `lg` (992px) na ARENA-89.
 
 ### Exceções permitidas (fora do padrão min-width de largura)
 
@@ -83,6 +84,19 @@ Páginas ainda não migradas que não têm `.am-ui` (ex.: `ativar-conta`, `recup
 
 Utilitários legados mantidos para páginas ainda não migradas: `text-neon`, `bg-glass`, `rounded-btn`, `borda-liga-*`, `dot.liga`.
 Removidas por não terem uso: `.navbar`, `.logo`, `.app-container`, `.sidebar-new`, `.content-new`, `.nav-item`, `.bottom-nav`.
+
+## 5.1 Layout autenticado (`css/layout.css`, `js/layout.js`)
+
+- **Abaixo de 992px:** coluna única. O cabeçalho rola junto com a página, para não ocupar altura fixa no celular, e a barra inferior fica fixa (Agenda, Buscar, Ranking, Chat, Dados, Suporte e Admin).
+- **A partir de `lg`:** sidebar de 280px e cabeçalho fixo no topo.
+- **Espaço da barra inferior:** a área de conteúdo já reserva `--am-bottom-nav-space` (altura da barra + safe area + folga), e o `html` tem `scroll-padding-bottom` com o mesmo valor. Páginas **não** devem somar `padding-bottom` próprio para a barra.
+- **Teclado virtual:** enquanto um campo de texto está focado, o `js/layout.js` aplica `html.am-editando` e a barra inferior sai da frente do campo.
+- **Barra inferior com zoom:** com zoom ou fonte ampliada, os itens mantêm 44px de largura e a barra passa a rolar na horizontal, então nenhum item some.
+- **Painel de notificações:** o sino é um `<button>` com `aria-expanded`; o painel fecha com Esc ou com o botão fechar. O estado aberto é mantido quando `painelNotificacoesGlobais` é recriado por Ajax/WebSocket.
+- **Exceções registradas:**
+  - `(min-width: 992px) and (max-height: 760px)` compacta a sidebar.
+  - `(orientation: landscape) and (max-height: 480px)` usa a barra inferior baixa, com ícone e rótulo lado a lado.
+- **Camadas:** cabeçalho 90, sidebar 100, barra inferior 999. Diálogos e growl ficam a partir de 1000 (PrimeFaces). O banner de analytics usa 2000.
 
 ## 6. Tabelas
 
