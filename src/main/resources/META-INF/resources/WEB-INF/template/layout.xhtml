@@ -8,14 +8,15 @@
 
 <h:head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Arena Match</title>
 
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
     <link rel="canonical" href="https://www.arenamatch.app.br/" />
-    <h:outputStylesheet library="css" name="styles.css" />
-    <link href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <h:outputStylesheet library="css" name="tokens.css"/>
+    <h:outputStylesheet library="css" name="styles.css"/>
+    <link href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 
 
@@ -188,7 +189,7 @@
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body>
+<h:body styleClass="am-ui">
     <h:outputScript library="primefaces" name="locales/locale-pt.js" />
     <script type="text/javascript">
         //<![CDATA[

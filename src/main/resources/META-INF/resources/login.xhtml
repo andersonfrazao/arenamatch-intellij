@@ -8,8 +8,9 @@
     <title>Arena Match - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="#{request.contextPath}/css/login-publico.css?v=61"/>
+    <h:outputStylesheet library="css" name="tokens.css"/>
     <h:outputStylesheet library="css" name="styles.css"/>
-    <link href="https://unpkg.com/primeflex@3.1.2/primeflex.css" rel="stylesheet"/>
+    <link href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
     <style>
@@ -134,7 +135,7 @@
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body>
+<h:body styleClass="am-ui">
     <header class="login-public-header">
         <div class="login-public-header-inner">
             <a href="#{request.contextPath}/login.xhtml" class="login-public-brand" aria-label="Arena Match, login">
