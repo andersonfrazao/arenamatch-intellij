@@ -9,6 +9,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecursosVisuaisTest {
@@ -172,6 +173,24 @@ class RecursosVisuaisTest {
                 "count(//*[local-name()='remoteCommand'][@name='atualizarCalendarioAjax'])"));
         assertEquals("0", consultar(agenda,
                 "count(//*[local-name()='messages'][@id='msgs']/*[local-name()='autoUpdate'])"));
+    }
+
+    @Test
+    void chatAtualizaHistoricoPreservandoCompositorEUsaMensagensEscapadas() throws Exception {
+        Document chat = lerPagina("chat.xhtml");
+        assertEquals("0", consultar(chat, "count(//*[local-name()='style'] | //@style)"));
+        assertEquals("1", consultar(chat,
+                "count(//*[local-name()='define'][@name='estilosPagina']/*[local-name()='link'][contains(@href,'css:chat.css')])"));
+        String atualizacoes = consultar(chat, "string(//*[local-name()='remoteCommand'][@name='rcAtualizarChat']/@update)");
+        assertTrue(atualizacoes.contains(":formChat:painelHistorico"));
+        assertFalse(atualizacoes.contains(":formChat:painelCompositor"));
+        assertFalse(atualizacoes.contains(":formChat:painelChat "));
+        assertEquals("@this", consultar(chat,
+                "string(//*[local-name()='remoteCommand'][@name='rcAtualizarChat']/@process)"));
+        assertEquals("0", consultar(chat, "count(//*[local-name()='outputText'][@escape='false'])"));
+        assertEquals("@this novaMensagem", consultar(chat,
+                "string(//*[local-name()='commandButton'][@id='enviar']/@process)"));
+        assertEquals("1", consultar(chat, "count(//*[local-name()='outputLabel'][@for='novaMensagem'])"));
     }
 
     private String consultar(Document documento, String expressao) throws Exception {

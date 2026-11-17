@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import br.com.arenamatch.jsf.client.ChatClient;
 import br.com.arenamatch.dto.ConversaInboxDTO;
@@ -20,6 +22,7 @@ import org.primefaces.PrimeFaces;
 
 @Named
 @ViewScoped
+@Slf4j
 public class ChatBean implements Serializable {
 
     @Inject
@@ -40,6 +43,9 @@ public class ChatBean implements Serializable {
     @Getter @Setter
     private String novaMensagem;
 
+    @Getter
+    private boolean falhaInbox;
+
     @PostConstruct
     public void init() {
         carregarInbox();
@@ -48,33 +54,39 @@ public class ChatBean implements Serializable {
 
     public void carregarInbox() {
         try {
-            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
-            inbox = chatClient.listarInbox(meuTimeId);
+            atualizarInbox();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro ao carregar conversas", e);
+            falhaInbox = true;
+            mensagem(FacesMessage.SEVERITY_ERROR, "Não foi possível carregar suas conversas. Tente atualizar a lista.");
         }
     }
 
+    private void atualizarInbox() {
+        inbox = chatClient.listarInbox(sessaoBean.getUsuarioLogado().getIdTime());
+        falhaInbox = false;
+    }
+
     public void selecionarConversa(ConversaInboxDTO conversa) {
-        this.conversaSelecionada = conversa;
-        Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
-        
-        // 1. Marca como lida
-        if ("JOGO".equals(conversa.getTipo())) {
-            chatClient.marcarComoLidas(conversa.getIdPartida(), meuTimeId);
-            // Conecta no WebSocket passando o tipo JOGO
-            PrimeFaces.current().executeScript("conectarWebSocketChat('JOGO', " + conversa.getIdPartida() + ");");
-        } else {
-            chatClient.marcarComoLidasLiga(conversa.getIdLiga(), meuTimeId);
-            // Conecta no WebSocket passando o tipo LIGA
-            PrimeFaces.current().executeScript("conectarWebSocketChat('LIGA', " + conversa.getIdLiga() + ");");
+        try {
+            List<MensagemChatDTO> historico = buscarHistorico(conversa);
+            novaMensagem = "";
+            conversaSelecionada = conversa;
+            mensagens = historico;
+            marcarConversaSelecionadaComoLida();
+            atualizarInbox();
+            atualizarConversaSelecionadaDaInbox();
+            sessaoBean.atualizarNotificacoesChat();
+        } catch (Exception e) {
+            log.error("Erro ao abrir conversa", e);
+            mensagem(FacesMessage.SEVERITY_ERROR, "Não foi possível abrir a conversa. Tente novamente.");
         }
-        
-        // 2. Atualiza a bolinha vermelha e recarrega msgs
-        sessaoBean.atualizarNotificacoesChat();
-        carregarInbox();
-        atualizarConversaSelecionadaDaInbox();
-        recarregarMensagens();
+    }
+
+    public void voltarParaInbox() {
+        conversaSelecionada = null;
+        mensagens = new ArrayList<>();
+        novaMensagem = "";
     }
 
     public String getTituloContextoConversa() {
@@ -91,7 +103,7 @@ public class ChatBean implements Serializable {
         }
 
         if ("AGENDADO".equals(conversaSelecionada.getStatusPartida())) {
-            return "Jogo marcado";
+            return conversaSelecionada.isEncerrada() ? "Jogo finalizado" : "Jogo marcado";
         }
 
         if ("CANCELADO".equals(conversaSelecionada.getStatusPartida())) {
@@ -123,20 +135,25 @@ public class ChatBean implements Serializable {
 
     public void recarregarMensagens() {
         if (conversaSelecionada != null) {
-            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
-            
-            if ("JOGO".equals(conversaSelecionada.getTipo())) {
-                mensagens = chatClient.buscarHistorico(conversaSelecionada.getIdPartida(), meuTimeId);
-            } else {
-                mensagens = chatClient.buscarHistoricoLiga(conversaSelecionada.getIdLiga(), meuTimeId);
-            }
-            
-            PrimeFaces.current().executeScript("rolarParaFim();");
+            mensagens = buscarHistorico(conversaSelecionada);
         }
     }
 
+    private List<MensagemChatDTO> buscarHistorico(ConversaInboxDTO conversa) {
+        Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
+        if ("JOGO".equals(conversa.getTipo())) {
+            return chatClient.buscarHistorico(conversa.getIdPartida(), meuTimeId);
+        }
+        return chatClient.buscarHistoricoLiga(conversa.getIdLiga(), meuTimeId);
+    }
+
     public void enviarMensagem() {
-        if (novaMensagem != null && !novaMensagem.trim().isEmpty() && conversaSelecionada != null) {
+        PrimeFaces.current().ajax().addCallbackParam("mensagemEnviada", false);
+        if (novaMensagem == null || novaMensagem.isBlank() || conversaSelecionada == null) {
+            mensagem(FacesMessage.SEVERITY_WARN, "Escreva uma mensagem antes de enviar.");
+            return;
+        }
+        try {
             Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
             
             if ("JOGO".equals(conversaSelecionada.getTipo())) {
@@ -144,19 +161,40 @@ public class ChatBean implements Serializable {
             } else {
                 chatClient.enviarMensagemLiga(conversaSelecionada.getIdLiga(), meuTimeId, novaMensagem);
             }
-            
-            this.novaMensagem = ""; 
+        } catch (Exception e) {
+            log.error("Erro ao enviar mensagem", e);
+            mensagem(FacesMessage.SEVERITY_ERROR, "Não foi possível enviar a mensagem. Seu texto foi mantido para tentar novamente.");
+            return;
+        }
+
+        novaMensagem = "";
+        PrimeFaces.current().ajax().addCallbackParam("mensagemEnviada", true);
+        try {
             recarregarMensagens();
-            carregarInbox();
+            atualizarInbox();
+            atualizarConversaSelecionadaDaInbox();
+        } catch (Exception e) {
+            log.error("Mensagem enviada, mas houve falha ao atualizar a conversa", e);
+            mensagem(FacesMessage.SEVERITY_WARN, "Mensagem enviada. Atualize a conversa para carregar as mensagens mais recentes.");
         }
     }
     
     public void chegouMensagemPeloWebSocket() {
-        marcarConversaSelecionadaComoLida();
-        recarregarMensagens();
-        carregarInbox();
-        atualizarConversaSelecionadaDaInbox();
-        sessaoBean.atualizarNotificacoesChat();
+        try {
+            boolean estavaEncerrada = conversaSelecionada != null && conversaSelecionada.isEncerrada();
+            marcarConversaSelecionadaComoLida();
+            atualizarInbox();
+            atualizarConversaSelecionadaDaInbox();
+            recarregarMensagens();
+            sessaoBean.atualizarNotificacoesChat();
+            if (conversaSelecionada != null && estavaEncerrada != conversaSelecionada.isEncerrada()) {
+                PrimeFaces.current().ajax().update("formChat:painelCompositor");
+            }
+            PrimeFaces.current().ajax().addCallbackParam("chatAtualizado", true);
+        } catch (Exception e) {
+            log.error("Erro ao atualizar conversa", e);
+            PrimeFaces.current().ajax().addCallbackParam("chatAtualizado", false);
+        }
     }
 
     private void marcarConversaSelecionadaComoLida() {
@@ -177,10 +215,15 @@ public class ChatBean implements Serializable {
             return;
         }
 
-        inbox.stream()
+        Optional<ConversaInboxDTO> atualizada = inbox.stream()
                 .filter(this::mesmaConversaSelecionada)
-                .findFirst()
-                .ifPresent(conversa -> this.conversaSelecionada = conversa);
+                .findFirst();
+        if (atualizada.isPresent()) {
+            conversaSelecionada = atualizada.get();
+        } else {
+            voltarParaInbox();
+            PrimeFaces.current().ajax().update("formChat:painelChat");
+        }
     }
 
     private boolean mesmaConversaSelecionada(ConversaInboxDTO conversa) {
@@ -193,6 +236,10 @@ public class ChatBean implements Serializable {
         }
 
         return conversa.getIdLiga().equals(conversaSelecionada.getIdLiga());
+    }
+
+    private void mensagem(FacesMessage.Severity gravidade, String texto) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(gravidade, "Chat", texto));
     }
 
     private void selecionarConversaPorParametro() {
