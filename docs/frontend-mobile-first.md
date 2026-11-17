@@ -131,6 +131,24 @@ Assistente de três etapas (ARENA-91):
 - **Horários configurados:** lista em cartões (`ul`) no lugar da tabela com reflow. A lixeira tem 44px, fica sempre visível e tem `aria-label` com dia e horário (cenário do ARENA-32).
 - **Dias da semana:** 4 colunas no celular e 7 a partir de 576px, todos com 44px.
 
+## 5.4 Busca de adversários (`css/busca.css`)
+
+`busca-time.xhtml` (ARENA-92):
+
+- **Filtros:** começam em uma coluna. São 2 colunas a partir de 576px e, a partir de 1200px, uma faixa de 4 colunas com a distância e o Buscar na segunda linha.
+  - **Ordem:** os campos obrigatórios (data e modalidade) vêm primeiro.
+  - **Data:** o campo é só leitura (`readonlyInput`) e é escolhido pelo calendário, que não abre o teclado no celular.
+  - **Busca:** Enter executa a busca (`p:defaultCommand`).
+  - **Distância:** a alça do slider tem 28px.
+- **Resultados:** o `p:dataView` usa o grid clássico `ui-g`. A grade vira CSS grid com uma coluna no celular e `repeat(auto-fill, minmax(19rem, 1fr))` a partir de 576px, no lugar das regras 50%/100% por `max-width`.
+- **Contêiner `dataView`:** os updates continuam mirando `dataView`, que agora é um `h:panelGroup` com o estado vazio, a contagem de resultados e o `p:dataView` (`listaResultados`).
+- **Paginação:** anterior, 3 páginas e próxima, com botões de 44px; a barra só aparece quando há mais de uma página.
+- **Cartão:** identidade com o nome em até 3 linhas, distância, chips de modalidade e categoria, e uma lista de dados comparáveis (`dl`) com horário, mando, taxa e histórico.
+  - Ações: convite enviado ou recebido em `am-alert`. Os botões ficam lado a lado quando cabem (mínimo de 9rem) e empilham no celular.
+  - Revisão do desafio: adversário, modalidade, categoria e data, mensagem com rótulo, e Não/Enviar.
+- **Mensagens:** a página mantém o `p:growl`. Como as ações acontecem dentro de cartões da lista, o growl fixo no topo continua visível em qualquer ponto da rolagem. O estado do convite também aparece no próprio cartão.
+- **`busca.xhtml`:** entrada legada sem link no sistema, com filtros antigos e um "Desafiar" sem ação. Passou a redirecionar para `busca-time.xhtml` (`f:viewAction`).
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).
