@@ -196,6 +196,20 @@ Assistente de três etapas (ARENA-91):
   - O campo cresce até 8rem.
 - **Segurança:** o texto das mensagens agora é escapado (antes `escape="false"`, um XSS armazenado). As quebras de linha aparecem por `white-space: pre-wrap`.
 
+## 5.7 Desempenho (`css/desempenho.css`, `js/desempenho.js`)
+
+`ranking.xhtml` e `adversario-detalhes.xhtml` (ARENA-95) compartilham o módulo `dsp-`:
+
+- **Acesso:** sem acesso completo (`sessaoBean.acessoCompleto`: ADMIN, PRO/PREMIUM pago ou teste válido), a página mostra só o cartão `dsp-bloqueado`; modalidade e abas não aparecem.
+- **Controles:** a modalidade e as abas ficam fora da área atualizada. A troca atualiza só `abas` e `painelDesempenho`, sinaliza carregamento com `aria-busy` e devolve o foco à aba.
+- **Ranking:** tabela HTML semântica (`caption`, `th scope`, `abbr`) dentro de `am-table-scroll`.
+  - Abaixo de 576px, Pos e Time ficam fixos (sticky), o escudo some e o nome quebra em linhas. As estatísticas rolam no próprio contêiner, com dica "Deslize a tabela" exibida só quando há colunas escondidas.
+  - O time do usuário é destacado ("Seu time"). Uma legenda (`details`) explica as abreviações.
+- **Métricas:** `dl.dsp-metricas` com 4 colunas no celular (3 para o confronto) e todas em uma linha a partir de 768px (8 métricas a partir de 1200px).
+- **Jogos:** cartões com resultado V/E/D (texto completo para leitor de tela), data e "placar contra adversário". "Carregar mais" leva o foco ao primeiro jogo novo e anuncia a quantidade.
+- **Erro de carga:** `RankingBean.erroCarga` mostra `am-alert--danger` com "Tentar novamente" em vez de quebrar a página.
+- **Adversário:** sem growl próprio (usa o global). Desafio com rótulo no campo, ação principal no alcance do polegar e foco gerenciado ao abrir, cancelar e enviar. A partir de 1200px, confronto e resultados ficam lado a lado.
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).

@@ -21,6 +21,7 @@ public class RankingBean implements Serializable {
     public br.com.arenamatch.enums.Modalidade[] getModalidades() { return br.com.arenamatch.enums.Modalidade.values(); }
 
     public void alterarModalidade() {
+        erroCarga = false;
         scout = null; jogosRealizados = new ArrayList<>(); temMaisJogos = false;
         if (sessaoBean.isAcessoCompleto()) {
             carregarRanking();
@@ -35,6 +36,8 @@ public class RankingBean implements Serializable {
     @Getter private boolean temMaisJogos;
     private int paginaJogos;
     @Getter private String abaAtiva = "ranking";
+    // Falha ao consultar o backend: a tela mostra um aviso com "Tentar novamente" em vez de quebrar.
+    @Getter private boolean erroCarga;
 
     @PostConstruct
     public void init() {
@@ -47,6 +50,7 @@ public class RankingBean implements Serializable {
 
     public void exibirRanking() {
         abaAtiva = "ranking";
+        erroCarga = false;
         if (sessaoBean.isAcessoCompleto() && ranking.isEmpty()) {
             carregarRanking();
         }
@@ -54,9 +58,14 @@ public class RankingBean implements Serializable {
 
     public void exibirScout() {
         abaAtiva = "scout";
+        erroCarga = false;
         if (sessaoBean.isAcessoCompleto() && sessaoBean.isPossuiTime() && scout == null) {
             carregarScout();
         }
+    }
+
+    public void tentarNovamente() {
+        alterarModalidade();
     }
 
     public boolean isRankingAtivo() {
@@ -72,9 +81,16 @@ public class RankingBean implements Serializable {
     }
 
     private void carregarScout() {
-        this.scout = timeClient.buscarMeuScout(modalidade);
         this.paginaJogos = 0;
         this.jogosRealizados = new ArrayList<>();
+        this.temMaisJogos = false;
+        try {
+            this.scout = timeClient.buscarMeuScout(modalidade);
+        } catch (Exception e) {
+            this.scout = null;
+            erroCarga = true;
+            return;
+        }
         carregarPaginaDeJogos();
     }
 
@@ -83,17 +99,31 @@ public class RankingBean implements Serializable {
             return;
         }
 
+        erroCarga = false;
         paginaJogos++;
-        carregarPaginaDeJogos();
+        if (!carregarPaginaDeJogos()) {
+            paginaJogos--;
+        }
     }
 
-    private void carregarPaginaDeJogos() {
-        var resultado = timeClient.buscarJogosRealizadosDoScout(paginaJogos, modalidade);
-        this.jogosRealizados.addAll(resultado.getJogos());
-        this.temMaisJogos = resultado.isTemMais();
+    private boolean carregarPaginaDeJogos() {
+        try {
+            var resultado = timeClient.buscarJogosRealizadosDoScout(paginaJogos, modalidade);
+            this.jogosRealizados.addAll(resultado.getJogos());
+            this.temMaisJogos = resultado.isTemMais();
+            return true;
+        } catch (Exception e) {
+            erroCarga = true;
+            return false;
+        }
     }
 
     private void carregarRanking() {
-        this.ranking = timeClient.buscarRankingGeral(modalidade);
+        try {
+            this.ranking = timeClient.buscarRankingGeral(modalidade);
+        } catch (Exception e) {
+            this.ranking = List.of();
+            erroCarga = true;
+        }
     }
 }
