@@ -210,6 +210,19 @@ Assistente de três etapas (ARENA-91):
 - **Erro de carga:** `RankingBean.erroCarga` mostra `am-alert--danger` com "Tentar novamente" em vez de quebrar a página.
 - **Adversário:** sem growl próprio (usa o global). Desafio com rótulo no campo, ação principal no alcance do polegar e foco gerenciado ao abrir, cancelar e enviar. A partir de 1200px, confronto e resultados ficam lado a lado.
 
+## 5.8 Páginas públicas (`css/institucional.css`, `guia-publico.css`, `amistosos.css`, `analytics.css`)
+
+`index`, `como-funciona`, `encontrar-times-futebol-amador` e `privacidade` (ARENA-97) têm CSS próprio, sem PrimeFaces e sem os tokens `--am-*`, mas com os mesmos breakpoints (576/768/992/1200) e escrito mobile first:
+
+- **Cabeçalho:** abaixo de 992px o menu fica recolhido (`js/menu-publico.js`), que fecha com Esc, ao escolher um link, ao tocar fora, ao sair com Tab e ao ir para o desktop. Sem JS, os links quebram em linhas abaixo da marca.
+- **Âncoras:** `menu-publico.js` mede o cabeçalho e publica `--site-header-h`; o `scroll-padding-top` e os índices laterais (sticky) usam esse valor, em vez de alturas fixas por breakpoint.
+- **Safe area:** `viewport-fit=cover`, com as laterais do contêiner, o menu, o rodapé e o banner de consentimento respeitando `env(safe-area-inset-*)`.
+- **Grades:** funcionalidades e planos em 1 coluna, 2 a partir de 768px (o terceiro cartão ocupa a linha) e 3 a partir de 992px. Guia e amistosos com índice acima do texto no celular e lateral a partir de 992px.
+- **Toque:** links de texto, itens do FAQ, rodapé e índices com 44px; textos de apoio com no mínimo 11–12px.
+- **Privacidade:** usa o cabeçalho e o rodapé públicos (antes era uma página isolada com PrimeFlex e `<style>`). O texto legal não mudou.
+- **Consentimento:** painel na base da tela no celular e cartão no canto a partir de 576px; rola por dentro em telas baixas. Após a escolha, o foco vai para "Cookies de estatísticas" no rodapé; reaberto, Esc fecha mantendo a escolha.
+- **Capturas do guia:** cada imagem é um link para o arquivo em tamanho real ("Ampliar"). As capturas ainda são anteriores às telas migradas e precisam ser refeitas com o app em execução.
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).
