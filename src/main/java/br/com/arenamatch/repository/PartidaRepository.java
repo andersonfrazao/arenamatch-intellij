@@ -2,12 +2,14 @@ package br.com.arenamatch.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +17,14 @@ import br.com.arenamatch.entity.Partida;
 import br.com.arenamatch.entity.Time;
 import br.com.arenamatch.enums.StatusPartida;
 import jakarta.persistence.Tuple;
+import jakarta.persistence.LockModeType;
 
 @Repository
 public interface PartidaRepository extends JpaRepository<Partida, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Partida p WHERE p.id = :id")
+    Optional<Partida> buscarParaAtualizacao(@Param("id") Long id);
     
     // Busca partidas onde o time é mandante OU visitante
     @Query("SELECT p FROM Partida p WHERE p.mandante = :time OR p.visitante = :time ORDER BY p.dataHora ASC")

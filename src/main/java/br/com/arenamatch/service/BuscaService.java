@@ -94,6 +94,9 @@ public class BuscaService {
             List<TimeResumoDTO> times = resultados.stream().map(t -> {
                 java.math.BigDecimal taxaBd = t.get("taxa", java.math.BigDecimal.class);
                 double valorTaxa = (taxaBd != null) ? taxaBd.doubleValue() : 0.0;
+                if (meuTime.isMandoCampo()) {
+                    valorTaxa = meuTime.getValorTaxa() != null ? meuTime.getValorTaxa() : 0.0;
+                }
                 
                 Number distNum = t.get("distancia", Number.class);
                 double valorDistancia = (distNum != null) ? distNum.doubleValue() : 0.0;

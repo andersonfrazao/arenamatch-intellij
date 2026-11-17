@@ -130,6 +130,30 @@ class RecursosVisuaisTest {
                 "count(//*[local-name()='form']//*[local-name()='form'])"));
     }
 
+    @Test
+    void buscaMantemContextoDoConviteEPaginacaoAcessivel() throws Exception {
+        Document busca = lerPagina("busca-time.xhtml");
+        assertEquals("0", consultar(busca, "count(//*[local-name()='style'] | //@style)"));
+        assertEquals("1", consultar(busca,
+                "count(//*[local-name()='define'][@name='estilosPagina']/*[local-name()='link'][contains(@href,'css:busca.css')])"));
+        assertEquals("1", consultar(busca,
+                "count(//*[local-name()='dataView'][@paginatorAlwaysVisible='false'][@pageLinks='1'])"));
+        assertEquals("1", consultar(busca,
+                "count(//*[local-name()='datePicker'][@autoDetectDisplay='false'][@touchUI='false'][@showOnFocus='false'][@appendTo='@(body)'])"));
+        assertEquals("@this mensagemDesafio", consultar(busca,
+                "string(//*[local-name()='commandButton'][@id='enviarConvite']/@process)"));
+        assertEquals("#{buscaBean.cancelarConviteEnviado(time.idPartidaPendente)}", consultar(busca,
+                "string(//*[local-name()='commandButton'][@id='cancelarConvite']/@action)"));
+        assertEquals("1", consultar(busca,
+                "count(//*[local-name()='outputLabel'][@for='mensagemDesafio'])"));
+        assertEquals("1", consultar(busca,
+                "count(//*[local-name()='inputText'][@id='txtRaio']/@*[local-name()='oninput'])"));
+        Document antiga = lerPagina("busca.xhtml");
+        assertTrue(consultar(antiga, "string(//*[local-name()='viewAction']/@action)")
+                .contains("/busca-time?faces-redirect=true"));
+        assertEquals("0", consultar(antiga, "count(//*[local-name()='form'])"));
+    }
+
     private String consultar(Document documento, String expressao) throws Exception {
         return XPathFactory.newInstance().newXPath().evaluate(expressao, documento);
     }

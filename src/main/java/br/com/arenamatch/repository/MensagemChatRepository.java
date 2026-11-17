@@ -9,6 +9,8 @@ import br.com.arenamatch.entity.MensagemChat;
 
 public interface MensagemChatRepository extends JpaRepository<MensagemChat, Long> {
 
+    void deleteByPartidaId(Long idPartida);
+
     // Busca o histórico do chat ordenado cronologicamente
     List<MensagemChat> findByPartidaIdOrderByDataHoraAsc(Long idPartida);
     

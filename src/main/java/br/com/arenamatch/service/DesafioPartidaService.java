@@ -93,7 +93,10 @@ public class DesafioPartidaService {
 
     @Transactional
     public void aceitarDesafio(Long idPartida) {
-        Partida partida = partidaRepository.findById(idPartida).orElseThrow();
+        Partida partida = partidaRepository.buscarParaAtualizacao(idPartida).orElseThrow();
+        if (partida.getStatus() != StatusPartida.PENDENTE) {
+            throw new RuntimeException("Somente convites pendentes podem ser aceitos.");
+        }
 
         validarModalidade(partida.getMandante(), partida.getModalidade());
         validarModalidade(partida.getVisitante(), partida.getModalidade());
@@ -117,13 +120,14 @@ public class DesafioPartidaService {
 
     @Transactional
     public void excluirConvitePendente(Long idPartida) {
-        Partida partida = partidaRepository.findById(idPartida)
+        Partida partida = partidaRepository.buscarParaAtualizacao(idPartida)
                 .orElseThrow(() -> new RuntimeException("Partida nao encontrada para exclusao."));
 
         if (partida.getStatus() != StatusPartida.PENDENTE) {
             throw new RuntimeException("Somente convites pendentes podem ser removidos diretamente.");
         }
 
+        partidaMensagemService.excluirMensagensDaPartida(idPartida);
         partidaRepository.deleteById(idPartida);
     }
 

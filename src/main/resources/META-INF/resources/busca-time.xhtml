@@ -3,6 +3,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pt="jakarta.faces.passthrough"
                 template="/WEB-INF/template/layout.xhtml">
 
     <f:metadata>
@@ -10,273 +11,200 @@
         <f:viewParam name="modalidade" value="#{buscaBean.filtro.modalidade}"/>
     </f:metadata>
 
+    <ui:define name="estilosPagina">
+        <link href="#{resource['css:busca.css']}&amp;rev=79.4" rel="stylesheet"/>
+    </ui:define>
+
     <ui:define name="conteudo">
-        <style>
-            @media (max-width: 1500px) {
-                .team-search-results .ui-dataview-column {
-                    width: 50% !important;
-                }
-            }
-
-            @media (max-width: 1100px) {
-                .team-search-results .ui-dataview-column {
-                    width: 100% !important;
-                }
-            }
-        </style>
-        
-        <h:form id="formBusca">
-            <p:growl id="messages" showDetail="true" life="5000"/>
-            
-            <div class="bg-glass p-3 border-round-xl shadow-4 mb-4" style="border: 1px solid rgba(255, 255, 255, 0.1);">
-                <div class="formgrid grid">
-                    
-                    <div class="field col-12 md:col-3">
-                        <p:outputLabel value="Data do Jogo *" styleClass="text-white font-bold block mb-2 text-sm"/>
-                        <p:datePicker value="#{buscaBean.filtro.dataJogo}" showIcon="true"
-                                      locale="pt_BR"
-                                      styleClass="w-full" inputStyleClass="custom-input text-sm"
-                                      placeholder="dd/mm/aaaa"/>
+        <h:form id="formBusca" styleClass="am-busca" pt:aria-busy="false">
+            <p:messages id="messages" showDetail="true" showSummary="false" closable="true" pt:tabindex="-1">
+                <p:autoUpdate/>
+            </p:messages>
+            <section class="busca-filtros" aria-labelledby="tituloFiltros">
+                <h1 id="tituloFiltros" class="busca-titulo">Buscar jogo</h1>
+                <div class="busca-filtros-grid">
+                    <div class="busca-campo">
+                        <p:outputLabel for="dataJogo" value="Data do jogo *" styleClass="busca-label"/>
+                        <p:datePicker id="dataJogo" value="#{buscaBean.filtro.dataJogo}" showIcon="true"
+                                      locale="pt_BR" pattern="dd/MM/yyyy" placeholder="dd/mm/aaaa" inputmode="numeric"
+                                      autoDetectDisplay="false" touchUI="false" showOnFocus="false" appendTo="@(body)"
+                                      panelStyleClass="busca-calendario-painel"
+                                      styleClass="busca-calendario" inputStyleClass="busca-input"/>
                     </div>
-                    <div class="field col-12 md:col-3">
-                        <p:outputLabel for="filtroCategoria" value="Categoria" styleClass="text-gray-300 font-bold mb-2 block"/>
-                        <p:selectOneMenu id="filtroCategoria" value="#{buscaBean.filtro.categoria}" styleClass="w-full custom-input">
-                            <f:selectItem itemLabel="Todas as Categorias" itemValue="#{null}" noSelectionOption="true"/>
-                            <f:selectItems value="#{buscaBean.categoriasEnum}" var="cat" itemLabel="#{cat.descricao}" itemValue="#{cat}"/>
-                        </p:selectOneMenu>
-                    </div>                    
-
-                    <div class="field col-12 md:col-3">
-                        <p:outputLabel for="filtroModalidade" value="Modalidade *" styleClass="text-white font-bold block mb-2 text-sm"/>
-                        <p:selectOneMenu id="filtroModalidade" value="#{buscaBean.filtro.modalidade}" styleClass="w-full custom-input">
+                    <div class="busca-campo">
+                        <p:outputLabel for="filtroModalidade" value="Modalidade *" styleClass="busca-label"/>
+                        <p:selectOneMenu id="filtroModalidade" value="#{buscaBean.filtro.modalidade}" styleClass="busca-select">
                             <f:selectItem itemLabel="Selecione a modalidade" noSelectionOption="true"/>
                             <f:selectItems value="#{buscaBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
-                            <p:ajax listener="#{buscaBean.alterarModalidade}" update="dataView" process="@this"/>
+                            <p:ajax listener="#{buscaBean.alterarModalidade}" process="@this" update="resultados"
+                                    onstart="iniciarEnvioAcesso('formBusca')" oncomplete="concluirBusca('filtros')"/>
                         </p:selectOneMenu>
                     </div>
-                    <div class="field col-12 md:col-3">
-                        <p:outputLabel value="Nome do Time" styleClass="text-white font-bold block mb-2 text-sm"/>
-                        <p:inputText value="#{buscaBean.filtro.nomeTime}" 
-                                     placeholder="Ex: Tabajara FC" 
-                                     styleClass="w-full custom-input text-sm"/>
+                    <div class="busca-campo">
+                        <p:outputLabel for="filtroCategoria" value="Categoria" styleClass="busca-label"/>
+                        <p:selectOneMenu id="filtroCategoria" value="#{buscaBean.filtro.categoria}" styleClass="busca-select">
+                            <f:selectItem itemLabel="Todas as categorias" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{buscaBean.categoriasEnum}" var="cat" itemLabel="#{cat.descricao}" itemValue="#{cat}"/>
+                        </p:selectOneMenu>
                     </div>
-
-                    <div class="field col-12 md:col-3">
-                        <p:outputLabel for="txtRaio" value="Distância Máxima" styleClass="text-white font-bold mb-2 text-sm"/>
-                        <p:outputLabel id="displayRaio" value="#{buscaBean.filtro.raioKm} km" styleClass="text-neon font-bold ml-2 text-sm"/>
-                        
-                        <div class="mt-2">
-                            <h:inputHidden id="txtRaio" value="#{buscaBean.filtro.raioKm}" />
-                            <p:slider for="txtRaio" minValue="5" maxValue="#{buscaBean.planoBasico ? buscaBean.raioMaximoPlanoBasicoKm : 100}" step="5" range="false" 
-                                      display="displayRaio" displayTemplate="{value} km" 
-                                      disabled="#{buscaBean.planoBasico}"
-                                      style="background: #334155; height: 6px; border:none;"/>
-                        </div>
-                        <h:panelGroup rendered="#{buscaBean.planoBasico}" layout="block" styleClass="mt-2">
-                            <p:commandLink action="#{buscaBean.informarBloqueioRaioBasico}" update="messages displayRaio txtRaio"
-                                           process="@this"
-                                           styleClass="text-xs font-bold no-underline"
-                                           style="color: #fbbf24;">
-                                <i class="fas fa-lock mr-1"></i>
-                                Plano BASICO: busca limitada a #{buscaBean.raioMaximoPlanoBasicoKm} km. Mude para o PRO para ajustar.
+                    <div class="busca-campo">
+                        <p:outputLabel for="nomeTime" value="Nome do time" styleClass="busca-label"/>
+                        <p:inputText id="nomeTime" value="#{buscaBean.filtro.nomeTime}" placeholder="Ex: Tabajara FC" styleClass="busca-input"/>
+                    </div>
+                    <div class="busca-campo busca-campo-distancia">
+                        <p:outputLabel for="txtRaio" value="Distância máxima" styleClass="busca-label"/>
+                        <h:outputText id="displayRaio" value="#{buscaBean.filtro.raioKm} km" styleClass="busca-raio-valor"/>
+                        <h:inputText id="txtRaio" value="#{buscaBean.filtro.raioKm}" disabled="#{buscaBean.planoBasico}"
+                                     styleClass="busca-raio" pt:type="range" pt:min="5" pt:step="5"
+                                     pt:max="#{buscaBean.planoBasico ? buscaBean.raioMaximoPlanoBasicoKm : 100}"
+                                     pt:oninput="atualizarRaioBusca(this)"/>
+                        <h:panelGroup rendered="#{buscaBean.planoBasico}" layout="block">
+                            <p:commandLink action="#{buscaBean.informarBloqueioRaioBasico}" process="@this"
+                                           update="messages displayRaio txtRaio" styleClass="busca-limite-plano"
+                                           oncomplete="concluirBusca('filtros')">
+                                <i class="fas fa-lock" aria-hidden="true"></i>
+                                <span>Plano BÁSICO limitado a #{buscaBean.raioMaximoPlanoBasicoKm} km. Mude para o PRO para ajustar.</span>
                             </p:commandLink>
                         </h:panelGroup>
                     </div>
-
-                    <div class="field col-12 md:col-2 flex align-items-end">
-                        <p:commandButton value="Buscar" action="#{buscaBean.pesquisar}" 
-                                         update="messages dataView" 
-                                         icon="fas fa-search" styleClass="w-full font-bold ui-button-warning shadow-3 text-sm"/>
+                    <div class="busca-campo busca-acao-pesquisar">
+                        <p:commandButton id="buscar" value="Buscar" icon="fas fa-search" action="#{buscaBean.pesquisar}"
+                                         process="@form" update="messages resultados" styleClass="busca-botao-primario"
+                                         onstart="iniciarEnvioAcesso('formBusca')" oncomplete="concluirBusca('resultados')"/>
                     </div>
                 </div>
-            </div>
+            </section>
+            <p:defaultCommand target="buscar"/>
+            <div class="busca-status" role="status">Processando…</div>
 
-            <p:dataView id="dataView" var="time" value="#{buscaBean.resultados}" layout="grid" 
-                        paginator="true" rows="12" gridIcon="pi pi-th-large" listIcon="pi pi-bars"
-                        styleClass="team-search-results"
-                        emptyMessage="Utilize os filtros acima para encontrar times.">
-
-                <p:dataViewGridItem columns="3">
-                    <div class="p-2 h-full">
-                        <h:panelGroup layout="block" styleClass="bg-bluegray-900 border-round-xl shadow-4 relative h-full overflow-hidden hover:shadow-6 transition-all transition-duration-300" 
-                                      style="border: 1px solid rgba(255,255,255,0.1); min-height: 250px;">
-                            
-                            <h:panelGroup rendered="#{empty buscaBean.timeSelecionadoParaDesafio or buscaBean.timeSelecionadoParaDesafio.id ne time.id}" 
-                                          styleClass="flex flex-column h-full">
-                                
-                                <div class="flex align-items-center p-3 border-bottom-1 border-white-alpha-10 bg-black-alpha-20">
-                                    <div class="border-circle bg-bluegray-800 flex align-items-center justify-content-center border-1 border-bluegray-600 mr-3 shadow-2" 
-                                         style="width: 50px; height: 50px; min-width: 50px;">
-                                        <h:graphicImage value="#{time.escudo}"
-                                                        rendered="#{not empty time.escudo}"
-                                                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"/>
-                                        <h:panelGroup rendered="#{empty time.escudo}">
-                                            <i class="fas fa-shield-alt text-2xl text-gray-400"></i>
-                                        </h:panelGroup>
+            <h:panelGroup id="resultados" layout="block" styleClass="busca-resultados">
+                <h2 class="busca-resultados-titulo" tabindex="-1">
+                    Adversários
+                    <h:outputText value=" (#{buscaBean.resultados.size()})" rendered="#{buscaBean.pesquisaRealizada}"/>
+                </h2>
+                <h:panelGroup rendered="#{buscaBean.pesquisaRealizada}" layout="block" styleClass="busca-data-resultados">
+                    <h:outputText value="#{buscaBean.dataResultados}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText>
+                </h:panelGroup>
+                <p:dataView id="dataView" var="time" value="#{buscaBean.resultados}" layout="grid"
+                            paginator="true" rows="12" first="#{buscaBean.primeiroResultado}" pageLinks="1"
+                            paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                            styleClass="team-search-results" emptyMessage="#{buscaBean.mensagemResultadosVazios}">
+                    <p:ajax event="page" onstart="iniciarEnvioAcesso('formBusca')" oncomplete="concluirBusca('resultados')"/>
+                    <p:dataViewGridItem>
+                        <article class="busca-card" data-time-id="#{time.id}">
+                            <h:panelGroup rendered="#{empty buscaBean.timeSelecionadoParaDesafio or buscaBean.timeSelecionadoParaDesafio.id ne time.id}"
+                                          layout="block" styleClass="busca-card-conteudo">
+                                <div class="busca-card-cabecalho">
+                                    <div class="busca-escudo">
+                                        <h:graphicImage value="#{time.escudo}" rendered="#{not empty time.escudo}" alt="Escudo de #{time.nome}"/>
+                                        <h:panelGroup rendered="#{empty time.escudo}"><i class="fas fa-shield-alt" aria-hidden="true"></i></h:panelGroup>
                                     </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="text-white font-bold text-lg white-space-nowrap overflow-hidden text-overflow-ellipsis">#{time.nome}</div>
-                                        <div class="text-gray-400 text-xs flex align-items-center">
-                                            <i class="fas fa-map-marker-alt mr-1 text-xs"></i> #{time.cidade}-#{time.uf}
-                                        </div>
-                                        <h:panelGroup rendered="#{not empty time.categoria}" layout="block"
-                                                      styleClass="mt-1 text-blue-300 text-xs font-bold white-space-normal">
-                                           <div class="mb-1"><span class="text-white">Modalidade:</span> <span class="text-green-300">#{time.modalidade.descricao}</span></div>
-                                           <span class="text-white text-xs">Categoria:</span> #{time.categoria.descricao}
-                                        </h:panelGroup>
+                                    <div class="busca-identidade">
+                                        <h3 class="busca-card-titulo" tabindex="-1">#{time.nome}</h3>
+                                        <p class="busca-local"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> #{time.cidade}-#{time.uf}</p>
+                                        <p class="busca-distancia">
+                                            <h:outputText value="#{time.distanciaKm}"><f:convertNumber pattern="#0.0"/></h:outputText>
+                                            <span>km de distância</span>
+                                        </p>
                                     </div>
-                                    
-                                    <div class="text-right ml-2">
-                                        <div class="text-neon font-bold text-lg">
-                                            <h:outputText value="#{time.distanciaKm}">
-                                                <f:convertNumber pattern="#0.0"/>
+                                </div>
+                                <div class="busca-card-corpo">
+                                    <dl class="busca-dados">
+                                        <div><dt>Modalidade</dt><dd class="busca-modalidade">#{time.modalidade.descricao}</dd></div>
+                                        <div><dt>Categoria</dt><dd>#{time.categoria.descricao}</dd></div>
+                                    </dl>
+                                    <div class="busca-horario">
+                                        <span>Horário do jogo (mandante)</span>
+                                        <strong><i class="far fa-clock" aria-hidden="true"></i> #{time.diasDaSemanaTexto}</strong>
+                                    </div>
+                                    <dl class="busca-dados">
+                                        <div><dt>Mando do adversário</dt><dd class="#{time.temCampo ? 'busca-mandante' : 'busca-visitante'}">
+                                            <i class="fas #{time.temCampo ? 'fa-home' : 'fa-bus'}" aria-hidden="true"></i> #{time.temCampo ? 'Mandante' : 'Visitante'}
+                                        </dd></div>
+                                        <div><dt>Taxa de jogo</dt><dd>
+                                            <h:outputText value="#{time.valorTaxa}" rendered="#{time.valorTaxa gt 0}">
+                                                <f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/>
                                             </h:outputText>
-                                        </div>
-                                        <div class="text-gray-500 text-xs uppercase">km dist.</div>
-                                    </div>
-                                </div>
-
-                                <div class="p-3 flex-grow-1 grid grid-nogutter">
-                                    
-                                    <div class="col-12 mb-3 bg-bluegray-800 p-2 border-round shadow-1 border-1 border-bluegray-700">
-                                        <span class="text-gray-400 text-xs block mb-1">Horário do jogo (mandante):</span>
-                                        <span class="text-white text-sm font-bold">
-                                            <i class="far fa-clock mr-1 text-blue-400"></i> #{time.diasDaSemanaTexto}
-                                        </span>
-                                    </div>
-
-                                    <div class="col-12 mb-2 flex justify-content-between align-items-center">
-                                        <span class="text-gray-500 text-xs">Mando de Campo:</span>
-                                        <h:panelGroup rendered="#{time.temCampo}">
-                                            <span class="text-green-400 text-sm font-bold"><i class="fas fa-home mr-1"></i> Mandante</span>
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{not time.temCampo}">
-                                            <span class="text-yellow-400 text-sm font-bold"><i class="fas fa-bus mr-1"></i> Visitante</span>
-                                        </h:panelGroup>
-                                    </div>
-
-                                    <div class="col-12 mt-1 pt-2 border-top-1 border-white-alpha-10 flex justify-content-between align-items-center">
-                                        <span class="text-gray-500 text-xs">Taxa de Jogo:</span>
-                                        <h:panelGroup rendered="#{time.valorTaxa != null and time.valorTaxa > 0}">
-                                            <span class="text-white font-bold text-sm">
-                                                <h:outputText value="#{time.valorTaxa}">
-                                                    <f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/>
-                                                </h:outputText>
-                                            </span>
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{time.valorTaxa == null or time.valorTaxa == 0}">
-                                            <span class="text-gray-500 text-xs font-bold">A combinar / Grátis</span>
-                                        </h:panelGroup>
-                                    </div>
-
-                                    <div class="col-12 mt-2 pt-2 border-top-1 border-white-alpha-10 text-xs">
+                                            <h:outputText value="A combinar / Grátis" rendered="#{empty time.valorTaxa or time.valorTaxa eq 0}"/>
+                                        </dd></div>
+                                    </dl>
+                                    <div class="busca-historico">
                                         <h:panelGroup rendered="#{time.historicoDisponivel}">
-                                            <i class="fas fa-clock-rotate-left text-blue-400 mr-1"></i>
-                                            <span class="text-gray-400">Histórico:</span>
-                                            <h:panelGroup rendered="#{time.historicoJogos gt 0}">
-                                                <strong class="text-white">#{time.historicoJogos} jogos · #{time.historicoVitorias}V · #{time.historicoEmpates}E · #{time.historicoDerrotas}D</strong>
-                                            </h:panelGroup>
-                                            <h:panelGroup rendered="#{time.historicoJogos eq 0}">
-                                                <strong class="text-gray-300">nenhum confronto</strong>
-                                            </h:panelGroup>
+                                            <i class="fas fa-clock-rotate-left" aria-hidden="true"></i>
+                                            <span>Histórico </span>
+                                            <h:outputText value="#{time.historicoJogos} jogos · #{time.historicoVitorias}V · #{time.historicoEmpates}E · #{time.historicoDerrotas}D" rendered="#{time.historicoJogos gt 0}"/>
+                                            <h:outputText value="Nenhum confronto" rendered="#{time.historicoJogos eq 0}"/>
                                         </h:panelGroup>
-                                        <h:panelGroup rendered="#{not time.historicoDisponivel}">
-                                            <i class="fas fa-lock text-yellow-400 mr-1"></i>
-                                            <span class="text-yellow-300 font-bold">Histórico disponível no PRO</span>
+                                        <h:panelGroup rendered="#{not time.historicoDisponivel}" styleClass="busca-recurso-pro">
+                                            <i class="fas fa-lock" aria-hidden="true"></i> Histórico disponível no PRO
                                         </h:panelGroup>
                                     </div>
                                 </div>
-
-                                <div class="p-3 bg-black-alpha-10">
-                                    <p:button value="Detalhes Adversário" icon="fas fa-chart-line"
-                                              outcome="/adversario-detalhes"
-                                              styleClass="w-full ui-button-secondary ui-button-outlined rounded-btn font-bold text-sm mb-2">
+                                <div class="busca-card-acoes">
+                                    <p:button id="detalhes" value="Detalhes do adversário" icon="fas fa-chart-line" outcome="/adversario-detalhes" styleClass="busca-botao-secundario">
                                         <f:param name="id" value="#{time.id}"/>
                                         <f:param name="data" value="#{buscaBean.dataJogoParametro}"/>
                                         <f:param name="categoria" value="#{time.categoria}"/>
                                         <f:param name="modalidade" value="#{time.modalidade}"/>
                                     </p:button>
-                                    
-                                    <h:panelGroup rendered="#{not time.convitePendente}">
-                                        <p:commandButton value="Desafiar" icon="fas fa-bolt" 
-                                                         action="#{buscaBean.prepararDesafio(time)}"
-                                                         update="formBusca:dataView"
-                                                         styleClass="w-full ui-button-outlined rounded-btn font-bold hover:bg-neon hover:text-white transition-colors-200 text-sm" 
-                                                         style="color: #0ea5e9; border-color: #0ea5e9;"/>
+                                    <p:commandButton id="desafiar" value="Desafiar" icon="fas fa-bolt" rendered="#{not time.convitePendente}"
+                                                     action="#{buscaBean.prepararDesafio(time)}" process="@this" update=":formBusca:resultados"
+                                                     styleClass="busca-botao-desafiar" onstart="iniciarEnvioAcesso('formBusca')"
+                                                     oncomplete="concluirBusca('confirmacao', #{time.id})"/>
+                                    <h:panelGroup rendered="#{time.convitePendente}" layout="block" styleClass="busca-convite">
+                                        <p class="busca-convite-status #{time.conviteRecebido ? 'busca-mandante' : 'busca-visitante'}">
+                                            <i class="fas #{time.conviteRecebido ? 'fa-bell' : 'fa-paper-plane'}" aria-hidden="true"></i>
+                                            #{time.conviteRecebido ? 'Este time te desafiou!' : 'Convite enviado. Aguardando resposta.'}
+                                        </p>
+                                        <p:button id="chat" outcome="/chat.xhtml" value="Chat" icon="fas fa-comments" styleClass="busca-botao-secundario">
+                                            <f:param name="p" value="#{time.idPartidaPendente}"/>
+                                        </p:button>
+                                        <p:commandButton id="cancelarConvite" value="Cancelar convite" icon="fas fa-times" rendered="#{not time.conviteRecebido}"
+                                                         action="#{buscaBean.cancelarConviteEnviado(time.idPartidaPendente)}" process="@this"
+                                                         update=":formBusca:resultados :formBusca:messages" styleClass="busca-botao-cancelar"
+                                                         onstart="iniciarEnvioAcesso('formBusca')" oncomplete="concluirBusca('cartao', #{time.id})"/>
+                                        <p:button id="verConvite" outcome="/minha-agenda.xhtml" value="Ver convite" icon="fas fa-calendar-check"
+                                                  rendered="#{time.conviteRecebido}" styleClass="busca-botao-desafiar">
+                                            <f:param name="data" value="#{buscaBean.dataJogoParametro}"/>
+                                        </p:button>
                                     </h:panelGroup>
-
-                                    <h:panelGroup rendered="#{time.convitePendente and not time.conviteRecebido}">
-                                        <div class="text-yellow-400 text-xs font-bold text-center mb-2">
-                                            <i class="fas fa-paper-plane"></i> Convite enviado! Aguardando resposta.
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <p:button outcome="/chat.xhtml" value="Chat" icon="fas fa-comments" 
-                                                      styleClass="flex-1 ui-button-help rounded-btn font-bold shadow-3 text-sm">
-                                                <f:param name="p" value="#{time.idPartidaPendente}" />
-                                            </p:button>
-                                            <p:commandButton value="Cancelar" icon="fas fa-trash" 
-                                                             action="#{buscaBean.cancelarConviteEnviado(time.id)}"
-                                                             update="formBusca:dataView formBusca:messages"
-                                                             styleClass="flex-1 ui-button-danger ui-button-outlined rounded-btn font-bold shadow-3 text-sm"/>
-                                        </div>
-                                    </h:panelGroup>
-
-                                    <h:panelGroup rendered="#{time.convitePendente and time.conviteRecebido}">
-                                        <div class="text-green-400 text-sm font-bold text-center mb-2 pulse-animation">
-                                            <i class="fas fa-bell"></i> Este time te desafiou!
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <p:button outcome="/chat.xhtml" value="Chat" icon="fas fa-comments" 
-                                                      styleClass="flex-1 ui-button-help rounded-btn font-bold shadow-3 text-sm">
-                                                <f:param name="p" value="#{time.idPartidaPendente}" />
-                                            </p:button>
-                                            </div>
-                                    </h:panelGroup>
-
                                 </div>
                             </h:panelGroup>
 
-                            <h:panelGroup rendered="#{not empty buscaBean.timeSelecionadoParaDesafio and buscaBean.timeSelecionadoParaDesafio.id eq time.id}" 
-                                          styleClass="flex flex-column h-full p-3 bg-bluegray-800">
-                                
-                                <div class="text-center mb-3">
-                                    <div class="text-neon font-bold text-lg mb-1">Confirmar Desafio</div>
-                                    <p class="text-sm text-gray-300 line-height-3">
-                                        Adversário: <strong class="text-white">#{time.nome}</strong><br/>
-                                        Modalidade: <strong class="text-cyan-300">#{time.modalidade.descricao}</strong><br/>
-                                        Data: 
-                                        <strong class="text-white text-lg">
-                                            <h:outputText value="#{buscaBean.filtro.dataJogo}">
-                                                <f:convertDateTime type="localDate" pattern="dd/MM/yyyy" />
-                                            </h:outputText>
-                                        </strong>
-                                    </p>
+                            <h:panelGroup rendered="#{not empty buscaBean.timeSelecionadoParaDesafio and buscaBean.timeSelecionadoParaDesafio.id eq time.id}"
+                                          layout="block" styleClass="busca-confirmacao">
+                                <h3 class="busca-confirmacao-titulo" tabindex="-1">Confirmar desafio</h3>
+                                <p class="busca-confirmacao-adversario">#{time.nome}</p>
+                                <dl class="busca-dados">
+                                    <div><dt>Modalidade</dt><dd class="busca-modalidade">#{time.modalidade.descricao}</dd></div>
+                                    <div><dt>Categoria</dt><dd>#{time.categoria.descricao}</dd></div>
+                                    <div><dt>Data</dt><dd><h:outputText value="#{buscaBean.dataDesafio}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></dd></div>
+                                    <div><dt>Seu time será</dt><dd>#{time.temCampo ? 'Visitante' : 'Mandante'}</dd></div>
+                                    <div><dt>Taxa de jogo</dt><dd>
+                                        <h:outputText value="#{time.valorTaxa}" rendered="#{time.valorTaxa gt 0}"><f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/></h:outputText>
+                                        <h:outputText value="A combinar / Grátis" rendered="#{empty time.valorTaxa or time.valorTaxa eq 0}"/>
+                                    </dd></div>
+                                </dl>
+                                <div class="busca-horario"><span>Horário do jogo (mandante)</span><strong>#{time.diasDaSemanaTexto}</strong></div>
+                                <div class="busca-campo busca-mensagem">
+                                    <p:outputLabel for="mensagemDesafio" value="Mensagem (opcional)" styleClass="busca-label"/>
+                                    <p:inputTextarea id="mensagemDesafio" value="#{buscaBean.mensagemDesafio}" rows="4" autoResize="false" styleClass="busca-input"/>
                                 </div>
-                                
-                                <div class="flex-grow-1">
-                                    <p:inputTextarea value="#{buscaBean.mensagemDesafio}" rows="3" 
-                                                     styleClass="w-full custom-input text-sm" 
-                                                     placeholder="Mensagem (opcional)..." 
-                                                     autoResize="false"/>
-                                </div>
-
-                                <div class="flex gap-2 mt-3">
-                                    <p:commandButton value="Não" action="#{buscaBean.cancelarDesafio}" 
-                                                     update="formBusca:dataView" 
-                                                     styleClass="ui-button-secondary flex-1 p-1 text-sm font-bold"/>
-                                    
-                                    <p:commandButton value="Enviar convite de #{time.modalidade.descricao}" action="#{buscaBean.confirmarDesafio}" 
-                                                     update="formBusca:dataView formBusca:messages" 
-                                                     styleClass="ui-button-warning flex-1 p-1 text-sm font-bold" 
-                                                     icon="fas fa-check"/>
+                                <div class="busca-confirmacao-acoes">
+                                    <p:commandButton id="enviarConvite" value="Enviar convite de #{time.modalidade.descricao}" icon="fas fa-check"
+                                                     action="#{buscaBean.confirmarDesafio}" process="@this mensagemDesafio" update=":formBusca:resultados :formBusca:messages"
+                                                     styleClass="busca-botao-primario" onstart="iniciarEnvioAcesso('formBusca')" oncomplete="concluirBusca('cartao', #{time.id})"/>
+                                    <p:commandButton id="cancelarDesafio" value="Voltar ao adversário" action="#{buscaBean.cancelarDesafio}" process="@this"
+                                                     update=":formBusca:resultados" styleClass="busca-botao-secundario"
+                                                     onstart="iniciarEnvioAcesso('formBusca')" oncomplete="concluirBusca('cartao', #{time.id})"/>
                                 </div>
                             </h:panelGroup>
-
-                        </h:panelGroup>
-                    </div>
-                </p:dataViewGridItem>
-            </p:dataView>
+                        </article>
+                    </p:dataViewGridItem>
+                </p:dataView>
+            </h:panelGroup>
         </h:form>
-
+        <script src="#{resource['js:acesso.js']}&amp;rev=78.1"></script>
+        <script src="#{resource['js:busca.js']}&amp;rev=79.3"></script>
     </ui:define>
 </ui:composition>

@@ -16,10 +16,12 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.client.RestClientResponseException;
 
 @Named
@@ -38,6 +40,11 @@ public class BuscaBean implements Serializable {
 
     @Getter
     private List<TimeResumoDTO> resultados;
+
+    @Getter private boolean pesquisaRealizada;
+    @Getter @Setter private int primeiroResultado;
+    private FiltroBuscaDTO filtroResultados;
+    @Getter private LocalDate dataDesafio;
 
     @Getter @Setter
     private TimeResumoDTO timeSelecionadoParaDesafio;
@@ -61,6 +68,11 @@ public class BuscaBean implements Serializable {
 
     public void pesquisar() {
         aplicarLimiteRaioBasicoNaTela();
+        cancelarDesafio();
+        resultados = new ArrayList<>();
+        pesquisaRealizada = false;
+        primeiroResultado = 0;
+        filtroResultados = null;
 
         if (filtro.getModalidade() == null) {
             resultados = new ArrayList<>();
@@ -80,7 +92,11 @@ public class BuscaBean implements Serializable {
                 return;
             }
 
-            carregarResultados(meuId);
+            FiltroBuscaDTO parametros = new FiltroBuscaDTO();
+            BeanUtils.copyProperties(filtro, parametros);
+            resultados = buscaClient.filtrarTimes(parametros, meuId);
+            filtroResultados = parametros;
+            pesquisaRealizada = true;
 
             if (resultados.isEmpty()) {
                 msgInfo("Nenhum time encontrado para esta data na sua região.");
@@ -89,13 +105,18 @@ public class BuscaBean implements Serializable {
             this.resultados = new ArrayList<>();
             msgWarn(e.getResponseBodyAsString());
         } catch (Exception e) {
+            this.resultados = new ArrayList<>();
             msgErro("Erro ao buscar os times");
         }
     }
 
     public void confirmarDesafio() {
+        if (timeSelecionadoParaDesafio == null || dataDesafio == null) {
+            msgWarn("Pesquise novamente e selecione o adversário para enviar o convite.");
+            return;
+        }
+        Long meuId = carregarIdMeuTime();
         try {
-            Long meuId = carregarIdMeuTime();
             if (meuId == null) {
                 msgErro("Erro ao identificar seu time.");
                 return;
@@ -108,22 +129,19 @@ public class BuscaBean implements Serializable {
             dto.setCategoria(timeSelecionadoParaDesafio.getCategoria());
             dto.setModalidade(timeSelecionadoParaDesafio.getModalidade());
 
-            if (filtro.getDataJogo() != null) {
-                dto.setDataHoraPartida(filtro.getDataJogo().atStartOfDay());
-            } else {
-                msgErro("A data da pesquisa foi perdida. Pesquise novamente.");
-                return;
-            }
+            dto.setDataHoraPartida(dataDesafio.atStartOfDay());
 
             partidaClient.enviarDesafio(dto);
             msgInfo("Desafio enviado com sucesso para " + timeSelecionadoParaDesafio.getNome() + "!");
-            carregarResultados(meuId);
-            cancelarDesafio();
         } catch (RestClientResponseException e) {
             msgErro("Nao foi possivel enviar o desafio: " + e.getResponseBodyAsString());
+            return;
         } catch (Exception e) {
             msgErro("Nao foi possivel enviar o desafio: " + e.getMessage());
+            return;
         }
+        cancelarDesafio();
+        atualizarResultadosAposConvite(meuId);
     }
 
     public boolean isPlanoBasico() {
@@ -146,27 +164,39 @@ public class BuscaBean implements Serializable {
 
     public void prepararDesafio(TimeResumoDTO timeDesafiado) {
         this.timeSelecionadoParaDesafio = timeDesafiado;
+        this.dataDesafio = getDataResultados();
         this.mensagemDesafio = "";
     }
 
     public void alterarModalidade() {
         resultados = new ArrayList<>();
+        pesquisaRealizada = false;
+        primeiroResultado = 0;
+        filtroResultados = null;
         cancelarDesafio();
     }
 
     public void cancelarDesafio() {
         this.timeSelecionadoParaDesafio = null;
+        this.dataDesafio = null;
         this.mensagemDesafio = "";
     }
 
-    public void cancelarConviteEnviado(Long idAdversario) {
+    public void cancelarConviteEnviado(Long idPartida) {
         try {
-            Long meuTimeId = sessaoBean.getUsuarioLogado().getIdTime();
-            partidaClient.cancelarConvitePorAdversario(meuTimeId, idAdversario);
+            partidaClient.cancelarConvitePorId(idPartida);
             msgInfo("Convite retirado.");
         } catch (Exception e) {
             msgErro("Erro ao cancelar convite.");
+            return;
         }
+        atualizarResultadosAposConvite(carregarIdMeuTime());
+    }
+
+    public String getMensagemResultadosVazios() {
+        return pesquisaRealizada
+                ? "Nenhum adversário encontrado. Tente outra data ou ajuste os filtros."
+                : "Escolha a data e a modalidade e clique em Buscar para encontrar adversários.";
     }
 
     public Categoria[] getCategoriasEnum() {
@@ -178,11 +208,16 @@ public class BuscaBean implements Serializable {
     }
 
     public String getDataJogoParametro() {
-        return filtro.getDataJogo() != null ? filtro.getDataJogo().toString() : null;
+        LocalDate data = getDataResultados();
+        return data != null ? data.toString() : null;
+    }
+
+    public LocalDate getDataResultados() {
+        return filtroResultados != null ? filtroResultados.getDataJogo() : null;
     }
 
     public String getDataParametro() {
-        return getDataJogoParametro();
+        return filtro.getDataJogo() != null ? filtro.getDataJogo().toString() : null;
     }
 
     public void setDataParametro(String data) {
@@ -196,8 +231,15 @@ public class BuscaBean implements Serializable {
         }
     }
 
-    private void carregarResultados(Long meuId) {
-        this.resultados = buscaClient.filtrarTimes(filtro, meuId);
+    private void atualizarResultadosAposConvite(Long meuId) {
+        try {
+            resultados = buscaClient.filtrarTimes(filtroResultados, meuId);
+            if (primeiroResultado >= resultados.size()) primeiroResultado = 0;
+        } catch (Exception e) {
+            resultados = new ArrayList<>();
+            pesquisaRealizada = false;
+            msgWarn("A ação no convite foi concluída. Pesquise novamente para atualizar os adversários.");
+        }
     }
 
     private void aplicarLimiteRaioBasicoNaTela() {

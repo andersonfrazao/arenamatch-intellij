@@ -30,6 +30,10 @@ public class PartidaMensagemService {
         );
     }
 
+    public void excluirMensagensDaPartida(Long idPartida) {
+        mensagemChatRepository.deleteByPartidaId(idPartida);
+    }
+
     public void criarMensagemCancelamento(Partida partida, Time solicitante, String motivo) {
         String dataDoJogo = formatarData(partida);
         String texto = "Solicitacao de cancelamento do jogo do dia " + dataDoJogo + ". Motivo: " + motivo;

@@ -17,6 +17,7 @@ import br.com.arenamatch.entity.Usuario;
 import br.com.arenamatch.enums.PlanoAssinatura;
 import br.com.arenamatch.enums.Modalidade;
 import br.com.arenamatch.enums.StatusUsuario;
+import br.com.arenamatch.enums.StatusPartida;
 import br.com.arenamatch.repository.PartidaRepository;
 import br.com.arenamatch.repository.TimeRepository;
 import java.time.DayOfWeek;
@@ -66,12 +67,13 @@ class DesafioPartidaServiceTest {
 
         Partida partida = new Partida(); partida.setModalidade(Modalidade.FUTEBOL_CAMPO);
         partida.setId(30L);
+        partida.setStatus(StatusPartida.PENDENTE);
         partida.setMandante(mandante);
         partida.setVisitante(visitante);
         partida.setDataHora(LocalDateTime.of(2026, 8, 30, 20, 0));
 
         RuntimeException pendencia = new RuntimeException("Voce precisa informar o placar.");
-        when(partidaRepository.findById(30L)).thenReturn(Optional.of(partida));
+        when(partidaRepository.buscarParaAtualizacao(30L)).thenReturn(Optional.of(partida));
         org.mockito.Mockito.doThrow(pendencia)
                 .when(placarPendenteService).validarSemPlacarPendente(10L);
 
@@ -216,8 +218,40 @@ class DesafioPartidaServiceTest {
         Partida p = new Partida(); p.setId(9L); p.setModalidade(Modalidade.FUTSAL);
         p.setMandante(criarTimeBasicoAtivo(1L, "Sábado", true));
         p.setVisitante(criarTimeBasicoAtivo(2L, "Sábado", false));
-        when(partidaRepository.findById(9L)).thenReturn(Optional.of(p));
+        p.setStatus(StatusPartida.PENDENTE);
+        when(partidaRepository.buscarParaAtualizacao(9L)).thenReturn(Optional.of(p));
         assertThrows(RuntimeException.class, () -> service.aceitarDesafio(9L));
         verify(partidaRepository, never()).save(any(Partida.class));
+    }
+
+    @Test
+    void excluiMensagensAntesDeRemoverConvitePendente() {
+        Partida partida = new Partida();
+        partida.setStatus(StatusPartida.PENDENTE);
+        when(partidaRepository.buscarParaAtualizacao(91L)).thenReturn(Optional.of(partida));
+        service.excluirConvitePendente(91L);
+        var ordem = org.mockito.Mockito.inOrder(partidaMensagemService, partidaRepository);
+        ordem.verify(partidaMensagemService).excluirMensagensDaPartida(91L);
+        ordem.verify(partidaRepository).deleteById(91L);
+    }
+
+    @Test
+    void rejeitaExclusaoDeJogoQueJaFoiConfirmado() {
+        Partida partida = new Partida();
+        partida.setStatus(StatusPartida.AGENDADO);
+        when(partidaRepository.buscarParaAtualizacao(91L)).thenReturn(Optional.of(partida));
+        assertThrows(RuntimeException.class, () -> service.excluirConvitePendente(91L));
+        verifyNoInteractions(partidaMensagemService);
+        verify(partidaRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void rejeitaAceiteDeConviteQueJaFoiRespondido() {
+        Partida partida = new Partida();
+        partida.setStatus(StatusPartida.CANCELADO);
+        when(partidaRepository.buscarParaAtualizacao(91L)).thenReturn(Optional.of(partida));
+        assertThrows(RuntimeException.class, () -> service.aceitarDesafio(91L));
+        verifyNoInteractions(placarPendenteService);
+        verify(partidaRepository, never()).save(any());
     }
 }
