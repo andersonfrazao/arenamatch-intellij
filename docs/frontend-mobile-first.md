@@ -149,6 +149,27 @@ Assistente de três etapas (ARENA-91):
 - **Mensagens:** a página mantém o `p:growl`. Como as ações acontecem dentro de cartões da lista, o growl fixo no topo continua visível em qualquer ponto da rolagem. O estado do convite também aparece no próprio cartão.
 - **`busca.xhtml`:** entrada legada sem link no sistema, com filtros antigos e um "Desafiar" sem ação. Passou a redirecionar para `busca-time.xhtml` (`f:viewAction`).
 
+## 5.5 Agenda (`css/agenda.css`, `js/agenda.js`)
+
+`minha-agenda.xhtml` (ARENA-93):
+
+- **Calendário:** 15 dias em 5 colunas x 3 linhas, em qualquer largura.
+  - **Container query:** o calendário usa `container: agenda-calendario / inline-size`. Os rótulos dos dias (Jogo, Pendente, Placar...) aparecem quando o próprio calendário tem pelo menos 30rem.
+  - **Abaixo disso:** no celular e na coluna estreita do desktop ficam as marcas coloridas. Os rótulos continuam no HTML, visualmente ocultos, para leitores de tela.
+  - **Dia selecionado:** anel branco, distinto das cores de estado, e `aria-current`.
+- **Desktop ≥1200px:** calendário fixo (`sticky`) à esquerda e detalhes do dia à direita.
+- **Eventos:** cartão com status, título ou confronto, chips, `dl` de dados (horário, local, distância, taxa), recado e ações. A cor do estado fica na borda e no rótulo, via variáveis `--agenda-tom*`.
+- **Placar:**
+  - A entrada de gols serve tanto ao placar pendente quanto à disputa, com `p:outputLabel` ligado a cada campo.
+  - O envio usa `process="@this placarEntrada"`. Os campos de todos os jogos do dia gravam na mesma propriedade do bean, e com `@form` um jogo vazio sobrescrevia os gols informados em outro.
+- **Mensagens:** só o growl global (`:globalForm:msgs`). Várias ações atualizam `painelNotificacoesGlobais`, que envolve a página, e o growl próprio da página mostrava as mensagens em dobro.
+  - Erros da carga inicial aparecem num `p:messages` renderizado apenas fora de postback.
+- **Foco:** `agenda.js` devolve o foco ao mesmo elemento após cada AJAX. Se o elemento sumiu, ele vai para o dia selecionado ou para o título dos detalhes.
+  - O painel "Todos meus jogos" é um `button` com `aria-expanded` e fecha com Esc.
+- **Flyer:** os botões ficam no rodapé do diálogo, sempre visíveis, e a prévia (4:5) limita a altura à viewport.
+  - "Compartilhar" aparece só quando `navigator.canShare({files})` aceita a imagem.
+  - Ao fechar, o foco volta a "Gerar flyer".
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).

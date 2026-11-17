@@ -1,0 +1,891 @@
+/* =====================================================================
+   Minha agenda (ARENA-93): minha-agenda.xhtml
+   Prefixo agenda-. Mobile first; amplia em 576, 992 e 1200px.
+   O calendário usa container query: os rótulos dos dias aparecem quando o
+   PRÓPRIO calendário tem largura (no celular e na coluna estreita do desktop
+   ficam só as marcas coloridas, e os rótulos seguem para leitores de tela).
+   ===================================================================== */
+
+.agenda {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+.agenda-avisos:empty { display: none; }
+
+/* --- Cores dos estados (calendário, legenda e eventos) --- */
+.agenda {
+    --agenda-jogo: var(--am-agenda-game);
+    --agenda-realizado: var(--am-agenda-played);
+    --agenda-placar: var(--am-agenda-score-pending);
+    --agenda-convite: var(--am-agenda-invite);
+    --agenda-cancelado: var(--am-agenda-cancelled);
+    --agenda-confirmado: var(--am-agenda-score-confirmed);
+    --agenda-liga: var(--am-color-liga);
+    --agenda-liga-recusada: var(--am-color-liga-recusada);
+}
+
+/* =====================================================================
+   Todos meus jogos
+   ===================================================================== */
+.agenda-barra {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.agenda-todos-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--am-space-2);
+    width: 100%;
+    min-height: var(--am-touch-target);
+    padding: 0 var(--am-space-4);
+    border: 1px solid var(--am-color-accent-border);
+    border-radius: var(--am-radius-sm);
+    background: var(--am-color-accent-bg);
+    color: #bae6fd;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background var(--am-transition), border-color var(--am-transition);
+}
+
+.agenda-todos-btn:hover {
+    border-color: var(--am-color-accent-soft);
+    background: rgba(14, 165, 233, 0.24);
+}
+
+.agenda-todos-qtd {
+    min-width: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: var(--am-radius-pill);
+    background: var(--am-color-accent);
+    color: #fff;
+    font-size: var(--am-font-size-xs);
+    line-height: 1.5rem;
+}
+
+.agenda-todos-seta { transition: transform var(--am-transition); }
+.agenda-todos-btn[aria-expanded="true"] .agenda-todos-seta { transform: rotate(180deg); }
+
+.agenda-todos { --am-card-padding: var(--am-space-4); }
+.agenda-todos[hidden] { display: none; }
+
+.agenda-secao-titulo {
+    margin: 0 0 var(--am-space-3);
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+}
+
+.agenda-secao-titulo > i { color: var(--am-color-accent-soft); }
+
+.agenda-secao-titulo--liga {
+    margin-top: var(--am-space-5);
+    padding-top: var(--am-space-4);
+    border-top: 1px dashed var(--am-color-border);
+}
+
+.agenda-secao-titulo--liga > i { color: var(--agenda-liga); }
+
+.agenda-jogos {
+    display: grid;
+    gap: var(--am-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.agenda-vazio-compacto { padding: var(--am-space-4); }
+
+/* =====================================================================
+   Confronto (lista de jogos e cartão do jogo no dia)
+   ===================================================================== */
+.agenda-confronto {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-2);
+    min-width: 0;
+    margin: 0;
+    padding: var(--am-space-3);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    border-radius: var(--am-radius-sm);
+    background: linear-gradient(145deg, rgba(8, 39, 72, 0.9), rgba(4, 25, 48, 0.9));
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.agenda-confronto--link {
+    height: 100%;
+    color: var(--am-color-text);
+    text-decoration: none;
+    transition: border-color var(--am-transition), transform var(--am-transition);
+}
+
+.agenda-confronto--link:hover {
+    border-color: var(--am-color-accent-border);
+    color: var(--am-color-text);
+}
+
+.agenda-confronto-quando {
+    display: flex;
+    justify-content: center;
+    gap: var(--am-space-2);
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.agenda-confronto-quando strong { color: var(--am-color-text-strong); }
+
+.agenda-confronto-times {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--am-space-2);
+}
+
+.agenda-confronto-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    text-align: center;
+}
+
+.agenda-escudo {
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+}
+
+.agenda-escudo--vazio {
+    display: grid;
+    place-items: center;
+    color: #bae6fd;
+    font-size: 2rem;
+    filter: none;
+}
+
+.agenda-confronto-nome {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-sm);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.agenda-confronto-vs {
+    padding-top: 0.85rem;
+    color: var(--am-color-accent-soft);
+    font-size: var(--am-font-size-lg);
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.agenda-confronto-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+}
+
+.agenda-confronto-local {
+    min-width: 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* =====================================================================
+   Calendário
+   ===================================================================== */
+.agenda-corpo {
+    display: grid;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+.agenda-calendario,
+.agenda-detalhes {
+    --am-card-padding: var(--am-space-3);
+}
+
+.agenda-calendario {
+    container: agenda-calendario / inline-size;
+}
+
+.agenda-periodo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--am-space-1) var(--am-space-2);
+}
+
+.am-ui .agenda-periodo-btn.ui-button {
+    flex: 0 0 auto;
+    color: var(--am-color-text-muted);
+}
+
+.am-ui .agenda-periodo-btn.ui-button:hover { color: var(--am-color-text-strong); }
+
+/* Ocupa a linha inteira entre as setas; a dica e o "Hoje" descem para a linha seguinte. */
+.agenda-periodo-titulo {
+    flex: 1 1 calc(100% - 2 * var(--am-touch-target) - 2 * var(--am-space-2));
+    min-width: 0;
+    margin: 0;
+    color: var(--am-color-accent-soft);
+    font-size: var(--am-font-size-lg);
+    font-weight: 900;
+    line-height: var(--am-line-height-tight);
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.agenda-periodo-dica {
+    flex: 1 1 9rem;
+    margin: 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+}
+
+.am-ui .agenda-hoje-btn.ui-button { flex: 0 0 auto; }
+
+.agenda-legenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--am-space-1) var(--am-space-4);
+    margin: var(--am-space-3) 0;
+    padding: 0;
+    list-style: none;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+}
+
+.agenda-legenda li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.agenda-marca {
+    --agenda-cor: var(--am-color-text-subtle);
+    flex-shrink: 0;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: var(--am-radius-pill);
+    background: var(--agenda-cor);
+    box-shadow: 0 0 5px var(--agenda-cor);
+}
+
+.agenda-marca--jogo { --agenda-cor: var(--agenda-jogo); }
+.agenda-marca--realizado { --agenda-cor: var(--agenda-realizado); }
+.agenda-marca--placar { --agenda-cor: var(--agenda-placar); }
+.agenda-marca--convite { --agenda-cor: var(--agenda-convite); }
+.agenda-marca--cancelado { --agenda-cor: var(--agenda-cancelado); }
+.agenda-marca--liga { --agenda-cor: var(--agenda-liga); }
+
+/* 15 dias = 5 colunas x 3 linhas em qualquer largura. */
+.agenda-dias {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.375rem;
+}
+
+.agenda-dia {
+    --agenda-dia-borda: var(--am-color-border);
+    --agenda-dia-fundo: rgba(255, 255, 255, 0.04);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    min-width: 0;
+    min-height: 4rem;
+    padding: 0.375rem 0.125rem;
+    border: 1px solid var(--agenda-dia-borda);
+    border-radius: var(--am-radius-sm);
+    background: var(--agenda-dia-fundo);
+    color: var(--am-color-text-strong);
+    text-align: center;
+    text-decoration: none;
+    transition: background var(--am-transition), border-color var(--am-transition);
+}
+
+.agenda-dia:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--am-color-text-strong);
+}
+
+.agenda-dia-semana {
+    color: var(--am-color-text-muted);
+    font-size: 0.6875rem;
+    line-height: 1.2;
+}
+
+.agenda-dia-numero {
+    font-size: 1.125rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.agenda-dia-marcas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.2rem;
+    margin-top: auto;
+    min-height: 0.5rem;
+}
+
+.agenda-dia-marcas .agenda-marca {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+/* Rótulos só para leitores de tela enquanto o calendário é estreito. */
+.agenda-dia-rotulos {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Ordem = prioridade da cor da borda (a última vence), como na versão anterior. */
+.agenda-dia.tem-jogo { --agenda-dia-borda: rgba(37, 211, 102, 0.4); --agenda-dia-fundo: rgba(37, 211, 102, 0.07); }
+.agenda-dia.tem-convite { --agenda-dia-borda: rgba(255, 204, 0, 0.45); --agenda-dia-fundo: rgba(255, 204, 0, 0.06); }
+.agenda-dia.tem-cancelado { --agenda-dia-borda: rgba(239, 68, 68, 0.5); --agenda-dia-fundo: rgba(239, 68, 68, 0.1); }
+.agenda-dia.tem-realizado { --agenda-dia-borda: rgba(59, 130, 246, 0.5); --agenda-dia-fundo: rgba(59, 130, 246, 0.09); }
+.agenda-dia.tem-placar { --agenda-dia-borda: rgba(168, 85, 247, 0.65); --agenda-dia-fundo: rgba(168, 85, 247, 0.13); }
+.agenda-dia.tem-liga { --agenda-dia-borda: var(--agenda-liga); }
+.agenda-dia.tem-liga-recusada { --agenda-dia-borda: var(--agenda-liga-recusada); }
+
+/* Selecionado: anel branco, distinto de todas as cores de estado. */
+.agenda-dia.is-selecionado {
+    box-shadow: 0 0 0 2px var(--am-color-text-strong);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.agenda-dia.is-selecionado .agenda-dia-semana { color: var(--am-color-text-strong); }
+
+.agenda-rotulo {
+    --agenda-cor: var(--am-color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 100%;
+    padding: 0.125rem 0.375rem;
+    border: 1px solid color-mix(in srgb, var(--agenda-cor) 40%, transparent);
+    border-radius: var(--am-radius-pill);
+    background: color-mix(in srgb, var(--agenda-cor) 14%, transparent);
+    color: color-mix(in srgb, var(--agenda-cor) 45%, #fff);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.agenda-rotulo--jogo { --agenda-cor: var(--agenda-jogo); }
+.agenda-rotulo--realizado { --agenda-cor: var(--agenda-realizado); }
+.agenda-rotulo--placar { --agenda-cor: var(--agenda-placar); }
+.agenda-rotulo--convite { --agenda-cor: var(--agenda-convite); }
+.agenda-rotulo--cancelado { --agenda-cor: var(--agenda-cancelado); }
+.agenda-rotulo--liga { --agenda-cor: var(--agenda-liga); }
+
+@container agenda-calendario (min-width: 30rem) {
+    .agenda-dias { gap: var(--am-space-2); }
+
+    .agenda-dia {
+        align-items: stretch;
+        min-height: 6.5rem;
+        padding: var(--am-space-2);
+        text-align: left;
+    }
+
+    .agenda-dia-semana { font-size: var(--am-font-size-xs); }
+    .agenda-dia-numero { font-size: 1.25rem; }
+    .agenda-dia-marcas { display: none; }
+
+    .agenda-dia-rotulos {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        width: auto;
+        height: auto;
+        margin: auto 0 0;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+    }
+}
+
+/* =====================================================================
+   Detalhes do dia
+   ===================================================================== */
+.agenda-detalhes-topo { margin-bottom: var(--am-space-3); }
+
+.agenda-detalhes-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-lg);
+    font-weight: 900;
+    line-height: var(--am-line-height-tight);
+}
+
+.agenda-detalhes-titulo::first-letter { text-transform: uppercase; }
+.agenda-detalhes-titulo:focus:not(:focus-visible) { outline: none; }
+
+.agenda-detalhes-sub {
+    margin: var(--am-space-1) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.agenda-vazio-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-weight: 800;
+}
+
+.agenda-eventos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* --- Evento: a cor do estado vai na borda, no fundo e no rótulo de status --- */
+.agenda-evento {
+    --agenda-tom: var(--am-color-text-muted);
+    --agenda-tom-borda: var(--am-color-border);
+    --agenda-tom-fundo: rgba(255, 255, 255, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+    min-width: 0;
+    padding: var(--am-space-3);
+    border: 1px solid var(--agenda-tom-borda);
+    border-left-width: 4px;
+    border-radius: var(--am-radius-md);
+    background: var(--agenda-tom-fundo);
+}
+
+.agenda-evento--jogo { --agenda-tom: #86efac; --agenda-tom-borda: rgba(37, 211, 102, 0.35); --agenda-tom-fundo: rgba(37, 211, 102, 0.05); }
+.agenda-evento--placar-pendente,
+.agenda-evento--placar-aguardando { --agenda-tom: #d8b4fe; --agenda-tom-borda: rgba(168, 85, 247, 0.5); --agenda-tom-fundo: rgba(168, 85, 247, 0.09); }
+.agenda-evento--placar-disputa { --agenda-tom: #fca5a5; --agenda-tom-borda: rgba(239, 68, 68, 0.5); --agenda-tom-fundo: rgba(239, 68, 68, 0.09); }
+.agenda-evento--placar-confirmado { --agenda-tom: #5eead4; --agenda-tom-borda: rgba(45, 212, 191, 0.4); --agenda-tom-fundo: rgba(45, 212, 191, 0.07); }
+.agenda-evento--convite-recebido { --agenda-tom: #fde68a; --agenda-tom-borda: rgba(255, 204, 0, 0.42); --agenda-tom-fundo: rgba(255, 204, 0, 0.06); }
+.agenda-evento--convite-enviado { --agenda-tom: #93c5fd; --agenda-tom-borda: rgba(59, 130, 246, 0.4); --agenda-tom-fundo: rgba(59, 130, 246, 0.06); }
+.agenda-evento--cancelado,
+.agenda-evento--cancelamento-recebido { --agenda-tom: #fca5a5; --agenda-tom-borda: rgba(239, 68, 68, 0.42); --agenda-tom-fundo: rgba(239, 68, 68, 0.07); }
+.agenda-evento--cancelamento-enviado { --agenda-tom: #fdba74; --agenda-tom-borda: rgba(251, 146, 60, 0.42); --agenda-tom-fundo: rgba(251, 146, 60, 0.06); }
+.agenda-evento--liga { --agenda-tom: #d8b4fe; --agenda-tom-borda: var(--am-color-liga-border); --agenda-tom-fundo: rgba(168, 85, 247, 0.08); }
+.agenda-evento--liga-recusada { --agenda-tom: #fda4af; --agenda-tom-borda: rgba(244, 63, 94, 0.42); --agenda-tom-fundo: rgba(15, 23, 42, 0.6); }
+
+.agenda-evento-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    color: var(--agenda-tom);
+    font-size: var(--am-font-size-xs);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.agenda-evento-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-lg);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.agenda-evento-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.agenda-evento-chips:not(:has(*)) { display: none; }
+
+/* Dados comparáveis: rótulo à esquerda, valor à direita */
+.agenda-dados {
+    margin: 0;
+    border-top: 1px solid var(--am-color-border);
+}
+
+.agenda-dados > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--am-space-3);
+    padding: var(--am-space-2) 0;
+    border-bottom: 1px solid var(--am-color-border);
+}
+
+.agenda-dados dt {
+    flex-shrink: 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.agenda-dados dd {
+    min-width: 0;
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.agenda-dados .agenda-dados-destaque {
+    color: var(--am-color-accent-soft);
+    font-size: var(--am-font-size-md);
+    font-weight: 900;
+}
+
+/* Endereços longos: rótulo em cima, texto alinhado à esquerda. */
+.agenda-dados > .agenda-dados-local {
+    flex-direction: column;
+    gap: var(--am-space-1);
+}
+
+.agenda-dados-local dd {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.agenda-dados-local dd span {
+    color: var(--am-color-text);
+    font-weight: 400;
+}
+
+.agenda-recado {
+    display: flex;
+    gap: var(--am-space-2);
+    margin: 0;
+    padding: var(--am-space-3);
+    border-left: 3px solid var(--agenda-tom);
+    border-radius: var(--am-radius-sm);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    font-style: italic;
+}
+
+.agenda-recado > i {
+    margin-top: 0.2em;
+    color: var(--agenda-tom);
+    opacity: 0.7;
+}
+
+.agenda-recado p {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+/* --- Placar --- */
+.agenda-placar {
+    --agenda-placar-cor: #d8b4fe;
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+    padding: var(--am-space-3);
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    border-radius: var(--am-radius-md);
+    background: rgba(168, 85, 247, 0.12);
+}
+
+.agenda-placar--disputa {
+    --agenda-placar-cor: #fca5a5;
+    border-color: var(--am-color-danger-border);
+    background: var(--am-color-danger-bg);
+}
+
+.agenda-placar--final,
+.agenda-placar--validar {
+    --agenda-placar-cor: #5eead4;
+    border-color: rgba(45, 212, 191, 0.35);
+    background: rgba(45, 212, 191, 0.09);
+}
+
+.agenda-placar-titulo {
+    margin: 0;
+    color: var(--agenda-placar-cor);
+    font-size: var(--am-font-size-sm);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.agenda-placar-texto {
+    margin: 0;
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    text-align: center;
+}
+
+.am-ui .agenda-btn-chat-disputa.ui-button { align-self: center; }
+
+.agenda-placar-campos,
+.agenda-placar-resultado {
+    display: grid;
+    gap: var(--am-space-2);
+}
+
+.agenda-placar-campos { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.agenda-placar-resultado { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+.agenda-placar-campos { align-items: end; }
+.agenda-placar-resultado { align-items: center; }
+
+.agenda-placar-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
+.agenda-placar-nome {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    max-width: 100%;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Celular: nomes lado a lado e o placar centralizado abaixo deles. */
+.agenda-placar-resultado .agenda-placar-nome:first-child { grid-column: 1; grid-row: 1; }
+.agenda-placar-resultado .agenda-placar-nome:last-child { grid-column: 2; grid-row: 1; }
+
+.agenda-placar-resultado .agenda-placar-gols {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+}
+
+.agenda-placar-x {
+    padding-bottom: 0.7rem;
+    color: var(--am-color-text-subtle);
+    font-size: var(--am-font-size-xl);
+    font-weight: 900;
+}
+
+.am-ui .agenda-placar .ui-inputnumber {
+    display: block;
+    width: 100%;
+    max-width: 5.5rem;
+}
+
+.am-ui .agenda-placar input.agenda-placar-input {
+    width: 100%;
+    height: 3.25rem;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-align: center;
+}
+
+.am-ui .agenda-btn-bloco.ui-button { width: 100%; }
+
+.agenda-placar-gols {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    padding: 0.375rem var(--am-space-3);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-sm);
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--am-color-text-subtle);
+    font-weight: 900;
+}
+
+.agenda-placar-gols strong {
+    color: var(--am-color-text-strong);
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+/* --- Pedido de cancelamento --- */
+.agenda-cancelamento {
+    --agenda-placar-cor: #fca5a5;
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-2);
+    padding: var(--am-space-3);
+    border: 1px solid var(--am-color-danger-border);
+    border-radius: var(--am-radius-md);
+    background: var(--am-color-danger-bg);
+}
+
+.agenda-cancelamento .agenda-placar-titulo { text-align: left; }
+.am-ui .agenda-cancelamento-motivo.ui-inputtextarea { width: 100%; }
+
+/* --- Ações: lado a lado quando cabem, uma por linha no celular estreito --- */
+.agenda-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--am-space-2);
+}
+
+/* Cada botão no tamanho do texto, crescendo para ocupar a linha; quando não cabe ao lado,
+   desce inteiro (o rótulo não quebra no meio da palavra). */
+.am-ui .agenda-acoes > .ui-button {
+    flex: 1 1 auto;
+    margin: 0;
+}
+
+.am-ui .agenda-acoes > .ui-button .ui-button-text {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+/* =====================================================================
+   Diálogo do flyer
+   ===================================================================== */
+.am-ui .agenda-flyer-dialog .ui-dialog-content { padding: var(--am-space-3); }
+
+.agenda-flyer-previa {
+    display: flex;
+    justify-content: center;
+    padding: var(--am-space-2);
+    border: 1px solid rgba(14, 165, 233, 0.36);
+    border-radius: var(--am-radius-md);
+    background: rgba(2, 12, 27, 0.76);
+}
+
+/* A prévia (4:5) cabe na altura disponível; os botões ficam no rodapé fixo do diálogo. */
+.agenda-flyer-imagem {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: max(8rem, calc(100vh - 17rem));
+    max-height: max(8rem, calc(100dvh - 17rem));
+    border-radius: var(--am-radius-sm);
+}
+
+.agenda-flyer-btn {
+    display: inline-flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    gap: var(--am-space-2);
+    min-height: var(--am-touch-target);
+    padding: 0 var(--am-space-4);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-sm);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--am-color-text);
+    font: inherit;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.agenda-flyer-btn[hidden] { display: none; }
+.agenda-flyer-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+.agenda-flyer-btn--baixar {
+    border-color: var(--am-color-accent-soft);
+    background: var(--am-color-accent-soft);
+    color: #082f49;
+}
+
+.agenda-flyer-btn--baixar:hover { background: #7dd3fc; }
+
+.agenda-flyer-btn--compartilhar {
+    border-color: #4ade80;
+    background: #4ade80;
+    color: #052e16;
+}
+
+.agenda-flyer-btn--compartilhar:hover { background: #86efac; }
+
+/* =====================================================================
+   Ampliação progressiva
+   ===================================================================== */
+@media (min-width: 576px) {
+    .agenda-todos-btn { width: auto; }
+
+    .agenda-jogos {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    }
+
+    .agenda-calendario,
+    .agenda-detalhes {
+        --am-card-padding: var(--am-space-4);
+    }
+
+    .agenda-evento { padding: var(--am-space-4); }
+
+    .agenda-escudo {
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+
+    .agenda-confronto-vs { padding-top: 1.1rem; }
+
+    .agenda-placar-resultado { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+    .agenda-placar-resultado .agenda-placar-nome:first-child { text-align: right; }
+    .agenda-placar-resultado .agenda-placar-nome:last-child { grid-column: 3; text-align: left; }
+    .agenda-placar-resultado .agenda-placar-gols { grid-column: 2; grid-row: 1; }
+}
+
+@media (min-width: 992px) {
+    .agenda-calendario,
+    .agenda-detalhes {
+        --am-card-padding: var(--am-space-5);
+    }
+}
+
+/* Desktop largo: calendário fixo à esquerda, detalhes do dia à direita. */
+@media (min-width: 1200px) {
+    .agenda-corpo {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+        align-items: start;
+    }
+
+    .agenda-calendario {
+        position: sticky;
+        top: calc(var(--am-topbar-height, 0px) + var(--am-space-4));
+    }
+}

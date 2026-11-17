@@ -13,6 +13,7 @@
     let flyerBlob = null;
     let flyerFile = null;
     let previewUrl = null;
+    let lastTrigger = null;
 
     function text(root, selector, fallback) {
         const element = root.querySelector(selector);
@@ -499,13 +500,14 @@
             return;
         }
 
-        const match = button.closest(".item-lista");
+        const match = button.closest(".agenda-evento");
         const data = match ? match.querySelector(".flyer-match-data") : null;
         if (!match || !data) {
             showError("Os dados da partida não foram encontrados.");
             return;
         }
 
+        lastTrigger = button;
         button.disabled = true;
         button.classList.add("ui-state-disabled");
 
@@ -641,10 +643,11 @@
                 preview.alt = "Flyer de " + homeName + " contra " + awayName;
             }
 
+            // Compartilhar só aparece onde o navegador realmente compartilha arquivos
+            // (celulares em HTTPS e alguns desktops); nos demais fica o Baixar imagem.
             const shareButton = document.getElementById("flyerShareButton");
-            const isMobileViewport = window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
             if (shareButton) {
-                shareButton.style.display = isMobileViewport ? "inline-flex" : "none";
+                shareButton.hidden = !canShareFile(flyerFile);
             }
             if (window.PF) {
                 window.PF("flyerDialog").show();
@@ -670,19 +673,34 @@
         window.setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
     }
 
+    function canShareFile(file) {
+        if (!file || typeof navigator.share !== "function") {
+            return false;
+        }
+        try {
+            return typeof navigator.canShare !== "function" || navigator.canShare({ files: [file] });
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // Ao fechar o diálogo, o foco volta ao botão "Gerar flyer" que o abriu.
+    function onDialogHide() {
+        if (lastTrigger && document.body.contains(lastTrigger)) {
+            lastTrigger.focus({ preventScroll: true });
+        }
+        lastTrigger = null;
+    }
+
     async function share() {
         if (!flyerFile) {
             return;
         }
-        if (typeof navigator.share !== "function") {
-            showError("O compartilhamento de imagens exige que a aplicação seja acessada por HTTPS no celular. Enquanto isso, use a opção Baixar PNG.");
+        if (!canShareFile(flyerFile)) {
+            showError("Este navegador não permite compartilhar a imagem. Use a opção Baixar imagem.");
             return;
         }
         try {
-            if (typeof navigator.canShare === "function" && !navigator.canShare({ files: [flyerFile] })) {
-                showError("Este navegador não permite compartilhar a imagem. Use a opção Baixar PNG.");
-                return;
-            }
             await navigator.share({
                 files: [flyerFile],
                 title: "Flyer do jogo - Arena Match",
@@ -698,6 +716,7 @@
     window.ArenaMatchFlyer = {
         gerar: generate,
         baixar: download,
-        compartilhar: share
+        compartilhar: share,
+        aoFechar: onDialogHide
     };
 })(window, document);
