@@ -8,24 +8,24 @@
 
 <h:head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"/>
     <title>Arena Match</title>
 
     <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
     <link rel="canonical" href="https://www.arenamatch.app.br/" />
     <ui:include src="/WEB-INF/template/recursos-visuais.xhtml"/>
-    <link href="#{resource['css:styles.css']}&amp;rev=75" rel="stylesheet"/>
+    <link href="#{resource['css:styles.css']}&amp;rev=76.1" rel="stylesheet"/>
 
 
 
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-    <link href="#{resource['css:layout.css']}&amp;rev=75" rel="stylesheet"/>
+    <link href="#{resource['css:layout.css']}&amp;rev=76.1" rel="stylesheet"/>
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body styleClass="am-ui">
+<h:body styleClass="am-ui #{sessaoBean.logado ? 'am-shell' : ''} #{sessaoBean.admin ? 'am-shell-admin' : ''}">
     <h:outputScript library="primefaces" name="locales/locale-pt.js" />
     <script type="text/javascript">
         //<![CDATA[
@@ -45,7 +45,7 @@
 
     <h:panelGroup layout="block" styleClass="#{sessaoBean.logado ? 'am-layout' : 'am-layout-login'}">
 
-        <h:panelGroup rendered="#{sessaoBean.logado}">
+        <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" styleClass="am-sidebar-region">
             <aside class="am-sidebar">
                 
                 <div class="am-brand">
@@ -56,7 +56,7 @@
                     </div>
                 </div>
 
-                <nav class="am-nav flex-grow-1">
+                <nav class="am-nav flex-grow-1" aria-label="Navegação principal">
                     <h:link outcome="/minha-agenda" styleClass="#{view.viewId eq '/minha-agenda.xhtml' ? 'active' : ''}">
                         <i class="far fa-calendar-alt w-2rem text-center text-lg"></i> Agenda
                     </h:link>
@@ -95,7 +95,7 @@
 
                 <div class="am-team-box">
                     <div class="flex align-items-center gap-3 mb-3">
-                        <div class="flex align-items-center justify-content-center bg-blue-900 border-circle border-1 border-blue-400" style="width: 42px; height: 42px;">
+                        <div class="am-team-icon">
                             <h:graphicImage value="#{dashboardBean.time.escudo}"
                                             rendered="#{not empty dashboardBean.time.escudo}"
                                             style="width: 42px; height: 42px; object-fit: cover; border-radius: 50%;"/>
@@ -103,9 +103,9 @@
                                 <i class="fas fa-shield-alt text-xl" style="color: #38bdf8;"></i>
                             </h:panelGroup>
                         </div>
-                        <div class="flex-grow-1 overflow-hidden">
+                        <div class="am-team-text">
                             <div class="font-bold text-white text-sm">#{sessaoBean.usuarioLogado.nome}</div>
-                            <div style="color: #38bdf8; font-size: 0.75rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <div class="am-team-name">
                                 #{dashboardBean.time.nome}
                             </div>
                             <div style="color: #cbd5e1; font-size: 0.68rem; font-weight: 800; text-transform: uppercase;">
@@ -134,8 +134,7 @@
                     </div>
                     <h:form>
                         <p:commandLink action="#{sessaoBean.logout}" ajax="false" 
-                                       styleClass="flex align-items-center justify-content-center gap-2 px-3 py-2 border-round-lg text-white no-underline font-bold transition-colors hover:bg-red-900"
-                                       style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); width: 100%;">
+                                       styleClass="am-logout">
                             <i class="fas fa-sign-out-alt"></i> Sair do App
                         </p:commandLink>
                     </h:form>
@@ -143,7 +142,7 @@
             </aside>
         </h:panelGroup>
 
-        <main class="am-main">
+        <main class="am-main" id="amMain">
             
             <h:panelGroup rendered="#{sessaoBean.logado}">
             <h:form>
@@ -155,14 +154,14 @@
                          action="#{notificacaoBean.carregarNotificacoes}"
                          update="painelNotificacoesGlobais"
                          global="false"
-                         oncomplete="abrirPainelNotificacoes();" />
+                         oncomplete="restaurarPainelNotificacoes();" />
                 <p:remoteCommand name="atualizarChatMenuAjax"
                          action="#{sessaoBean.atualizarNotificacoesChat}"
                          update="@([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" />
                 </h:form>
             </h:panelGroup>
 
-            <h:panelGroup id="painelNotificacoesGlobais" layout="block">
+            <h:panelGroup id="painelNotificacoesGlobais" layout="block" styleClass="am-global-notifications">
                 
                 <h:panelGroup rendered="#{sessaoBean.logado}" layout="block" styleClass="am-topbar">
                     <div class="flex-grow-1">
@@ -181,7 +180,7 @@
                             </div>
                             <div class="am-mobile-team-text">
                                 <div class="font-bold text-white text-sm">#{sessaoBean.usuarioLogado.nome}</div>
-                                <div class="font-bold text-xs" style="color: #38bdf8;">#{dashboardBean.time.nome}</div>
+                                <div class="am-team-name">#{dashboardBean.time.nome}</div>
                                 <div class="font-bold text-xs uppercase" style="color: #cbd5e1;">#{dashboardBean.time.mandoCampo ? 'Mandante' : 'Visitante'}</div>
                                 <div class="am-mobile-plan">
                                     <span class="am-plan-badge #{sessaoBean.planoCssClass}">
@@ -193,15 +192,15 @@
                         </div>
                     </div>
 
-                    <div class="flex align-items-center gap-2 flex-wrap">
+                    <div class="am-topbar-actions">
                         <span class="am-pill am-topbar-plan-pill">
                             <i class="fas fa-crown" style="color: #fde68a;"></i>
                             Plano: <b class="text-white" style="text-transform:uppercase;">#{sessaoBean.planoAssinaturaLabel}</b>
                             <h:panelGroup rendered="#{not sessaoBean.planoPagoAtivo}"> · #{sessaoBean.resumoPlano}</h:panelGroup>
                         </span>
                     
-                        <div class="am-pill cursor-pointer relative transition-colors hover:bg-white-alpha-10 ml-2"
-                             id="amBellBtn" title="Ver notificações">
+                        <button type="button" class="am-pill" id="amBellBtn" title="Ver notificações"
+                                aria-controls="amNotifPanel" aria-expanded="false">
                             <span class="relative inline-flex align-items-center justify-content-center" style="width: 26px; height: 26px;">
                                 <i class="far fa-bell text-white text-xl"></i>
                                 <h:panelGroup rendered="#{notificacaoBean.totalNotificacoes > 0}">
@@ -209,12 +208,11 @@
                                 </h:panelGroup>
                             </span>
                             <span class="font-bold">Notificações</span>
-                            <span style="color: rgba(255,255,255,0.62); font-size: .78rem;">Convites de jogos e placares</span>
-                        </div>
-                        <h:form styleClass="md:hidden ml-2"> 
+                            <span class="am-notif-hint">Convites de jogos e placares</span>
+                        </button>
+                        <h:form styleClass="am-mobile-logout">
                             <p:commandLink action="#{sessaoBean.logout}" ajax="false" 
-                                           styleClass="flex align-items-center justify-content-center gap-2 transition-colors hover:bg-red-900 text-white no-underline font-bold"
-                                           style="min-width: 72px; height: 44px; padding: 0 .8rem; border-radius: 16px; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.2);"
+                                           styleClass="am-logout"
                                            title="Sair do App">
                                 <i class="fas fa-sign-out-alt text-lg"></i>
                                 <span>Sair</span>
@@ -224,12 +222,15 @@
                     </div>
                 </h:panelGroup>
 
-                <div class="#{sessaoBean.logado ? 'am-content-area' : ''}">
+                <div class="am-notif-area">
                     
                     <h:panelGroup rendered="#{sessaoBean.logado}">
-                        <section class="am-notif-panel" id="amNotifPanel">
-                            <div style="font-weight:900; margin-bottom:.7rem; color: white; font-size: 1.1rem;">
-                                Notificações <span style="color: rgba(255,255,255,0.65); font-weight:600; font-size: 0.9rem;">(convites de jogos e placares)</span>
+                        <section class="am-notif-panel" id="amNotifPanel" aria-labelledby="amNotifTitle" tabindex="-1">
+                            <div class="am-notif-heading">
+                                <h2 id="amNotifTitle">Notificações</h2>
+                                <button type="button" id="amNotifClose" class="am-notif-close" aria-label="Fechar notificações">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
                             </div>
 
                             <h:panelGroup rendered="#{empty notificacaoBean.listaNotificacoes}">
@@ -296,34 +297,34 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="flex gap-2 flex-wrap mt-2 sm:mt-0 align-items-center">
+                                    <div class="am-notif-actions flex gap-2 flex-wrap align-items-center">
                                         
-                                        <h:panelGroup rendered="#{notif.tipo eq 'LIGA'}">
-                                            <p:commandButton action="#{notificacaoBean.aceitarConvite(notif)}" update="painelNotificacoesGlobais globalForm:msgs" 
+                                        <h:form rendered="#{notif.tipo eq 'LIGA'}">
+                                            <p:commandButton action="#{notificacaoBean.aceitarConvite(notif)}" update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-check" styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" title="Aceitar" />
                                                              
-                                            <p:commandButton action="#{notificacaoBean.recusarConvite(notif)}" update="painelNotificacoesGlobais globalForm:msgs" 
+                                            <p:commandButton action="#{notificacaoBean.recusarConvite(notif)}" update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-times" styleClass="ui-button-danger rounded-btn ui-button-sm shadow-2" title="Recusar" />
-                                        </h:panelGroup>
+                                        </h:form>
 
-                                        <h:panelGroup rendered="#{notif.tipo eq 'JOGO' and not notif.enviadoPorMim}">
-                                            <p:commandButton action="#{notificacaoBean.aceitarConvite(notif)}" update="painelNotificacoesGlobais globalForm:msgs" 
+                                        <h:form rendered="#{notif.tipo eq 'JOGO' and not notif.enviadoPorMim}">
+                                            <p:commandButton action="#{notificacaoBean.aceitarConvite(notif)}" update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-check" styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" title="Aceitar" />
                                                              
-                                            <p:commandButton action="#{notificacaoBean.recusarConvite(notif)}" update="painelNotificacoesGlobais globalForm:msgs" 
+                                            <p:commandButton action="#{notificacaoBean.recusarConvite(notif)}" update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-times" styleClass="ui-button-danger rounded-btn ui-button-sm shadow-2" title="Recusar" />
                                             
                                             <p:button value="Negociar" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-secondary rounded-btn ui-button-sm shadow-2">
     													<f:param name="p" value="#{notif.idReferencia}" />
 											</p:button>
-                                        </h:panelGroup>
+                                        </h:form>
 
-                                        <h:panelGroup rendered="#{notif.tipo eq 'JOGO' and notif.enviadoPorMim}">
+                                        <h:form rendered="#{notif.tipo eq 'JOGO' and notif.enviadoPorMim}">
                                             <span class="text-yellow-500 text-sm font-bold mr-3 flex align-items-center"><i class="fas fa-clock mr-1"></i> Aguardando adversário...</span>
                                             
-                                            <p:commandButton value="Cancelar" action="#{notificacaoBean.cancelarConvite(notif)}" update="painelNotificacoesGlobais globalForm:msgs" 
+                                            <p:commandButton value="Cancelar" action="#{notificacaoBean.cancelarConvite(notif)}" update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-trash" styleClass="ui-button-danger ui-button-flat rounded-btn ui-button-sm" />
-                                        </h:panelGroup>
+                                        </h:form>
 
                                         <h:panelGroup rendered="#{notif.tipo eq 'PLACAR'}">
                                             <h:form id="formConfirmacaoPlacar">
@@ -331,13 +332,13 @@
                                                     <p:commandButton value="Confirmar placar"
                                                                      action="#{notificacaoBean.confirmarResultadoPlacar(notif)}"
                                                                      process="@this"
-                                                                     update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                                     update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                                      icon="fas fa-check"
                                                                      styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" />
                                                     <p:commandButton value="Contestar placar"
                                                                      action="#{notificacaoBean.contestarResultadoPlacar(notif)}"
                                                                      process="@this"
-                                                                     update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                                     update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                                      icon="fas fa-times"
                                                                      styleClass="ui-button-danger rounded-btn ui-button-sm shadow-2" />
                                                 </div>
@@ -347,17 +348,17 @@
                                         <h:panelGroup rendered="#{notif.tipo eq 'PLACAR_PENDENTE'}">
                                             <h:form id="formPlacarPendente">
                                                 <div class="flex align-items-end gap-2 flex-wrap">
-                                                    <div class="flex flex-column gap-1">
-                                                        <span class="text-xs text-gray-400 font-bold">#{notif.nomeTimeMandante}</span>
-                                                        <p:inputNumber value="#{notif.golsMandanteInformado}"
+                                                    <div class="am-score-field flex flex-column gap-1">
+                                                        <p:outputLabel for="golsMandante" value="#{notif.nomeTimeMandante}" styleClass="text-xs text-gray-400 font-bold"/>
+                                                        <p:inputNumber id="golsMandante" value="#{notif.golsMandanteInformado}"
                                                                        decimalPlaces="0" minValue="0"
                                                                        inputStyle="width: 54px; text-align: center; font-weight: bold;"
                                                                        placeholder="0" />
                                                     </div>
                                                     <span class="font-bold text-gray-400 mb-2">X</span>
-                                                    <div class="flex flex-column gap-1">
-                                                        <span class="text-xs text-gray-400 font-bold">#{notif.nomeTimeVisitante}</span>
-                                                        <p:inputNumber value="#{notif.golsVisitanteInformado}"
+                                                    <div class="am-score-field flex flex-column gap-1">
+                                                        <p:outputLabel for="golsVisitante" value="#{notif.nomeTimeVisitante}" styleClass="text-xs text-gray-400 font-bold"/>
+                                                        <p:inputNumber id="golsVisitante" value="#{notif.golsVisitanteInformado}"
                                                                        decimalPlaces="0" minValue="0"
                                                                        inputStyle="width: 54px; text-align: center; font-weight: bold;"
                                                                        placeholder="0" />
@@ -365,7 +366,7 @@
                                                     <p:commandButton value="Salvar placar"
                                                                      action="#{notificacaoBean.informarPlacarPendente(notif)}"
                                                                      process="@form"
-                                                                     update="@([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                                     update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                                      icon="fas fa-check"
                                                                      styleClass="ui-button-success rounded-btn ui-button-sm shadow-2" />
                                                     <p:button value="Agenda" outcome="/minha-agenda.xhtml" icon="far fa-calendar-alt"
@@ -376,20 +377,20 @@
                                             </h:form>
                                         </h:panelGroup>
 
-                                        <h:panelGroup rendered="#{notif.tipo eq 'CANCELAMENTO_JOGO'}">
+                                        <h:form rendered="#{notif.tipo eq 'CANCELAMENTO_JOGO'}">
                                             <p:commandButton value="Aceitar" action="#{notificacaoBean.aceitarCancelamentoJogo(notif)}"
-                                                             update="painelNotificacoesGlobais globalForm:msgs"
+                                                             update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-check" styleClass="ui-button-danger rounded-btn ui-button-sm shadow-2" />
 
                                             <p:commandButton value="Recusar" action="#{notificacaoBean.recusarCancelamentoJogo(notif)}"
-                                                             update="painelNotificacoesGlobais globalForm:msgs"
+                                                             update="@([id$=painelNotificacoesGlobais]) @([id$=formAgenda]) :globalForm:msgs"
                                                              icon="fas fa-times" styleClass="ui-button-secondary rounded-btn ui-button-sm shadow-2" />
 
                                             <p:button value="Chat" outcome="/chat.xhtml" icon="far fa-comments"
                                                       styleClass="ui-button-secondary rounded-btn ui-button-sm shadow-2">
                                                 <f:param name="p" value="#{notif.idReferencia}" />
                                             </p:button>
-                                        </h:panelGroup>
+                                        </h:form>
 
                                     </div>
                                 </div>
@@ -397,15 +398,16 @@
                         </section>
                     </h:panelGroup>
 
-                    <ui:insert name="conteudo" />
-
                 </div>
             </h:panelGroup>
+            <div class="#{sessaoBean.logado ? 'am-content-area' : ''}">
+                <ui:insert name="conteudo" />
+            </div>
         </main>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{sessaoBean.logado}">
-		<div class="am-bottom-nav">
+		<nav class="am-bottom-nav" id="amBottomNav" aria-label="Navegação principal">
 		    <h:link outcome="/minha-agenda" styleClass="am-b-item #{view.viewId eq '/minha-agenda.xhtml' ? 'active' : ''}">
 		        <i class="far fa-calendar-alt text-xl"></i><span>Agenda</span>
 		    </h:link>
@@ -435,43 +437,9 @@
             <h:link outcome="/admin" rendered="#{sessaoBean.admin}" styleClass="am-b-item #{view.viewId eq '/admin.xhtml' ? 'active' : ''}">
                 <i class="fas fa-user-shield text-xl"></i><span>Admin</span>
             </h:link>
-		</div>
+		</nav>
         
-        <script>
-            // Lógica para abrir/fechar o painel de notificações
-            function abrirPainelNotificacoes() {
-                const notifPanel = document.getElementById("amNotifPanel");
-                if (!notifPanel) {
-                    return;
-                }
-
-                notifPanel.classList.add("open");
-                notifPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-
-            if (!window.amNotifClickBound) {
-                window.amNotifClickBound = true;
-
-                document.addEventListener("click", function(event) {
-                    const bellBtn = event.target.closest("#amBellBtn");
-                    if (!bellBtn) {
-                        return;
-                    }
-
-                    const notifPanel = document.getElementById("amNotifPanel");
-                    if (!notifPanel) {
-                        return;
-                    }
-
-                    if (notifPanel.classList.contains("open")) {
-                        notifPanel.classList.remove("open");
-                        return;
-                    }
-
-                    atualizarSininhoAoAbrirAjax();
-                });
-            }
-        </script>
+        <script src="#{resource['js:layout.js']}&amp;rev=76.1"></script>
     </h:panelGroup>
 
     <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
@@ -490,7 +458,7 @@
                 if (!meuTimeId) return; // Se não tiver logado ou sem time, nem tenta conectar
 
                 // Aponta para o endereço que você configurou no Spring Boot
-                var socket = new SockJS('/ws-arenamatch'); 
+                var socket = new SockJS('#{request.contextPath}/ws-arenamatch');
                 stompClient = Stomp.over(socket);
                 
                 // Desliga os logs irritantes no console do navegador (opcional)
@@ -508,7 +476,7 @@
                             console.log("Uma notificação em tempo real chegou!");
                             
                             // CHAMA O PRIMEFACES PARA ATUALIZAR A TELA (RemoteCommand)
-                            atualizarSininhoAjax(); 
+                            atualizarNotificacoesEmTempoReal();
                         }
 
                         if(mensagem.body === "CHEGOU_CHAT") {

@@ -33,12 +33,31 @@ class RecursosVisuaisTest {
 
             assertEquals("1", consultar(documento,
                     "count(//*[local-name()='include'][@src='/WEB-INF/template/recursos-visuais.xhtml'])"), pagina);
-            assertEquals("am-ui", consultar(documento, "string(//*[local-name()='body']/@styleClass)"), pagina);
+            assertTrue(consultar(documento, "string(//*[local-name()='body']/@styleClass)").contains("am-ui"), pagina);
             assertEquals("0", consultar(documento,
                     "count(//*[local-name()='link'][contains(@href,'primeflex@') or contains(@href,'font-awesome/')])"), pagina);
-            assertEquals("width=device-width, initial-scale=1.0", consultar(documento,
-                    "string(//*[local-name()='meta'][@name='viewport']/@content)"), pagina);
+            String viewport = consultar(documento, "string(//*[local-name()='meta'][@name='viewport']/@content)");
+            assertTrue(viewport.startsWith("width=device-width, initial-scale=1.0"), pagina);
+            assertTrue(!viewport.contains("user-scalable") && !viewport.contains("maximum-scale"), pagina);
         }
+    }
+
+    @Test
+    void atualizacaoDasNotificacoesPreservaOConteudoEmEdicao() throws Exception {
+        Document documento = lerPagina("WEB-INF/template/layout.xhtml");
+
+        assertEquals("0", consultar(documento,
+                "count(//*[@id='painelNotificacoesGlobais']//*[local-name()='insert'][@name='conteudo'])"));
+        assertEquals("1", consultar(documento,
+                "count(//*[local-name()='main']//*[local-name()='insert'][@name='conteudo'])"));
+        assertEquals("1", consultar(documento,
+                "count(//*[local-name()='button'][@id='amBellBtn'][@type='button'][@aria-controls='amNotifPanel'])"));
+        assertEquals("1", consultar(documento,
+                "count(//*[local-name()='nav'][@id='amBottomNav'][@aria-label])"));
+        assertEquals("0", consultar(documento,
+                "count(//*[local-name()='form']//*[local-name()='form'])"));
+        assertEquals("0", consultar(documento,
+                "count(//*[local-name()='commandButton'][not(ancestor::*[local-name()='form'])])"));
     }
 
     @Test
