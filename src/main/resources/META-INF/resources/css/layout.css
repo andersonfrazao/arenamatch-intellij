@@ -36,13 +36,13 @@ html {
     min-height: 100dvh;
 }
 
+/* Visitante em página do layout (hoje só o cadastro): o conteúdo começa no
+   topo, sob o cabeçalho público, e a própria página aplica o respiro e as
+   áreas seguras (ARENA-91). */
 .am-layout-login {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
     min-height: 100vh;
     min-height: 100dvh;
-    padding: var(--am-space-4) max(var(--am-gutter), var(--am-safe-left)) calc(var(--am-space-4) + var(--am-safe-bottom)) max(var(--am-gutter), var(--am-safe-right));
 }
 
 .am-main {

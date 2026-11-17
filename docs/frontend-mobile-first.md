@@ -115,6 +115,22 @@ Login, ativação e recuperação de senha (ARENA-90):
 - **Exceção registrada:** `(max-height: 520px)` compacta o topo do cartão (teclado aberto ou celular na horizontal).
 - **Campos de senha:** a área de toque de 44px do mostrar/ocultar senha (`toggleMask`) vale para todas as páginas `.am-ui` (`styles.css`).
 
+## 5.3 Cadastro e edição do time (`css/cadastro.css`, `js/cadastro.js`)
+
+Assistente de três etapas (ARENA-91):
+
+- **Estrutura:** um `am-card` com cabeçalho, corpo e rodapé. O cabeçalho traz o indicador de etapas: uma `ol` com `aria-current="step"`, cujos rótulos ficam em caixa normal no celular e em caixa alta a partir de 576px. O rodapé tem Voltar/Próximo, que dividem a largura no celular.
+- **Visitante:** vê o mesmo cabeçalho público das páginas de acesso (`cabecalho-acesso.xhtml`) e um `h1` no cartão. O `.am-layout-login` deixou de centralizar verticalmente: o conteúdo começa no topo.
+- **Usuário logado:** a página define `tituloPagina` ("Meus dados") para a barra superior.
+- **Campos:** `am-form-grid am-form-grid--2` (uma coluna no celular, duas a partir de 768px), `am-field` e rótulos `p:outputLabel` ligados por `for`.
+- **Teclado:** CPF, CEP e horários abrem o teclado numérico; o celular abre o de telefone e a taxa, o decimal. Os campos usam `autocomplete` quando há um valor padrão.
+- **Mensagens perto da ação:**
+  - Busca de CEP/GPS, upload do escudo e "Adicionar horário" exibem a resposta logo abaixo do próprio controle. Um `p:messages` local é renderizado só quando `param['jakarta.faces.source']` é o componente que disparou a ação, então a mensagem não se repete.
+  - Navegação entre etapas, finalização e desativação usam as mensagens gerais (`formCadastro:msgs`) acima do rodapé. `js/cadastro.js` rola até elas quando a etapa não muda.
+  - Quando a etapa muda, a página volta ao topo do cartão e o foco vai para o título da etapa.
+- **Horários configurados:** lista em cartões (`ul`) no lugar da tabela com reflow. A lixeira tem 44px, fica sempre visível e tem `aria-label` com dia e horário (cenário do ARENA-32).
+- **Dias da semana:** 4 colunas no celular e 7 a partir de 576px, todos com 44px.
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).
