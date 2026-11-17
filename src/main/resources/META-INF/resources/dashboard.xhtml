@@ -63,15 +63,14 @@
                             </div>
                         </div>
 
-                        <!-- Plano: barra só no período de teste (15 dias). -->
+                        <!-- Plano. Sem barra de progresso: a duração do teste é o parâmetro
+                             DIAS_TRIAL (90 por padrão, editável no admin) e não chega a esta tela. -->
                         <div class="dsh-plano">
                             <ui:fragment rendered="#{sessaoBean.planoCssClass eq 'trial'}">
                                 <div class="dsh-plano-linha">
-                                    <span id="dshTesteRotulo" class="dsh-plano-rotulo">Período de teste: #{sessaoBean.resumoPlano}</span>
+                                    <span class="dsh-plano-rotulo">Período de teste: #{sessaoBean.resumoPlano}</span>
                                     <h:link outcome="/index" fragment="planos" value="Ver planos" styleClass="dsh-link"/>
                                 </div>
-                                <progress class="dsh-progresso" max="15" aria-labelledby="dshTesteRotulo"
-                                          value="#{dashboardBean.diasRestantesTrial gt 15 ? 15 : dashboardBean.diasRestantesTrial}"></progress>
                             </ui:fragment>
                             <ui:fragment rendered="#{sessaoBean.planoCssClass ne 'trial'}">
                                 <div class="dsh-plano-linha">

@@ -478,6 +478,8 @@
         z-index: calc(var(--am-z-fixed-nav) + 1);
         height: 100vh;
         height: var(--chat-vv-altura, 100dvh);
+        /* ARENA-99: opaco em tela cheia; com 97% a página de baixo transparecia. */
+        background: var(--am-color-bg);
     }
 
     .chat--conversa .chat-cabecalho {

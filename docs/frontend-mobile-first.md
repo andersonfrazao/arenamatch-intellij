@@ -18,6 +18,7 @@ Paleta e regras gerais de UI: `CLAUDE.md` (seções "Paleta de cores" e "Regras 
 - Viewport padrão: `<meta name="viewport" content="width=device-width, initial-scale=1.0"/>`. **Não** usar `maximum-scale` nem `user-scalable=0`: o usuário precisa conseguir ampliar a tela. Os campos usam 16px, o que evita o zoom automático do iOS ao focar.
 - O layout autenticado usa `viewport-fit=cover` (ARENA-89), com as áreas seguras tratadas pelos tokens `--am-safe-*`. Uma página que adotar `viewport-fit=cover` precisa aplicar esses tokens nos elementos fixos e nas bordas.
 - O layout autenticado carrega ainda `css/layout.css` (depois de `styles.css`) e `js/layout.js`.
+- **Versão dos recursos (ARENA-99):** o Mojarra serve `h:outputStylesheet`/`h:outputScript`/`#{resource[...]}` com cache de 7 dias. `VersaoRecursoResourceHandler` (registrado em `META-INF/faces-config.xml`) acrescenta `v=<subida da aplicação>` às bibliotecas `css`, `js` e `images`, então cada implantação troca a URL. Os `<script src="...js/x.js?v=NN">` diretos continuam com a versão manual da história; os arquivos estáticos servidos pelo Spring já saem com `no-cache`.
 
 ## 2. Breakpoints
 
@@ -61,7 +62,7 @@ Toda página que consome a base declara `<h:body styleClass="am-ui">` (hoje: `la
 - **Botões** (`.ui-button`): altura mínima de 44px no toque, rótulo que quebra linha em vez de vazar, botão só com ícone com largura mínima de 44px.
 - **Campos** (`.ui-inputfield`, `.ui-selectonemenu`, `.ui-inputtextarea`): `max-width: 100%`, fonte de 16px, altura de 44px, foco em ciano e erro em vermelho. Itens das listas do selectOneMenu/autocomplete com 44px.
 - **Diálogos**: nunca mais largos que a tela (`width` do `p:dialog` continua valendo até o limite); conteúdo rola dentro do diálogo; botão fechar com 44px; rodapé com ações que quebram linha.
-- **Growl/mensagens**: growl ocupa a largura do celular e volta ao canto direito a partir de `sm`; textos longos quebram. O z-index continua com o PrimeFaces.
+- **Growl/mensagens**: growl ocupa a largura do celular e volta ao canto direito a partir de `sm`; textos longos quebram. O z-index continua com o PrimeFaces. O "x" do `p:messages closable="true"` tem 44px (ARENA-99; o tema usa 32px).
 
 Páginas ainda não migradas que não têm `.am-ui` (ex.: `ativar-conta`, `recuperar-senha`) recebem a base na própria história (ARENA-90).
 
@@ -230,8 +231,22 @@ ARENA-98. Prefixos `adm-`, `dsh-` e `sup-`; sem `<style>` nas páginas e sem gro
 - **Mensagens junto da ação:** cada ação atualiza só o próprio painel e mostra um `p:messages` filtrado pela origem (`param['jakarta.faces.source']`). Em lista (`ui:repeat`), o botão envia um `f:param` com a chave da linha, e a mensagem aparece só nela (parâmetros do admin).
 - **Admin, usuários:** uma única lista de cartões com pares rótulo/valor (`dl`). Ela substitui a tabela de 820px e a segunda lista que só aparecia abaixo de 700px. Fica em 1 coluna no celular e 2 a partir de 768px; a partir de 1200px, a edição fica ao lado (sticky). "Editar", "Buscar" e "Fechar" levam o foco ao título correspondente (`js/admin.js`). Enter na busca aciona "Buscar" (`p:defaultCommand` com `scope`).
 - **Admin, parâmetros:** um cartão por parâmetro, com rótulo associado ao valor; chave, descrição e valor ficam em linha a partir de 992px.
-- **Início:** o título vai para o cabeçalho do layout (antes havia dois `h1`). O administrador vê o atalho da administração em vez do cartão do time, e uma falha de carga mostra aviso com "Tentar novamente". As ligas em alta viram lista (antes `p:dataTable`), legível em 320px com nomes longos. A barra de progresso só aparece no período de teste e é limitada a 15 dias.
+- **Início:** o título vai para o cabeçalho do layout (antes havia dois `h1`). O administrador vê o atalho da administração em vez do cartão do time, e uma falha de carga mostra aviso com "Tentar novamente". As ligas em alta viram lista (antes `p:dataTable`), legível em 320px com nomes longos. No período de teste aparecem os dias restantes, em texto. A barra de progresso foi retirada na ARENA-99: a duração do teste é o parâmetro `DIAS_TRIAL` (90 dias por padrão) e não chega a esta tela.
 - **Fale conosco:** "Assunto" e "Mensagem" só são obrigatórios no envio. Assim, a troca de assunto (AJAX) guarda o texto já digitado; antes, o `update="@form"` o apagava. A exclusão pendente mostra aviso com "Ver confirmação"; depois de confirmada, um alerta lembra o efeito. No diálogo, o foco começa em "Cancelar" e as ações ficam empilhadas no celular.
+
+## 5.10 Homologação (ARENA-99)
+
+Homologação com a aplicação real, em todas as larguras e com fluxos de ponta a ponta. Matriz de cobertura, defeitos e achados: `docs/homologacao-mobile-first.md`. Correções feitas nesta história:
+
+- **Admin:** o "Editar" dentro do `ui:repeat` usa ids absolutos no `update` (o relativo quebrava a lista).
+- **Agenda:** o dia aberto continua aberto depois das ações.
+- **Ranking:** abre na modalidade do time.
+- **Fale conosco:** o foco volta ao assunto ao cancelar a exclusão.
+- **Busca:** sem a faixa vazia do `p:dataView`.
+- **Chat:** fundo opaco em tela cheia.
+- **Início:** sem a barra de teste de 15 dias.
+- **Cadastro:** mensagens de regra sem o status HTTP.
+- **Login:** `h1` e acentos da etapa do código de administrador.
 
 ## 6. Tabelas
 
@@ -259,3 +274,13 @@ Ao migrar uma tela (ARENA-89 a 98):
 - [ ] Estados desabilitado, erro e sucesso visíveis sem depender só de cor.
 - [ ] Mensagens Ajax (growl/messages) aparecem e não cobrem a ação focada.
 - [ ] Antes/depois registrado no Jira da história.
+
+### Lições da homologação (ARENA-99) para telas novas
+
+- [ ] **Testar na aplicação real**, com banco e backend. Uma prévia estática não pega `update`/`process` quebrado nem regra do servidor.
+- [ ] Dentro de `ui:repeat`, `p:dataView`, `p:dataTable` (NamingContainers), `update`/`process` relativos só enxergam a própria linha. Para painéis de fora, use ids absolutos (`:form:...`) ou `@form`. Um id não encontrado quebra a renderização da página inteira.
+- [ ] Foco depois de fechar um `p:dialog`: o PrimeFaces devolve o foco ao elemento anterior 100 ms após o `hide()`. Mova o foco depois disso (ex.: `setTimeout` de 150 ms). No `p:selectOneMenu`, o elemento focável é `<id>_label`.
+- [ ] Depois de uma ação AJAX, a tela continua no mesmo contexto (dia, aba, item selecionado), sem voltar ao início.
+- [ ] Mensagem de erro do backend chega ao usuário sem prefixo HTTP (`getResponseBodyAsString()`).
+- [ ] Filtros com valor padrão (modalidade, período) partem do que o time usa.
+- [ ] Nada de e-mail real em homologação: aponte `spring.mail.*` para um SMTP local.

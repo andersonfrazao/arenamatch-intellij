@@ -28,11 +28,12 @@
             <h:form id="formLogin" styleClass="acesso-form">
 
                 <div class="acesso-topo">
+                    <h1 class="am-sr-only">Entrar no Arena Match</h1>
                     <div class="acesso-logo">
                         <i class="fas fa-trophy mr-2" aria-hidden="true"></i>ARENA<span>MATCH</span>
                     </div>
                     <p class="acesso-descricao">
-                        #{loginBean.aguardandoCodigoAdmin ? 'Confirme seu acesso.' : 'Entre e encontre seu proximo desafio.'}
+                        #{loginBean.aguardandoCodigoAdmin ? 'Confirme seu acesso.' : 'Entre e encontre seu próximo desafio.'}
                     </p>
                     <div class="acesso-aviso-app">Ou acesse www.arenamatch.app.br</div>
                 </div>
@@ -74,7 +75,7 @@
 
                 <h:panelGroup id="etapaCodigoAdmin" layout="block" styleClass="acesso-form" rendered="#{loginBean.aguardandoCodigoAdmin}">
                     <p class="acesso-descricao text-center">
-                        Enviamos um codigo de 5 digitos para
+                        Enviamos um código de 5 dígitos para
                         <strong>#{loginBean.emailAdminMascarado}</strong>.
                     </p>
 
@@ -83,7 +84,7 @@
                                  mask="99999"
                                  placeholder="_ _ _ _ _"
                                  required="true"
-                                 requiredMessage="Informe o codigo enviado por e-mail."
+                                 requiredMessage="Informe o código enviado por e-mail."
                                  styleClass="acesso-codigo"
                                  pt:aria-label="Código de 5 dígitos"
                                  pt:inputmode="numeric"
@@ -96,7 +97,7 @@
                                      styleClass="acesso-cta"/>
 
                     <div class="flex justify-content-center flex-wrap column-gap-4">
-                        <p:commandLink value="Reenviar codigo"
+                        <p:commandLink value="Reenviar código"
                                        action="#{loginBean.reenviarCodigoAdmin}"
                                        process="@this"
                                        update="@form"

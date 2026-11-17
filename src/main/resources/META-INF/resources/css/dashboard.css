@@ -111,20 +111,6 @@
     font-weight: 700;
 }
 
-.dsh-progresso {
-    width: 100%;
-    height: 8px;
-    overflow: hidden;
-    border: 0;
-    border-radius: var(--am-radius-pill);
-    background: var(--am-color-surface-sunken);
-    appearance: none;
-}
-
-.dsh-progresso::-webkit-progress-bar { border-radius: var(--am-radius-pill); background: var(--am-color-surface-sunken); }
-.dsh-progresso::-webkit-progress-value { border-radius: var(--am-radius-pill); background: var(--am-color-warning); }
-.dsh-progresso::-moz-progress-bar { border-radius: var(--am-radius-pill); background: var(--am-color-warning); }
-
 /* Agenda em destaque; convites e ligas lado a lado abaixo dela quando cabem
    (em 320px ficam empilhados, sem quebrar o rótulo). */
 .dsh-time-acoes {

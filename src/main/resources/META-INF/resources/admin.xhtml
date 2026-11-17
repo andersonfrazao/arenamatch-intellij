@@ -79,7 +79,7 @@
                                                 </dl>
                                                 <p:commandButton value="Editar" icon="fas fa-pen"
                                                                  action="#{adminBean.selecionarUsuario(u)}"
-                                                                 process="@this" update="painelLista painelEdicao"
+                                                                 process="@this" update=":formAdmin:abasAdmin:painelLista :formAdmin:abasAdmin:painelEdicao"
                                                                  oncomplete="admFocar('admEdicaoTitulo')"
                                                                  pt:aria-label="Editar #{u.nome}"
                                                                  styleClass="ui-button-secondary"/>

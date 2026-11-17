@@ -80,7 +80,7 @@ public class CadastroBean implements Serializable {
             try {
                 cadastroClient.validarResponsavel(dto, confirmarSenha, !sessaoBean.isLogado());
             } catch (RuntimeException e) {
-                msgErro(e.getMessage());
+                msgErro(mensagemDoErro(e));
                 return "responsavel";
             }
         }
@@ -89,7 +89,7 @@ public class CadastroBean implements Serializable {
             try {
                 cadastroClient.validarTime(dto);
             } catch (RuntimeException e) {
-                msgErro(e.getMessage());
+                msgErro(mensagemDoErro(e));
                 PrimeFaces.current().executeScript("setTimeout(focarLunetaCep, 150);");
                 return "time";
             }
@@ -108,7 +108,7 @@ public class CadastroBean implements Serializable {
             this.tempFim = "";
             this.tempCategoria = null;
         } catch (RuntimeException e) {
-            msgErro(e.getMessage());
+            msgErro(mensagemDoErro(e));
         }
     }
 
@@ -130,7 +130,7 @@ public class CadastroBean implements Serializable {
             dto.setEscudo(escudo);
             msgInfo("Escudo enviado com sucesso.");
         } catch (RuntimeException e) {
-            msgErro(e.getMessage());
+            msgErro(mensagemDoErro(e));
         }
     }
 
@@ -257,6 +257,18 @@ public class CadastroBean implements Serializable {
         dto.setCidade(endereco.getLocalidade());
         dto.setUf(endereco.getUf());
         dto.setRegiao(endereco.getRegiao());
+    }
+
+    // ARENA-99: o backend responde a regra violada em texto puro; getMessage() do RestClient
+    // mostrava "400 Bad Request: ..." na tela. Usa o corpo da resposta quando houver.
+    static String mensagemDoErro(RuntimeException e) {
+        if (e instanceof org.springframework.web.client.RestClientResponseException resposta) {
+            String corpo = resposta.getResponseBodyAsString();
+            if (corpo != null && !corpo.isBlank()) {
+                return corpo.trim();
+            }
+        }
+        return e.getMessage();
     }
 
     private void msgErro(String msg) {

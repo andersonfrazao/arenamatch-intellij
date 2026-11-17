@@ -108,7 +108,7 @@
                         <p:commandButton id="botaoCancelarExclusao" value="Cancelar"
                                          action="#{faleConoscoBean.cancelarExclusao}"
                                          process="@this" update="assunto painelCorpo"
-                                         oncomplete="PF('dialogExclusaoConta').hide(); supFocar('formContato:assunto_focus');"
+                                         oncomplete="PF('dialogExclusaoConta').hide(); supFocar('formContato:assunto_label');"
                                          styleClass="ui-button-secondary font-bold"/>
                         <p:commandButton value="Confirmar" icon="fas fa-check"
                                          action="#{faleConoscoBean.confirmarExclusao}"
@@ -121,9 +121,13 @@
         </h:form>
         <script>
             //<![CDATA[
+            // Ao fechar, o p:dialog devolve o foco ao elemento de antes (tarefa de 100 ms);
+            // esperar um pouco mais garante que o foco fique no destino escolhido aqui.
             window.supFocar = window.supFocar || function (id) {
-                var alvo = document.getElementById(id);
-                if (alvo) alvo.focus();
+                setTimeout(function () {
+                    var alvo = document.getElementById(id);
+                    if (alvo) alvo.focus();
+                }, 150);
             };
             //]]>
         </script>

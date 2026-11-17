@@ -289,6 +289,15 @@ summary,
     overflow-wrap: anywhere;
 }
 
+/* ARENA-99: o "x" das mensagens fecháveis vinha com 32px no tema; alvo de toque mínimo. */
+.am-ui .ui-messages .ui-messages-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--am-touch-target);
+    min-height: var(--am-touch-target);
+}
+
 @media (min-width: 576px) {
     .am-ui .ui-growl {
         left: auto;

@@ -156,6 +156,10 @@
     background: transparent;
 }
 
+/* ARENA-99: sem alternância de layout, o PrimeFaces ainda renderiza o
+   cabeçalho do dataView vazio (faixa escura de 35px acima dos cartões). */
+.am-ui .busca-resultados.ui-dataview > .ui-dataview-header { display: none; }
+
 /* O dataView usa o grid ui-g (ui-g-12 ui-md-4). A grade passa a ser CSS
    grid: uma coluna no celular e tantas colunas de ~20rem quanto couberem. */
 .am-ui .busca-resultados .ui-dataview-grid > div {

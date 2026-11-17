@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.arenamatch.jsf.client.AgendaClient;
 import br.com.arenamatch.jsf.client.TimeClient;
 import br.com.arenamatch.dto.JogoRealizadoDTO;
 import br.com.arenamatch.dto.TimeDTO;
@@ -30,6 +31,7 @@ public class RankingBean implements Serializable {
     }
     @Inject private TimeClient timeClient;
     @Inject private SessaoBean sessaoBean;
+    @Inject private AgendaClient agendaClient;
     @Getter private List<TimeDTO> ranking;
     @Getter private TimeDTO scout;
     @Getter private List<JogoRealizadoDTO> jogosRealizados = new ArrayList<>();
@@ -42,9 +44,27 @@ public class RankingBean implements Serializable {
     @PostConstruct
     public void init() {
         if (sessaoBean.isAcessoCompleto()) {
+            definirModalidadeDoTime();
             carregarRanking();
         } else {
             this.ranking = List.of();
+        }
+    }
+
+    // ARENA-99: abre na modalidade do time. Com o padrão fixo (Futebol de Campo), um time só de
+    // Society via ranking vazio e scout zerado mesmo depois de jogos confirmados.
+    private void definirModalidadeDoTime() {
+        if (!sessaoBean.isPossuiTime()) {
+            return;
+        }
+        try {
+            var meuTime = agendaClient.buscarMeuTime(sessaoBean.getUsuarioLogado().getId());
+            if (meuTime != null && meuTime.getModalidades() != null && !meuTime.getModalidades().isEmpty()
+                    && !meuTime.getModalidades().contains(modalidade)) {
+                modalidade = meuTime.getModalidades().get(0);
+            }
+        } catch (Exception e) {
+            // Sem o time, mantém a modalidade padrão; o ranking continua utilizável.
         }
     }
 

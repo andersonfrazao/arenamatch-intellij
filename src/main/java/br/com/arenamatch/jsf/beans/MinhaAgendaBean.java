@@ -156,8 +156,14 @@ public class MinhaAgendaBean implements Serializable {
                     .toList();
             }
 
+            // ARENA-99: após uma ação (placar, aceite, cancelamento) o dia aberto continua
+            // aberto; só volta ao primeiro dia quando ele saiu do período exibido.
             if (!diasCalendario.isEmpty()) {
-                selecionarDia(diasCalendario.get(0));
+                LocalDate dataAberta = diaSelecionado != null ? diaSelecionado.getData() : null;
+                selecionarDia(diasCalendario.stream()
+                        .filter(dia -> dia.getData() != null && dia.getData().equals(dataAberta))
+                        .findFirst()
+                        .orElse(diasCalendario.get(0)));
             }
             carregarTodosMeusJogos();
         } catch (Exception e) {
