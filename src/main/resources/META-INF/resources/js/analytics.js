@@ -160,6 +160,7 @@
         function choose(choice) {
             saveChoice(choice);
             applyChoice(choice);
+            preferences.focus();
         }
 
         accept.addEventListener('click', function () { choose('granted'); });

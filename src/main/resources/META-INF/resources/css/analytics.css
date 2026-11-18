@@ -13,4 +13,8 @@
 .am-analytics-preferences:hover{background:transparent;color:#fff}
 .am-analytics-footer{padding:16px;text-align:center;background:#090f1b;border-top:1px solid #25364c}
 .site-footer nav{align-items:center}
-@media(max-width:480px){.am-analytics-banner{padding:16px}.am-analytics-actions button{flex:1;padding:10px}.am-analytics-banner p{font-size:13px}.am-analytics-actions a{flex-basis:100%}}
+
+.am-analytics-banner { left: max(.75rem, env(safe-area-inset-left)); right: max(.75rem, env(safe-area-inset-right)); bottom: max(.75rem, env(safe-area-inset-bottom)); width: auto; max-height: calc(100dvh - max(.75rem, env(safe-area-inset-top)) - max(.75rem, env(safe-area-inset-bottom))); padding: 1rem; overflow-wrap: anywhere; overscroll-behavior: contain; }
+.am-analytics-actions { flex-direction: column; align-items: stretch; }
+.am-analytics-actions button, .am-analytics-actions a { min-height: 44px; display: flex; align-items: center; justify-content: center; white-space: normal; }
+@media (min-width: 36rem) { .am-analytics-banner { left: auto; width: min(35rem, calc(100vw - 2rem)); padding: 1.25rem; } .am-analytics-actions { flex-direction: row; } }

@@ -1,0 +1,79 @@
+[
+  {
+    "anchorTop": 93.453125,
+    "focus": "planos",
+    "headerBottom": 77,
+    "page": "/index.xhtml",
+    "small": [
+      {
+        "h": 44
+      },
+      {
+        "h": 44
+      }
+    ],
+    "width": 320
+  },
+  {
+    "links": [
+      {
+        "height": 44,
+        "text": "Criar sua conta"
+      },
+      {
+        "height": 44,
+        "text": "Cadastrar seu time"
+      },
+      {
+        "height": 44,
+        "text": "Modalidades e horários"
+      },
+      {
+        "height": 44,
+        "text": "Encontrar adversários"
+      },
+      {
+        "height": 44,
+        "text": "Enviar um convite"
+      },
+      {
+        "height": 44,
+        "text": "ARENA MATCH"
+      }
+    ],
+    "page": "/como-funciona.xhtml",
+    "scroll": 977,
+    "width": 992
+  },
+  {
+    "links": [
+      {
+        "height": 44,
+        "text": "Criar sua conta"
+      },
+      {
+        "height": 44,
+        "text": "Cadastrar seu time"
+      },
+      {
+        "height": 44,
+        "text": "Modalidades e horários"
+      },
+      {
+        "height": 44,
+        "text": "Encontrar adversários"
+      },
+      {
+        "height": 44,
+        "text": "Enviar um convite"
+      },
+      {
+        "height": 44,
+        "text": "ARENA MATCH"
+      }
+    ],
+    "page": "/como-funciona.xhtml",
+    "scroll": 1425,
+    "width": 1440
+  }
+]

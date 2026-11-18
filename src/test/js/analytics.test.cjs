@@ -246,3 +246,14 @@ test('erro ao carregar Google permite nova tentativa sem duplicar configuracao',
     assert.equal(page.requests.length, 2);
     assert.equal(page.configs().length, 1);
 });
+
+
+test('escolher consentimento devolve foco ao controle de preferencias visivel', () => {
+    for (const choice of ['accept', 'reject']) {
+        const page = browser();
+        page.element('am-analytics-' + choice).click();
+        const preferences = page.element('am-analytics-preferences');
+        assert.equal(preferences.hidden, false);
+        assert.equal(preferences.focused, true);
+    }
+});
