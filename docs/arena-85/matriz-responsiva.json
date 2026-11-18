@@ -1,0 +1,1766 @@
+[
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 215
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 780,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 780,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 201
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 247
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 780,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 58,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 201
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 247
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 262
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 262
+      }
+    ],
+    "dialog": {
+      "bottom": 618.578125,
+      "height": 457.15625,
+      "left": 8.5,
+      "right": 296.5,
+      "top": 161.421875,
+      "width": 288,
+      "x": 8.5,
+      "y": 161.421875
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 780,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 255
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 221
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 221
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 221
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 221
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 221
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 209
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 209
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 209
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 209
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 255
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 780,
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 255
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 255
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 255
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 255
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 255
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 255
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 780,
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 287
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 780,
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "controls": [
+      {
+        "h": 58,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 287
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 302
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 302
+      }
+    ],
+    "dialog": {
+      "bottom": 605.78125,
+      "height": 431.5625,
+      "left": 8.5,
+      "right": 336.5,
+      "top": 174.21875,
+      "width": 328,
+      "x": 8.5,
+      "y": 174.21875
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 780,
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 285
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 251
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 251
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 251
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 251
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 251
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 239
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 239
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 239
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 239
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 285
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 844,
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 285
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 285
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 285
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 285
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 285
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 285
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 844,
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 271
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 317
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 844,
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "controls": [
+      {
+        "h": 58,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 271
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 317
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 332
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 332
+      }
+    ],
+    "dialog": {
+      "bottom": 623.78125,
+      "height": 403.5625,
+      "left": 8.5,
+      "right": 366.5,
+      "top": 220.21875,
+      "width": 358,
+      "x": 8.5,
+      "y": 220.21875
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 844,
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 99.640625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 613
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 613
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 613
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 613
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 613
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 269.5
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 269.5
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 269.5
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 269.5
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 315.5
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 1024,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 647
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 647
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 647
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 647
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 647
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 647
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 1024,
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 616
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 662
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 1024,
+    "scroll": 768,
+    "width": 768
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 616
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 662
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 241
+      }
+    ],
+    "dialog": {
+      "bottom": 660.1875,
+      "height": 296.375,
+      "left": 124,
+      "right": 644,
+      "top": 363.8125,
+      "width": 520,
+      "x": 124,
+      "y": 363.8125
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 1024,
+    "scroll": 768,
+    "width": 768
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 99.640625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 525
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 525
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 525
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 525
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 525
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 225.5
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 225.5
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 225.5
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 225.5
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 271.5
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 900,
+    "scroll": 977,
+    "width": 992
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 559
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 559
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 559
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 559
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 559
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 559
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 900,
+    "scroll": 977,
+    "width": 992
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 560
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 606
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 900,
+    "scroll": 992,
+    "width": 992
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 560
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 606
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 241
+      }
+    ],
+    "dialog": {
+      "bottom": 598.1875,
+      "height": 296.375,
+      "left": 236,
+      "right": 756,
+      "top": 301.8125,
+      "width": 520,
+      "x": 236,
+      "y": 301.8125
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 900,
+    "scroll": 992,
+    "width": 992
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 99.640625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 92.1875
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 92.1875
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 92.1875
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 92.1875
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 92.1875
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 241.5
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 241.5
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 241.5
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 241.5
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 287.5
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 900,
+    "scroll": 1009,
+    "width": 1024
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 900,
+    "scroll": 1009,
+    "width": 1024
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 592
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 638
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 900,
+    "scroll": 1024,
+    "width": 1024
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 592
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 638
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 241
+      }
+    ],
+    "dialog": {
+      "bottom": 598.1875,
+      "height": 296.375,
+      "left": 252,
+      "right": 772,
+      "top": 301.8125,
+      "width": 520,
+      "x": 252,
+      "y": 301.8125
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 900,
+    "scroll": 1024,
+    "width": 1024
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 99.640625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 121.140625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 121.140625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 121.140625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 121.140625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 121.140625
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 449.5
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 449.5
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 449.5
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 449.5
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 495.5
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 900,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 91.890625
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 900,
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 616
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 662
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 900,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 616
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 662
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 241
+      }
+    ],
+    "dialog": {
+      "bottom": 598.1875,
+      "height": 296.375,
+      "left": 460,
+      "right": 980,
+      "top": 301.8125,
+      "width": 520,
+      "x": 460,
+      "y": 301.8125
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 900,
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 99.640625
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 689
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 689
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 689
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 689
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 689
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 307.5
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 307.5
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 307.5
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 307.5
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 353.5
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 390,
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 723
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 723
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 723
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 723
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 723
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 723
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 390,
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 616
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 662
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 390,
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 616
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 662
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 241
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 241
+      }
+    ],
+    "dialog": {
+      "bottom": 343.1875,
+      "height": 296.375,
+      "left": 154.5,
+      "right": 674.5,
+      "top": 46.8125,
+      "width": 520,
+      "x": 154.5,
+      "y": 46.8125
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 390,
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Buscar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "Editar",
+        "w": 181
+      },
+      {
+        "h": 44,
+        "text": "F",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "P",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "N",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "E",
+        "w": 44
+      },
+      {
+        "h": 44,
+        "text": "REPRESENTANTE",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "ATIVO",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "BASICO",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "PENDENTE",
+        "w": 169
+      },
+      {
+        "h": 44,
+        "text": "Salvar usuario",
+        "w": 215
+      }
+    ],
+    "estado": "usuarios-edicao",
+    "focus": "formAdmin:abas:usuarioEdicaoPanel",
+    "height": 430,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Recarregar",
+        "w": 125.625
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      },
+      {
+        "h": 44,
+        "text": "Salvar",
+        "w": 215
+      }
+    ],
+    "estado": "parametros",
+    "focus": "formAdmin:abas:j_idt189_header",
+    "height": 430,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 44,
+        "text": "Selecione...",
+        "w": 201
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 247
+      }
+    ],
+    "dialog": {
+      "bottom": 0,
+      "height": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "estado": "suporte",
+    "focus": "",
+    "height": 430,
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "controls": [
+      {
+        "h": 58,
+        "text": "Exclusão de conta / Direito LGPD",
+        "w": 201
+      },
+      {
+        "h": 44,
+        "text": "Enviar mensagem",
+        "w": 247
+      },
+      {
+        "h": 44,
+        "text": "Cancelar",
+        "w": 262
+      },
+      {
+        "h": 44,
+        "text": "Continuar solicitação",
+        "w": 262
+      }
+    ],
+    "dialog": {
+      "bottom": 414,
+      "height": 398,
+      "left": 8.5,
+      "right": 296.5,
+      "top": 16,
+      "width": 288,
+      "x": 8.5,
+      "y": 16
+    },
+    "estado": "dialogo",
+    "focus": "formContato:assunto_label",
+    "height": 430,
+    "scroll": 305,
+    "width": 320
+  }
+]

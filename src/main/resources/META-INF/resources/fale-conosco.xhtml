@@ -1,77 +1,61 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:pt="jakarta.faces.passthrough"
                 template="/WEB-INF/template/layout.xhtml">
-
+    <ui:define name="estilosPagina"><link href="#{resource['css:administracao-suporte.css']}&amp;rev=85.2" rel="stylesheet"/></ui:define>
     <ui:define name="conteudo">
-        <h:form id="formContato">
-            <p:growl id="msgs" showDetail="true" />
-            
-            <div class="flex justify-content-center align-items-center mb-4">
-                <div class="bg-glass p-5 border-round-xl shadow-4 w-full max-w-30rem" style="border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.6);">
-                    
-                    <div class="text-center mb-4">
-                        <i class="fas fa-headset text-blue-400 text-5xl mb-3"></i>
-                        <h2 class="text-white font-bold text-2xl m-0">Fale Conosco</h2>
-                        <p class="text-gray-400 text-sm mt-2">
-                            Ola, <strong class="text-white">#{sessaoBean.usuarioLogado.nome}</strong>! Como podemos ajudar o seu time hoje?
-                        </p>
-                    </div>
-
-                    <div class="field mb-4 mt-4">
-                        <p:outputLabel for="assunto" value="Assunto" styleClass="text-white font-bold mb-2 block"/>
-                        <p:selectOneMenu id="assunto" value="#{faleConoscoBean.assunto}" required="true" requiredMessage="Selecione um assunto" styleClass="w-full custom-input">
-                            <f:selectItem itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
-                            <f:selectItem itemLabel="Duvida" itemValue="DUVIDA"/>
-                            <f:selectItem itemLabel="Sugestao de Melhoria" itemValue="SUGESTAO"/>
-                            <f:selectItem itemLabel="Reportar Erro/Bug" itemValue="ERRO"/>
-                            <f:selectItem itemLabel="Denuncia" itemValue="DENUNCIA"/>
-                            <f:selectItem itemLabel="Exclusao de conta / Direito LGPD" itemValue="EXCLUSÃO"/>
-                            <f:selectItem itemLabel="Outros" itemValue="OUTROS"/>
-                            <p:ajax listener="#{faleConoscoBean.onAssuntoChange}" update="@form" oncomplete="if (args.exibirConfirmacaoExclusao) PF('dialogExclusaoConta').show();" />
-                        </p:selectOneMenu>
-                    </div>
-
-                    <h:panelGroup id="painelFormularioContato" layout="block" rendered="#{not faleConoscoBean.aguardandoConfirmacaoExclusao}">
-                        <div class="field mb-4">
-                            <p:outputLabel for="mensagem" value="Mensagem" styleClass="text-white font-bold mb-2 block"/>
-                            <p:inputTextarea id="mensagem" value="#{faleConoscoBean.mensagem}" required="true" requiredMessage="Escreva uma mensagem"
-                                             rows="6" maxlength="500" counter="display" counterTemplate="{0} caracteres restantes." 
-                                             autoResize="false" styleClass="w-full custom-input" placeholder="Detalhe aqui a sua situacao..."/>
-                            <h:outputText id="display" styleClass="text-xs text-gray-500 mt-1 block text-right" />
-                        </div>
-
-                        <p:commandButton value="Enviar Mensagem" action="#{faleConoscoBean.enviar}" update="@form" 
-                                         icon="fas fa-paper-plane" styleClass="ui-button-warning w-full font-bold shadow-3 rounded-btn p-2 text-lg" />
-                    </h:panelGroup>
+        <h:form id="formContato" styleClass="am-suporte" pt:aria-busy="false">
+            <section class="suporte-card">
+                <h1><i class="fas fa-headset" aria-hidden="true"></i> Fale Conosco</h1>
+                <p>Olá, <strong>#{sessaoBean.usuarioLogado.nome}</strong>! Como podemos ajudar o seu time hoje?</p>
+                <p:messages id="msgs" showDetail="true" showSummary="false" closable="true" pt:tabindex="-1"/>
+                <p class="gestao-processando" role="status">Processando…</p>
+                <p class="gestao-erro" role="alert" tabindex="-1" hidden="hidden">Não foi possível atualizar os dados. Tente novamente.</p>
+                <div class="suporte-campo">
+                    <p:outputLabel for="assunto" value="Assunto"/>
+                    <p:selectOneMenu id="assunto" value="#{faleConoscoBean.assunto}" required="true" requiredMessage="Selecione um assunto">
+                        <f:selectItem itemLabel="Selecione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItem itemLabel="Dúvida" itemValue="DUVIDA"/>
+                        <f:selectItem itemLabel="Sugestão de melhoria" itemValue="SUGESTAO"/>
+                        <f:selectItem itemLabel="Reportar erro/bug" itemValue="ERRO"/>
+                        <f:selectItem itemLabel="Denúncia" itemValue="DENUNCIA"/>
+                        <f:selectItem itemLabel="Exclusão de conta / Direito LGPD" itemValue="EXCLUSÃO"/>
+                        <f:selectItem itemLabel="Outros" itemValue="OUTROS"/>
+                        <p:ajax listener="#{faleConoscoBean.onAssuntoChange}" process="@this" update="msgs"
+                                onstart="Gestao.iniciar('formContato')"
+                                oncomplete="Gestao.finalizarInteracao('formContato',''); if (args.exibirConfirmacaoExclusao) PF('dialogExclusaoConta').show();"
+                                onerror="Gestao.falhou('formContato')"/>
+                    </p:selectOneMenu>
                 </div>
-            </div>
-
-            <p:dialog header="Exclusao definitiva de conta" widgetVar="dialogExclusaoConta" modal="true" width="90%" fitViewport="true" responsive="true" style="max-width: 520px;" styleClass="bg-bluegray-900 text-white shadow-6 border-round-xl" closable="false">
-                <div class="line-height-3 text-gray-300 text-sm">
-                    A conta sera excluida em definitivo e nao sera mais possivel reativa-la. Deseja continuar com a solicitacao?
+                <div class="suporte-campo">
+                    <p:outputLabel for="mensagem" value="Mensagem"/>
+                    <p:inputTextarea id="mensagem" value="#{faleConoscoBean.mensagem}" required="true" requiredMessage="Escreva uma mensagem"
+                                     rows="6" maxlength="500" counter="display" counterTemplate="{0} caracteres restantes."
+                                     autoResize="false" pt:aria-describedby="formContato:display" placeholder="Detalhe aqui a sua situação..."/>
+                    <h:outputText id="display" styleClass="suporte-contador"/>
                 </div>
-
+                <p:commandButton id="enviar" value="Enviar mensagem" action="#{faleConoscoBean.enviar}" process="@form" update="@form"
+                                 onstart="Gestao.iniciar('formContato')" oncomplete="Gestao.concluir('formContato','msgs')"
+                                 onerror="Gestao.falhou('formContato')" icon="fas fa-paper-plane" styleClass="suporte-enviar ui-button-warning"/>
+            </section>
+            <p:dialog header="Solicitação de exclusão de conta" widgetVar="dialogExclusaoConta" modal="true" width="auto"
+                      fitViewport="true" responsive="true" draggable="false" resizable="false" closable="false"
+                      styleClass="suporte-dialogo" focus="cancelarExclusao">
+                <p>A exclusão da conta é definitiva e não permite reativação.</p>
+                <p>Para solicitar a exclusão à equipe de suporte, confirme que leu esta orientação. Depois, escreva sua mensagem e clique em Enviar mensagem.</p>
                 <f:facet name="footer">
-                    <div class="flex justify-content-end gap-2">
-                        <p:commandButton value="Cancelar"
-                                         action="#{faleConoscoBean.cancelarExclusao}"
-                                         process="@this"
-                                         update="@form"
-                                         oncomplete="PF('dialogExclusaoConta').hide();"
-                                         styleClass="ui-button-secondary font-bold rounded-btn"/>
-                        <p:commandButton value="Confirmar"
-                                         action="#{faleConoscoBean.confirmarExclusao}"
-                                         process="@this"
-                                         update="@form"
-                                         oncomplete="PF('dialogExclusaoConta').hide();"
-                                         icon="fas fa-check"
-                                         styleClass="ui-button-danger font-bold rounded-btn"/>
+                    <div class="suporte-dialogo-acoes">
+                        <p:commandButton id="cancelarExclusao" value="Cancelar" action="#{faleConoscoBean.cancelarExclusao}" process="@this" update="assunto msgs"
+                                         onstart="Gestao.iniciar('formContato')" oncomplete="PF('dialogExclusaoConta').hide(); Gestao.finalizarInteracao('formContato','assunto_label')"
+                                         onerror="Gestao.falhou('formContato')" styleClass="ui-button-secondary"/>
+                        <p:commandButton id="confirmarExclusao" value="Continuar solicitação" action="#{faleConoscoBean.confirmarExclusao}" process="@this" update="msgs"
+                                         onstart="Gestao.iniciar('formContato')" oncomplete="PF('dialogExclusaoConta').hide(); Gestao.finalizarInteracao('formContato','mensagem')"
+                                         onerror="Gestao.falhou('formContato')" styleClass="ui-button-danger"/>
                     </div>
                 </f:facet>
             </p:dialog>
         </h:form>
+        <script src="#{resource['js:acesso.js']}&amp;rev=78.1"></script>
+        <script src="#{resource['js:administracao-suporte.js']}&amp;rev=85.2" defer="defer"></script>
     </ui:define>
 </ui:composition>

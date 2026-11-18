@@ -1,0 +1,10 @@
+[
+  {
+    "path": "/api/admin/usuarios?termo=example",
+    "status": 403
+  },
+  {
+    "path": "/api/admin/parametros",
+    "status": 403
+  }
+]
