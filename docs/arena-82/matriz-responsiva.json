@@ -1,0 +1,208 @@
+[
+  {
+    "height": 780,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 305,
+    "small": [
+      {
+        "h": 37,
+        "text": "Futebol de Campo",
+        "w": 201
+      },
+      {
+        "h": 68,
+        "text": "Ranking Geral",
+        "w": 119.5
+      },
+      {
+        "h": 68,
+        "text": "Meu Scout",
+        "w": 119.5
+      }
+    ],
+    "width": 320
+  },
+  {
+    "height": 780,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "height": 780,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "height": 780,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "height": 780,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "height": 780,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 345,
+    "width": 360
+  },
+  {
+    "height": 844,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "height": 844,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "height": 844,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 375,
+    "width": 390
+  },
+  {
+    "height": 1024,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "height": 1024,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "height": 1024,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 753,
+    "width": 768
+  },
+  {
+    "height": 900,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 992,
+    "width": 992
+  },
+  {
+    "height": 900,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 977,
+    "width": 992
+  },
+  {
+    "height": 900,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 977,
+    "width": 992
+  },
+  {
+    "height": 900,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 1024,
+    "width": 1024
+  },
+  {
+    "height": 900,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 1009,
+    "width": 1024
+  },
+  {
+    "height": 900,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 1009,
+    "width": 1024
+  },
+  {
+    "height": 900,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 1440,
+    "width": 1440
+  },
+  {
+    "height": 900,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "height": 900,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 1425,
+    "width": 1440
+  },
+  {
+    "height": 390,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "height": 390,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "height": 390,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 829,
+    "width": 844
+  },
+  {
+    "height": 430,
+    "metrics": 9,
+    "page": "ranking",
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "height": 430,
+    "metrics": 7,
+    "page": "scout",
+    "scroll": 305,
+    "width": 320
+  },
+  {
+    "height": 430,
+    "metrics": 14,
+    "page": "details",
+    "scroll": 305,
+    "width": 320
+  }
+]

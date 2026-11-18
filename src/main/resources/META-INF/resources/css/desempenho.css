@@ -1,0 +1,142 @@
+@charset "UTF-8";
+
+.am-desempenho {
+    width: 100%;
+    max-width: 80rem;
+    min-width: 0;
+    margin-inline: auto;
+    overflow-wrap: anywhere;
+}
+
+.am-desempenho [hidden] { display: none !important; }
+.am-desempenho h1 { font-size: 1.5rem; margin: 0 0 1rem; line-height: 1.4; }
+.am-desempenho h2 { font-size: 1.1rem; margin: 0 0 1rem; line-height: 1.5; }
+.am-desempenho h3 { font-size: 1rem; margin: 0 0 .75rem; }
+.am-desempenho p { line-height: 1.5; }
+
+.am-desempenho .desempenho-card {
+    min-width: 0;
+    padding: .75rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--am-border);
+    border-radius: var(--am-radius-large);
+    background: rgba(15, 23, 42, .8);
+}
+
+.am-desempenho .desempenho-filtros > label,
+.am-desempenho .adversario-desafio > label {
+    display: block;
+    margin-bottom: .65rem;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+.am-desempenho .desempenho-modalidade.ui-selectonemenu { width: 100%; max-width: 26rem; }
+.am-desempenho .desempenho-modalidade .ui-selectonemenu-label { min-height: var(--am-touch); display: flex; align-items: center; white-space: normal; overflow-wrap: anywhere; }
+.am-desempenho .desempenho-abas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-top: 1rem; }
+.am-desempenho .desempenho-aba.ui-button { width: 100%; height: auto; padding: .25rem; color: var(--am-muted); background: transparent; border: 1px solid var(--am-border); }
+.am-desempenho .desempenho-aba.ativa { color: white; background: rgba(14, 165, 233, .18); border-color: var(--am-accent); }
+.am-desempenho .desempenho-aba .ui-button-text { padding: .5rem .2rem .5rem 1.5rem; white-space: normal; overflow-wrap: normal; }
+.am-desempenho .desempenho-contexto { color: #86efac; font-weight: 700; line-height: 1.5; }
+.am-desempenho .desempenho-nome { overflow-wrap: anywhere; }
+.am-desempenho .desempenho-vazio { padding: 1.25rem; text-align: center; color: #c5d1df; line-height: 1.6; }
+.am-desempenho .desempenho-vazio > i { color: #fde68a; font-size: 1.5rem; margin-bottom: 1rem; }
+.am-desempenho .desempenho-voltar { width: 100%; margin-bottom: 1rem; }
+
+.am-desempenho .desempenho-tabela { min-width: 0; overflow-x: auto; border-radius: .75rem; }
+.am-desempenho .tabela-ranking.ui-datatable-reflow table,
+.am-desempenho .tabela-ranking.ui-datatable-reflow tbody { display: block; width: 100%; min-width: 0; }
+.am-desempenho .tabela-ranking.ui-datatable-reflow thead { display: none; }
+.am-desempenho .tabela-ranking.ui-datatable-reflow .ui-datatable-data > tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .65rem .4rem;
+    padding: .75rem;
+    margin-bottom: .75rem;
+    border: 1px solid var(--am-border);
+    border-radius: .75rem;
+    background: rgba(255, 255, 255, .035);
+}
+.am-desempenho .tabela-ranking.ui-datatable-reflow .ui-datatable-data > tr > td {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    gap: .25rem;
+    width: auto;
+    min-width: 0;
+    padding: .35rem .15rem;
+    border: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    color: var(--am-text);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.am-desempenho .tabela-ranking.ui-datatable-reflow .ui-column-title { display: block !important; color: #b5c4d7; font-size: .75rem; font-weight: 400; line-height: 1.5; }
+.am-desempenho .tabela-ranking.ui-datatable-reflow td.ranking-time { grid-column: 2 / -1; align-items: start; }
+.am-desempenho .tabela-ranking.ui-datatable-reflow td.ranking-posicao { color: var(--am-accent); }
+.am-desempenho .tabela-ranking.ui-datatable-reflow td.ranking-vitorias { color: #86efac; }
+.am-desempenho .desempenho-time { font-size: .95rem; line-height: 1.5; }
+.am-desempenho .tabela-ranking.ui-datatable-reflow .ui-datatable-empty-message > td { grid-column: 1 / -1; font-weight: 400; font-size: 1rem; }
+.am-desempenho .desempenho-dica { color: #b5c4d7; font-size: .85rem; }
+
+.am-desempenho .desempenho-metricas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin: 0; }
+.am-desempenho .desempenho-metricas > div { padding: .75rem .5rem; border: 1px solid var(--am-border); border-radius: .65rem; background: rgba(255, 255, 255, .035); text-align: center; min-width: 0; }
+.am-desempenho .desempenho-metricas dt { color: #b5c4d7; font-size: .85rem; line-height: 1.5; }
+.am-desempenho .desempenho-metricas dd { color: white; margin: .4rem 0 0; font-size: 1.3rem; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.am-desempenho .desempenho-jogos { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+.am-desempenho .desempenho-jogo { min-width: 0; border: 1px solid var(--am-border); border-radius: .75rem; padding: .85rem; background: rgba(255, 255, 255, .025); }
+.am-desempenho .desempenho-data { color: #b5c4d7; font-size: .85rem; line-height: 1.5; }
+.am-desempenho .desempenho-placar { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; margin-top: .75rem; line-height: 1.5; }
+.am-desempenho .desempenho-placar strong { color: var(--am-accent); font-size: 1.25rem; }
+.am-desempenho .desempenho-acoes { display: flex; flex-direction: column; gap: .65rem; margin-top: 1rem; }
+.am-desempenho .desempenho-acoes .ui-button { width: 100%; height: auto; }
+.am-desempenho .adversario-perfil { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: center; gap: .75rem; }
+.am-desempenho .adversario-perfil h2 { margin: 0; }
+.am-desempenho .adversario-escudo,
+.am-desempenho .adversario-escudo img { width: 3.5rem; height: 3.5rem; border-radius: 50%; }
+.am-desempenho .adversario-escudo { display: grid; place-items: center; background: rgba(56, 189, 248, .1); color: var(--am-accent); font-size: 1.5rem; }
+.am-desempenho .adversario-escudo img { object-fit: cover; }
+.am-desempenho .adversario-informacoes { list-style: none; padding: 0; margin: 1rem 0 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+.am-desempenho .adversario-informacoes li { max-width: 100%; border: 1px solid var(--am-border); padding: .4rem .6rem; border-radius: .65rem; font-size: .85rem; line-height: 1.5; }
+.am-desempenho .adversario-desafio { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--am-border); }
+.am-desempenho .adversario-desafio textarea { width: 100%; font-size: 1rem; min-height: 5rem; }
+.am-desempenho .adversario-resultado { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.am-desempenho .resultado-pill { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; color: white; font-size: .85rem; font-weight: 700; }
+.am-desempenho .resultado-vitoria { background: #166534; }
+.am-desempenho .resultado-empate { background: #854d0e; }
+.am-desempenho .resultado-derrota { background: #991b1b; }
+.am-desempenho .desempenho-processando { display: none; color: #b5c4d7; }
+.am-desempenho[aria-busy='true'] .desempenho-processando { display: block; }
+.am-desempenho .desempenho-erro { padding: .75rem; border: 1px solid #fb7185; color: #fecdd3; border-radius: .65rem; }
+.am-desempenho .ui-messages > div { position: relative; }
+.am-desempenho .ui-messages .ui-messages-close { position: absolute; top: 0; right: 0; width: var(--am-touch); height: var(--am-touch); display: grid; place-items: center; }
+.am-desempenho .ui-messages ul { margin-right: 2.75rem; }
+
+@media (min-width: 36rem) {
+    .am-desempenho .desempenho-metricas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .am-desempenho .desempenho-card { padding: 1.25rem; }
+    .am-desempenho .desempenho-acoes { flex-direction: row; flex-wrap: wrap; }
+    .am-desempenho .desempenho-acoes .ui-button { width: auto; }
+    .am-desempenho .desempenho-voltar { width: auto; }
+}
+
+@media (min-width: 48rem) {
+    .am-desempenho .tabela-ranking.ui-datatable-reflow table { display: table; min-width: 40rem; table-layout: fixed; }
+    .am-desempenho .tabela-ranking.ui-datatable-reflow thead { display: table-header-group; }
+    .am-desempenho .tabela-ranking.ui-datatable-reflow tbody { display: table-row-group; }
+    .am-desempenho .tabela-ranking.ui-datatable-reflow .ui-datatable-data > tr { display: table-row; background: transparent; }
+    .am-desempenho .tabela-ranking.ui-datatable-reflow .ui-datatable-data > tr > td { display: table-cell; padding: .75rem .4rem; font-size: .95rem; text-align: center; border-bottom: 1px solid var(--am-border); }
+    .am-desempenho .tabela-ranking.ui-datatable-reflow .ui-datatable-data > tr > td.ranking-time { text-align: left; }
+    .am-desempenho .tabela-ranking.ui-datatable-reflow td .ui-column-title { display: none !important; }
+    .am-desempenho .tabela-ranking th { padding: .75rem .4rem; background: rgba(15, 23, 42, .6); color: #b5c4d7; font-size: .75rem; line-height: 1.5; white-space: normal; border: 0; }
+    .am-desempenho .tabela-ranking th.ranking-time { width: 28%; }
+    .am-desempenho .tabela-ranking th.ranking-posicao { width: 8%; }
+    .am-desempenho .desempenho-placar { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+    .am-desempenho .desempenho-placar > span:last-child { text-align: right; }
+}
+
+@media (min-width: 75rem) {
+    .am-desempenho .desempenho-metricas { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}

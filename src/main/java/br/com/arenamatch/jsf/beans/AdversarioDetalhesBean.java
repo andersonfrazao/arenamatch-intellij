@@ -79,6 +79,11 @@ public class AdversarioDetalhesBean implements Serializable {
         mensagemDesafio = "";
     }
 
+    public void recarregar() {
+        carregado = false;
+        carregar();
+    }
+
     public void cancelarDesafio() {
         preparandoDesafio = false;
         mensagemDesafio = "";

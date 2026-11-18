@@ -1,10 +1,7 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui" xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:pt="jakarta.faces.passthrough"
                 template="/WEB-INF/template/layout.xhtml">
-
     <f:metadata>
         <f:viewParam name="id" value="#{adversarioDetalhesBean.idAdversario}"/>
         <f:viewParam name="data" value="#{adversarioDetalhesBean.data}"/>
@@ -12,225 +9,113 @@
         <f:viewParam name="modalidade" value="#{adversarioDetalhesBean.modalidade}"/>
         <f:viewAction action="#{adversarioDetalhesBean.carregar}" onPostback="false"/>
     </f:metadata>
-
+    <ui:define name="estilosPagina">
+        <link href="#{resource['css:desempenho.css']}&amp;rev=82.2" rel="stylesheet"/>
+    </ui:define>
     <ui:define name="conteudo">
-        <style>
-            .adversario-page { color: rgba(255,255,255,.92); }
-            .detalhe-card {
-                background: rgba(255,255,255,.05);
-                border: 1px solid rgba(255,255,255,.09);
-                border-radius: 14px;
-            }
-            .page-heading { font-size: 1.35rem; }
-            .team-shield, .team-shield img { width: 72px; height: 72px; }
-            .team-name { font-size: 1.65rem; }
-            .section-title { font-size: 1rem; margin: 0 0 .75rem; }
-            .metric-grid {
-                display: grid;
-                grid-template-columns: repeat(6, minmax(0, 1fr));
-                gap: .45rem;
-            }
-            .metric-grid.scout { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .stat-card {
-                padding: .6rem .35rem;
-                background: rgba(15,23,42,.42);
-                border: 1px solid rgba(255,255,255,.07);
-                border-radius: 10px;
-                text-align: center;
-            }
-            .stat-value { color: white; font-size: 1.05rem; line-height: 1.1; font-weight: 900; }
-            .stat-label {
-                color: #94a3b8;
-                font-size: .62rem;
-                line-height: 1.2;
-                font-weight: 800;
-                text-transform: uppercase;
-                margin-top: .2rem;
-            }
-            .result-row { min-height: 48px; }
-            .resultado-pill {
-                width: 24px;
-                height: 24px;
-                flex: 0 0 24px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 50%;
-                color: white;
-                font-size: .72rem;
-                font-weight: 900;
-            }
-            .resultado-vitoria { background: #16a34a; }
-            .resultado-empate { background: #ca8a04; }
-            .resultado-derrota { background: #dc2626; }
-
-            @media (max-width: 640px) {
-                .adversario-page .detalhe-card { border-radius: 12px; }
-                .page-header { margin-bottom: .75rem !important; }
-                .page-heading { font-size: 1.05rem; }
-                .back-button .ui-button-text { display: none; }
-                .back-button { width: 38px !important; padding: .55rem !important; }
-                .profile-card { padding: .75rem !important; margin-bottom: .75rem !important; }
-                .profile-content {
-                    flex-direction: row !important;
-                    align-items: center !important;
-                    gap: .7rem !important;
-                }
-                .team-shield, .team-shield img {
-                    width: 54px !important;
-                    height: 54px !important;
-                    min-width: 54px !important;
-                }
-                .team-name { font-size: 1.15rem; margin-bottom: .35rem !important; text-align: left; }
-                .team-info { text-align: left !important; min-width: 0; }
-                .team-pills { justify-content: flex-start !important; gap: .3rem !important; }
-                .team-pills .am-pill { font-size: .65rem; padding: .22rem .38rem; }
-                .challenge-action { width: 100%; margin-top: .55rem; }
-                .challenge-action .ui-button { width: 100%; }
-                .compact-card { padding: .75rem !important; margin-bottom: .75rem !important; }
-                .section-title { font-size: .9rem; margin-bottom: .55rem; }
-                .metric-grid, .metric-grid.scout {
-                    grid-template-columns: repeat(3, minmax(0, 1fr));
-                    gap: .35rem;
-                }
-                .stat-card { padding: .48rem .2rem; border-radius: 8px; }
-                .stat-value { font-size: .9rem; }
-                .stat-label { font-size: .54rem; }
-                .result-row {
-                    min-height: 43px;
-                    padding-top: .4rem !important;
-                    padding-bottom: .4rem !important;
-                }
-            }
-        </style>
-
-        <h:form id="formDetalhes">
-            <p:growl id="msgs" showDetail="true" life="5000"/>
-            <div class="adversario-page">
-                <div class="page-header flex justify-content-between align-items-center gap-2 mb-3">
-                    <h1 class="page-heading text-white font-bold m-0">
-                        <i class="fas fa-shield-halved text-blue-400 mr-2"></i>Detalhes do Advers&#225;rio
-                    </h1>
-                    <p:button outcome="/busca-time" value="Voltar para busca" icon="fas fa-arrow-left"
-                              styleClass="back-button ui-button-secondary ui-button-outlined rounded-btn ui-button-sm">
-                        <f:param name="data" value="#{adversarioDetalhesBean.data}"/>
-                        <f:param name="modalidade" value="#{adversarioDetalhesBean.modalidade}"/>
-                    </p:button>
-                </div>
-
-                <h:panelGroup rendered="#{adversarioDetalhesBean.bloqueado}" layout="block"
-                              styleClass="detalhe-card p-4 text-center">
-                    <i class="fas fa-lock text-yellow-400 text-4xl mb-2"></i>
-                    <h2 class="text-white text-xl mt-0 mb-2">Detalhes dispon&#237;veis no plano PRO</h2>
-                    <p class="text-gray-300 mb-0">Assine o PRO para acessar confronto direto, scout e hist&#243;rico dos advers&#225;rios.</p>
+        <h:form id="formDetalhes" styleClass="am-desempenho am-adversario" pt:aria-busy="false">
+            <h1>Detalhes do adversário</h1>
+            <p:button outcome="/busca-time" value="Voltar para busca" icon="fas fa-arrow-left" styleClass="desempenho-voltar">
+                <f:param name="data" value="#{adversarioDetalhesBean.data}"/>
+                <f:param name="categoria" value="#{adversarioDetalhesBean.categoria}"/>
+                <f:param name="modalidade" value="#{adversarioDetalhesBean.modalidade}"/>
+            </p:button>
+            <p:messages id="msgs" showDetail="true" showSummary="false" closable="true" pt:tabindex="-1"/>
+            <p class="desempenho-processando" role="status">Processando…</p>
+            <p id="erroAtualizacao" class="desempenho-erro" role="alert" tabindex="-1" hidden="hidden">Não foi possível atualizar os dados. Tente novamente.</p>
+            <h:panelGroup id="painelAdversario" layout="block" pt:tabindex="-1">
+                <h:panelGroup rendered="#{adversarioDetalhesBean.bloqueado}" layout="block" styleClass="desempenho-card desempenho-vazio">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    <h2>Detalhes disponíveis no plano PRO</h2>
+                    <p>Assine o PRO para acessar confronto direto, scout e histórico dos adversários.</p>
                 </h:panelGroup>
-
+                <h:panelGroup rendered="#{not adversarioDetalhesBean.bloqueado and empty adversarioDetalhesBean.adversario}" layout="block" styleClass="desempenho-card desempenho-vazio">
+                    <p>Os detalhes deste adversário estão indisponíveis.</p>
+                    <p:commandButton value="Tentar novamente" action="#{adversarioDetalhesBean.recarregar}" process="@this"
+                                     update="painelAdversario msgs" onstart="Desempenho.iniciar('formDetalhes')"
+                                     oncomplete="Desempenho.concluir('formDetalhes','painelAdversario')" onerror="Desempenho.falhou('formDetalhes')"/>
+                </h:panelGroup>
                 <h:panelGroup rendered="#{not adversarioDetalhesBean.bloqueado and not empty adversarioDetalhesBean.adversario}">
-                    <section class="profile-card detalhe-card p-3 mb-3">
-                        <div class="profile-content flex flex-column md:flex-row align-items-center gap-3">
-                            <div class="team-shield border-circle bg-bluegray-800 flex align-items-center justify-content-center"
-                                 style="min-width:72px;">
-                                <h:graphicImage value="#{adversarioDetalhesBean.adversario.escudo}"
-                                                rendered="#{not empty adversarioDetalhesBean.adversario.escudo}"
-                                                style="object-fit:cover;border-radius:50%;"/>
-                                <h:panelGroup rendered="#{empty adversarioDetalhesBean.adversario.escudo}">
-                                    <i class="fas fa-shield-alt text-3xl text-gray-400"></i>
-                                </h:panelGroup>
+                    <section class="desempenho-card">
+                        <div class="adversario-perfil">
+                            <div class="adversario-escudo" aria-hidden="true">
+                                <h:graphicImage value="#{adversarioDetalhesBean.adversario.escudo}" alt="" rendered="#{not empty adversarioDetalhesBean.adversario.escudo}"/>
+                                <h:panelGroup rendered="#{empty adversarioDetalhesBean.adversario.escudo}"><i class="fas fa-shield-alt"></i></h:panelGroup>
                             </div>
-
-                            <div class="team-info flex-grow-1 text-center md:text-left">
-                                <h2 class="team-name text-white mt-0 mb-2">#{adversarioDetalhesBean.adversario.nome}</h2>
-                                <div class="team-pills flex gap-2 flex-wrap justify-content-center md:justify-content-start">
-                                    <span class="am-pill"><i class="fas fa-map-marker-alt text-blue-400"></i> #{adversarioDetalhesBean.adversario.cidade}-#{adversarioDetalhesBean.adversario.uf}</span>
-                                    <span class="am-pill">#{adversarioDetalhesBean.adversario.modalidade.descricao}</span>
-                                    <span class="am-pill"><i class="fas fa-layer-group text-purple-400"></i> #{adversarioDetalhesBean.adversario.categoria.descricao}</span>
-                                    <span class="am-pill"><i class="fas #{adversarioDetalhesBean.adversario.mandoCampo ? 'fa-home' : 'fa-bus'} text-green-400"></i> #{adversarioDetalhesBean.adversario.mandoCampo ? 'Mandante' : 'Visitante'}</span>
-                                    <span class="am-pill"><i class="fas fa-route text-yellow-400"></i> #{adversarioDetalhesBean.adversario.distanciaKm} km</span>
-                                </div>
-                            </div>
-
-                            <h:panelGroup rendered="#{adversarioDetalhesBean.podeDesafiar}" styleClass="challenge-action">
-                                <p:commandButton value="Desafiar" icon="fas fa-bolt"
-                                                 action="#{adversarioDetalhesBean.prepararDesafio}"
-                                                 update="formDetalhes:painelDesafio"
-                                                 styleClass="ui-button-warning rounded-btn font-bold ui-button-sm"/>
-                            </h:panelGroup>
+                            <h2 class="desempenho-nome">#{adversarioDetalhesBean.adversario.nome}</h2>
                         </div>
-
-                        <h:panelGroup id="painelDesafio" layout="block">
-                            <h:panelGroup rendered="#{adversarioDetalhesBean.preparandoDesafio}" layout="block"
-                                          styleClass="mt-3 p-3 bg-bluegray-900 border-round-xl">
-                                <div class="text-white font-bold text-sm mb-2">
-                                    <div class="text-cyan-300">Modalidade: #{adversarioDetalhesBean.adversario.modalidade.descricao}</div>
-                                    Desafio para <h:outputText value="#{adversarioDetalhesBean.dataJogo}">
-                                        <f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/>
-                                    </h:outputText>
-                                </div>
-                                <p:inputTextarea value="#{adversarioDetalhesBean.mensagemDesafio}" rows="2"
-                                                 placeholder="Mensagem opcional..." styleClass="w-full custom-input"/>
-                                <div class="flex gap-2 mt-2 justify-content-end">
-                                    <p:commandButton value="Cancelar" action="#{adversarioDetalhesBean.cancelarDesafio}"
-                                                     update="formDetalhes:painelDesafio"
-                                                     styleClass="ui-button-secondary ui-button-sm"/>
-                                    <p:commandButton value="Enviar desafio" icon="fas fa-paper-plane"
-                                                     action="#{adversarioDetalhesBean.enviarDesafio}"
-                                                     update="formDetalhes:painelDesafio formDetalhes:msgs"
-                                                     styleClass="ui-button-warning font-bold ui-button-sm"/>
+                        <ul class="adversario-informacoes">
+                            <li>#{adversarioDetalhesBean.adversario.cidade}–#{adversarioDetalhesBean.adversario.uf}</li>
+                            <li class="desempenho-contexto">#{adversarioDetalhesBean.adversario.modalidade.descricao}</li>
+                            <li>#{adversarioDetalhesBean.adversario.categoria.descricao}</li>
+                            <li>#{adversarioDetalhesBean.adversario.mandoCampo ? 'Mandante' : 'Visitante'}</li>
+                            <li>#{adversarioDetalhesBean.adversario.distanciaKm} km</li>
+                        </ul>
+                        <h:panelGroup rendered="#{adversarioDetalhesBean.podeDesafiar}" layout="block" styleClass="desempenho-acoes">
+                            <p:commandButton value="Desafiar" icon="fas fa-bolt" action="#{adversarioDetalhesBean.prepararDesafio}" process="@this"
+                                             update=":formDetalhes:painelDesafio :formDetalhes:msgs" onstart="Desempenho.iniciar('formDetalhes')"
+                                             oncomplete="Desempenho.concluir('formDetalhes','mensagemDesafio')" onerror="Desempenho.falhou('formDetalhes')"/>
+                        </h:panelGroup>
+                        <h:panelGroup id="painelDesafio" layout="block" pt:tabindex="-1">
+                            <h:panelGroup rendered="#{adversarioDetalhesBean.preparandoDesafio}" layout="block" styleClass="adversario-desafio">
+                                <h3>Enviar desafio</h3>
+                                <p>#{adversarioDetalhesBean.adversario.modalidade.descricao} · <h:outputText value="#{adversarioDetalhesBean.dataJogo}"><f:convertDateTime type="localDate" pattern="dd/MM/yyyy"/></h:outputText></p>
+                                <p:outputLabel for="mensagemDesafio" value="Mensagem opcional"/>
+                                <p:inputTextarea id="mensagemDesafio" value="#{adversarioDetalhesBean.mensagemDesafio}" rows="3" maxlength="500" autoResize="false"/>
+                                <div class="desempenho-acoes">
+                                    <p:commandButton value="Cancelar" action="#{adversarioDetalhesBean.cancelarDesafio}" process="@this" update=":formDetalhes:painelDesafio :formDetalhes:msgs"
+                                                     onstart="Desempenho.iniciar('formDetalhes')" oncomplete="Desempenho.concluir('formDetalhes','painelDesafio')"
+                                                     onerror="Desempenho.falhou('formDetalhes')"/>
+                                    <p:commandButton value="Enviar desafio" icon="fas fa-paper-plane" action="#{adversarioDetalhesBean.enviarDesafio}"
+                                                     process="@this mensagemDesafio" update=":formDetalhes:painelDesafio :formDetalhes:msgs"
+                                                     onstart="Desempenho.iniciar('formDetalhes')" oncomplete="Desempenho.concluir('formDetalhes','painelDesafio')"
+                                                     onerror="Desempenho.falhou('formDetalhes')"/>
                                 </div>
                             </h:panelGroup>
                         </h:panelGroup>
                     </section>
-
-                    <section class="compact-card detalhe-card p-3 mb-3">
-                        <h3 class="section-title text-white">Scout do advers&#225;rio</h3>
-                        <div class="metric-grid scout">
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.posicaoRankingTexto}</div><div class="stat-label">Ranking</div></div>
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.partidasJogadas}</div><div class="stat-label">Jogos</div></div>
-                            <div class="stat-card"><div class="stat-value text-green-400">#{adversarioDetalhesBean.adversario.vitorias}</div><div class="stat-label">Vit&#243;rias</div></div>
-                            <div class="stat-card"><div class="stat-value text-yellow-400">#{adversarioDetalhesBean.adversario.empates}</div><div class="stat-label">Empates</div></div>
-                            <div class="stat-card"><div class="stat-value text-red-400">#{adversarioDetalhesBean.adversario.derrotas}</div><div class="stat-label">Derrotas</div></div>
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.golsPro}</div><div class="stat-label">Gols pr&#243;</div></div>
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.golsContra}</div><div class="stat-label">Gols contra</div></div>
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.saldoGols}</div><div class="stat-label">Saldo</div></div>
-                        </div>
+                    <section class="desempenho-card">
+                        <h2>Scout do adversário</h2>
+                        <dl class="desempenho-metricas">
+                            <div><dt>Ranking</dt><dd>#{adversarioDetalhesBean.posicaoRankingTexto}</dd></div>
+                            <div><dt>Jogos</dt><dd>#{adversarioDetalhesBean.adversario.partidasJogadas}</dd></div>
+                            <div><dt>Vitórias</dt><dd>#{adversarioDetalhesBean.adversario.vitorias}</dd></div>
+                            <div><dt>Empates</dt><dd>#{adversarioDetalhesBean.adversario.empates}</dd></div>
+                            <div><dt>Derrotas</dt><dd>#{adversarioDetalhesBean.adversario.derrotas}</dd></div>
+                            <div><dt>Gols pró</dt><dd>#{adversarioDetalhesBean.adversario.golsPro}</dd></div>
+                            <div><dt>Gols contra</dt><dd>#{adversarioDetalhesBean.adversario.golsContra}</dd></div>
+                            <div><dt>Saldo</dt><dd>#{adversarioDetalhesBean.adversario.saldoGols}</dd></div>
+                        </dl>
                     </section>
-
-                    <section class="compact-card detalhe-card p-3 mb-3">
-                        <h3 class="section-title text-white">
-                            <i class="fas fa-arrows-left-right text-blue-400 mr-2"></i>Confronto direto
-                        </h3>
-                        <div class="metric-grid">
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.confronto.jogos}</div><div class="stat-label">Jogos</div></div>
-                            <div class="stat-card"><div class="stat-value text-green-400">#{adversarioDetalhesBean.adversario.confronto.vitorias}</div><div class="stat-label">Vit&#243;rias</div></div>
-                            <div class="stat-card"><div class="stat-value text-yellow-400">#{adversarioDetalhesBean.adversario.confronto.empates}</div><div class="stat-label">Empates</div></div>
-                            <div class="stat-card"><div class="stat-value text-red-400">#{adversarioDetalhesBean.adversario.confronto.derrotas}</div><div class="stat-label">Derrotas</div></div>
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.confronto.golsMeuTime}</div><div class="stat-label">Seus gols</div></div>
-                            <div class="stat-card"><div class="stat-value">#{adversarioDetalhesBean.adversario.confronto.golsAdversario}</div><div class="stat-label">Gols rival</div></div>
-                        </div>
+                    <section class="desempenho-card">
+                        <h2>Confronto direto</h2>
+                        <dl class="desempenho-metricas">
+                            <div><dt>Jogos</dt><dd>#{adversarioDetalhesBean.adversario.confronto.jogos}</dd></div>
+                            <div><dt>Vitórias</dt><dd>#{adversarioDetalhesBean.adversario.confronto.vitorias}</dd></div>
+                            <div><dt>Empates</dt><dd>#{adversarioDetalhesBean.adversario.confronto.empates}</dd></div>
+                            <div><dt>Derrotas</dt><dd>#{adversarioDetalhesBean.adversario.confronto.derrotas}</dd></div>
+                            <div><dt>Seus gols</dt><dd>#{adversarioDetalhesBean.adversario.confronto.golsMeuTime}</dd></div>
+                            <div><dt>Gols rival</dt><dd>#{adversarioDetalhesBean.adversario.confronto.golsAdversario}</dd></div>
+                        </dl>
                     </section>
-
-                    <section class="compact-card detalhe-card p-3">
-                        <h3 class="section-title text-white">&#218;ltimos resultados</h3>
-                        <h:panelGroup rendered="#{empty adversarioDetalhesBean.adversario.resultadosRecentes}">
-                            <div class="text-gray-400 text-sm">Nenhum resultado confirmado.</div>
-                        </h:panelGroup>
-                        <ui:repeat value="#{adversarioDetalhesBean.adversario.resultadosRecentes}" var="resultado">
-                            <div class="result-row flex align-items-center gap-2 py-2 border-bottom-1 border-white-alpha-10">
-                                <span class="resultado-pill #{adversarioDetalhesBean.resultadoCss(resultado)}">#{adversarioDetalhesBean.resultadoLabel(resultado)}</span>
-                                <div class="flex-grow-1 min-w-0">
-                                    <div class="text-white font-bold text-sm">#{resultado.nomeAdversario}</div>
-                                    <div class="text-gray-400 text-xs">
-                                        <h:outputText value="#{resultado.dataHora}">
-                                            <f:convertDateTime type="localDateTime" pattern="dd/MM/yyyy"/>
-                                        </h:outputText>
+                    <section class="desempenho-card">
+                        <h2>Últimos resultados</h2>
+                        <h:panelGroup rendered="#{empty adversarioDetalhesBean.adversario.resultadosRecentes}" layout="block" styleClass="desempenho-vazio">Nenhum resultado confirmado nesta modalidade.</h:panelGroup>
+                        <ul class="desempenho-jogos">
+                            <ui:repeat value="#{adversarioDetalhesBean.adversario.resultadosRecentes}" var="resultado">
+                                <li class="desempenho-jogo">
+                                    <div class="adversario-resultado"><span class="resultado-pill #{adversarioDetalhesBean.resultadoCss(resultado)}" role="img" aria-label="#{adversarioDetalhesBean.resultadoLabel(resultado) eq 'V' ? 'Vitória' : (adversarioDetalhesBean.resultadoLabel(resultado) eq 'E' ? 'Empate' : 'Derrota')}">#{adversarioDetalhesBean.resultadoLabel(resultado)}</span>
+                                        <span class="desempenho-data"><h:outputText value="#{resultado.dataHora}"><f:convertDateTime type="localDateTime" pattern="dd/MM/yyyy HH:mm"/></h:outputText></span>
                                     </div>
-                                </div>
-                                <span class="text-white font-bold text-sm">#{resultado.golsMeuTime} x #{resultado.golsAdversario}</span>
-                            </div>
-                        </ui:repeat>
+                                    <div class="desempenho-placar"><span>#{resultado.nomeMeuTime}</span><strong>#{resultado.golsMeuTime} × #{resultado.golsAdversario}</strong><span>#{resultado.nomeAdversario}</span></div>
+                                </li>
+                            </ui:repeat>
+                        </ul>
                     </section>
                 </h:panelGroup>
-            </div>
+            </h:panelGroup>
         </h:form>
+        <script src="#{resource['js:acesso.js']}&amp;rev=78.1"></script>
+        <script src="#{resource['js:desempenho.js']}&amp;rev=82.2" defer="defer"></script>
     </ui:define>
 </ui:composition>

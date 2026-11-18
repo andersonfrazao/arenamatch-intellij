@@ -1,0 +1,68 @@
+[
+  {
+    "plan": "TRIAL",
+    "modality": "FUTEBOL_CAMPO",
+    "teams": 3,
+    "games": 12,
+    "goals": 28
+  },
+  {
+    "plan": "TRIAL",
+    "modality": "FUTSAL",
+    "teams": 2,
+    "games": 3,
+    "goals": 6
+  },
+  {
+    "plan": "BASICO",
+    "modality": "FUTEBOL_CAMPO",
+    "status": 403
+  },
+  {
+    "plan": "BASICO",
+    "modality": "FUTSAL",
+    "status": 403
+  },
+  {
+    "plan": "PRO",
+    "modality": "FUTEBOL_CAMPO",
+    "teams": 3,
+    "games": 6,
+    "goals": 8
+  },
+  {
+    "plan": "PRO",
+    "modality": "FUTSAL",
+    "teams": 2,
+    "games": 0,
+    "goals": 0
+  },
+  {
+    "plan": "PREMIUM",
+    "modality": "FUTEBOL_CAMPO",
+    "teams": 3,
+    "games": 0,
+    "goals": 0
+  },
+  {
+    "plan": "PREMIUM",
+    "modality": "FUTSAL",
+    "teams": 2,
+    "games": 0,
+    "goals": 0
+  },
+  {
+    "plan": "ADMIN",
+    "modality": "FUTEBOL_CAMPO",
+    "teams": 3,
+    "games": 0,
+    "goals": 0
+  },
+  {
+    "plan": "ADMIN",
+    "modality": "FUTSAL",
+    "teams": 2,
+    "games": 0,
+    "goals": 0
+  }
+]

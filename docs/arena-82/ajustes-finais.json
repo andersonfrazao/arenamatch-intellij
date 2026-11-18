@@ -1,0 +1,19 @@
+{
+  "mobile": {
+    "buttons": [
+      {
+        "height": 68,
+        "text": "Ranking Geral",
+        "width": 127
+      },
+      {
+        "height": 68,
+        "text": "Meu Scout",
+        "width": 127
+      }
+    ],
+    "page": 320,
+    "selector": 44,
+    "width": 320
+  }
+}
