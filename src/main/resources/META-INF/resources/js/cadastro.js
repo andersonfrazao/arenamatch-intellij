@@ -7,7 +7,8 @@
     'use strict';
 
     var ID_CABECALHO = 'formCadastro:wizardHeader';
-    var ID_MENSAGENS = 'formCadastro:msgs';
+    /* O p:growl "formCadastro:msgs" desenha as mensagens neste contêiner, no fim do body. */
+    var ID_AVISOS = 'formCadastro:msgs_container';
 
     function rolagem() {
         var reduzir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -19,27 +20,47 @@
         return cabecalho ? cabecalho.getAttribute('data-etapa') : null;
     }
 
-    function temMensagem(elemento) {
-        return !!(elemento && elemento.querySelector('.ui-messages-error, .ui-messages-warn, .ui-messages-info, .ui-messages-fatal'));
+    /* As mensagens de campo obrigatório têm resumo igual ao detalhe; no aviso
+       flutuante o texto apareceria duas vezes. Mantém só o título nesses casos. */
+    function esconderDetalheRepetido() {
+        var avisos = document.getElementById(ID_AVISOS);
+        if (!avisos) {
+            return;
+        }
+        Array.prototype.forEach.call(avisos.querySelectorAll('.ui-growl-message'), function (mensagem) {
+            var titulo = mensagem.querySelector('.ui-growl-title');
+            var detalhe = mensagem.querySelector('p');
+            if (titulo && detalhe && titulo.textContent.trim() === detalhe.textContent.trim()) {
+                detalhe.hidden = true;
+            }
+        });
     }
 
     var etapaAnterior = null;
     document.addEventListener('DOMContentLoaded', function () {
         etapaAnterior = etapaAtual();
     });
+    window.addEventListener('load', esconderDetalheRepetido);
+    if (window.jQuery) {
+        window.jQuery(document).on('pfAjaxComplete', esconderDetalheRepetido);
+    }
 
-    /* Mostra as mensagens gerais (abaixo do conteúdo da etapa) quando houver. */
+    /* As mensagens flutuam no topo (p:growl). Quando há campo com erro fora da
+       tela, traz o primeiro para o meio da tela, sem abrir o teclado. */
     window.cadastroMostrarMensagens = function () {
-        var mensagens = document.getElementById(ID_MENSAGENS);
-        if (!temMensagem(mensagens)) {
+        var campo = document.querySelector('#cadCartao .ui-state-error');
+        if (!campo) {
             return;
         }
-        mensagens.scrollIntoView({ behavior: rolagem(), block: 'nearest' });
-        mensagens.focus({ preventScroll: true });
+        var area = campo.getBoundingClientRect();
+        var alturaTela = window.innerHeight || document.documentElement.clientHeight;
+        if (area.top < 0 || area.bottom > alturaTela) {
+            campo.scrollIntoView({ behavior: rolagem(), block: 'center' });
+        }
     };
 
     /* Depois de Próximo/Voltar: etapa nova começa do topo, com o foco no
-       título; se a etapa não mudou (validação), mostra as mensagens. */
+       título; se a etapa não mudou (validação), mostra o primeiro campo com erro. */
     window.cadastroAposNavegar = function () {
         var etapa = etapaAtual();
         if (etapa && etapa !== etapaAnterior) {
@@ -59,7 +80,7 @@
 
     /* Chamado pelo CadastroBean quando a etapa Time não passa na validação do
        servidor (endereço incompleto). Leva o usuário à luneta e repete ali a
-       mensagem, já que as mensagens gerais ficam no fim da etapa. */
+       mensagem, que continua junto do campo depois que o aviso flutuante some. */
     window.focarLunetaCep = function () {
         var botao = document.getElementById('formCadastro:botaoBuscarCep');
         if (!botao) {
@@ -68,8 +89,9 @@
 
         var aviso = document.getElementById('cadCepAviso');
         if (aviso) {
-            var mensagens = document.getElementById(ID_MENSAGENS);
-            var detalhe = mensagens && mensagens.querySelector('.ui-messages-error-detail, .ui-messages-error-summary');
+            var avisos = document.getElementById(ID_AVISOS);
+            var erro = avisos && avisos.querySelector('.ui-growl-error .ui-growl-message');
+            var detalhe = erro && (erro.querySelector('p') || erro.querySelector('.ui-growl-title'));
             aviso.textContent = (detalhe && detalhe.textContent.trim())
                 || 'Busque o endereço pelo CEP (luneta) ou use a localização atual do smartphone.';
         }

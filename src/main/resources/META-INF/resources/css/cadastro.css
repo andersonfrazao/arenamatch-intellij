@@ -363,8 +363,6 @@
     overflow-wrap: anywhere;
 }
 
-.cad-escudo .cad-msgs-local { width: 100%; text-align: left; }
-
 /* --- Localização: CEP + luneta, separador e GPS --- */
 .cad-localizacao {
     display: flex;
@@ -402,7 +400,6 @@
 }
 
 .cad-msgs-local:empty { display: none; }
-.am-ui .cad .cad-msgs-local .ui-messages > div { margin: 0; }
 #cadCepAviso:empty { display: none; }
 
 .cad-ou {
@@ -434,6 +431,12 @@
     background: rgba(34, 197, 94, 0.22);
 }
 
+/* Os p:outputLabel herdam 1rem do .ui-widget do tema; legend e span com a
+   mesma classe ficavam com 14px. Mesmo tamanho para todos os rótulos da página. */
+.am-ui .cad .am-field-label {
+    font-size: var(--am-font-size-md);
+}
+
 /* --- Grupos de opção (mando de campo e dias) --- */
 .cad-grupo {
     min-width: 0;
@@ -456,10 +459,15 @@
 
 .am-ui .cad .cad-mando {
     width: 100%;
-    border-collapse: collapse;
 }
 
-.am-ui .cad .cad-mando td {
+/* No PF 14, layout="pageDirection" gera uma grade de divs (.ui-g > .ui-g-12, com
+   padding de 0.5em), não uma tabela. Cada opção vira uma linha: rádio + rótulo. */
+.am-ui .cad .cad-mando .ui-g {
+    margin: 0;
+}
+
+.am-ui .cad .cad-mando .ui-g > div {
     display: flex;
     align-items: center;
     padding: 0;
@@ -696,16 +704,7 @@
     margin-top: var(--am-space-4);
 }
 
-/* --- Mensagens gerais e rodapé --- */
-.cad-mensagens {
-    padding: 0 var(--am-space-4);
-    scroll-margin-bottom: 6rem;
-}
-
-.cad-mensagens:focus { outline: none; }
-.cad-mensagens:empty { display: none; }
-.am-ui .cad .cad-mensagens .ui-messages > div { margin: 0 0 var(--am-space-4); }
-
+/* --- Rodapé (as mensagens flutuam no p:growl; ver styles.css) --- */
 .cad-rodape {
     display: flex;
     gap: var(--am-space-3);
@@ -802,7 +801,6 @@
 @media (min-width: 768px) {
     .cad-cabecalho { padding: var(--am-space-6) var(--am-space-8) var(--am-space-5); }
     .cad-corpo { padding: var(--am-space-6) var(--am-space-8); }
-    .cad-mensagens { padding: 0 var(--am-space-8); }
     .cad-rodape { padding: var(--am-space-4) var(--am-space-8); }
 
     .cad-escudo { flex-direction: row; align-items: center; gap: var(--am-space-5); text-align: left; }

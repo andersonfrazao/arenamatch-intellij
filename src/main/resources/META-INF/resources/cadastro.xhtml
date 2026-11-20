@@ -158,10 +158,7 @@
                                                       sizeLimit="2097152"
                                                       invalidFileMessage="Envie uma imagem JPG, PNG ou WEBP."
                                                       invalidSizeMessage="O escudo deve ter no maximo 2 MB."
-                                                      update="painelEscudo"/>
-                                        <!-- Mensagens do envio aparecem junto do escudo (só na resposta do próprio upload). -->
-                                        <p:messages showDetail="true" closable="true" styleClass="cad-msgs-local"
-                                                    rendered="#{param['jakarta.faces.source'] eq 'formCadastro:uploadEscudo'}"/>
+                                                      update="painelEscudo :formCadastro:msgs"/>
                                         </div>
                                     </h:panelGroup>
                                 </div>
@@ -195,7 +192,7 @@
                                                      name="usarLocalizacaoAtual"
                                                      action="#{cadastroBean.buscarEnderecoPorLocalizacao}"
                                                      process="@this :formCadastro:geoLat :formCadastro:geoLon"
-                                                     update="inputCep painelEndereco msgsCep" />
+                                                     update="inputCep painelEndereco msgsCep :formCadastro:msgs" />
 
                                     <div class="am-field">
                                         <p:outputLabel for="inputCep" value="Opção 1: Digite o CEP e aperte a luneta para buscar o endereço" styleClass="am-field-label" indicateRequired="false"/>
@@ -208,17 +205,16 @@
                                                          pt:inputmode="numeric" pt:autocomplete="postal-code"/>
                                             <p:commandButton id="botaoBuscarCep"
                                                              icon="fas fa-search" action="#{cadastroBean.buscarCep}"
-                                                             process="@this inputCep" update="painelEndereco msgsCep"
+                                                             process="@this inputCep" update="painelEndereco msgsCep :formCadastro:msgs"
                                                              styleClass="cad-btn-cep"
                                                              title="Buscar endereço pelo CEP"
                                                              pt:aria-label="Buscar endereço pelo CEP"/>
                                         </div>
                                     </div>
 
-                                    <!-- Retorno da busca por CEP ou GPS, junto dos campos (só na resposta dessas ações). -->
-                                    <h:panelGroup id="msgsCep" layout="block" styleClass="cad-msgs-local" pt:aria-live="polite">
-                                        <p:messages showDetail="true" closable="true"
-                                                    rendered="#{param['jakarta.faces.source'] eq 'formCadastro:botaoBuscarCep' or param['jakarta.faces.source'] eq 'formCadastro:cmdLocalizacao'}"/>
+                                    <!-- O retorno da busca por CEP/GPS vai para o aviso flutuante (msgs). Aqui fica só o
+                                         lembrete preenchido por focarLunetaCep, limpo a cada nova busca. -->
+                                    <h:panelGroup id="msgsCep" layout="block" styleClass="cad-msgs-local">
                                         <div id="cadCepAviso" class="am-field-error" role="alert"></div>
                                     </h:panelGroup>
 
@@ -363,13 +359,9 @@
                                 </div>
 
                                 <p:commandButton id="botaoAdicionarHorario" value="ADICIONAR HORÁRIO" action="#{cadastroBean.adicionarHorario}"
-                                                 update="painelAgenda tabelaAgenda" process="painelAgenda"
+                                                 update="painelAgenda tabelaAgenda :formCadastro:msgs" process="painelAgenda"
                                                  icon="fas fa-plus"
                                                  styleClass="cad-btn-adicionar"/>
-
-                                <!-- Erros de modalidade, categoria, dia e horário aparecem logo abaixo do botão. -->
-                                <p:messages showDetail="true" closable="true" styleClass="cad-msgs-local"
-                                            rendered="#{param['jakarta.faces.source'] eq 'formCadastro:botaoAdicionarHorario'}"/>
                             </h:panelGroup>
 
                             <section class="cad-horarios-secao" aria-labelledby="cadHorariosTitulo">
@@ -397,7 +389,7 @@
                                                         </span>
                                                     </div>
                                                     <p:commandButton icon="fas fa-trash" action="#{cadastroBean.removerHorario(item)}"
-                                                                     update=":formCadastro:tabelaAgenda" process="@this"
+                                                                     update=":formCadastro:tabelaAgenda :formCadastro:msgs" process="@this"
                                                                      styleClass="cad-btn-excluir"
                                                                      title="Excluir horário"
                                                                      pt:aria-label="Excluir horário de #{item.diaSemana}, #{item.inicio} às #{item.fim}"/>
@@ -427,10 +419,9 @@
                     </p:wizard>
                 </div>
 
-                <!-- Mensagens da navegação entre etapas, da finalização e da desativação. -->
-                <h:panelGroup id="msgs" layout="block" styleClass="cad-mensagens" pt:tabindex="-1">
-                    <p:messages showDetail="true" closable="true"/>
-                </h:panelGroup>
+                <!-- Todas as mensagens do cadastro flutuam no topo da tela, para serem vistas sem
+                     rolar, onde quer que estejam o campo ou o botão (pedido da homologação). -->
+                <p:growl id="msgs" showDetail="true" life="12000"/>
 
                 <h:panelGroup id="wizardFooter" layout="block" styleClass="cad-rodape">
                     <p:commandButton value="Voltar" onclick="PF('wiz').back()" type="button"
@@ -524,6 +515,6 @@
         </h:form>
         </div>
 
-        <script src="#{request.contextPath}/js/cadastro.js?v=91"></script>
+        <script src="#{request.contextPath}/js/cadastro.js?v=99"></script>
     </ui:define>
 </ui:composition>

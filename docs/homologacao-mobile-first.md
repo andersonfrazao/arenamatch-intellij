@@ -88,6 +88,8 @@ O layout autenticado (89) e o painel de notificações entram em todas as págin
 | "x" das mensagens fecháveis com 32px | Tema; base ARENA-88 não cobria | 44px em `styles.css` |
 | Início: barra do teste limitada a 15 dias, com teste de 90 | ARENA-98 | Barra retirada; dias restantes em texto |
 | Cadastro mostrava "400 Bad Request: ..." | Anterior ao épico | Mostra o corpo da resposta (`CadastroBean`) + teste |
+| Cadastro: as mensagens ficavam dentro da página (fim da etapa ou abaixo do botão) e às vezes era preciso rolar para vê-las; parecia que a tela tinha travado (teste do usuário) | ARENA-91 | Todas as mensagens vão para um aviso flutuante (`p:growl`), opaco, no topo no celular e no canto direito no desktop; o primeiro campo com erro vem para a tela |
+| Cadastro, etapa Time: em "Mando de Campo" o rótulo caía para baixo do rádio, com espaço sobrando (teste do usuário) | ARENA-91 (CSS mirava em `td`, mas no PF 14 o `layout="pageDirection"` gera `div.ui-g > div.ui-g-12`) | Cada opção em linha flexível, rádio + rótulo de 44px (`cadastro.css`). Os rótulos `legend`/`span` da página ficaram com o mesmo tamanho dos `p:outputLabel` |
 | Login sem `h1`; textos da etapa do código sem acento | ARENA-90 / anterior | `h1` oculto visualmente; acentos no XHTML e no `LoginBean` |
 | Testes de `analytics.js` quebrados pela ARENA-97 | ARENA-97 | DOM falso com `focus`/`contains` e 2 testes novos (19/19) |
 

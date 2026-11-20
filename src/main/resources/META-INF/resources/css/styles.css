@@ -282,6 +282,13 @@ summary,
     /* z-index fica com o PrimeFaces, que o incrementa acima dos diálogos abertos. */
 }
 
+/* O PrimeFaces deixa o aviso com 85% de opacidade; sobre a página escura o
+   texto de trás aparecia por baixo da mensagem. */
+.am-ui .ui-growl .ui-growl-item-container {
+    opacity: 1;
+    box-shadow: var(--am-shadow-popover);
+}
+
 .am-ui .ui-growl .ui-growl-message,
 .am-ui .ui-messages,
 .am-ui .ui-message {

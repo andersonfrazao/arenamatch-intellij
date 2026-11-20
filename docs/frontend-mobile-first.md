@@ -125,12 +125,17 @@ Assistente de três etapas (ARENA-91):
 - **Usuário logado:** a página define `tituloPagina` ("Meus dados") para a barra superior.
 - **Campos:** `am-form-grid am-form-grid--2` (uma coluna no celular, duas a partir de 768px), `am-field` e rótulos `p:outputLabel` ligados por `for`.
 - **Teclado:** CPF, CEP e horários abrem o teclado numérico; o celular abre o de telefone e a taxa, o decimal. Os campos usam `autocomplete` quando há um valor padrão.
-- **Mensagens perto da ação:**
-  - Busca de CEP/GPS, upload do escudo e "Adicionar horário" exibem a resposta logo abaixo do próprio controle. Um `p:messages` local é renderizado só quando `param['jakarta.faces.source']` é o componente que disparou a ação, então a mensagem não se repete.
-  - Navegação entre etapas, finalização e desativação usam as mensagens gerais (`formCadastro:msgs`) acima do rodapé. `js/cadastro.js` rola até elas quando a etapa não muda.
+- **Mensagens flutuantes:**
+  - Todas as mensagens do cadastro vão para um `p:growl` (`formCadastro:msgs`, 12 s), que fica no topo da tela: navegação entre etapas, CEP/GPS, escudo, horários, finalização e desativação.
+  - **Por quê:** na homologação com o usuário, mensagens dentro da página (no fim da etapa ou abaixo do botão) exigiam rolar para descobrir o erro, e quem não conhece o sistema achava que a tela tinha travado.
+  - Quando a validação falha e o primeiro campo com erro está fora da tela, `js/cadastro.js` o traz para o meio da tela, sem focar (o teclado não abre por cima do aviso).
+  - Mensagens de campo obrigatório têm resumo igual ao detalhe; o script esconde o detalhe repetido.
+  - Na etapa Time, a falta de endereço também repete a mensagem junto da luneta (`#cadCepAviso`), que continua visível depois que o aviso flutuante some.
   - Quando a etapa muda, a página volta ao topo do cartão e o foco vai para o título da etapa.
 - **Horários configurados:** lista em cartões (`ul`) no lugar da tabela com reflow. A lixeira tem 44px, fica sempre visível e tem `aria-label` com dia e horário (cenário do ARENA-32).
 - **Dias da semana:** 4 colunas no celular e 7 a partir de 576px, todos com 44px.
+- **Mando de campo:** no PF 14, o `p:selectOneRadio layout="pageDirection"` não gera tabela. Ele gera `div.ui-g > div.ui-g-12`, com 0.5em de padding. O CSS deixa cada célula em `display:flex` (rádio + rótulo de 44px) e zera o padding.
+- **Rótulos:** `p:outputLabel` herda 1rem do `.ui-widget`; `legend` e `span` com `am-field-label` ficariam com 14px. Em `.cad`, todos os rótulos usam `--am-font-size-md`.
 
 ## 5.4 Busca de adversários (`css/busca.css`)
 
