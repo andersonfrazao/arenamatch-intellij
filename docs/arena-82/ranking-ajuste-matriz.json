@@ -1,0 +1,254 @@
+[
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 1440,
+    "regionWidth": 1094,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 43.796875
+      },
+      {
+        "cells": 9,
+        "height": 62.25
+      },
+      {
+        "cells": 9,
+        "height": 44.296875
+      },
+      {
+        "cells": 9,
+        "height": 42.8125
+      },
+      {
+        "cells": 9,
+        "height": 42.8125
+      },
+      {
+        "cells": 9,
+        "height": 42.8125
+      }
+    ],
+    "scrollHint": false,
+    "tableWidth": 1094,
+    "width": 1440
+  },
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 768,
+    "regionWidth": 734,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 43.796875
+      },
+      {
+        "cells": 9,
+        "height": 62.25
+      },
+      {
+        "cells": 9,
+        "height": 44.296875
+      },
+      {
+        "cells": 9,
+        "height": 42.8125
+      },
+      {
+        "cells": 9,
+        "height": 42.8125
+      },
+      {
+        "cells": 9,
+        "height": 42.8125
+      }
+    ],
+    "scrollHint": false,
+    "tableWidth": 734,
+    "width": 768
+  },
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 465,
+    "regionWidth": 431,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 54.78125
+      },
+      {
+        "cells": 9,
+        "height": 55.828125
+      },
+      {
+        "cells": 9,
+        "height": 39.171875
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      }
+    ],
+    "scrollHint": false,
+    "tableWidth": 431,
+    "width": 480
+  },
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 415,
+    "regionWidth": 381,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 54.78125
+      },
+      {
+        "cells": 9,
+        "height": 55.828125
+      },
+      {
+        "cells": 9,
+        "height": 39.171875
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      }
+    ],
+    "scrollHint": false,
+    "tableWidth": 381,
+    "width": 430
+  },
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 375,
+    "regionWidth": 341,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 54.78125
+      },
+      {
+        "cells": 9,
+        "height": 73.375
+      },
+      {
+        "cells": 9,
+        "height": 55.28125
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 55.28125
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      }
+    ],
+    "scrollHint": false,
+    "tableWidth": 341,
+    "width": 390
+  },
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 345,
+    "regionWidth": 311,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 54.78125
+      },
+      {
+        "cells": 9,
+        "height": 73.375
+      },
+      {
+        "cells": 9,
+        "height": 55.28125
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 55.28125
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      }
+    ],
+    "scrollHint": true,
+    "tableWidth": 336,
+    "width": 360
+  },
+  {
+    "clippedCells": [],
+    "medals": 3,
+    "ownTeamRows": 1,
+    "pageWidth": 305,
+    "regionWidth": 271,
+    "rows": [
+      {
+        "cells": 9,
+        "height": 54.78125
+      },
+      {
+        "cells": 9,
+        "height": 73.375
+      },
+      {
+        "cells": 9,
+        "height": 55.28125
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      },
+      {
+        "cells": 9,
+        "height": 55.28125
+      },
+      {
+        "cells": 9,
+        "height": 37.734375
+      }
+    ],
+    "scrollHint": true,
+    "tableWidth": 336,
+    "width": 320
+  }
+]

@@ -1,5 +1,7 @@
 # ARENA-82 — Ranking, Meu Scout e adversários
 
+> Atualização de homologação em 19/11/2026: o ranking em cartões descrito na entrega original foi substituído por tabela compacta. A seção final registra a apresentação vigente e suas evidências.
+
 ## Base da entrega
 
 A branch ARENA-82 parte da main atualizada em `8b8720a`, com as dependências locais até ARENA-81 incorporadas. A base imediata é `1405896`. Esta é a oitava história da sequência vigente de 11 histórias do épico ARENA-74.
@@ -64,3 +66,15 @@ Usar Java 21 e PostgreSQL local com o banco de integração configurado nas vari
 node --test src/test/js/*.test.cjs
 git diff --check
 ```
+
+## Correção visual da homologação — 19/11/2026
+
+Após a comparação apresentada pelo usuário com a versão Claude, a ARENA-85 passa a mostrar o ranking em tabela comparativa em todas as larguras. Cada time ocupa uma linha, com posição, nome e colunas V/J/E/D/GP/GS/SG alinhadas. Os três primeiros recebem medalhas, o próprio time recebe faixa azul e identificação Seu time, e uma legenda expansível explica as abreviações.
+
+O filtro foi simplificado para Modalidade, o contexto da modalidade aparece no cabeçalho do ranking e os contêineres repetidos foram reduzidos. Em 480 × 960, as seis equipes demonstrativas aparecem na mesma tela. Nas larguras verificadas a partir de 390 px, a tabela coube sem rolagem horizontal com os dados de teste. Em 320 e 360 px, a rolagem fica restrita ao componente, com orientação visível e nome do time fixo durante o deslocamento.
+
+A validação utilizou somente dados fictícios no PostgreSQL isolado e prévia na porta 18077, preservando as aplicações do usuário em 8080/8081. Foram conferidos 320, 360, 390, 430, 480, 768 e 1440 px, com seis linhas, nove células por linha, três medalhas e uma única identificação do próprio time. Não houve largura excedente da página nem estatísticas cortadas. Nome longo e números de três dígitos também foram exercitados.
+
+Foram verificados a legenda pelo teclado, a troca para Futsal, a modalidade sem jogos e o Meu Scout, incluindo carregamento de mais jogos (dez para vinte). Os cinco testes existentes de RankingBean passaram; o empacotamento Maven passou. Não houve alteração Java, de regras de classificação ou de acesso. As regras compartilhadas do Scout e dos detalhes de adversário foram preservadas.
+
+Evidências atuais: [480 px](arena-82/ranking-ajuste-480.jpg), [390 px](arena-82/ranking-ajuste-390.jpg), [rolagem em 320 px](arena-82/ranking-ajuste-rolagem-320.jpg), [legenda](arena-82/ranking-ajuste-legenda.jpg), [nome extenso](arena-82/ranking-ajuste-texto-extenso.jpg) e [medições](arena-82/ranking-ajuste-matriz.json).

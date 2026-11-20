@@ -3,16 +3,16 @@
                 xmlns:p="http://primefaces.org/ui" xmlns:pt="jakarta.faces.passthrough"
                 template="/WEB-INF/template/layout.xhtml">
     <ui:define name="estilosPagina">
-        <link href="#{resource['css:desempenho.css']}&amp;rev=82.2" rel="stylesheet"/>
+        <link href="#{resource['css:desempenho.css']}&amp;rev=85.5" rel="stylesheet"/>
     </ui:define>
     <ui:define name="conteudo">
-        <h:form id="formDesempenho" styleClass="am-desempenho" pt:aria-busy="false">
-            <h1>Desempenho</h1>
+        <h:form id="formDesempenho" styleClass="am-desempenho am-ranking" pt:aria-busy="false">
+            <h1 class="ranking-titulo-acessivel">Ranking e scout</h1>
             <p:messages id="msgs" showSummary="false" showDetail="true" closable="true" pt:tabindex="-1"/>
             <p class="desempenho-processando" role="status">Processando…</p>
             <p id="erroAtualizacao" class="desempenho-erro" role="alert" tabindex="-1" hidden="hidden">Não foi possível atualizar os dados. Tente novamente.</p>
-            <div class="desempenho-card desempenho-filtros">
-                <p:outputLabel for="modalidadeRanking" value="Modalidade do ranking e scout"/>
+            <div class="desempenho-filtros">
+                <p:outputLabel for="modalidadeRanking" value="Modalidade"/>
                 <p:selectOneMenu id="modalidadeRanking" value="#{rankingBean.modalidade}" styleClass="desempenho-modalidade">
                     <f:selectItems value="#{rankingBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
                     <p:ajax listener="#{rankingBean.alterarModalidade}" process="@this" update="painelDesempenho abas msgs"
@@ -20,14 +20,14 @@
                             onerror="Desempenho.falhou('formDesempenho')"/>
                 </p:selectOneMenu>
                 <h:panelGroup id="abas" layout="block" styleClass="desempenho-abas" pt:role="tablist" pt:aria-label="Consultar desempenho">
-                    <p:commandButton id="abaRanking" value="Ranking Geral" icon="fas fa-list-ol" action="#{rankingBean.exibirRanking}"
+                    <p:commandButton id="abaRanking" value="Ranking geral" icon="fas fa-list-ol" action="#{rankingBean.exibirRanking}"
                                      process="@this" update="abas painelDesempenho msgs"
                                      styleClass="desempenho-aba #{rankingBean.rankingAtivo ? 'ativa' : ''}"
                                      pt:role="tab" pt:aria-selected="#{rankingBean.rankingAtivo}" pt:aria-controls="formDesempenho:painelDesempenho"
                                      pt:tabindex="#{rankingBean.rankingAtivo ? '0' : '-1'}"
                                      onstart="Desempenho.iniciar('formDesempenho')" oncomplete="Desempenho.concluir('formDesempenho','abaRanking')"
                                      onerror="Desempenho.falhou('formDesempenho')"/>
-                    <p:commandButton id="abaScout" value="Meu Scout" icon="fas fa-chart-bar" action="#{rankingBean.exibirScout}"
+                    <p:commandButton id="abaScout" value="Meu scout" icon="fas fa-chart-bar" action="#{rankingBean.exibirScout}"
                                      process="@this" update="abas painelDesempenho msgs"
                                      styleClass="desempenho-aba #{rankingBean.scoutAtivo ? 'ativa' : ''}"
                                      pt:role="tab" pt:aria-selected="#{rankingBean.scoutAtivo}" pt:aria-controls="formDesempenho:painelDesempenho"
@@ -38,7 +38,7 @@
             </div>
             <h:panelGroup id="painelDesempenho" layout="block" pt:tabindex="-1" pt:role="tabpanel"
                           pt:aria-labelledby="formDesempenho:#{rankingBean.rankingAtivo ? 'abaRanking' : 'abaScout'}">
-                <p class="desempenho-contexto" role="status">#{rankingBean.modalidade.descricao}</p>
+                <h:panelGroup rendered="#{rankingBean.scoutAtivo}"><p class="desempenho-contexto" role="status">#{rankingBean.modalidade.descricao}</p></h:panelGroup>
                 <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block" styleClass="desempenho-card desempenho-vazio">
                     <i class="fas fa-lock" aria-hidden="true"></i>
                     <h2>Desempenho bloqueado</h2>
@@ -52,22 +52,40 @@
                                          onstart="Desempenho.iniciar('formDesempenho')" oncomplete="Desempenho.concluir('formDesempenho','painelDesempenho')"
                                          onerror="Desempenho.falhou('formDesempenho')"/>
                     </h:panelGroup>
-                    <h:panelGroup rendered="#{not rankingBean.falhaRanking}" layout="block" styleClass="desempenho-card">
-                        <p id="rankingRolagem" class="desempenho-dica" hidden="hidden">Deslize a tabela ou use as setas do teclado para ver todas as estatísticas.</p>
-                        <div class="desempenho-tabela" role="region" tabindex="0" aria-label="Classificação de #{rankingBean.modalidade.descricao}" data-tabela="rankingRolagem">
-                            <p:dataTable value="#{rankingBean.ranking}" var="t" rowIndexVar="indice" reflow="true"
-                                         styleClass="tabela-ranking" emptyMessage="Nenhum time com jogo confirmado nesta modalidade.">
-                                <p:column headerText="Pos." styleClass="ranking-posicao"><h:outputText value="#{indice + 1}º"/></p:column>
-                                <p:column headerText="Time" styleClass="ranking-time"><span class="desempenho-time">#{t.nome}</span></p:column>
-                                <p:column headerText="Vitórias" styleClass="ranking-vitorias">#{t.vitorias}</p:column>
-                                <p:column headerText="Jogos">#{t.partidasJogadas}</p:column>
-                                <p:column headerText="Empates">#{t.empates}</p:column>
-                                <p:column headerText="Derrotas">#{t.derrotas}</p:column>
-                                <p:column headerText="Gols pró">#{t.golsPro}</p:column>
-                                <p:column headerText="Gols contra">#{t.golsContra}</p:column>
-                                <p:column headerText="Saldo">#{t.saldoGols}</p:column>
-                            </p:dataTable>
+                    <h:panelGroup rendered="#{not rankingBean.falhaRanking}" layout="block" styleClass="desempenho-card ranking-card">
+                        <div class="ranking-cabecalho"><h2>Ranking geral</h2><span class="ranking-modalidade">#{rankingBean.modalidade.descricao}</span></div>
+                        <p id="rankingRolagem" class="desempenho-dica" hidden="hidden">Deslize para os lados para consultar todas as colunas.</p>
+                        <div class="desempenho-tabela" role="region" tabindex="0" aria-label="Ranking geral de #{rankingBean.modalidade.descricao}" data-tabela="rankingRolagem">
+                            <table class="tabela-ranking">
+                                <caption class="ranking-titulo-acessivel">Classificação de #{rankingBean.modalidade.descricao}</caption>
+                                <colgroup><col class="ranking-col-posicao"/><col class="ranking-col-time"/><col span="7"/></colgroup>
+                                <thead><tr>
+                                    <th scope="col" class="ranking-posicao"><abbr title="Posição">Pos</abbr></th>
+                                    <th scope="col" class="ranking-time">Time</th>
+                                    <th scope="col" class="ranking-vitorias"><abbr title="Vitórias">V</abbr></th>
+                                    <th scope="col"><abbr title="Jogos">J</abbr></th>
+                                    <th scope="col"><abbr title="Empates">E</abbr></th>
+                                    <th scope="col"><abbr title="Derrotas">D</abbr></th>
+                                    <th scope="col"><abbr title="Gols pró">GP</abbr></th>
+                                    <th scope="col"><abbr title="Gols sofridos">GS</abbr></th>
+                                    <th scope="col"><abbr title="Saldo de gols">SG</abbr></th>
+                                </tr></thead>
+                                <tbody>
+                                    <ui:repeat value="#{rankingBean.ranking}" var="t" varStatus="pos">
+                                        <tr class="ranking-linha #{sessaoBean.possuiTime and t.id eq sessaoBean.usuarioLogado.idTime ? 'ranking-meu-time' : ''}">
+                                            <td class="ranking-posicao ranking-posicao-#{pos.index + 1}"><span class="ranking-colocacao"><h:panelGroup rendered="#{pos.index lt 3}"><i class="fas fa-medal" aria-hidden="true"></i></h:panelGroup><span>#{pos.index + 1}º</span></span></td>
+                                            <th scope="row" class="ranking-time"><span class="desempenho-time">#{t.nome}</span><h:panelGroup rendered="#{sessaoBean.possuiTime and t.id eq sessaoBean.usuarioLogado.idTime}" layout="block" styleClass="ranking-seu-time">Seu time</h:panelGroup></th>
+                                            <td class="ranking-vitorias">#{t.vitorias}</td><td>#{t.partidasJogadas}</td><td>#{t.empates}</td>
+                                            <td class="#{t.derrotas gt 0 ? 'ranking-derrotas' : ''}">#{t.derrotas}</td><td>#{t.golsPro}</td><td>#{t.golsContra}</td><td class="ranking-saldo">#{t.saldoGols}</td>
+                                        </tr>
+                                    </ui:repeat>
+                                    <h:panelGroup rendered="#{empty rankingBean.ranking}"><tr><td colspan="9" class="ranking-vazio">Nenhum time com jogo confirmado nesta modalidade.</td></tr></h:panelGroup>
+                                </tbody>
+                            </table>
                         </div>
+                        <details class="ranking-legenda"><summary>O que significa cada coluna</summary><dl>
+                            <div><dt>Pos</dt><dd>Posição</dd></div><div><dt>V</dt><dd>Vitórias</dd></div><div><dt>J</dt><dd>Jogos</dd></div><div><dt>E</dt><dd>Empates</dd></div><div><dt>D</dt><dd>Derrotas</dd></div><div><dt>GP</dt><dd>Gols pró</dd></div><div><dt>GS</dt><dd>Gols sofridos</dd></div><div><dt>SG</dt><dd>Saldo de gols</dd></div>
+                        </dl><p>O saldo de gols é a diferença entre os gols pró e os gols sofridos.</p></details>
                     </h:panelGroup>
                 </h:panelGroup>
                 <h:panelGroup rendered="#{rankingBean.scoutAtivo and sessaoBean.acessoCompleto}">
