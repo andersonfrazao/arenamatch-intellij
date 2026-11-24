@@ -760,6 +760,26 @@ html {
 
 .am-nav .am-unread-dot { top: -7px; right: -3px; }
 
+/* Rodapé (celular): quantidade de mensagens não lidas, como nos apps de mensagem. */
+.am-unread-count {
+    position: absolute;
+    top: -8px;
+    left: 55%;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    border: 2px solid var(--am-color-bg);
+    background: var(--am-color-danger);
+    color: #fff;
+    font-family: var(--am-font-family); /* fica dentro do <i> do ícone: não herda a fonte de ícones */
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    white-space: nowrap;
+}
+
 /* Teclado aberto: a barra sai da frente do campo em edição (classe aplicada
    por js/layout.js quando um campo de texto recebe foco). */
 .am-editando .am-bottom-nav {

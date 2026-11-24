@@ -20,9 +20,14 @@
                O campo de digitação não é recriado, então o texto e o teclado continuam. -->
         <h:form id="formChat">
             <p:remoteCommand name="rcAtualizarChat" action="#{chatBean.chegouMensagemPeloWebSocket}"
-                             process="@this"
+                             process="@this" global="false"
                              update=":formChat:chatCabecalho :formChat:chatMensagens :formChat:painelInbox @([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])"
                              oncomplete="rolarParaFim();"/>
+            <!-- Mensagem nova com a caixa de entrada na tela (aviso CHEGOU_CHAT do layout):
+                 atualiza prévia, ordem e contadores, como a lista de conversas do WhatsApp. -->
+            <p:remoteCommand name="rcAtualizarInbox" action="#{chatBean.atualizarInbox}"
+                             process="@this" global="false"
+                             update=":formChat:painelInbox @([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])"/>
 
             <h:panelGroup id="chat" layout="block"
                           styleClass="chat #{empty chatBean.conversaSelecionada ? 'chat--inbox' : 'chat--conversa'}"
@@ -217,6 +222,6 @@
             </h:panelGroup>
         </h:form>
 
-        <script src="#{request.contextPath}/js/chat.js?v=94"></script>
+        <script src="#{request.contextPath}/js/chat.js?v=95"></script>
     </ui:define>
 </ui:composition>

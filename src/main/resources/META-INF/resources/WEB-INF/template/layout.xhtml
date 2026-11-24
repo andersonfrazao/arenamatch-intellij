@@ -165,7 +165,8 @@
                          oncomplete="abrirPainelNotificacoes();" />
                 <p:remoteCommand name="atualizarChatMenuAjax"
                          action="#{sessaoBean.atualizarNotificacoesChat}"
-                         update="@([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])" />
+                         update="@([id$=painelChatMenuDesktop]) @([id$=painelChatMenuMobile])"
+                         global="false" />
                 </h:form>
             </h:panelGroup>
 
@@ -446,10 +447,10 @@
                         pt:aria-current="#{view.viewId eq '/chat.xhtml' ? 'page' : 'false'}">
                     <i class="fas fa-comments am-b-icon" aria-hidden="true">
                         <h:panelGroup rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">
-                            <span class="am-unread-dot"></span>
+                            <span class="am-unread-count">#{sessaoBean.qtdMensagensNaoLidas > 99 ? '99+' : sessaoBean.qtdMensagensNaoLidas}</span>
                         </h:panelGroup>
                     </i>
-                    <h:panelGroup styleClass="am-sr-only" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">Mensagens não lidas no</h:panelGroup>
+                    <h:panelGroup styleClass="am-sr-only" rendered="#{sessaoBean.qtdMensagensNaoLidas > 0}">#{sessaoBean.qtdMensagensNaoLidas} mensagens não lidas no</h:panelGroup>
                     <span>Chat</span>
                 </h:link>
             </h:panelGroup>
@@ -508,7 +509,13 @@
                         }
 
                         if(mensagem.body === "CHEGOU_CHAT") {
-                            atualizarChatMenuAjax();
+                            // Na página do chat, a própria página atualiza lista, prévia e contadores
+                            // (inclui o menu); nas demais, só o indicador do menu.
+                            if (typeof window.chatAoChegarAviso === "function") {
+                                window.chatAoChegarAviso();
+                            } else {
+                                atualizarChatMenuAjax();
+                            }
                         }
                     });
                 }, function(error) {

@@ -63,11 +63,35 @@
         }
     }
 
-    function atualizarConversa() {
-        if (typeof window.rcAtualizarChat === "function" && conversaAtual()) {
-            window.rcAtualizarChat();
+    /* Atualiza o que está na tela:
+     * - conversa aberta: mensagens + lista + contadores (e marca a conversa aberta como lida);
+     * - só a caixa de entrada: prévia da última mensagem, ordem e contadores de não lidas.
+     * Os avisos chegam por dois caminhos (sala da conversa e aviso CHEGOU_CHAT do layout),
+     * então pedidos próximos são agrupados em uma única atualização. */
+    let timerAtualizacao = null;
+
+    function atualizarTelaAgora() {
+        if (conversaAtual()) {
+            if (typeof window.rcAtualizarChat === "function") {
+                window.rcAtualizarChat();
+            }
+        } else if (typeof window.rcAtualizarInbox === "function" && porId("formChat:painelInbox")) {
+            window.rcAtualizarInbox();
         }
     }
+
+    function atualizarConversa() {
+        if (timerAtualizacao) {
+            return;
+        }
+        timerAtualizacao = window.setTimeout(function () {
+            timerAtualizacao = null;
+            atualizarTelaAgora();
+        }, 250);
+    }
+
+    // Chamado pelo layout quando chega o aviso CHEGOU_CHAT do time (qualquer conversa).
+    window.chatAoChegarAviso = atualizarConversa;
 
     function inscrever() {
         if (!conectado || !salaAtual) {
@@ -166,11 +190,12 @@
     }
 
     // Celulares suspendem a conexão em segundo plano: ao voltar, reconecta ou atualiza.
+    // Na caixa de entrada não há sala aberta: só busca o que chegou enquanto estava fora.
     document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState !== "visible" || !salaAtual) {
+        if (document.visibilityState !== "visible") {
             return;
         }
-        if (conectado) {
+        if (!salaAtual || conectado) {
             atualizarConversa();
         } else {
             window.clearTimeout(timerReconexao);
@@ -370,8 +395,15 @@
        Ciclo de atualização (carga e AJAX)
        ================================================================= */
     let campoTinhaFoco = false;
+    let itemComFoco = null;
 
     function aposAtualizar() {
+        // A lista foi recriada por mensagem nova: devolve o foco ao item que o tinha (teclado).
+        if (itemComFoco && document.activeElement === document.body && porId(itemComFoco)) {
+            porId(itemComFoco).focus({ preventScroll: true });
+        }
+        itemComFoco = null;
+
         atualizarModo();
         sincronizarSala();
         restaurarRascunho();
@@ -418,6 +450,8 @@
     if (window.jQuery) {
         window.jQuery(document).on("pfAjaxSend", function () {
             campoTinhaFoco = document.activeElement === campo();
+            const ativo = document.activeElement;
+            itemComFoco = ativo && ativo.classList && ativo.classList.contains("chat-item") ? ativo.id : null;
         });
         window.jQuery(document).on("pfAjaxComplete", aposAtualizar);
     }
