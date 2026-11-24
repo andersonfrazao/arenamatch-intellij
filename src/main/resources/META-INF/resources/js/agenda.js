@@ -1,4 +1,4 @@
-/* Minha agenda (ARENA-93): painel "Todos meus jogos" e foco após atualizações AJAX. */
+/* Minha agenda (ARENA-93): painel "Jogos marcados" e foco após atualizações AJAX. */
 (function (window, document) {
     "use strict";
 

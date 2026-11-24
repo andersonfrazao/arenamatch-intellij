@@ -146,7 +146,7 @@ Assistente de três etapas (ARENA-91):
   - **Data:** o campo é só leitura (`readonlyInput`) e é escolhido pelo calendário, que não abre o teclado no celular.
   - **Busca:** Enter executa a busca (`p:defaultCommand`).
   - **Distância:** a alça do slider tem 28px.
-- **Resultados:** o `p:dataView` usa o grid clássico `ui-g`. A grade vira CSS grid com uma coluna no celular e `repeat(auto-fill, minmax(19rem, 1fr))` a partir de 576px, no lugar das regras 50%/100% por `max-width`.
+- **Resultados:** o `p:dataView` do PF 14 renderiza uma única linha `.ui-dataview-content > .ui-dataview-row.ui-g` (flex) com todos os cartões. Essa linha vira CSS grid (sem o clearfix `::before/::after`, que viraria célula vazia) com uma coluna no celular e `repeat(auto-fill, minmax(19rem, 1fr))` a partir de 576px, no lugar das regras 50%/100% por `max-width`.
 - **Contêiner `dataView`:** os updates continuam mirando `dataView`, que agora é um `h:panelGroup` com o estado vazio, a contagem de resultados e o `p:dataView` (`listaResultados`).
 - **Paginação:** anterior, 3 páginas e próxima, com botões de 44px; a barra só aparece quando há mais de uma página.
 - **Cartão:** identidade com o nome em até 3 linhas, distância, chips de modalidade e categoria, e uma lista de dados comparáveis (`dl`) com horário, mando, taxa e histórico.
@@ -171,7 +171,8 @@ Assistente de três etapas (ARENA-91):
 - **Mensagens:** só o growl global (`:globalForm:msgs`). Várias ações atualizam `painelNotificacoesGlobais`, que envolve a página, e o growl próprio da página mostrava as mensagens em dobro.
   - Erros da carga inicial aparecem num `p:messages` renderizado apenas fora de postback.
 - **Foco:** `agenda.js` devolve o foco ao mesmo elemento após cada AJAX. Se o elemento sumiu, ele vai para o dia selecionado ou para o título dos detalhes.
-  - O painel "Todos meus jogos" é um `button` com `aria-expanded` e fecha com Esc.
+  - O painel "Jogos marcados" é um `button` com `aria-expanded` e fecha com Esc.
+- **Jogos marcados:** lista simples, uma linha por jogo (data e hora | confronto e modalidade | seta), sem escudos. A linha inteira (mín. 44px) chama `selecionarDiaDoJogo`, que abre o dia no calendário e nos detalhes. Pedido do usuário após a homologação (lista mais simples que os cartões com escudo).
 - **Flyer:** os botões ficam no rodapé do diálogo, sempre visíveis, e a prévia (4:5) limita a altura à viewport.
   - "Compartilhar" aparece só quando `navigator.canShare({files})` aceita a imagem.
   - Ao fechar, o foco volta a "Gerar flyer".

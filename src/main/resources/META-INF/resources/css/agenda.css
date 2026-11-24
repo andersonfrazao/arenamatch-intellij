@@ -28,7 +28,7 @@
 }
 
 /* =====================================================================
-   Todos meus jogos
+   Jogos marcados (lista simples; o toque abre o dia do jogo)
    ===================================================================== */
 .agenda-barra {
     display: flex;
@@ -92,18 +92,98 @@
 
 .agenda-secao-titulo--liga > i { color: var(--agenda-liga); }
 
-.agenda-jogos {
-    display: grid;
-    gap: var(--am-space-3);
+/* Jogos marcados: lista simples, uma linha por jogo (quando | confronto | seta).
+   A linha inteira é o alvo de toque e abre o dia do jogo. */
+.agenda-lista {
     margin: 0;
     padding: 0;
     list-style: none;
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-sm);
+    overflow: hidden;
+}
+
+.agenda-lista > li + li { border-top: 1px solid var(--am-color-border); }
+
+.agenda-lista-item {
+    display: grid;
+    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--am-space-3);
+    min-height: var(--am-touch-target);
+    padding: var(--am-space-3);
+    color: var(--am-color-text);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.03);
+    transition: background-color var(--am-transition);
+}
+
+.agenda-lista-item:hover,
+.agenda-lista-item:focus-visible {
+    background: var(--am-color-accent-bg);
+    color: var(--am-color-text);
+}
+
+/* A lista corta o que passa da borda arredondada; o anel de foco fica por dentro. */
+.am-ui .agenda-lista-item:focus-visible { outline-offset: -3px; }
+
+.agenda-lista-quando {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    line-height: var(--am-line-height-tight);
+}
+
+.agenda-lista-data {
+    color: var(--am-color-accent-soft);
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.agenda-lista-hora {
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+}
+
+.agenda-lista-jogo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.agenda-lista-times {
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-sm);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.agenda-lista-x {
+    margin: 0 0.2rem;
+    color: var(--am-color-accent-soft);
+    font-weight: 900;
+}
+
+.agenda-lista-modalidade {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+}
+
+.agenda-lista-seta {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
 }
 
 .agenda-vazio-compacto { padding: var(--am-space-4); }
 
 /* =====================================================================
-   Confronto (lista de jogos e cartão do jogo no dia)
+   Confronto (cartão do jogo no painel do dia)
    ===================================================================== */
 .agenda-confronto {
     display: flex;
@@ -118,31 +198,6 @@
     font-size: inherit;
     font-weight: inherit;
 }
-
-.agenda-confronto--link {
-    height: 100%;
-    color: var(--am-color-text);
-    text-decoration: none;
-    transition: border-color var(--am-transition), transform var(--am-transition);
-}
-
-.agenda-confronto--link:hover {
-    border-color: var(--am-color-accent-border);
-    color: var(--am-color-text);
-}
-
-.agenda-confronto-quando {
-    display: flex;
-    justify-content: center;
-    gap: var(--am-space-2);
-    color: var(--am-color-text-muted);
-    font-size: var(--am-font-size-xs);
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-}
-
-.agenda-confronto-quando strong { color: var(--am-color-text-strong); }
 
 .agenda-confronto-times {
     display: grid;
@@ -193,22 +248,6 @@
     font-size: var(--am-font-size-lg);
     font-weight: 900;
     text-transform: uppercase;
-}
-
-.agenda-confronto-rodape {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 0.35rem 0.6rem;
-}
-
-.agenda-confronto-local {
-    min-width: 0;
-    color: var(--am-color-text-muted);
-    font-size: var(--am-font-size-xs);
-    text-align: center;
-    overflow-wrap: anywhere;
 }
 
 /* =====================================================================
@@ -846,9 +885,7 @@
 @media (min-width: 576px) {
     .agenda-todos-btn { width: auto; }
 
-    .agenda-jogos {
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
-    }
+    .agenda-lista-item { padding: var(--am-space-3) var(--am-space-4); }
 
     .agenda-calendario,
     .agenda-detalhes {

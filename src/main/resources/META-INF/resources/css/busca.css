@@ -160,13 +160,23 @@
    cabeçalho do dataView vazio (faixa escura de 35px acima dos cartões). */
 .am-ui .busca-resultados.ui-dataview > .ui-dataview-header { display: none; }
 
-/* O dataView usa o grid ui-g (ui-g-12 ui-md-4). A grade passa a ser CSS
-   grid: uma coluna no celular e tantas colunas de ~20rem quanto couberem. */
-.am-ui .busca-resultados .ui-dataview-grid > div {
+/* O dataView do PF14 renderiza uma única linha flex
+   (.ui-dataview-content > .ui-dataview-row.ui-g) com todos os cartões
+   (.ui-dataview-column.ui-g-12.ui-md-4). Como item flex, cada cartão ficava
+   com a largura do próprio conteúdo: um cartão com dois botões lado a lado
+   saía mais largo que outro com um só. A linha passa a ser CSS grid: uma
+   coluna no celular e tantas colunas de ~19rem quanto couberem. */
+.am-ui .busca-resultados .ui-dataview-content > .ui-dataview-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--am-space-3);
     margin: 0;
+}
+
+/* O clearfix do ui-g viraria uma célula vazia dentro do grid. */
+.am-ui .busca-resultados .ui-dataview-content > .ui-dataview-row::before,
+.am-ui .busca-resultados .ui-dataview-content > .ui-dataview-row::after {
+    content: none;
 }
 
 .am-ui .busca-resultados .ui-dataview-column {
@@ -497,7 +507,7 @@
     .busca-filtros-acao { grid-column: 1 / -1; }
 
 
-    .am-ui .busca-resultados .ui-dataview-grid > div {
+    .am-ui .busca-resultados .ui-dataview-content > .ui-dataview-row {
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
     }
 }

@@ -27,7 +27,7 @@
                 <button type="button" id="agendaTodosBtn" class="agenda-todos-btn"
                         aria-expanded="false" aria-controls="agendaTodosPainel">
                     <i class="fas fa-list-ul" aria-hidden="true"></i>
-                    <span>Todos meus jogos</span>
+                    <span>Jogos marcados</span>
                     <h:outputText rendered="#{not empty minhaAgendaBean.todosMeusJogos}"
                                   value="#{minhaAgendaBean.todosMeusJogos.size()}" styleClass="agenda-todos-qtd"/>
                     <i class="fas fa-chevron-down agenda-todos-seta" aria-hidden="true"></i>
@@ -35,7 +35,7 @@
             </div>
 
             <section id="agendaTodosPainel" class="am-card agenda-todos" hidden="hidden" aria-labelledby="agendaTodosTitulo">
-                <h2 id="agendaTodosTitulo" class="agenda-secao-titulo">Próximos jogos</h2>
+                <h2 id="agendaTodosTitulo" class="agenda-secao-titulo">Jogos marcados</h2>
 
                 <ui:fragment rendered="#{empty minhaAgendaBean.todosMeusJogos}">
                     <div class="am-empty agenda-vazio-compacto">
@@ -45,37 +45,27 @@
                 </ui:fragment>
 
                 <ui:fragment rendered="#{not empty minhaAgendaBean.todosMeusJogos}">
-                    <ul class="agenda-jogos">
+                    <!-- Lista simples (uma linha por jogo: quando | confronto). O toque abre
+                         o dia do jogo no calendário e o painel de detalhes. -->
+                    <ul class="agenda-lista">
                         <ui:repeat value="#{minhaAgendaBean.todosMeusJogos}" var="jogo">
                             <li>
                                 <p:commandLink action="#{minhaAgendaBean.selecionarDiaDoJogo(jogo)}"
                                                process="@this"
                                                update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav :globalForm:msgs"
                                                oncomplete="agendaAposEscolherJogo();"
-                                               styleClass="agenda-confronto agenda-confronto--link">
-                                    <span class="agenda-confronto-quando">
-                                        <h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="EEE, dd MMM" locale="pt_BR" type="localDateTime"/></h:outputText>
-                                        <strong><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></strong>
+                                               styleClass="agenda-lista-item">
+                                    <span class="agenda-lista-quando">
+                                        <span class="agenda-lista-data"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="EEE dd/MM" locale="pt_BR" type="localDateTime"/></h:outputText></span>
+                                        <span class="agenda-lista-hora"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></span>
                                     </span>
-                                    <span class="agenda-confronto-times">
-                                        <span class="agenda-confronto-time">
-                                            <h:graphicImage value="#{jogo.escudoTimeMandante}" rendered="#{not empty jogo.escudoTimeMandante}" styleClass="agenda-escudo" alt=""/>
-                                            <ui:fragment rendered="#{empty jogo.escudoTimeMandante}"><span class="agenda-escudo agenda-escudo--vazio" aria-hidden="true"><i class="fas fa-shield-alt"></i></span></ui:fragment>
-                                            <span class="agenda-confronto-nome">#{jogo.nomeTimeMandante}</span>
-                                        </span>
-                                        <span class="agenda-confronto-vs"><span aria-hidden="true">x</span><span class="am-sr-only">contra</span></span>
-                                        <span class="agenda-confronto-time">
-                                            <h:graphicImage value="#{jogo.escudoTimeVisitante}" rendered="#{not empty jogo.escudoTimeVisitante}" styleClass="agenda-escudo" alt=""/>
-                                            <ui:fragment rendered="#{empty jogo.escudoTimeVisitante}"><span class="agenda-escudo agenda-escudo--vazio" aria-hidden="true"><i class="fas fa-shield-alt"></i></span></ui:fragment>
-                                            <span class="agenda-confronto-nome">#{jogo.nomeTimeVisitante}</span>
-                                        </span>
-                                    </span>
-                                    <span class="agenda-confronto-rodape">
-                                        <ui:fragment rendered="#{not empty jogo.modalidade}"><span class="am-chip am-chip--info">#{jogo.modalidade.descricao}</span></ui:fragment>
-                                        <ui:fragment rendered="#{not empty jogo.endereco}">
-                                            <span class="agenda-confronto-local"><i class="fas fa-location-dot" aria-hidden="true"></i> #{jogo.endereco}</span>
+                                    <span class="agenda-lista-jogo">
+                                        <span class="agenda-lista-times">#{jogo.nomeTimeMandante} <span class="agenda-lista-x" aria-hidden="true">x</span><span class="am-sr-only">contra</span> #{jogo.nomeTimeVisitante}</span>
+                                        <ui:fragment rendered="#{not empty jogo.modalidade}">
+                                            <span class="agenda-lista-modalidade">#{jogo.modalidade.descricao}</span>
                                         </ui:fragment>
                                     </span>
+                                    <i class="fas fa-chevron-right agenda-lista-seta" aria-hidden="true"></i>
                                 </p:commandLink>
                             </li>
                         </ui:repeat>
@@ -175,7 +165,7 @@
                         <div class="am-empty agenda-vazio">
                             <i class="fas fa-calendar-day" aria-hidden="true"></i>
                             <p class="agenda-vazio-titulo">Nada marcado para este dia</p>
-                            <p>Escolha outro dia no calendário ou abra Todos meus jogos.</p>
+                            <p>Escolha outro dia no calendário ou abra Jogos marcados.</p>
                         </div>
                     </ui:fragment>
 
