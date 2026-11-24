@@ -6,518 +6,214 @@
                 xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 template="/WEB-INF/template/layout.xhtml">
 
+    <ui:define name="tituloPagina">Minha agenda</ui:define>
+    <ui:define name="subtituloPagina">Jogos, convites e placares do seu time</ui:define>
+
     <ui:define name="conteudo">
-        
-        <style>
-            .agenda-container { font-family: system-ui, -apple-system, sans-serif; color: rgba(255,255,255,0.92); }
-            
-            .panel-glass {
-                background: rgba(255,255,255,0.06);
-                border: 1px solid rgba(255,255,255,0.10);
-                border-radius: 18px;
-                backdrop-filter: blur(12px);
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
+        <h:outputStylesheet library="css" name="agenda.css"/>
 
-            .calendarHeader { display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: .9rem; }
-            .legend { display:flex; gap:.5rem; flex-wrap:wrap; justify-content:flex-end; }
-            .pill { 
-                padding:.35rem .6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12);
-                background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.82); font-size:.85rem;
-                display:inline-flex; align-items:center; gap:.45rem; 
-            }
+        <!-- As mensagens das ações vão para o growl global (globalForm:msgs).
+             Várias ações também atualizam painelNotificacoesGlobais, que envolve esta
+             página; um growl próprio aqui mostraria cada mensagem duas vezes. -->
+        <h:form id="formAgenda" styleClass="agenda">
 
-            .todos-jogos-action {
-                display: inline-flex; align-items: center; justify-content: center;
-                padding: .58rem .85rem; border-radius: 12px;
-                border: 1px solid rgba(56,189,248,0.30); background: rgba(56,189,248,0.10);
-                color: #bae6fd; font-weight: 900; cursor: pointer; transition: background .15s ease, border-color .15s ease;
-            }
-            .todos-jogos-action:hover { background: rgba(56,189,248,0.16); border-color: rgba(56,189,248,0.46); }
-            .todos-jogos-panel { display: none; margin-bottom: 1rem; }
-            .todos-jogos-panel.open { display: block; animation: amFadeIn 0.25s ease; }
-            .todos-jogos-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .75rem; }
-            .todos-jogos-row {
-                display: block; min-width: 0; color: white; text-decoration: none !important;
-            }
-            .match-card {
-                padding: .9rem; border-radius: 15px; border: 1px solid rgba(56,189,248,.18);
-                background: linear-gradient(145deg, rgba(8,39,72,.96), rgba(4,25,48,.96));
-                box-shadow: 0 10px 24px rgba(0,0,0,.18); color: white;
-            }
-            .todos-jogos-row:hover .match-card { transform: translateY(-2px); border-color: rgba(56,189,248,.46); box-shadow: 0 13px 28px rgba(0,0,0,.26); }
-            .todos-jogos-row .match-card {
-                padding: .65rem .75rem;
-                transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
-            }
-            .todos-jogos-row .match-card-versus { margin: .45rem 0 .35rem; }
-            .todos-jogos-row .match-card-team { gap: .2rem; }
-            .todos-jogos-row .match-card-shield,
-            .todos-jogos-row .match-card-shield-fallback { width: 48px; height: 48px; }
-            .todos-jogos-row .match-card-shield-fallback { font-size: 2.1rem; }
-            .match-card-date { color: rgba(255,255,255,.74); font-size: .7rem; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: .035em; }
-            .match-card-hour { color: #fff; font-size: .76rem; font-weight: 900; text-align: center; margin-top: .12rem; }
-            .match-card-versus { display: grid; grid-template-columns: minmax(0,1fr) 36px minmax(0,1fr); align-items: center; gap: .5rem; margin: .7rem 0 .55rem; }
-            .match-card-team { display: flex; flex-direction: column; align-items: center; min-width: 0; gap: .35rem; }
-            .match-card-shield { width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
-            .match-card-shield-fallback { width: 58px; height: 58px; display: grid; place-items: center; color: #bae6fd; font-size: 2.55rem; }
-            .match-card-team-name { width: 100%; color: #fff; font-size: .68rem; line-height: 1.15; font-weight: 900; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; }
-            .match-card-vs { color: #38bdf8; font-size: 1rem; font-weight: 1000; text-align: center; text-transform: uppercase; }
-            .match-card-location { color: rgba(255,255,255,.58); font-size: .66rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .match-card-detail { max-width: 480px; margin: 0 auto .85rem; }
-            .flyer-preview-shell {
-                width: min(100%, 420px); margin: 0 auto; padding: .65rem;
-                border-radius: 16px; border: 1px solid rgba(14,165,233,.36);
-                background: rgba(2,12,27,.76);
-            }
-            .flyer-preview-image { display: block; width: 100%; height: auto; border-radius: 11px; }
-            .flyer-dialog-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
-            .flyer-dialog-button {
-                display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
-                min-height: 42px; padding: .65rem .9rem; border-radius: 10px; cursor: pointer;
-                font-weight: 900; border: 1px solid rgba(255,255,255,.16);
-            }
-            .flyer-dialog-button.download { color: #082f49; background: #38bdf8; border-color: #38bdf8; }
-            .flyer-dialog-button.share { color: #052e16; background: #4ade80; border-color: #4ade80; }
-            .flyer-dialog-button.close { color: #e2e8f0; background: rgba(255,255,255,.07); }
-            .todos-jogos-empty {
-                padding: .85rem; border-radius: 14px; border: 1px dashed rgba(255,255,255,0.14);
-                color: rgba(255,255,255,0.58); background: rgba(255,255,255,0.03); font-size: .9rem;
-            }
-            
-            .gridWeek { display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: .55rem; }
-            .gridWeek > a { display: block; min-width: 0; text-decoration: none !important; }
-            
-            .day-card {
-                padding: .75rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.10);
-                background: rgba(255,255,255,0.05); min-height: 124px; cursor:pointer;
-                display:flex; flex-direction:column; justify-content:space-between;
-                text-decoration: none !important; color: white !important;
-                transition: transform .08s ease, border-color .08s ease;
-            }
-            .day-card:hover { transform: translateY(-1px); background: rgba(255,255,255,0.08); }
-            
-            .day-card.selected { border-color: rgba(255,255,255,0.5); box-shadow: 0 0 15px rgba(255,255,255,0.1); background: rgba(255,255,255,0.1); }
+            <!-- Erros da carga inicial: o growl global já foi desenhado antes de o bean
+                 existir. Avaliar minhaAgendaBean aqui cria o bean e registra as mensagens. -->
+            <p:messages id="avisosCarga" showDetail="true" closable="true"
+                        rendered="#{minhaAgendaBean ne null and not facesContext.postback}"
+                        styleClass="agenda-avisos"/>
 
-            .day-card.hasGame { border-color: rgba(37,211,102,0.30); background: rgba(37,211,102,0.06); }
-            .day-card.hasInvite { border-color: rgba(255,204,0,0.35); background: rgba(255,204,0,0.05); }
-            .day-card.hasCancelled { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); }
-            .day-card.hasPlayed { border-color: rgba(59,130,246,0.38); background: rgba(59,130,246,0.08); }
-            .day-card.hasScorePending { border-color: rgba(168,85,247,0.55); background: rgba(168,85,247,0.12); box-shadow: 0 0 12px rgba(168,85,247,0.18); }
-            
-            .dow { color: rgba(255,255,255,0.72); font-size:.85rem; }
-            .dnum { font-weight: 900; font-size: 1.2rem; margin-top: 5px; }
-            
-            .dots { display:flex; gap:.35rem; margin-top: auto; }
-            .dot { width: 10px; height: 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.12); }
-            .dot.game { background: #25d366; border-color: rgba(37,211,102,0.35); box-shadow: 0 0 5px #25d366; }
-            .dot.invite { background: #ffcc00; border-color: rgba(255,204,0,0.45); box-shadow: 0 0 5px #ffcc00; }
-            .dot.cancelled { background: #ef4444; border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 5px #ef4444; }            
-            .dot.played { background: #3b82f6; border-color: rgba(59,130,246,0.45); box-shadow: 0 0 5px #3b82f6; }
-            .dot.score-pending { background: #a855f7; border-color: rgba(168,85,247,0.60); box-shadow: 0 0 6px #a855f7; }
+            <div class="agenda-barra">
+                <button type="button" id="agendaTodosBtn" class="agenda-todos-btn"
+                        aria-expanded="false" aria-controls="agendaTodosPainel">
+                    <i class="fas fa-list-ul" aria-hidden="true"></i>
+                    <span>Jogos marcados</span>
+                    <h:outputText rendered="#{not empty minhaAgendaBean.todosMeusJogos}"
+                                  value="#{minhaAgendaBean.todosMeusJogos.size()}" styleClass="agenda-todos-qtd"/>
+                    <i class="fas fa-chevron-down agenda-todos-seta" aria-hidden="true"></i>
+                </button>
+            </div>
 
-            .event-tags { display: flex; flex-direction: column; gap: .25rem; margin-top: .55rem; min-height: 22px; }
-            .event-tag {
-                display: inline-flex; align-items: center; gap: .3rem; width: fit-content; max-width: 100%;
-                padding: .18rem .42rem; border-radius: 999px; font-size: .68rem; font-weight: 900;
-                border: 1px solid rgba(255,255,255,0.14); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            }
-            .event-tag.game { color: #86efac; background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.28); }
-            .event-tag.invite { color: #fde68a; background: rgba(255,204,0,0.10); border-color: rgba(255,204,0,0.30); }
-            .event-tag.liga { color: #d8b4fe; background: rgba(168,85,247,0.12); border-color: rgba(168,85,247,0.30); }
-            .event-tag.cancelled { color: #fecaca; background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.32); }
-            .event-tag.played { color: #bfdbfe; background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.32); }
-            .event-tag.score-pending { color: #e9d5ff; background: rgba(168,85,247,0.14); border-color: rgba(168,85,247,0.40); }
+            <section id="agendaTodosPainel" class="am-card agenda-todos" hidden="hidden" aria-labelledby="agendaTodosTitulo">
+                <h2 id="agendaTodosTitulo" class="agenda-secao-titulo">Jogos marcados</h2>
 
-            .role-badge {
-                display: inline-flex; align-items: center; gap: .35rem; padding: .28rem .55rem; border-radius: 999px;
-                border: 1px solid rgba(56,189,248,0.28); background: rgba(56,189,248,0.10);
-                color: #bae6fd; font-size: .75rem; font-weight: 900; white-space: nowrap;
-            }
-
-            .match-location {
-                display: flex; align-items: flex-start; gap: .65rem; width: 100%;
-                margin: .65rem 0 .35rem; padding: .75rem; border-radius: 12px;
-                border: 1px solid rgba(56,189,248,0.20); background: rgba(15, 23, 42, 0.50);
-            }
-
-            .match-location-icon {
-                width: 34px; height: 34px; min-width: 34px; border-radius: 10px;
-                display: flex; align-items: center; justify-content: center;
-                color: #38bdf8; background: rgba(56,189,248,0.10); border: 1px solid rgba(56,189,248,0.25);
-            }
-
-            .match-location-text { min-width: 0; flex: 1; }
-            .match-location-title { color: #bae6fd; font-size: .72rem; font-weight: 900; text-transform: uppercase; margin-bottom: .2rem; }
-            .match-location-address { color: rgba(255,255,255,0.88); font-size: .88rem; line-height: 1.35; overflow-wrap: anywhere; word-break: normal; }
-            .match-location-meta { display: flex; flex-wrap: wrap; gap: .45rem .8rem; margin: -.05rem 0 .65rem; padding: 0 .25rem; color: #bae6fd; font-size: .78rem; font-weight: 800; }
-
-            .detailsHead { display:flex; align-items:center; justify-content:space-between; gap: 1rem; margin-bottom: .8rem; }
-            .item-lista {
-                display:flex; gap: .85rem; padding: .85rem; border-radius: 16px;
-                border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04);
-                align-items:flex-start; margin-bottom: 0.5rem;
-            }
-            .event-content { flex: 1; min-width: 0; padding-right: 5px; }
-            .event-actions { display: flex; flex-wrap: wrap; gap: .5rem; width: 100%; min-width: 0; }
-            .event-actions > span { display: flex; flex-wrap: wrap; gap: .5rem; max-width: 100%; }
-            .item-lista.game-upcoming { border-color: rgba(37,211,102,0.26); background: rgba(37,211,102,0.05); }
-            .item-lista.game-played { border-color: rgba(59,130,246,0.30); background: rgba(59,130,246,0.06); }
-            .item-lista.score-pending { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.10); }
-            .item-lista.score-waiting { border-color: rgba(168,85,247,0.45); background: rgba(168,85,247,0.10); }
-            .item-lista.score-confirmed { border-color: rgba(45,212,191,0.34); background: rgba(45,212,191,0.07); }
-            .item-lista.score-dispute { border-color: rgba(239,68,68,0.44); background: rgba(239,68,68,0.10); }
-            .badge-icon {
-                width:46px; height:46px; border-radius: 16px; display:grid; place-items:center;
-                border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); flex-shrink: 0;
-            }
-
-            @media (max-width: 640px) {
-                .panel-glass { padding: .75rem; border-radius: 14px; }
-                .calendarHeader {
-                    flex-direction: column;
-                    align-items: stretch;
-                    gap: .75rem;
-                }
-                .legend {
-                    display: grid;
-                    grid-template-columns: repeat(2, minmax(0, 1fr));
-                    justify-content: stretch;
-                    gap: .4rem;
-                }
-                .pill {
-                    min-width: 0;
-                    width: 100%;
-                    font-size: .68rem;
-                    padding: .28rem .42rem;
-                    gap: .32rem;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-                .todos-jogos-action { width: 100%; }
-                .todos-jogos-list { grid-template-columns: 1fr; }
-                .gridWeek {
-                    display: grid !important;
-                    grid-template-columns: repeat(3, minmax(0, 1fr));
-                    gap: .45rem;
-                    width: 100%;
-                }
-                .day-card {
-                    min-height: 118px;
-                    padding: .55rem;
-                    border-radius: 12px;
-                }
-                .dow { font-size: .74rem; }
-                .dnum { font-size: 1.12rem; }
-                .dots {
-                    flex-wrap: wrap;
-                    gap: .25rem;
-                }
-                .dot {
-                    width: 8px;
-                    height: 8px;
-                }
-                .event-tags {
-                    gap: .18rem;
-                    margin-top: .4rem;
-                }
-                .event-tag {
-                    max-width: 100%;
-                    font-size: .56rem;
-                    padding: .13rem .28rem;
-                    gap: .22rem;
-                }
-                .item-lista {
-                    gap: .6rem;
-                    padding: .7rem;
-                    border-radius: 14px;
-                }
-                .event-content { padding-right: 0; }
-                .match-card-detail,
-                .match-location,
-                .match-location-meta { width: 100%; max-width: 100%; box-sizing: border-box; }
-                .match-card-detail { padding: .7rem .45rem; }
-                .match-card-versus { grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr); gap: .25rem; }
-                .match-card-shield,
-                .match-card-shield-fallback { width: 50px; height: 50px; }
-                .match-location { padding: .65rem; }
-                .event-actions,
-                .event-actions > span { width: 100%; }
-                .event-actions .ui-button { max-width: 100%; white-space: normal; }
-                .flyer-preview-dialog.ui-dialog {
-                    left: .5rem !important;
-                    right: .5rem !important;
-                    width: auto !important;
-                    max-width: none !important;
-                    margin: 0 !important;
-                    transform: none !important;
-                }
-                .flyer-preview-dialog .ui-dialog-content {
-                    width: 100%;
-                    max-height: calc(100dvh - 7rem);
-                    padding: .75rem;
-                    box-sizing: border-box;
-                    overflow-x: hidden;
-                    overflow-y: auto;
-                }
-                .flyer-preview-shell { width: 100%; max-width: 420px; box-sizing: border-box; }
-                .flyer-preview-image { max-width: 100%; }
-                .badge-icon {
-                    width: 38px;
-                    height: 38px;
-                    border-radius: 12px;
-                }
-                .role-badge {
-                    max-width: 100%;
-                    font-size: .66rem;
-                    padding: .22rem .42rem;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-
-            @media (max-width: 340px) {
-                .gridWeek { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-                .legend { grid-template-columns: 1fr; }
-            }
-        </style>
-
-        <h:form id="formAgenda">
-            <p:growl id="msgs" showDetail="true" life="4000" />
-            <div class="agenda-container">
-                
-                <div class="flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
-                    <h1 class="text-white text-2xl font-bold m-0"><i class="fas fa-calendar-alt text-neon mr-2"></i> Minha Agenda</h1>
-                    <div class="todos-jogos-action" id="todosMeusJogosBtn" title="Ver todos meus jogos">
-                        Todos meus jogos
+                <ui:fragment rendered="#{empty minhaAgendaBean.todosMeusJogos}">
+                    <div class="am-empty agenda-vazio-compacto">
+                        <i class="fas fa-calendar-xmark" aria-hidden="true"></i>
+                        <p>Nenhum jogo futuro marcado no momento.</p>
                     </div>
-                </div>
+                </ui:fragment>
 
-                <section class="panel-glass todos-jogos-panel" id="todosMeusJogosPanel">
-                    <div class="text-white font-bold mb-3">Todos meus jogos</div>
+                <ui:fragment rendered="#{not empty minhaAgendaBean.todosMeusJogos}">
+                    <!-- Lista simples (uma linha por jogo: quando | confronto). O toque abre
+                         o dia do jogo no calendário e o painel de detalhes. -->
+                    <ul class="agenda-lista">
+                        <ui:repeat value="#{minhaAgendaBean.todosMeusJogos}" var="jogo">
+                            <li>
+                                <p:commandLink action="#{minhaAgendaBean.selecionarDiaDoJogo(jogo)}"
+                                               process="@this"
+                                               update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav :globalForm:msgs"
+                                               oncomplete="agendaAposEscolherJogo();"
+                                               styleClass="agenda-lista-item">
+                                    <span class="agenda-lista-quando">
+                                        <span class="agenda-lista-data"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="EEE dd/MM" locale="pt_BR" type="localDateTime"/></h:outputText></span>
+                                        <span class="agenda-lista-hora"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></span>
+                                    </span>
+                                    <span class="agenda-lista-jogo">
+                                        <span class="agenda-lista-times">#{jogo.nomeTimeMandante} <span class="agenda-lista-x" aria-hidden="true">x</span><span class="am-sr-only">contra</span> #{jogo.nomeTimeVisitante}</span>
+                                        <ui:fragment rendered="#{not empty jogo.modalidade}">
+                                            <span class="agenda-lista-modalidade">#{jogo.modalidade.descricao}</span>
+                                        </ui:fragment>
+                                    </span>
+                                    <i class="fas fa-chevron-right agenda-lista-seta" aria-hidden="true"></i>
+                                </p:commandLink>
+                            </li>
+                        </ui:repeat>
+                    </ul>
+                </ui:fragment>
+            </section>
 
-                    <h:panelGroup rendered="#{empty minhaAgendaBean.todosMeusJogos}">
-                        <div class="todos-jogos-empty">Nenhum jogo agendado futuro no momento.</div>
+            <div class="agenda-corpo">
+                <section class="am-card agenda-calendario" aria-labelledby="agendaPeriodoTitulo">
+                    <h:panelGroup id="headerNav" layout="block" styleClass="agenda-periodo">
+                        <p:commandButton id="periodoAnterior" icon="fas fa-chevron-left"
+                                         action="#{minhaAgendaBean.voltarPeriodo}" process="@this"
+                                         update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav :globalForm:msgs"
+                                         title="15 dias anteriores" pt:aria-label="15 dias anteriores"
+                                         styleClass="ui-button-flat agenda-periodo-btn"/>
+
+                        <h2 id="agendaPeriodoTitulo" class="agenda-periodo-titulo" aria-live="polite">#{minhaAgendaBean.mesAnoPeriodo}</h2>
+
+                        <p:commandButton id="periodoProximo" icon="fas fa-chevron-right"
+                                         action="#{minhaAgendaBean.avancarPeriodo}" process="@this"
+                                         update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav :globalForm:msgs"
+                                         title="Próximos 15 dias" pt:aria-label="Próximos 15 dias"
+                                         styleClass="ui-button-flat agenda-periodo-btn"/>
+
+                        <p class="agenda-periodo-dica">Toque em um dia para ver jogos e convites.</p>
+
+                        <p:commandButton id="periodoHoje" value="Hoje" icon="fas fa-calendar-day"
+                                         rendered="#{not minhaAgendaBean.mostrandoHoje}"
+                                         action="#{minhaAgendaBean.voltarParaHoje}" process="@this"
+                                         update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav :globalForm:msgs"
+                                         styleClass="ui-button-outlined agenda-hoje-btn"/>
                     </h:panelGroup>
 
-                    <h:panelGroup rendered="#{not empty minhaAgendaBean.todosMeusJogos}" layout="block" styleClass="todos-jogos-list">
-                        <ui:repeat value="#{minhaAgendaBean.todosMeusJogos}" var="jogo">
-                            <p:commandLink action="#{minhaAgendaBean.selecionarDiaDoJogo(jogo)}"
+                    <ul class="agenda-legenda" aria-label="Legenda das cores">
+                        <li><span class="agenda-marca agenda-marca--jogo" aria-hidden="true"></span>Confirmado</li>
+                        <li><span class="agenda-marca agenda-marca--realizado" aria-hidden="true"></span>Realizado</li>
+                        <li><span class="agenda-marca agenda-marca--placar" aria-hidden="true"></span>Placar pendente</li>
+                        <li><span class="agenda-marca agenda-marca--convite" aria-hidden="true"></span>Amistoso pendente</li>
+                        <li><span class="agenda-marca agenda-marca--cancelado" aria-hidden="true"></span>Cancelado ou recusado</li>
+                    </ul>
+
+                    <h:panelGroup id="gridDias" layout="block" styleClass="agenda-dias">
+                        <ui:repeat value="#{minhaAgendaBean.diasCalendario}" var="dia">
+                            <p:commandLink id="dia" action="#{minhaAgendaBean.selecionarDia(dia)}"
                                            process="@this"
-                                           update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav"
-                                           oncomplete="document.getElementById('todosMeusJogosPanel')?.classList.remove('open'); document.getElementById('formAgenda:painelDetalhes')?.scrollIntoView({behavior:'smooth', block:'start'});"
-                                           styleClass="todos-jogos-row">
-                                <div class="match-card">
-                                    <div class="match-card-date"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="dd MMM - EEE" locale="pt_BR" type="localDateTime"/></h:outputText></div>
-                                    <div class="match-card-hour"><h:outputText value="#{jogo.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></div>
-                                    <div class="match-card-versus">
-                                        <div class="match-card-team">
-                                            <h:graphicImage value="#{jogo.escudoTimeMandante}" rendered="#{not empty jogo.escudoTimeMandante}" styleClass="match-card-shield"/>
-                                            <h:panelGroup rendered="#{empty jogo.escudoTimeMandante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
-                                            <span class="match-card-team-name">#{jogo.nomeTimeMandante}</span>
-                                            <span class="text-xs text-cyan-300">#{jogo.modalidade.descricao}</span>
-                                        </div>
-                                        <div class="match-card-vs">VS</div>
-                                        <div class="match-card-team">
-                                            <h:graphicImage value="#{jogo.escudoTimeVisitante}" rendered="#{not empty jogo.escudoTimeVisitante}" styleClass="match-card-shield"/>
-                                            <h:panelGroup rendered="#{empty jogo.escudoTimeVisitante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
-                                            <span class="match-card-team-name">#{jogo.nomeTimeVisitante}</span>
-                                        </div>
-                                    </div>
-                                    <h:panelGroup rendered="#{not empty jogo.endereco}" layout="block" styleClass="match-card-location">
-                                        <i class="fas fa-map-marker-alt mr-1"></i>#{jogo.endereco}
-                                    </h:panelGroup>
-                                </div>
+                                           update=":formAgenda:painelDetalhes :formAgenda:gridDias :globalForm:msgs"
+                                           pt:aria-current="#{minhaAgendaBean.diaSelecionado eq dia ? 'true' : 'false'}"
+                                           styleClass="agenda-dia
+                                                       #{minhaAgendaBean.diaSelecionado eq dia ? 'is-selecionado' : ''}
+                                                       #{dia.temJogoConfirmado and not dia.temJogoRealizado and not dia.temPlacarPendente ? 'tem-jogo' : ''}
+                                                       #{dia.temDesafioPendente ? 'tem-convite' : ''}
+                                                       #{dia.temCancelado ? 'tem-cancelado' : ''}
+                                                       #{dia.temJogoRealizado ? 'tem-realizado' : ''}
+                                                       #{dia.temPlacarPendente ? 'tem-placar' : ''}
+                                                       #{minhaAgendaBean.temConviteLigaPendenteNoDia(dia.data) ? 'tem-liga' : ''}
+                                                       #{minhaAgendaBean.temConviteLigaRecusadoNoDia(dia.data) ? 'tem-liga-recusada' : ''}">
+                                <span class="agenda-dia-semana" aria-hidden="true">#{dia.diaSemana}</span>
+                                <span class="agenda-dia-numero" aria-hidden="true">#{dia.diaMes}</span>
+                                <span class="am-sr-only"><h:outputText value="#{dia.data}"><f:convertDateTime type="localDate" pattern="EEEE, d 'de' MMMM" locale="pt_BR"/></h:outputText></span>
+
+                                <span class="agenda-dia-marcas" aria-hidden="true">
+                                    <ui:fragment rendered="#{dia.temPlacarPendente}"><span class="agenda-marca agenda-marca--placar"></span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temJogoRealizado and not dia.temPlacarPendente}"><span class="agenda-marca agenda-marca--realizado"></span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temJogoConfirmado and not dia.temJogoRealizado and not dia.temPlacarPendente}"><span class="agenda-marca agenda-marca--jogo"></span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temDesafioPendente}"><span class="agenda-marca agenda-marca--convite"></span></ui:fragment>
+                                    <ui:fragment rendered="#{minhaAgendaBean.temConviteLigaPendenteNoDia(dia.data)}"><span class="agenda-marca agenda-marca--liga"></span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temCancelado or minhaAgendaBean.temConviteLigaRecusadoNoDia(dia.data)}"><span class="agenda-marca agenda-marca--cancelado"></span></ui:fragment>
+                                </span>
+
+                                <!-- Rótulos: escondidos visualmente no celular (as marcas coloridas os
+                                     representam), mas sempre lidos por leitores de tela. -->
+                                <span class="agenda-dia-rotulos">
+                                    <ui:fragment rendered="#{dia.temPlacarPendente}"><span class="agenda-rotulo agenda-rotulo--placar"><i class="fas fa-clipboard-list" aria-hidden="true"></i>Placar</span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temJogoRealizado and not dia.temPlacarPendente}"><span class="agenda-rotulo agenda-rotulo--realizado"><i class="fas fa-flag-checkered" aria-hidden="true"></i>Realizado</span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temJogoConfirmado and not dia.temJogoRealizado and not dia.temPlacarPendente}"><span class="agenda-rotulo agenda-rotulo--jogo"><i class="fas fa-check-circle" aria-hidden="true"></i>Jogo</span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temDesafioPendente}"><span class="agenda-rotulo agenda-rotulo--convite"><i class="fas fa-clock" aria-hidden="true"></i>Pendente</span></ui:fragment>
+                                    <ui:fragment rendered="#{minhaAgendaBean.temConviteLigaPendenteNoDia(dia.data)}"><span class="agenda-rotulo agenda-rotulo--liga"><i class="fas fa-trophy" aria-hidden="true"></i>Liga</span></ui:fragment>
+                                    <ui:fragment rendered="#{dia.temCancelado or minhaAgendaBean.temConviteLigaRecusadoNoDia(dia.data)}"><span class="agenda-rotulo agenda-rotulo--cancelado"><i class="fas fa-ban" aria-hidden="true"></i>Cancelado</span></ui:fragment>
+                                </span>
                             </p:commandLink>
                         </ui:repeat>
                     </h:panelGroup>
                 </section>
 
-                <div class="panel-glass">
- 					<div class="calendarHeader">
-                        
-                        <h:panelGroup id="headerNav" layout="block">
-                            <div class="flex align-items-center gap-2 mb-1">
-                                <p:commandButton icon="fas fa-chevron-left" action="#{minhaAgendaBean.voltarPeriodo}" 
-                                                 update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav" 
-                                                 process="@this"
-                                                 styleClass="ui-button-flat text-gray-400 hover:text-white p-1" title="15 dias anteriores"/>
-                                
-                                <div style="font-weight:900; font-size:1.1rem;" class="text-white text-uppercase tracking-wide text-neon">
-    										#{minhaAgendaBean.mesAnoPeriodo}
-									</div>
-                                
-                                <p:commandButton icon="fas fa-chevron-right" action="#{minhaAgendaBean.avancarPeriodo}" 
-                                                 update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav" 
-                                                 process="@this"
-                                                 styleClass="ui-button-flat text-gray-400 hover:text-white p-1" title="Próximos 15 dias"/>
-                                                 
-                                <h:panelGroup rendered="#{not minhaAgendaBean.mostrandoHoje}">
-                                    <p:commandButton value="Hoje" action="#{minhaAgendaBean.voltarParaHoje}" 
-                                    				 process="@this"
-                                                     update=":formAgenda:gridDias :formAgenda:painelDetalhes :formAgenda:headerNav" 
-                                                     styleClass="ui-button-outlined ui-button-sm py-1 px-2 text-xs ml-2 rounded-btn border-blue-500 text-neon" />
-                                </h:panelGroup>
-                            </div>
-                            <div class="text-gray-400 text-sm">Navegue pelas datas para ver jogos e convites</div>
-                        </h:panelGroup>
+                <h:panelGroup id="painelDetalhes" layout="block" styleClass="am-card agenda-detalhes">
+                    <header class="agenda-detalhes-topo">
+                        <h2 id="agendaDetalhesTitulo" class="agenda-detalhes-titulo" tabindex="-1">
+                            <h:outputText value="#{minhaAgendaBean.diaSelecionado.data}" rendered="#{not empty minhaAgendaBean.diaSelecionado}">
+                                <f:convertDateTime type="localDate" pattern="EEEE, d 'de' MMMM" locale="pt_BR"/>
+                            </h:outputText>
+                            <h:outputText value="Selecione um dia" rendered="#{empty minhaAgendaBean.diaSelecionado}"/>
+                        </h2>
+                        <p class="agenda-detalhes-sub">Jogos, convites e cancelamentos do dia</p>
+                    </header>
 
-                        <div class="legend">
-                            <span class="pill"><span class="dot game"></span> Confirmado</span>
-                            <span class="pill"><span class="dot played"></span> Realizado</span>
-                            <span class="pill"><span class="dot score-pending"></span> Placar pendente</span>
-                            <span class="pill"><span class="dot invite"></span> Amistoso Pendente</span>
-                            <!-- Legenda de liga pendente comentada temporariamente para retomada futura.
-                            <span class="pill" style="border-color: #a855f7;"><span class="dot liga"></span> Liga Pendente</span>
-                            -->
-                            <span class="pill"><span class="dot cancelled"></span> Cancelado/Recusado</span>
+                    <ui:fragment rendered="#{empty minhaAgendaBean.eventosDoDia and empty minhaAgendaBean.convitesLigaDoDia}">
+                        <div class="am-empty agenda-vazio">
+                            <i class="fas fa-calendar-day" aria-hidden="true"></i>
+                            <p class="agenda-vazio-titulo">Nada marcado para este dia</p>
+                            <p>Escolha outro dia no calendário ou abra Jogos marcados.</p>
                         </div>
-                    </div>
+                    </ui:fragment>
 
-                     <h:panelGroup id="gridDias" layout="block" styleClass="gridWeek">
-                        <ui:repeat value="#{minhaAgendaBean.diasCalendario}" var="dia">
-                            
-                            <p:commandLink action="#{minhaAgendaBean.selecionarDia(dia)}" 
-                                           update=":formAgenda:painelDetalhes :formAgenda:gridDias"
-                                           process="@this">
-                                
-                                <h:panelGroup layout="block" 
-                                              styleClass="day-card #{minhaAgendaBean.diaSelecionado eq dia ? 'selected' : ''} 
-                                                          #{dia.temJogoConfirmado and not dia.temJogoRealizado and not dia.temPlacarPendente ? 'hasGame' : ''} 
-                                                          #{dia.temJogoRealizado ? 'hasPlayed' : ''}
-                                                          #{dia.temPlacarPendente ? 'hasScorePending' : ''}
-                                                          #{dia.temDesafioPendente ? 'hasInvite' : ''} 
-                                                          #{dia.temCancelado ? 'hasCancelled' : ''}
-                                                          #{minhaAgendaBean.temConviteLigaPendenteNoDia(dia.data) ? 'borda-liga-pendente' : ''}
-                                                          #{minhaAgendaBean.temConviteLigaRecusadoNoDia(dia.data) ? 'borda-liga-recusada' : ''}">
-                                    
-                                    <div class="dow">#{dia.diaSemana}</div>
-                                    <div class="dnum">#{dia.diaMes}</div>
-                                    
-                                    <div class="dots">
-                                        <h:panelGroup rendered="#{dia.temPlacarPendente}" styleClass="dot score-pending"/>
-                                        <h:panelGroup rendered="#{dia.temJogoRealizado and not dia.temPlacarPendente}" styleClass="dot played"/>
-                                        <h:panelGroup rendered="#{dia.temJogoConfirmado and not dia.temJogoRealizado and not dia.temPlacarPendente}" styleClass="dot game"/>
-                                        <h:panelGroup rendered="#{dia.temDesafioPendente}" styleClass="dot invite"/>
-                                        <h:panelGroup rendered="#{minhaAgendaBean.temConviteLigaPendenteNoDia(dia.data)}" styleClass="dot liga"/>
-                                        <h:panelGroup rendered="#{dia.temCancelado or minhaAgendaBean.temConviteLigaRecusadoNoDia(dia.data)}" styleClass="dot cancelled"/>
-                                    </div>
-
-                                    <div class="event-tags">
-                                        <h:panelGroup rendered="#{dia.temPlacarPendente}" layout="block" styleClass="event-tag score-pending">
-                                            <i class="fas fa-clipboard-list"></i> Placar
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{dia.temJogoRealizado and not dia.temPlacarPendente}" layout="block" styleClass="event-tag played">
-                                            <i class="fas fa-flag-checkered"></i> Realizado
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{dia.temJogoConfirmado and not dia.temJogoRealizado and not dia.temPlacarPendente}" layout="block" styleClass="event-tag game">
-                                            <i class="fas fa-check-circle"></i> Jogo
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{dia.temDesafioPendente}" layout="block" styleClass="event-tag invite">
-                                            <i class="fas fa-clock"></i> Pendente
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{minhaAgendaBean.temConviteLigaPendenteNoDia(dia.data)}" layout="block" styleClass="event-tag liga">
-                                            <i class="fas fa-trophy"></i> Liga
-                                        </h:panelGroup>
-                                        <h:panelGroup rendered="#{dia.temCancelado or minhaAgendaBean.temConviteLigaRecusadoNoDia(dia.data)}" layout="block" styleClass="event-tag cancelled">
-                                            <i class="fas fa-ban"></i> Cancelado
-                                        </h:panelGroup>
-                                    </div>
-                                </h:panelGroup>
-                            </p:commandLink>
-                        </ui:repeat>
-                    </h:panelGroup>
-                </div>
-
-                <h:panelGroup id="painelDetalhes" layout="block" styleClass="panel-glass">
-                    <div class="detailsHead">
-                        <div>
-                            <div style="font-weight:900; font-size:1.2rem;" class="text-white">
-                                <h:outputText value="#{minhaAgendaBean.diaSelecionado.diaSemana}, dia #{minhaAgendaBean.diaSelecionado.diaMes}" 
-                                              rendered="#{not empty minhaAgendaBean.diaSelecionado}"/>
-                                <h:outputText value="Selecione um dia" rendered="#{empty minhaAgendaBean.diaSelecionado}"/>
-                            </div>
-                            <div class="text-gray-400 text-sm">Jogos, convites e recusas do dia</div>
-                        </div>
-                    </div>
-
-                    <h:panelGroup rendered="#{empty minhaAgendaBean.eventosDoDia and empty minhaAgendaBean.convitesLigaDoDia}">
-                        <div class="text-gray-500 text-center p-4">
-                            <i class="fas fa-calendar-day text-4xl mb-2 opacity-50"></i><br/>
-                            Nenhum evento ou convite para este dia.
-                        </div>
-                    </h:panelGroup>
-
+                    <ui:fragment rendered="#{not empty minhaAgendaBean.eventosDoDia}">
+                    <ul class="agenda-eventos">
                     <ui:repeat value="#{minhaAgendaBean.eventosDoDia}" var="evento">
-                        <div class="item-lista
-                                    #{evento.tipo eq 'GAME' and not evento.passouDaHora ? 'game-upcoming' : ''}
-                                    #{evento.tipo eq 'GAME' and evento.passouDaHora ? 'game-played' : ''}
-                                    #{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar) ? 'score-pending' : ''}
-                                    #{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' ? 'score-waiting' : ''}
-                                    #{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO' ? 'score-confirmed' : ''}
-                                    #{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA' ? 'score-dispute' : ''}">
-                            <div class="badge-icon">
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and not evento.passouDaHora}"><i class="fas fa-check text-xl" style="color: #25d366;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><i class="fas fa-clipboard-list text-xl" style="color: #a855f7;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><i class="far fa-clock text-xl" style="color: #a855f7;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}"><i class="fas fa-exclamation-triangle text-xl" style="color: #ef4444;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"><i class="fas fa-trophy text-xl" style="color: #2dd4bf;"></i></h:panelGroup>
-                                
-                                <h:panelGroup rendered="#{evento.tipo eq 'INVITE_RECEIVED'}"><i class="fas fa-envelope-open-text text-xl" style="color: #ffcc00;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'INVITE_SENT'}"><i class="fas fa-paper-plane text-xl" style="color: #60a5fa;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'CANCELLED'}"><i class="fas fa-ban text-xl" style="color: #ef4444;"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}"><i class="fas fa-exclamation-triangle text-xl text-red-500"></i></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_SENT'}"><i class="fas fa-ban text-xl text-orange-400"></i></h:panelGroup>
-                            </div>
+                        <li class="agenda-evento agenda-evento--#{evento.tipo eq 'GAME'
+                                    ? (not evento.passouDaHora ? 'jogo'
+                                        : (evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' ? 'placar-aguardando'
+                                        : (evento.statusPlacar eq 'EM_DISPUTA' ? 'placar-disputa'
+                                        : (evento.statusPlacar eq 'CONFIRMADO' ? 'placar-confirmado' : 'placar-pendente'))))
+                                    : (evento.tipo eq 'INVITE_RECEIVED' ? 'convite-recebido'
+                                    : (evento.tipo eq 'INVITE_SENT' ? 'convite-enviado'
+                                    : (evento.tipo eq 'CANCELLATION_RECEIVED' ? 'cancelamento-recebido'
+                                    : (evento.tipo eq 'CANCELLATION_SENT' ? 'cancelamento-enviado' : 'cancelado'))))}">
 
-                            <div class="event-content">
-                                
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and not evento.passouDaHora}"><div class="text-green-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-check-circle mr-1"></i> Jogo Marcado</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><div class="text-red-300 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-clipboard-list mr-1"></i> Placar Pendente</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><div class="text-purple-300 font-bold text-sm mb-2 uppercase tracking-wide"><i class="far fa-clock mr-1"></i> Placar Pendente</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}"><div class="text-red-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-exclamation-triangle mr-1"></i> Placar em Disputa</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"><div class="text-teal-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-flag-checkered mr-1"></i> Jogo Realizado</div></h:panelGroup>
-                                
-                                <h:panelGroup rendered="#{evento.tipo eq 'INVITE_RECEIVED'}"><div class="text-yellow-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-exclamation-circle mr-1"></i> Convite Recebido</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'INVITE_SENT'}"><div class="text-blue-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-paper-plane mr-1"></i> Aguardando Adversário</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'CANCELLED'}"><div class="text-red-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-times-circle mr-1"></i> Partida Cancelada / Recusada</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}"><div class="text-red-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-exclamation-triangle mr-1"></i> Pedido de Cancelamento</div></h:panelGroup>
-                                <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_SENT'}"><div class="text-orange-400 font-bold text-sm mb-2 uppercase tracking-wide"><i class="fas fa-spinner fa-spin mr-1"></i> Aguardando Cancelamento</div></h:panelGroup>
-                                
-                                <h:panelGroup rendered="#{evento.tipo ne 'GAME'}" layout="block" styleClass="font-bold text-white text-xl flex align-items-center gap-2 flex-wrap mb-2">
-                                    #{evento.titulo}
-                                    <span class="text-sm text-cyan-300 font-bold"> · #{evento.modalidade.descricao}</span>
-                                    <h:panelGroup rendered="#{evento.tipo eq 'GAME' or evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'INVITE_SENT'}">
-                                        <span class="role-badge">
-                                            <i class="fas fa-users"></i> Adversário: #{evento.posicaoAdversario}
+                            <p class="agenda-evento-status">
+                                <ui:fragment rendered="#{evento.tipo eq 'GAME' and not evento.passouDaHora}"><i class="fas fa-check-circle" aria-hidden="true"></i> Jogo marcado</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}"><i class="fas fa-clipboard-list" aria-hidden="true"></i> Placar pendente</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO'}"><i class="far fa-clock" aria-hidden="true"></i> Placar aguardando confirmação</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Placar em disputa</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"><i class="fas fa-flag-checkered" aria-hidden="true"></i> Jogo realizado</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'INVITE_RECEIVED'}"><i class="fas fa-envelope-open-text" aria-hidden="true"></i> Convite recebido</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'INVITE_SENT'}"><i class="fas fa-paper-plane" aria-hidden="true"></i> Aguardando o adversário</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'CANCELLED'}"><i class="fas fa-ban" aria-hidden="true"></i> Partida cancelada ou recusada</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Pedido de cancelamento</ui:fragment>
+                                <ui:fragment rendered="#{evento.tipo eq 'CANCELLATION_SENT'}"><i class="fas fa-hourglass-half" aria-hidden="true"></i> Aguardando resposta do cancelamento</ui:fragment>
+                            </p>
+
+                            <!-- Jogo: confronto com escudos (também lidos pelo gerador de flyer) -->
+                            <ui:fragment rendered="#{evento.tipo eq 'GAME'}">
+                                <h3 class="agenda-confronto">
+                                    <span class="agenda-confronto-times">
+                                        <span class="agenda-confronto-time">
+                                            <h:graphicImage value="#{evento.escudoTimeMandante}" rendered="#{not empty evento.escudoTimeMandante}" styleClass="agenda-escudo flyer-shield-home" alt=""/>
+                                            <ui:fragment rendered="#{empty evento.escudoTimeMandante}"><span class="agenda-escudo agenda-escudo--vazio" aria-hidden="true"><i class="fas fa-shield-alt"></i></span></ui:fragment>
+                                            <span class="agenda-confronto-nome">#{evento.nomeTimeMandante}</span>
                                         </span>
-                                    </h:panelGroup>
-                                    <h:panelGroup rendered="#{evento.distanciaKm ne null and evento.tipo ne 'INVITE_RECEIVED'}">
-                                        <span class="text-xs bg-bluegray-700 px-2 py-1 border-round text-gray-300 font-normal shadow-1" style="white-space: nowrap;">
-                                            <i class="fas fa-map-marker-alt mr-1 text-red-400"></i>#{evento.distanciaKm} km
+                                        <span class="agenda-confronto-vs"><span aria-hidden="true">x</span><span class="am-sr-only">contra</span></span>
+                                        <span class="agenda-confronto-time">
+                                            <h:graphicImage value="#{evento.escudoTimeVisitante}" rendered="#{not empty evento.escudoTimeVisitante}" styleClass="agenda-escudo flyer-shield-away" alt=""/>
+                                            <ui:fragment rendered="#{empty evento.escudoTimeVisitante}"><span class="agenda-escudo agenda-escudo--vazio" aria-hidden="true"><i class="fas fa-shield-alt"></i></span></ui:fragment>
+                                            <span class="agenda-confronto-nome">#{evento.nomeTimeVisitante}</span>
                                         </span>
-                                    </h:panelGroup>
-                                </h:panelGroup>
+                                    </span>
+                                </h3>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="match-card match-card-detail">
-                                    <div class="match-card-versus">
-                                        <div class="match-card-team">
-                                            <h:graphicImage value="#{evento.escudoTimeMandante}" rendered="#{not empty evento.escudoTimeMandante}" styleClass="match-card-shield flyer-shield-home"/>
-                                            <h:panelGroup rendered="#{empty evento.escudoTimeMandante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
-                                            <span class="match-card-team-name">#{evento.nomeTimeMandante}</span>
-                                        </div>
-                                        <div class="match-card-vs">VS</div>
-                                        <div class="match-card-team">
-                                            <h:graphicImage value="#{evento.escudoTimeVisitante}" rendered="#{not empty evento.escudoTimeVisitante}" styleClass="match-card-shield flyer-shield-away"/>
-                                            <h:panelGroup rendered="#{empty evento.escudoTimeVisitante}" styleClass="match-card-shield-fallback"><i class="fas fa-shield-alt"></i></h:panelGroup>
-                                            <span class="match-card-team-name">#{evento.nomeTimeVisitante}</span>
-                                        </div>
-                                    </div>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="flyer-match-data" style="display:none;">
+                                <div class="flyer-match-data" hidden="hidden">
                                     <span class="flyer-home-name"><h:outputText value="#{evento.nomeTimeMandante}"/></span>
                                     <span class="flyer-away-name"><h:outputText value="#{evento.nomeTimeVisitante}"/></span>
                                     <span class="flyer-weekday"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="EEEE" locale="pt_BR" type="localDateTime"/></h:outputText></span>
@@ -525,393 +221,286 @@
                                     <span class="flyer-time"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></span>
                                     <span class="flyer-field-name"><h:outputText value="#{evento.nomeCampo}"/></span>
                                     <span class="flyer-address"><h:outputText value="#{evento.endereco}"/></span>
-                                </h:panelGroup>
+                                </div>
+                            </ui:fragment>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' or evento.tipo eq 'INVITE_RECEIVED'}" layout="block" styleClass="match-location">
-                                    <div class="match-location-icon">
-                                        <i class="fas fa-location-dot"></i>
-                                    </div>
-                                    <div class="match-location-text">
-                                        <div class="match-location-title">Local do jogo</div>
-                                        <h:panelGroup rendered="#{not empty evento.nomeCampo}">
-                                            <div class="text-white font-bold mb-1">#{evento.nomeCampo}</div>
-                                        </h:panelGroup>
-                                        <div class="match-location-address flex align-items-center gap-2 flex-wrap">
-                                            <span>#{evento.endereco}</span>
-                                            <h:panelGroup rendered="#{evento.distanciaKm ne null}">
-                                                <span class="text-xs bg-bluegray-700 px-2 py-1 border-round text-gray-300 font-normal shadow-1" style="white-space: nowrap;">
-                                                    <i class="fas fa-map-marker-alt mr-1 text-red-400"></i>#{evento.distanciaKm} km
-                                                </span>
-                                            </h:panelGroup>
-                                        </div>
-                                    </div>
-                                </h:panelGroup>
+                            <!-- Convites e cancelamentos: título textual -->
+                            <ui:fragment rendered="#{evento.tipo ne 'GAME'}">
+                                <h3 class="agenda-evento-titulo">#{evento.titulo}</h3>
+                            </ui:fragment>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME'}" layout="block" styleClass="match-location-meta">
-                                    <span>
-                                        <i class="far fa-clock mr-1"></i>Horário:
-                                        <h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText>
-                                    </span>
-                                    <h:panelGroup rendered="#{evento.valorTaxa ne null}">
-                                        <span>
-                                            <i class="fas fa-money-bill-wave mr-1 text-green-400"></i>Taxa:
-                                            <h:outputText value="#{evento.valorTaxa}"><f:convertNumber type="currency" currencySymbol="R$"/></h:outputText>
+                            <div class="agenda-evento-chips">
+                                <ui:fragment rendered="#{not empty evento.modalidade}"><span class="am-chip am-chip--info">#{evento.modalidade.descricao}</span></ui:fragment>
+                                <ui:fragment rendered="#{(evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'INVITE_SENT') and not empty evento.posicaoAdversario}">
+                                    <span class="am-chip"><i class="fas fa-users" aria-hidden="true"></i> Adversário: #{evento.posicaoAdversario}</span>
+                                </ui:fragment>
+                            </div>
+
+                            <dl class="agenda-dados">
+                                <div>
+                                    <dt>Horário</dt>
+                                    <dd class="agenda-dados-destaque"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></dd>
+                                </div>
+                                <ui:fragment rendered="#{evento.tipo eq 'GAME' or evento.tipo eq 'INVITE_RECEIVED'}">
+                                    <div class="agenda-dados-local">
+                                        <dt>Local</dt>
+                                        <dd>
+                                            <ui:fragment rendered="#{not empty evento.nomeCampo}"><strong>#{evento.nomeCampo}</strong></ui:fragment>
+                                            <span>#{empty evento.endereco ? 'Local não informado' : evento.endereco}</span>
+                                        </dd>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{evento.distanciaKm ne null}">
+                                    <div>
+                                        <dt>Distância</dt>
+                                        <dd><h:outputText value="#{evento.distanciaKm}"><f:convertNumber maxFractionDigits="1" locale="pt_BR"/></h:outputText> km</dd>
+                                    </div>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{evento.valorTaxa ne null and evento.valorTaxa gt 0}">
+                                    <div>
+                                        <dt>Taxa</dt>
+                                        <dd><h:outputText value="#{evento.valorTaxa}"><f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/></h:outputText></dd>
+                                    </div>
+                                </ui:fragment>
+                            </dl>
+
+                            <ui:fragment rendered="#{not empty evento.mensagem and (evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'CANCELLATION_RECEIVED' or evento.tipo eq 'CANCELLATION_SENT' or evento.tipo eq 'CANCELLED')}">
+                                <blockquote class="agenda-recado">
+                                    <i class="fas fa-quote-left" aria-hidden="true"></i>
+                                    <p>#{evento.mensagem}</p>
+                                </blockquote>
+                            </ui:fragment>
+
+                            <!-- Placar: informar (jogo encerrado) ou propor novo (em disputa).
+                                 process limita o envio aos gols DESTE jogo; os campos de outros jogos
+                                 do dia usam a mesma propriedade do bean e não podem sobrescrevê-la. -->
+                            <h:panelGroup id="placarEntrada" layout="block" styleClass="agenda-placar #{evento.statusPlacar eq 'EM_DISPUTA' ? 'agenda-placar--disputa' : 'agenda-placar--pendente'}"
+                                          rendered="#{evento.tipo eq 'GAME' and ((evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)) or evento.statusPlacar eq 'EM_DISPUTA')}">
+                                <ui:fragment rendered="#{evento.statusPlacar ne 'EM_DISPUTA'}">
+                                    <p class="agenda-placar-titulo"><i class="fas fa-stopwatch" aria-hidden="true"></i> Fim de jogo! Informe o placar</p>
+                                </ui:fragment>
+                                <ui:fragment rendered="#{evento.statusPlacar eq 'EM_DISPUTA'}">
+                                    <p class="agenda-placar-titulo"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Placar em disputa</p>
+                                    <p class="agenda-placar-texto">Houve divergência. Conversem no chat e informem o placar correto.</p>
+                                    <p:button value="Abrir chat da partida" outcome="/chat.xhtml" icon="fas fa-comments"
+                                              styleClass="ui-button-outlined agenda-btn-chat-disputa">
+                                        <f:param name="p" value="#{evento.idPartida}"/>
+                                    </p:button>
+                                </ui:fragment>
+
+                                <div class="agenda-placar-campos">
+                                    <div class="agenda-placar-time">
+                                        <p:outputLabel for="golsMandante" value="#{empty evento.nomeTimeMandante ? 'Mandante' : evento.nomeTimeMandante}" styleClass="agenda-placar-nome"/>
+                                        <p:inputNumber id="golsMandante" value="#{minhaAgendaBean.golsMandanteInformado}"
+                                                       decimalPlaces="0" minValue="0" maxValue="99" inputStyleClass="agenda-placar-input"/>
+                                    </div>
+                                    <span class="agenda-placar-x" aria-hidden="true">x</span>
+                                    <div class="agenda-placar-time">
+                                        <p:outputLabel for="golsVisitante" value="#{empty evento.nomeTimeVisitante ? 'Visitante' : evento.nomeTimeVisitante}" styleClass="agenda-placar-nome"/>
+                                        <p:inputNumber id="golsVisitante" value="#{minhaAgendaBean.golsVisitanteInformado}"
+                                                       decimalPlaces="0" minValue="0" maxValue="99" inputStyleClass="agenda-placar-input"/>
+                                    </div>
+                                </div>
+
+                                <p:commandButton value="#{evento.statusPlacar eq 'EM_DISPUTA' ? 'Propor novo placar' : 'Salvar placar'}"
+                                                 icon="#{evento.statusPlacar eq 'EM_DISPUTA' ? 'fas fa-handshake' : 'fas fa-check'}"
+                                                 action="#{minhaAgendaBean.salvarPlacarInline(evento)}"
+                                                 process="@this placarEntrada"
+                                                 update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                 styleClass="agenda-btn-bloco #{evento.statusPlacar eq 'EM_DISPUTA' ? 'ui-button-danger' : 'ui-button-success'}"/>
+                            </h:panelGroup>
+
+                            <ui:fragment rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou eq minhaAgendaBean.meuTimeId}">
+                                <div class="am-alert agenda-placar-aviso" role="status">
+                                    <i class="far fa-clock" aria-hidden="true"></i>
+                                    <div><strong>Aguardando confirmação.</strong> O adversário precisa validar o placar informado.</div>
+                                </div>
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{evento.tipo eq 'GAME' and (evento.statusPlacar eq 'CONFIRMADO' or (evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou ne minhaAgendaBean.meuTimeId))}">
+                                <div class="agenda-placar #{evento.statusPlacar eq 'CONFIRMADO' ? 'agenda-placar--final' : 'agenda-placar--validar'}">
+                                    <ui:fragment rendered="#{evento.statusPlacar eq 'CONFIRMADO'}">
+                                        <p class="agenda-placar-titulo"><i class="fas fa-trophy" aria-hidden="true"></i> Placar final</p>
+                                    </ui:fragment>
+                                    <ui:fragment rendered="#{evento.statusPlacar ne 'CONFIRMADO'}">
+                                        <p class="agenda-placar-titulo"><i class="fas fa-check-double" aria-hidden="true"></i> Validar resultado</p>
+                                        <p class="agenda-placar-texto">O adversário informou este placar:</p>
+                                    </ui:fragment>
+
+                                    <div class="agenda-placar-resultado">
+                                        <span class="agenda-placar-nome">#{empty evento.nomeTimeMandante ? 'Mandante' : evento.nomeTimeMandante}</span>
+                                        <span class="agenda-placar-gols">
+                                            <strong>#{evento.golsMandante}</strong>
+                                            <span aria-hidden="true">x</span><span class="am-sr-only">a</span>
+                                            <strong>#{evento.golsVisitante}</strong>
                                         </span>
-                                    </h:panelGroup>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{not empty evento.mensagem and (evento.tipo eq 'INVITE_RECEIVED' or evento.tipo eq 'CANCELLATION_RECEIVED' or evento.tipo eq 'CANCELLATION_SENT' or evento.tipo eq 'CANCELLED')}" layout="block" styleClass="mb-3">
-                                    <div class="bg-white-alpha-10 p-3 border-round text-sm italic text-gray-200 border-left-3 border-yellow-500 shadow-2">
-                                        <i class="fas fa-quote-left mr-2 text-yellow-500 opacity-50"></i>#{evento.mensagem}
+                                        <span class="agenda-placar-nome">#{empty evento.nomeTimeVisitante ? 'Visitante' : evento.nomeTimeVisitante}</span>
                                     </div>
-                                </h:panelGroup>
 
-                                <h:panelGroup rendered="#{evento.tipo ne 'CANCELLED' and evento.tipo ne 'GAME'}">
-                                    <div class="flex flex-column gap-2 mt-2">
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="bg-bluegray-800 px-3 py-2 border-round text-blue-300 font-bold text-sm shadow-1">
-                                                <i class="far fa-clock mr-2"></i> 
-                                                <h:outputText value="#{evento.dataHora}">
-                                                    <f:convertDateTime pattern="HH:mm" type="localDateTime"/>
-                                                </h:outputText>
-                                            </span>
-                                            <h:panelGroup rendered="#{evento.valorTaxa gt 0}">
-                                                <span class="bg-bluegray-800 px-3 py-2 border-round text-green-400 font-bold text-sm shadow-1">
-                                                    <i class="fas fa-money-bill-wave mr-2"></i><h:outputText value="#{evento.valorTaxa}"><f:convertNumber type="currency" currencySymbol="R$"/></h:outputText>
-                                                </span>
-                                            </h:panelGroup>
+                                    <ui:fragment rendered="#{evento.statusPlacar ne 'CONFIRMADO'}">
+                                        <div class="agenda-acoes">
+                                            <p:commandButton value="Confirmar" icon="fas fa-check"
+                                                             action="#{minhaAgendaBean.confirmarPlacarAgenda(evento)}" process="@this"
+                                                             update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                             styleClass="ui-button-success"/>
+                                            <p:commandButton value="Contestar" icon="fas fa-times"
+                                                             action="#{minhaAgendaBean.contestarPlacarAgenda(evento)}" process="@this"
+                                                             update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                             styleClass="ui-button-danger ui-button-outlined"/>
                                         </div>
-                                    </div>
-                                </h:panelGroup>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.passouDaHora and (evento.statusPlacar eq 'PENDENTE' or empty evento.statusPlacar)}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 border-purple-500 shadow-2" style="background: rgba(168, 85, 247, 0.12);">
-                                    
-                                    <div class="text-center mb-3 font-bold text-purple-300 text-sm uppercase tracking-wide">
-                                        <i class="fas fa-stopwatch mr-1"></i> Fim de Jogo! Informe o Placar
-                                    </div>
-                                    
-                                    <div class="flex align-items-center justify-content-center gap-4">
-                                        <div class="flex flex-column align-items-center">
-                                            <span class="text-xs text-gray-400 mb-1 font-bold text-center" style="max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                #{evento.nomeTimeMandante != null ? evento.nomeTimeMandante : 'Seu Time'}
-                                            </span>
-                                            <p:inputNumber value="#{minhaAgendaBean.golsMandanteInformado}" 
-                                                           decimalPlaces="0" minValue="0" inputStyle="width: 50px; text-align: center; font-weight: bold; font-size: 1.2rem;"/>
-                                        </div>
-                                        
-                                        <span class="font-bold text-2xl text-gray-500 mt-3">X</span>
-                                        
-                                        <div class="flex flex-column align-items-center">
-                                            <span class="text-xs text-gray-400 mb-1 font-bold text-center" style="max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                #{evento.nomeTimeVisitante != null ? evento.nomeTimeVisitante : 'Adversário'}
-                                            </span>
-                                            <p:inputNumber value="#{minhaAgendaBean.golsVisitanteInformado}" 
-                                                           decimalPlaces="0" minValue="0" inputStyle="width: 50px; text-align: center; font-weight: bold; font-size: 1.2rem;"/>
-                                        </div>
-                                    </div>
-                                    
-                                    <p:commandButton value="Salvar Placar" action="#{minhaAgendaBean.salvarPlacarInline(evento)}" 
-                                                     update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs" 
-                                                     icon="fas fa-check"
-                                                     styleClass="ui-button-success w-full mt-4 rounded-button shadow-2 font-bold"/>
-                                </h:panelGroup>
+                            <!-- Pedido de cancelamento em edição -->
+                            <h:panelGroup id="cancelamento" layout="block" styleClass="agenda-cancelamento"
+                                          rendered="#{minhaAgendaBean.eventoEmCancelamento eq evento}">
+                                <p class="agenda-placar-titulo"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Confirmar cancelamento</p>
+                                <p:outputLabel for="motivoCancelamento" value="Motivo (o adversário verá esta mensagem)" styleClass="am-field-label"/>
+                                <p:inputTextarea id="motivoCancelamento" value="#{minhaAgendaBean.motivoCancelamento}"
+                                                 rows="3" maxlength="350" autoResize="false"
+                                                 placeholder="Ex.: chuva forte, time incompleto..."
+                                                 styleClass="agenda-cancelamento-motivo"/>
+                                <div class="agenda-acoes">
+                                    <p:commandButton value="Voltar" action="#{minhaAgendaBean.abortarCancelamento()}" process="@this"
+                                                     update=":formAgenda:painelDetalhes"
+                                                     styleClass="ui-button-secondary ui-button-outlined"/>
+                                    <p:commandButton value="Enviar pedido" icon="fas fa-paper-plane"
+                                                     action="#{minhaAgendaBean.confirmarSolicitacaoCancelamento()}"
+                                                     process="@this motivoCancelamento"
+                                                     update=":formAgenda:painelDetalhes :formAgenda:gridDias :globalForm:msgs"
+                                                     styleClass="ui-button-danger"/>
+                                </div>
+                            </h:panelGroup>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou eq minhaAgendaBean.meuTimeId}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 shadow-2 text-center" style="background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.3);">
-                                    <i class="far fa-clock text-teal-400 text-3xl mb-2"></i>
-                                    <div class="text-teal-400 font-bold text-sm uppercase tracking-wide">Aguardando Confirmação</div>
-                                    <div class="text-xs text-gray-300 mt-1">O adversário precisa validar o placar informado.</div>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' and evento.idTimeQueInformou ne minhaAgendaBean.meuTimeId}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 shadow-2" style="background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.3);">
-                                    
-                                    <div class="text-center mb-3 font-bold text-teal-400 text-sm uppercase tracking-wide">
-                                        <i class="fas fa-check-double mr-1"></i> Validar Resultado
-                                    </div>
-                                    <div class="text-center text-gray-300 text-sm mb-3">O adversário informou que o jogo terminou:</div>
-
-                                    <div class="flex align-items-center justify-content-center gap-4 mb-3">
-                                        <div class="flex flex-column align-items-center">
-                                            <span class="text-xs text-gray-400 mb-1">#{evento.nomeTimeMandante}</span>
-                                            <span class="font-bold text-2xl text-white">#{evento.golsMandante}</span>
-                                        </div>
-                                        <span class="font-bold text-xl text-gray-500">X</span>
-                                        <div class="flex flex-column align-items-center">
-                                            <span class="text-xs text-gray-400 mb-1">#{evento.nomeTimeVisitante}</span>
-                                            <span class="font-bold text-2xl text-white">#{evento.golsVisitante}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex gap-2">
-                                        <p:commandButton value="Confirmar" action="#{minhaAgendaBean.confirmarPlacarAgenda(evento)}" 
-                                                         update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs" 
-                                                         icon="fas fa-check" styleClass="ui-button-success flex-grow-1 rounded-btn font-bold"/>
-                                                         
-                                        <p:commandButton value="Contestar" action="#{minhaAgendaBean.contestarPlacarAgenda(evento)}" 
-                                                         update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs" 
-                                                         icon="fas fa-times" styleClass="ui-button-danger flex-grow-1 rounded-btn font-bold"/>
-                                    </div>
-                                </h:panelGroup>
-
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'EM_DISPUTA'}" 
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 border-red-500 shadow-2" style="background: rgba(239, 68, 68, 0.1);">
-                                    
-                                    <div class="text-center">
-                                        <i class="fas fa-exclamation-triangle text-red-400 text-3xl mb-2"></i>
-                                        <div class="text-red-400 font-bold text-sm uppercase tracking-wide">Placar em Disputa</div>
-                                        <div class="text-xs text-gray-300 mt-1 mb-3">Houve divergência. Conversem no chat e informem o placar correto abaixo:</div>
-                                    </div>
-
-                                    <div class="flex justify-content-center mb-3">
-                                        <p:button value="Abrir Chat da Partida" outcome="/chat.xhtml" icon="fas fa-comments" styleClass="ui-button-danger ui-button-outlined ui-button-sm rounded-btn font-bold">
-                                            <f:param name="p" value="#{evento.idPartida}" />
+                            <ui:fragment rendered="#{minhaAgendaBean.eventoEmCancelamento ne evento and evento.tipo ne 'CANCELLED'}">
+                                <div class="agenda-acoes">
+                                    <ui:fragment rendered="#{evento.tipo eq 'INVITE_RECEIVED'}">
+                                        <p:commandButton value="Aceitar" icon="fas fa-check"
+                                                         action="#{minhaAgendaBean.aceitarConvite(evento)}" process="@this"
+                                                         update=":formAgenda :globalForm:msgs"
+                                                         styleClass="ui-button-success"/>
+                                        <p:commandButton value="Recusar" icon="fas fa-times"
+                                                         action="#{minhaAgendaBean.recusarConvite(evento)}" process="@this"
+                                                         update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                         styleClass="ui-button-danger ui-button-outlined"/>
+                                        <p:button value="Negociar no chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-outlined">
+                                            <f:param name="p" value="#{evento.idPartida}"/>
                                         </p:button>
-                                    </div>
+                                    </ui:fragment>
 
-                                    <div class="flex align-items-center justify-content-center gap-4 bg-black-alpha-20 p-2 border-round">
-                                        <div class="flex flex-column align-items-center">
-                                            <span class="text-xs text-gray-400 mb-1 font-bold text-center" style="max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                #{evento.nomeTimeMandante != null ? evento.nomeTimeMandante : 'Seu Time'}
-                                            </span>
-                                            <p:inputNumber value="#{minhaAgendaBean.golsMandanteInformado}" 
-                                                           decimalPlaces="0" minValue="0" inputStyle="width: 50px; text-align: center; font-weight: bold; font-size: 1.2rem;"/>
-                                        </div>
-                                        
-                                        <span class="font-bold text-2xl text-gray-500 mt-3">X</span>
-                                        
-                                        <div class="flex flex-column align-items-center">
-                                            <span class="text-xs text-gray-400 mb-1 font-bold text-center" style="max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                #{evento.nomeTimeVisitante != null ? evento.nomeTimeVisitante : 'Adversário'}
-                                            </span>
-                                            <p:inputNumber value="#{minhaAgendaBean.golsVisitanteInformado}" 
-                                                           decimalPlaces="0" minValue="0" inputStyle="width: 50px; text-align: center; font-weight: bold; font-size: 1.2rem;"/>
-                                        </div>
-                                    </div>
-                                    
-                                    <p:commandButton value="Propor Novo Placar" action="#{minhaAgendaBean.salvarPlacarInline(evento)}" 
-                                                     update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs" 
-                                                     icon="fas fa-handshake"
-                                                     styleClass="ui-button-danger w-full mt-3 rounded-button shadow-2 font-bold"/>
-                                </h:panelGroup>
+                                    <ui:fragment rendered="#{evento.tipo eq 'INVITE_SENT'}">
+                                        <p:button value="Negociar no chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-outlined">
+                                            <f:param name="p" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                        <p:commandButton value="Cancelar convite" icon="fas fa-trash"
+                                                         action="#{minhaAgendaBean.cancelarEnvio(evento)}" process="@this"
+                                                         update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                         styleClass="ui-button-danger ui-button-outlined"/>
+                                    </ui:fragment>
 
-                                <h:panelGroup rendered="#{evento.tipo eq 'GAME' and evento.statusPlacar eq 'CONFIRMADO'}"
-                                              layout="block" styleClass="p-3 mt-3 border-round border-1 shadow-2 text-center" 
-                                              style="background: rgba(45, 212, 191, 0.1); border-color: rgba(45, 212, 191, 0.3);">
-                                    
-                                    <div class="text-teal-400 font-bold text-sm uppercase tracking-wide mb-3">
-                                        <i class="fas fa-trophy mr-1"></i> Placar Final
-                                    </div>
-                                    
-                                    <div class="flex align-items-center justify-content-center gap-3">
-                                        <div class="flex flex-column align-items-end" style="flex: 1; overflow: hidden;">
-                                            <span class="text-xs text-gray-400 uppercase tracking-widest mb-1">Mandante</span>
-                                            <span class="font-bold text-lg text-white white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 100%;">
-                                                #{evento.nomeTimeMandante != null ? evento.nomeTimeMandante : 'Mandante'}
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="flex align-items-center justify-content-center gap-2 bg-black-alpha-40 px-3 py-2 border-round-lg shadow-1 border-1 border-white-alpha-10">
-                                            <span class="font-bold text-3xl text-white">#{evento.golsMandante}</span>
-                                            <span class="font-bold text-xl text-gray-500">X</span>
-                                            <span class="font-bold text-3xl text-white">#{evento.golsVisitante}</span>
-                                        </div>
-                                        
-                                        <div class="flex flex-column align-items-start" style="flex: 1; overflow: hidden;">
-                                            <span class="text-xs text-gray-400 uppercase tracking-widest mb-1">Visitante</span>
-                                            <span class="font-bold text-lg text-white white-space-nowrap overflow-hidden text-overflow-ellipsis" style="max-width: 100%;">
-                                                #{evento.nomeTimeVisitante != null ? evento.nomeTimeVisitante : 'Visitante'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </h:panelGroup>
+                                    <ui:fragment rendered="#{evento.tipo eq 'GAME'}">
+                                        <p:commandButton type="button" value="Gerar flyer" icon="fas fa-image"
+                                                         rendered="#{not evento.passouDaHora}"
+                                                         onclick="ArenaMatchFlyer.gerar(this); return false;"
+                                                         pt:data-flyer-background="#{resource['images:flyer-login-bg.jpg']}&amp;v=20260821-2"
+                                                         pt:data-flyer-logo="#{resource['images:logo-arena-match.png']}&amp;v=20260821-2"
+                                                         styleClass="ui-button-outlined agenda-btn-flyer"/>
+                                        <p:button value="Abrir chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-outlined">
+                                            <f:param name="p" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                        <p:commandButton value="Solicitar cancelamento" icon="fas fa-ban"
+                                                         rendered="#{not evento.passouDaHora}"
+                                                         action="#{minhaAgendaBean.prepararCancelamento(evento)}" process="@this"
+                                                         update=":formAgenda:painelDetalhes"
+                                                         oncomplete="agendaFocarCancelamento();"
+                                                         styleClass="ui-button-danger ui-button-flat agenda-btn-cancelar"/>
+                                    </ui:fragment>
 
-                                <h:panelGroup rendered="#{minhaAgendaBean.eventoEmCancelamento eq evento}" layout="block" styleClass="mt-4 p-3 border-round shadow-2 w-full" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
-                                    <div class="text-red-400 font-bold text-sm mb-2 uppercase"><i class="fas fa-exclamation-triangle mr-1"></i> Confirmar Cancelamento</div>
-                                    <p:inputTextarea value="#{minhaAgendaBean.motivoCancelamento}" rows="2" maxlength="350" styleClass="w-full custom-input text-sm" placeholder="Ex: Chuva forte, sem equipe..."/>
-                                    <div class="flex justify-content-end gap-2 mt-3">
-                                        <p:commandButton value="Voltar" action="#{minhaAgendaBean.abortarCancelamento()}" update=":formAgenda:painelDetalhes" styleClass="ui-button-secondary p-1 text-sm font-bold"/>
-                                        <p:commandButton value="Enviar Pedido" action="#{minhaAgendaBean.confirmarSolicitacaoCancelamento()}" update=":formAgenda:msgs :formAgenda:painelDetalhes :formAgenda:gridDias" icon="fas fa-paper-plane" styleClass="ui-button-danger p-1 text-sm font-bold"/>
-                                    </div>
-                                </h:panelGroup>
+                                    <ui:fragment rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}">
+                                        <p:commandButton value="Aceitar cancelamento" icon="fas fa-check"
+                                                         action="#{minhaAgendaBean.aceitarCancelamento(evento)}" process="@this"
+                                                         update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                         styleClass="ui-button-danger"/>
+                                        <p:commandButton value="Manter o jogo" icon="fas fa-times"
+                                                         action="#{minhaAgendaBean.recusarCancelamento(evento)}" process="@this"
+                                                         update=":formAgenda @([id$=painelNotificacoesGlobais]) :globalForm:msgs"
+                                                         styleClass="ui-button-secondary ui-button-outlined"/>
+                                        <p:button value="Abrir chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-outlined">
+                                            <f:param name="p" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                    </ui:fragment>
 
-       							<h:panelGroup rendered="#{minhaAgendaBean.eventoEmCancelamento ne evento}">
-									<div class="event-actions mt-3">
-                                        
-                                        <h:panelGroup rendered="#{evento.tipo eq 'INVITE_RECEIVED'}">
-                                            <p:commandButton icon="fas fa-check" title="Aceitar Jogo" 
-									                 action="#{minhaAgendaBean.aceitarConvite(evento)}" 
-									                 update=":formAgenda" 
-									                 styleClass="rounded-button ui-button-success shadow-3" style="width: 35px; height: 35px;"/>
-                                            
-                                            <p:commandButton icon="fas fa-times" title="Recusar" 
-                                                             action="#{minhaAgendaBean.recusarConvite(evento)}" 
-                                                             update=":formAgenda @([id$=painelNotificacoesGlobais]) globalForm:msgs" 
-                                                             styleClass="rounded-button ui-button-danger shadow-3" style="width: 35px; height: 35px;"/>
-
-                                            <p:button value="Negociar" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-secondary rounded-btn text-sm font-bold shadow-2">
-                                                <f:param name="p" value="#{evento.idPartida}" />
-                                            </p:button>
-                                        </h:panelGroup>
-
-                                        <h:panelGroup rendered="#{evento.tipo eq 'INVITE_SENT'}">
-                                            <p:commandButton value="Cancelar Convite" icon="fas fa-trash" 
-                                                             action="#{minhaAgendaBean.cancelarEnvio(evento)}" 
-                                                             update=":formAgenda @([id$=painelNotificacoesGlobais]) globalForm:msgs" 
-                                                             styleClass="ui-button-danger ui-button-outlined rounded-btn text-sm font-bold shadow-2"/>
-
-                                            <p:button value="Negociar" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-secondary rounded-btn text-sm font-bold shadow-2">
-                                                <f:param name="p" value="#{evento.idPartida}" />
-                                            </p:button>
-                                        </h:panelGroup>
-
-                                        <h:panelGroup rendered="#{evento.tipo eq 'GAME'}">
-                                            <p:commandButton type="button" value="Gerar flyer" icon="fas fa-image"
-                                                             rendered="#{not evento.passouDaHora}"
-                                                             onclick="ArenaMatchFlyer.gerar(this); return false;"
-                                                             pt:data-flyer-background="#{resource['images:flyer-login-bg.jpg']}&amp;v=20260821-2"
-                                                             pt:data-flyer-logo="#{resource['images:logo-arena-match.png']}&amp;v=20260821-2"
-                                                             styleClass="ui-button-info ui-button-outlined rounded-btn text-sm font-bold shadow-2"/>
-
-                                            <p:button value="Abrir chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-secondary rounded-btn text-sm font-bold shadow-2">
-                                                <f:param name="p" value="#{evento.idPartida}" />
-                                            </p:button>
-
-                                            <h:panelGroup rendered="#{not evento.passouDaHora}">
-                                                <p:commandButton value="Solicitar cancelamento" icon="fas fa-ban"
-                                                                 action="#{minhaAgendaBean.prepararCancelamento(evento)}"
-                                                                 update=":formAgenda:painelDetalhes"
-                                                                 styleClass="ui-button-danger ui-button-outlined rounded-btn text-sm font-bold shadow-2"/>
-                                            </h:panelGroup>
-                                        </h:panelGroup>
-
-                                        <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_RECEIVED'}">
-                                            <p:commandButton value="Aceitar cancelamento" icon="fas fa-check"
-                                                             action="#{minhaAgendaBean.aceitarCancelamento(evento)}"
-                                                             update=":formAgenda @([id$=painelNotificacoesGlobais]) globalForm:msgs"
-                                                             styleClass="ui-button-danger rounded-btn text-sm font-bold shadow-2"/>
-
-                                            <p:commandButton value="Recusar" icon="fas fa-times"
-                                                             action="#{minhaAgendaBean.recusarCancelamento(evento)}"
-                                                             update=":formAgenda @([id$=painelNotificacoesGlobais]) globalForm:msgs"
-                                                             styleClass="ui-button-secondary rounded-btn text-sm font-bold shadow-2"/>
-
-                                            <p:button value="Abrir chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-secondary rounded-btn text-sm font-bold shadow-2">
-                                                <f:param name="p" value="#{evento.idPartida}" />
-                                            </p:button>
-                                        </h:panelGroup>
-
-                                        <h:panelGroup rendered="#{evento.tipo eq 'CANCELLATION_SENT'}">
-                                            <p:button value="Abrir chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-secondary rounded-btn text-sm font-bold shadow-2">
-                                                <f:param name="p" value="#{evento.idPartida}" />
-                                            </p:button>
-                                        </h:panelGroup>
-                                    </div>
-                                </h:panelGroup>
-
-                            </div>
-                        </div>
+                                    <ui:fragment rendered="#{evento.tipo eq 'CANCELLATION_SENT'}">
+                                        <p:button value="Abrir chat" outcome="/chat.xhtml" icon="far fa-comments" styleClass="ui-button-outlined">
+                                            <f:param name="p" value="#{evento.idPartida}"/>
+                                        </p:button>
+                                    </ui:fragment>
+                                </div>
+                            </ui:fragment>
+                        </li>
                     </ui:repeat>
+                    </ul>
+                    </ui:fragment>
 
-                    <h:panelGroup rendered="#{not empty minhaAgendaBean.convitesLigaDoDia}">
-                        
-                        <h:panelGroup rendered="#{not empty minhaAgendaBean.eventosDoDia}">
-                            <hr style="border: 0; border-top: 1px dashed rgba(255,255,255,0.2); margin: 1.5rem 0;"/>
-                        </h:panelGroup>
-                        
-                        <div class="text-white font-bold text-lg mb-3 uppercase tracking-wide opacity-80">
-                            <i class="fas fa-users text-purple-400 mr-2"></i> Ligas &amp; Comunidades
-                        </div>
+                    <ui:fragment rendered="#{not empty minhaAgendaBean.convitesLigaDoDia}">
+                        <h3 class="agenda-secao-titulo agenda-secao-titulo--liga"><i class="fas fa-users" aria-hidden="true"></i> Ligas e comunidades</h3>
+                        <ul class="agenda-eventos">
+                            <ui:repeat value="#{minhaAgendaBean.convitesLigaDoDia}" var="conviteLiga">
+                                <li class="agenda-evento #{conviteLiga.status eq 'PENDENTE' ? 'agenda-evento--liga' : 'agenda-evento--liga-recusada'}">
+                                    <p class="agenda-evento-status">
+                                        <i class="fas #{conviteLiga.status eq 'PENDENTE' ? 'fa-envelope-open-text' : 'fa-times-circle'}" aria-hidden="true"></i>
+                                        #{conviteLiga.status eq 'PENDENTE' ? 'Convite de liga' : 'Convite recusado'}
+                                    </p>
+                                    <h4 class="agenda-evento-titulo">#{conviteLiga.liga.nome}</h4>
 
-                        <ui:repeat value="#{minhaAgendaBean.convitesLigaDoDia}" var="conviteLiga">
-                            <div class="item-lista #{conviteLiga.status eq 'PENDENTE' ? 'borda-liga-pendente' : 'borda-liga-recusada'}" 
-                                 style="background: rgba(15, 23, 42, 0.6);">
-                                
-                                <div class="badge-icon border-0 #{conviteLiga.status eq 'PENDENTE' ? 'bg-purple-900' : 'bg-gray-800'}">
-                                    <i class="fas fa-trophy text-2xl #{conviteLiga.status eq 'PENDENTE' ? 'text-purple-300' : 'text-gray-500'}"></i>
-                                </div>
+                                    <ui:fragment rendered="#{not empty conviteLiga.mensagem}">
+                                        <blockquote class="agenda-recado">
+                                            <i class="fas fa-quote-left" aria-hidden="true"></i>
+                                            <p>#{conviteLiga.mensagem}</p>
+                                        </blockquote>
+                                    </ui:fragment>
 
-                                <div style="flex-grow: 1; padding-right: 5px;">
-                                    
-                                    <div class="font-bold text-sm mb-1 uppercase tracking-wide #{conviteLiga.status eq 'PENDENTE' ? 'text-purple-400' : 'text-red-400'}">
-                                        <i class="fas #{conviteLiga.status eq 'PENDENTE' ? 'fa-envelope-open-text' : 'fa-times-circle'} mr-1"></i> 
-                                        #{conviteLiga.status eq 'PENDENTE' ? 'Convite de Liga' : 'Convite Recusado'}
-                                    </div>
-
-                                    <div class="font-bold text-white text-xl mb-2">#{conviteLiga.liga.nome}</div>
-
-                                    <h:panelGroup rendered="#{not empty conviteLiga.mensagem}">
-                                        <div class="p-3 border-round text-sm italic mb-3 shadow-1
-                                                    #{conviteLiga.status eq 'PENDENTE' ? 'bg-purple-900 border-left-3 border-purple-400 text-purple-100' : 'bg-white-alpha-10 border-left-3 border-red-500 text-gray-400'}">
-                                            <i class="fas fa-quote-left mr-2 opacity-50"></i>#{conviteLiga.mensagem}
+                                    <ui:fragment rendered="#{conviteLiga.status eq 'PENDENTE'}">
+                                        <div class="agenda-acoes">
+                                            <p:commandButton value="Entrar na liga" icon="fas fa-check"
+                                                             action="#{minhaAgendaBean.aceitarConviteLiga(conviteLiga)}" process="@this"
+                                                             update=":formAgenda :globalForm:msgs"
+                                                             styleClass="ui-button-help"/>
+                                            <p:commandButton value="Recusar" icon="fas fa-times"
+                                                             action="#{minhaAgendaBean.recusarConviteLiga(conviteLiga)}" process="@this"
+                                                             update=":formAgenda :globalForm:msgs"
+                                                             styleClass="ui-button-danger ui-button-outlined"/>
                                         </div>
-                                    </h:panelGroup>
-
-                                    <h:panelGroup rendered="#{conviteLiga.status eq 'PENDENTE'}">
-                                        <div class="flex gap-2 mt-3 pt-2 border-top-1 border-white-alpha-10">
-                                            <p:commandButton icon="fas fa-check" title="Entrar na Liga" 
-                                                             action="#{minhaAgendaBean.aceitarConviteLiga(conviteLiga)}" 
-                                                             update=":formAgenda" 
-                                                             styleClass="rounded-button ui-button-help shadow-3" style="width: 35px; height: 35px;"/>
-                                                             
-                                            <p:commandButton icon="fas fa-times" title="Recusar Liga" 
-                                                             action="#{minhaAgendaBean.recusarConviteLiga(conviteLiga)}" 
-                                                             update=":formAgenda" 
-                                                             styleClass="rounded-button ui-button-danger shadow-3" style="width: 35px; height: 35px;"/>
-                                        </div>
-                                    </h:panelGroup>
-
-                                </div>
-                            </div>
-                        </ui:repeat>
-                    </h:panelGroup>
-
+                                    </ui:fragment>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                    </ui:fragment>
                 </h:panelGroup>
-
             </div>
 
             <p:dialog header="Flyer do jogo" widgetVar="flyerDialog" modal="true" responsive="true"
-                      fitViewport="true" width="520" closable="true" resizable="false"
-                      styleClass="flyer-preview-dialog">
-                <div class="flyer-preview-shell">
-                    <img id="flyerPreviewImage" class="flyer-preview-image" alt="Prévia do flyer do jogo"/>
+                      fitViewport="true" width="520" closable="true" resizable="false" draggable="false"
+                      styleClass="agenda-flyer-dialog" onHide="ArenaMatchFlyer.aoFechar();">
+                <div class="agenda-flyer-previa">
+                    <img id="flyerPreviewImage" class="agenda-flyer-imagem" alt="Prévia do flyer do jogo"/>
                 </div>
-                <div class="flyer-dialog-actions">
-                    <button type="button" class="flyer-dialog-button download" onclick="ArenaMatchFlyer.baixar();">
-                        <i class="fas fa-download"></i> Baixar imagem
+                <f:facet name="footer">
+                    <button type="button" class="agenda-flyer-btn agenda-flyer-btn--baixar" onclick="ArenaMatchFlyer.baixar();">
+                        <i class="fas fa-download" aria-hidden="true"></i> Baixar imagem
                     </button>
-                    <button type="button" id="flyerShareButton" class="flyer-dialog-button share" style="display:none;" onclick="ArenaMatchFlyer.compartilhar();">
-                        <i class="fas fa-share-alt"></i> Compartilhar
+                    <button type="button" id="flyerShareButton" class="agenda-flyer-btn agenda-flyer-btn--compartilhar" hidden="hidden" onclick="ArenaMatchFlyer.compartilhar();">
+                        <i class="fas fa-share-alt" aria-hidden="true"></i> Compartilhar
                     </button>
-                    <button type="button" class="flyer-dialog-button close" onclick="PF('flyerDialog').hide();">
+                    <button type="button" class="agenda-flyer-btn" onclick="PF('flyerDialog').hide();">
                         Fechar
                     </button>
-                </div>
+                </f:facet>
             </p:dialog>
         </h:form>
 
-        <script src="#{resource['js:flyer.js']}&amp;v=20260826-1"></script>
-
-        <script>
-            //<![CDATA[
-            if (!window.todosMeusJogosClickBound) {
-                window.todosMeusJogosClickBound = true;
-                document.addEventListener("click", function(event) {
-                    const trigger = event.target.closest("#todosMeusJogosBtn");
-                    if (!trigger) {
-                        return;
-                    }
-
-                    const panel = document.getElementById("todosMeusJogosPanel");
-                    if (!panel) {
-                        return;
-                    }
-
-                    panel.classList.toggle("open");
-                });
-            }
-            //]]>
-        </script>
+        <script src="#{request.contextPath}/js/flyer.js?v=93"></script>
+        <script src="#{request.contextPath}/js/agenda.js?v=93"></script>
     </ui:define>
 </ui:composition>

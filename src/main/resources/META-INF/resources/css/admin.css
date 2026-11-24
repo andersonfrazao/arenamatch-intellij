@@ -1,0 +1,272 @@
+@charset "UTF-8";
+/* =====================================================================
+   Administração (admin.xhtml), ARENA-98. Prefixo adm-. Mobile first.
+   - Usuários: uma única lista de cartões (substitui a tabela de 820px e a
+     lista duplicada que só aparecia abaixo de 700px). Cartões em 1 coluna;
+     2 colunas a partir de 768px; com o painel de edição ao lado a partir
+     de 1200px, a lista volta a 1 coluna.
+   - Parâmetros: cartão por parâmetro; chave, descrição e valor empilhados
+     no celular; em linha a partir de 992px.
+   - Mensagens de cada ação aparecem junto dela (p:messages local).
+   ===================================================================== */
+
+/* --- Abas (p:tabView) --- */
+.am-ui .adm-abas.ui-tabs {
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.am-ui .adm-abas.ui-tabs .ui-tabs-nav {
+    display: flex;
+    gap: var(--am-space-1);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--am-color-border);
+    background: transparent;
+}
+
+.am-ui .adm-abas.ui-tabs .ui-tabs-nav li {
+    flex: 1 1 0;
+    margin: 0;
+}
+
+.am-ui .adm-abas.ui-tabs .ui-tabs-nav li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--am-touch-target);
+    padding: var(--am-space-2) var(--am-space-3);
+    font-weight: 700;
+}
+
+.am-ui .adm-abas.ui-tabs .ui-tabs-panels,
+.am-ui .adm-abas.ui-tabs .ui-tabs-panel {
+    padding: var(--am-space-4) 0 0;
+    border: 0;
+    background: transparent;
+}
+
+/* --- Estrutura --- */
+.adm-secao {
+    display: grid;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+.adm-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--am-space-3);
+}
+
+.adm-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-lg);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+}
+
+.adm-titulo:focus { outline: none; }
+.adm-titulo:focus-visible { outline: 2px solid var(--am-color-accent); outline-offset: 4px; }
+
+.adm-sub {
+    margin: var(--am-space-1) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.adm-msgs:not(:has(li)) { display: none; }
+.am-ui .adm-msgs .ui-messages { margin: 0; }
+
+/* --- Busca --- */
+.adm-busca {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--am-space-3);
+    align-items: end;
+}
+
+.adm-busca .ui-button { width: 100%; }
+
+/* --- Usuários --- */
+.adm-usuarios-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--am-space-4);
+    align-items: start;
+}
+
+.adm-lista {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--am-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adm-usuario {
+    display: grid;
+    gap: var(--am-space-3);
+    min-width: 0;
+    padding: var(--am-space-4);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-md);
+    background: var(--am-color-surface-sunken);
+}
+
+.adm-usuario.is-selecionado {
+    border-color: var(--am-color-accent);
+    box-shadow: 0 0 0 1px var(--am-color-accent);
+}
+
+.adm-usuario-nome {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md, 1rem);
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.adm-usuario-email {
+    margin: 2px 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+/* Perfil, status, plano e expiração: pares rótulo/valor. */
+.adm-dados {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--am-space-2) var(--am-space-3);
+    margin: 0;
+}
+
+.adm-dados > div { min-width: 0; }
+
+.adm-dados dt {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.adm-dados dd {
+    margin: 0;
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.adm-usuario .ui-button { width: 100%; }
+
+/* --- Edição ---
+   Sem usuário escolhido, o cartão de instrução só aparece com a edição ao
+   lado da lista (>= 1200px); no celular ele só ocuparia espaço. */
+.adm-edicao--vazia { display: none; }
+.adm-edicao-cabecalho { min-width: 0; }
+.adm-edicao-cabecalho .adm-sub { overflow-wrap: anywhere; }
+
+/* --- Parâmetros --- */
+.adm-parametros {
+    display: grid;
+    gap: var(--am-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adm-parametro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--am-space-3);
+    min-width: 0;
+    padding: var(--am-space-4);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-md);
+    background: var(--am-color-surface-sunken);
+}
+
+.adm-parametro-chave {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.adm-parametro-descricao {
+    margin: var(--am-space-1) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.adm-parametro-valor {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--am-space-2);
+    min-width: 0;
+}
+
+.adm-parametro-valor .am-field { flex: 1 1 auto; }
+.adm-parametro .adm-msgs { grid-column: 1 / -1; }
+
+/* =====================================================================
+   >= 576px
+   ===================================================================== */
+@media (min-width: 576px) {
+    .adm-busca { grid-template-columns: minmax(0, 1fr) auto; }
+    .adm-busca .ui-button { width: auto; }
+
+    .adm-dados { grid-template-columns: repeat(4, minmax(0, auto)); justify-content: start; gap: var(--am-space-2) var(--am-space-6); }
+
+    .adm-usuario { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .adm-usuario .adm-dados { grid-column: 1 / -1; }
+    .adm-usuario .ui-button { grid-column: 2; grid-row: 1; width: auto; }
+
+    .am-ui .adm-abas.ui-tabs .ui-tabs-nav li { flex: 0 0 auto; }
+}
+
+/* =====================================================================
+   >= 768px
+   ===================================================================== */
+@media (min-width: 768px) {
+    .adm-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .adm-usuario { grid-template-columns: minmax(0, 1fr); align-content: start; }
+    .adm-usuario .ui-button { grid-column: auto; grid-row: auto; justify-self: start; }
+    .adm-dados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* =====================================================================
+   >= 992px: parâmetros em linha
+   ===================================================================== */
+@media (min-width: 992px) {
+    .adm-parametro {
+        grid-template-columns: minmax(12rem, .9fr) minmax(16rem, 1.1fr);
+        align-items: center;
+        gap: var(--am-space-3) var(--am-space-6);
+    }
+}
+
+/* =====================================================================
+   >= 1200px: edição ao lado da lista
+   ===================================================================== */
+@media (min-width: 1200px) {
+    .adm-usuarios-grade { grid-template-columns: minmax(0, 1.15fr) minmax(22rem, .85fr); }
+    .adm-lista { grid-template-columns: minmax(0, 1fr); }
+
+    .adm-usuario { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .adm-usuario .ui-button { grid-column: 2; grid-row: 1; justify-self: end; }
+    .adm-dados { grid-template-columns: repeat(4, minmax(0, auto)); justify-content: start; gap: var(--am-space-2) var(--am-space-6); }
+
+    .adm-edicao { position: sticky; top: var(--am-space-4); }
+    .adm-edicao--vazia { display: block; }
+}

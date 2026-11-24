@@ -151,6 +151,16 @@ public class ChatBean implements Serializable {
         }
     }
     
+    /**
+     * Chegou mensagem em alguma conversa enquanto a caixa de entrada está na tela:
+     * atualiza prévia, horário, ordem e contador de não lidas, sem marcar nada como lido.
+     */
+    public void atualizarInbox() {
+        carregarInbox();
+        atualizarConversaSelecionadaDaInbox();
+        sessaoBean.atualizarNotificacoesChat();
+    }
+
     public void chegouMensagemPeloWebSocket() {
         marcarConversaSelecionadaComoLida();
         recarregarMensagens();

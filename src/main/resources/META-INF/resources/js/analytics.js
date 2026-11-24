@@ -158,13 +158,24 @@
         }
 
         function choose(choice) {
+            // O foco estava no painel, que vai sumir: leva para o botão do rodapé.
+            var focoNoPainel = banner.contains(document.activeElement);
             saveChoice(choice);
             applyChoice(choice);
+            if (focoNoPainel) preferences.focus();
         }
 
         accept.addEventListener('click', function () { choose('granted'); });
         reject.addEventListener('click', function () { choose('denied'); });
         preferences.addEventListener('click', function () { showBanner(true, true); });
+        // Reaberto pelo rodapé (já existe uma escolha): Esc fecha mantendo a escolha atual.
+        banner.addEventListener('keydown', function (event) {
+            var atual = readChoice();
+            if (event.key === 'Escape' && atual !== null) {
+                showBanner(false, false);
+                preferences.focus();
+            }
+        });
         document.body.appendChild(banner);
         preferencesHost.appendChild(preferences);
         window.addEventListener('resize', fitSpace);

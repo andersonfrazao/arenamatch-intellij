@@ -3,321 +3,271 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
                 template="/WEB-INF/template/layout.xhtml">
-                
+
     <ui:define name="tituloPagina">Desempenho</ui:define>
     <ui:define name="subtituloPagina">Ranking geral e números do seu time</ui:define>
 
     <ui:define name="conteudo">
-        
-        <style>
-            .tabela-ranking .ui-datatable-header,
-            .tabela-ranking .ui-state-default {
-                background: rgba(15, 23, 42, 0.6) !important;
-                border: none !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-                color: #94a3b8 !important;
-                text-transform: uppercase;
-                font-size: 0.80rem;
-            }
-            .tabela-ranking .ui-datatable-data > tr {
-                background: transparent !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-            }
-            .tabela-ranking .ui-datatable-data > tr:hover {
-                background: rgba(255, 255, 255, 0.05) !important;
-            }
-            .tabela-ranking td {
-                border: none !important;
-                padding: 1rem 0.5rem !important; /* Reduzi o padding horizontal para caber melhor no mobile */
-            }
-            .table-wrapper {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                border-radius: 16px;
-                padding-bottom: 1rem;
-            }
-            .table-wrapper .ui-datatable {
-                min-width: 520px;
-            }
-            /* Destaca a coluna principal */
-            .col-vitorias {
-                background: rgba(34, 197, 94, 0.1); 
-                border-radius: 8px;
-            }
-            .desempenho-tabs {
-                display: flex;
-                gap: .5rem;
-                padding: .75rem;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            .desempenho-tab {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: .5rem;
-                padding: .75rem 1rem;
-                border-radius: 10px;
-                color: #94a3b8;
-                font-weight: 800;
-                text-decoration: none;
-                transition: background .2s, color .2s;
-            }
-            .desempenho-tab:hover {
-                color: #fff;
-                background: rgba(255, 255, 255, 0.06);
-            }
-            .desempenho-tab.active {
-                color: #fff;
-                background: rgba(14, 165, 233, 0.18);
-                border: 1px solid rgba(56, 189, 248, 0.35);
-            }
-            .scout-bloqueado {
-                margin: 1rem;
-                padding: 2rem 1rem;
-                text-align: center;
-                border-radius: 14px;
-                border: 1px solid rgba(250, 204, 21, 0.25);
-                background: rgba(250, 204, 21, 0.06);
-            }
-            .scout-content {
-                padding-bottom: 1rem;
-            }
-            .scout-resumo-card {
-                margin: 1rem;
-                overflow: hidden;
-                border: 1px solid rgba(56, 189, 248, 0.22);
-                border-radius: 14px;
-                background: rgba(15, 23, 42, 0.55);
-                box-shadow: 0 10px 28px rgba(2, 6, 23, 0.2);
-            }
-            .scout-resumo-card .table-wrapper {
-                padding-bottom: 0;
-            }
-            .scout-jogos {
-                margin: 1.25rem 1rem 0;
-                padding-top: 1rem;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            .scout-jogos-list {
-                display: flex;
-                flex-direction: column;
-                gap: .4rem;
-            }
-            .scout-jogo-row {
-                display: flex;
-                align-items: center;
-                gap: .65rem;
-                padding: .7rem .8rem;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 10px;
-                background: rgba(255, 255, 255, 0.025);
-            }
-            .scout-jogo-resultado {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                gap: .4rem;
-                min-width: 0;
-            }
-            .scout-jogo-data {
-                color: #bae6fd;
-                font-size: .82rem;
-                font-weight: 900;
-                white-space: nowrap;
-            }
-            .scout-jogo-hora {
-                color: rgba(255, 255, 255, 0.72);
-                font-size: .82rem;
-                font-weight: 800;
-                white-space: nowrap;
-            }
-            .scout-jogo-time {
-                color: #fff;
-                font-weight: 800;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .scout-jogo-placar {
-                color: #fff;
-                font-size: 1rem;
-                font-weight: 900;
-                white-space: nowrap;
-            }
-            .scout-jogos-empty {
-                padding: 1rem;
-                color: #94a3b8;
-                text-align: center;
-                border: 1px dashed rgba(148, 163, 184, .25);
-                border-radius: 10px;
-            }
-            .scout-carregar-mais {
-                display: flex;
-                justify-content: flex-start;
-                margin-top: .8rem;
-            }
-            @media (max-width: 520px) {
-                .desempenho-tabs { padding: .6rem; }
-                .desempenho-tab { flex: 1; padding: .7rem .45rem; font-size: .82rem; }
-                .scout-resumo-card { margin: .65rem; }
-                .scout-jogos { margin: 0 .65rem; }
-                .scout-jogo-row {
-                    align-items: flex-start;
-                    flex-wrap: wrap;
-                    gap: .35rem;
-                    padding: .6rem .5rem;
-                }
-                .scout-jogo-resultado {
-                    flex-basis: 100%;
-                    flex-wrap: wrap;
-                }
-                .scout-jogo-data, .scout-jogo-hora { font-size: .7rem; }
-                .scout-jogo-time { font-size: .76rem; white-space: normal; overflow-wrap: anywhere; }
-                .scout-jogo-placar { font-size: .84rem; }
-            }
-        </style>
+        <h:outputStylesheet library="css" name="desempenho.css"/>
 
-        <div class="card shadow-4 p-0" style="background: rgba(15, 23, 42, 0.9); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
-
-            <h:form id="formTabsDesempenho">
-                <div class="p-3">
-                    <p:outputLabel for="modalidadeRanking" value="Modalidade do ranking e scout" styleClass="text-white font-bold block mb-2"/>
-                    <p:selectOneMenu id="modalidadeRanking" value="#{rankingBean.modalidade}" styleClass="w-full" style="max-width:350px;">
-                        <f:selectItems value="#{rankingBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
-                        <p:ajax listener="#{rankingBean.alterarModalidade}" update="@form @([id$=painelDesempenho])"/>
-                    </p:selectOneMenu>
-                </div>
-                <div class="desempenho-tabs">
-                    <p:commandLink action="#{rankingBean.exibirRanking}"
-                                   update="@form @([id$=painelDesempenho])"
-                                   styleClass="desempenho-tab #{rankingBean.rankingAtivo ? 'active' : ''}">
-                        <i class="fas #{sessaoBean.acessoCompleto ? 'fa-list-ol' : 'fa-lock'}"></i>
-                        <span>Ranking Geral</span>
-                    </p:commandLink>
-                    <p:commandLink action="#{rankingBean.exibirScout}"
-                                   update="@form @([id$=painelDesempenho])"
-                                   styleClass="desempenho-tab #{rankingBean.scoutAtivo ? 'active' : ''}">
-                        <i class="fas #{sessaoBean.acessoCompleto ? 'fa-chart-bar' : 'fa-lock'}"></i>
-                        <span>Meu Scout</span>
-                    </p:commandLink>
-                </div>
-            </h:form>
-
-            <h:panelGroup id="painelDesempenho" layout="block">
-            <div class="px-3 pb-3 text-cyan-300 font-bold">#{rankingBean.modalidade.descricao}</div>
-            <h:panelGroup rendered="#{rankingBean.rankingAtivo and sessaoBean.acessoCompleto}" layout="block" styleClass="table-wrapper">
-                <p:dataTable value="#{rankingBean.ranking}" var="t" 
-                             styleClass="tabela-ranking" 
-                             rowStyleClass="text-white"
-                             rowIndexVar="index"
-                             emptyMessage="Nenhum time pontuou ainda nesta temporada.">
-                    
-                    <p:column headerText="Pos" width="45" styleClass="text-center font-bold">
-                        <h:panelGroup rendered="#{index == 0}"><i class="fas fa-medal text-2xl text-yellow-500" title="1º Lugar"></i></h:panelGroup>
-                        <h:panelGroup rendered="#{index == 1}"><i class="fas fa-medal text-xl text-gray-400" title="2º Lugar"></i></h:panelGroup>
-                        <h:panelGroup rendered="#{index == 2}"><i class="fas fa-medal text-lg text-orange-400" title="3º Lugar"></i></h:panelGroup>
-                        <h:outputText value="#{index + 1}º" rendered="#{index > 2}" styleClass="text-gray-400" />
-                    </p:column>
-                    
-                    <p:column headerText="Time" style="min-width: 140px;">
-                        <div class="flex align-items-center gap-2">
-                            <div class="flex align-items-center justify-content-center bg-bluegray-800 border-circle border-1 border-bluegray-600" style="width: 28px; height: 28px; flex-shrink: 0;">
-                                <i class="fas fa-shield-alt text-blue-400" style="font-size: 0.7rem;"></i>
-                            </div>
-                            <span class="font-bold text-md" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;">#{t.nome}</span>
-                        </div>
-                    </p:column>
-                    
-                    <p:column headerText="V" width="45" styleClass="text-center text-green-400 font-bold text-lg col-vitorias">#{t.vitorias}</p:column>
-                    <p:column headerText="J" width="40" styleClass="text-center text-gray-400">#{t.partidasJogadas}</p:column>
-                    <p:column headerText="E" width="40" styleClass="text-center text-gray-400">#{t.empates}</p:column>
-                    <p:column headerText="D" width="40" styleClass="text-center text-red-400">#{t.derrotas}</p:column>
-                    
-                    <p:column headerText="GP" width="40" styleClass="text-center text-gray-300">#{t.golsPro}</p:column>
-                    <p:column headerText="GS" width="40" styleClass="text-center text-gray-400">#{t.golsContra}</p:column>
-                    <p:column headerText="SG" width="40" styleClass="text-center font-bold text-white">#{t.saldoGols}</p:column>
-                </p:dataTable>
-            </h:panelGroup>
-
-            <h:panelGroup rendered="#{rankingBean.scoutAtivo and sessaoBean.acessoCompleto}" layout="block" styleClass="scout-content">
-                <div class="scout-resumo-card">
-                <div class="table-wrapper">
-                <p:dataTable value="#{rankingBean.scoutTabela}" var="t"
-                             styleClass="tabela-ranking"
-                             rowStyleClass="text-white"
-                             emptyMessage="Nenhum time está vinculado a este usuário.">
-                    <p:column headerText="Time" style="min-width: 160px;">
-                        <div class="flex align-items-center gap-2">
-                            <div class="flex align-items-center justify-content-center bg-bluegray-800 border-circle border-1 border-bluegray-600"
-                                 style="width: 28px; height: 28px; flex-shrink: 0;">
-                                <i class="fas fa-shield-alt text-blue-400" style="font-size: 0.7rem;"></i>
-                            </div>
-                            <span class="font-bold text-md">#{t.nome}</span>
-                        </div>
-                    </p:column>
-                    <p:column headerText="J" width="55" styleClass="text-center text-gray-300">#{t.partidasJogadas}</p:column>
-                    <p:column headerText="V" width="55" styleClass="text-center text-green-400 font-bold text-lg col-vitorias">#{t.vitorias}</p:column>
-                    <p:column headerText="E" width="55" styleClass="text-center text-gray-300">#{t.empates}</p:column>
-                    <p:column headerText="D" width="55" styleClass="text-center text-red-400">#{t.derrotas}</p:column>
-                    <p:column headerText="GP" width="55" styleClass="text-center text-gray-300">#{t.golsPro}</p:column>
-                    <p:column headerText="GS" width="55" styleClass="text-center text-gray-400">#{t.golsContra}</p:column>
-                    <p:column headerText="SG" width="55" styleClass="text-center font-bold text-white">#{t.saldoGols}</p:column>
-                </p:dataTable>
-                </div>
-                </div>
-
-                <h:form id="formJogosScout">
-                <section class="scout-jogos">
-                    <div class="text-white font-bold mb-3">Jogos realizados</div>
-
-                    <h:panelGroup rendered="#{empty rankingBean.jogosRealizados}">
-                        <div class="scout-jogos-empty">Nenhum jogo com placar confirmado.</div>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{not empty rankingBean.jogosRealizados}" layout="block" styleClass="scout-jogos-list">
-                        <ui:repeat value="#{rankingBean.jogosRealizados}" var="jogo">
-                            <div class="scout-jogo-row">
-                                <span class="scout-jogo-data">
-                                    <h:outputText value="#{jogo.dataHora}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
-                                    </h:outputText>
-                                </span>
-                                <span class="scout-jogo-hora">
-                                    <h:outputText value="#{jogo.dataHora}">
-                                        <f:convertDateTime pattern="HH:mm" type="localDateTime"/>
-                                    </h:outputText>
-                                </span>
-                                <span class="scout-jogo-resultado">
-                                    <span class="scout-jogo-time">#{jogo.nomeMeuTime}</span>
-                                    <span class="scout-jogo-placar">#{jogo.golsMeuTime} x #{jogo.golsAdversario}</span>
-                                    <span class="scout-jogo-time">#{jogo.nomeAdversario}</span>
-                                </span>
-                            </div>
-                        </ui:repeat>
-                    </h:panelGroup>
-
-                    <h:panelGroup rendered="#{rankingBean.temMaisJogos}" layout="block" styleClass="scout-carregar-mais">
-                        <p:commandButton value="Carregar mais"
-                                         icon="fas fa-chevron-down"
-                                         action="#{rankingBean.carregarMaisJogos}"
-                                         process="@this"
-                                         update="@form"
-                                         styleClass="ui-button-outlined ui-button-sm rounded-btn"/>
-                    </h:panelGroup>
-                </section>
-                </h:form>
-            </h:panelGroup>
-
-            <h:panelGroup rendered="#{not sessaoBean.acessoCompleto}" layout="block" styleClass="scout-bloqueado">
-                <i class="fas fa-lock text-yellow-400 text-4xl mb-3"></i>
-                <div class="text-white text-xl font-bold mb-2">Desempenho bloqueado</div>
-                <p class="text-gray-300 mt-0 mb-4">Ranking Geral e Meu Scout estão disponíveis para o plano PRO.</p>
+        <!-- Sem acesso (Básico ou teste expirado): explica o que o plano libera. -->
+        <ui:fragment rendered="#{not sessaoBean.acessoCompleto}">
+            <section class="am-card dsp-bloqueado" aria-labelledby="dspBloqueadoTitulo">
+                <i class="fas fa-lock" aria-hidden="true"></i>
+                <h2 id="dspBloqueadoTitulo" class="dsp-bloqueado-titulo">Desempenho disponível no PRO</h2>
+                <p>O Ranking Geral e o Meu Scout fazem parte dos planos PRO e PREMIUM e do período de teste.</p>
                 <p:button outcome="/fale-conosco" value="Conhecer o PRO" icon="fas fa-crown"
-                          styleClass="ui-button-warning font-bold rounded-btn"/>
-            </h:panelGroup>
-            </h:panelGroup>
-        </div>
-        
-    </ui:define> 
+                          styleClass="ui-button-warning dsp-bloqueado-acao"/>
+            </section>
+        </ui:fragment>
+
+        <ui:fragment rendered="#{sessaoBean.acessoCompleto}">
+            <h:form id="formDesempenho" styleClass="dsp">
+                <div class="dsp-controles">
+                    <div class="am-field dsp-modalidade">
+                        <p:outputLabel for="modalidadeRanking" value="Modalidade" styleClass="am-field-label"/>
+                        <p:selectOneMenu id="modalidadeRanking" value="#{rankingBean.modalidade}">
+                            <f:selectItems value="#{rankingBean.modalidades}" var="m" itemLabel="#{m.descricao}" itemValue="#{m}"/>
+                            <p:ajax listener="#{rankingBean.alterarModalidade}" process="@this" update="abas painelDesempenho"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <h:panelGroup id="abas" layout="block" styleClass="dsp-abas">
+                        <p:commandLink id="abaRanking" action="#{rankingBean.exibirRanking}"
+                                       process="@this" update="abas painelDesempenho"
+                                       styleClass="dsp-aba #{rankingBean.rankingAtivo ? 'is-ativa' : ''}"
+                                       pt:aria-current="#{rankingBean.rankingAtivo ? 'true' : 'false'}">
+                            <i class="fas fa-list-ol" aria-hidden="true"></i>
+                            <span>Ranking geral</span>
+                        </p:commandLink>
+                        <p:commandLink id="abaScout" action="#{rankingBean.exibirScout}"
+                                       process="@this" update="abas painelDesempenho"
+                                       styleClass="dsp-aba #{rankingBean.scoutAtivo ? 'is-ativa' : ''}"
+                                       pt:aria-current="#{rankingBean.scoutAtivo ? 'true' : 'false'}">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                            <span>Meu scout</span>
+                        </p:commandLink>
+                    </h:panelGroup>
+                </div>
+
+                <h:panelGroup id="painelDesempenho" layout="block" styleClass="dsp-painel">
+
+                    <ui:fragment rendered="#{rankingBean.erroCarga}">
+                        <div class="am-alert am-alert--danger dsp-erro" role="alert">
+                            <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                            <div>
+                                <strong>Não foi possível carregar os dados.</strong>
+                                Verifique sua conexão e tente de novo.
+                            </div>
+                            <p:commandButton id="tentarNovamente" value="Tentar novamente" icon="fas fa-rotate-right"
+                                             action="#{rankingBean.tentarNovamente}" process="@this"
+                                             update="abas painelDesempenho"
+                                             styleClass="ui-button-outlined dsp-erro-acao"/>
+                        </div>
+                    </ui:fragment>
+
+                    <!-- ===================== Ranking geral ===================== -->
+                    <ui:fragment rendered="#{rankingBean.rankingAtivo and not rankingBean.erroCarga}">
+                        <section class="am-card dsp-secao" aria-labelledby="dspTituloRanking">
+                            <div class="dsp-secao-cabecalho">
+                                <h2 id="dspTituloRanking" class="dsp-secao-titulo">Ranking geral</h2>
+                                <span class="am-chip am-chip--info">#{rankingBean.modalidade.descricao}</span>
+                            </div>
+
+                            <ui:fragment rendered="#{empty rankingBean.ranking}">
+                                <div class="am-empty">
+                                    <i class="fas fa-trophy" aria-hidden="true"></i>
+                                    <p class="dsp-vazio-titulo">Nenhum time pontuou ainda nesta modalidade</p>
+                                    <p>O ranking aparece depois dos primeiros jogos com placar confirmado.</p>
+                                </div>
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{not empty rankingBean.ranking}">
+                                <p id="dspDicaRolagem" class="dsp-dica" hidden="hidden">
+                                    <i class="fas fa-arrows-left-right" aria-hidden="true"></i>
+                                    Deslize a tabela para ver todas as colunas.
+                                </p>
+                                <div class="am-table-scroll dsp-tabela-scroll" tabindex="0" role="region"
+                                     aria-labelledby="dspTituloRanking" data-dica="dspDicaRolagem">
+                                    <table class="dsp-tabela">
+                                        <caption class="am-sr-only">
+                                            Ranking geral de #{rankingBean.modalidade.descricao}: posição, time, vitórias, jogos, empates, derrotas, gols pró, gols sofridos e saldo de gols.
+                                        </caption>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="dsp-col-pos"><abbr title="Posição">Pos</abbr></th>
+                                                <th scope="col" class="dsp-col-time">Time</th>
+                                                <th scope="col" class="dsp-col-destaque"><abbr title="Vitórias">V</abbr></th>
+                                                <th scope="col"><abbr title="Jogos">J</abbr></th>
+                                                <th scope="col"><abbr title="Empates">E</abbr></th>
+                                                <th scope="col"><abbr title="Derrotas">D</abbr></th>
+                                                <th scope="col"><abbr title="Gols pró">GP</abbr></th>
+                                                <th scope="col"><abbr title="Gols sofridos">GS</abbr></th>
+                                                <th scope="col"><abbr title="Saldo de gols">SG</abbr></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ui:repeat value="#{rankingBean.ranking}" var="t" varStatus="st">
+                                                <tr class="#{t.id eq sessaoBean.usuarioLogado.idTime ? 'is-meu-time' : ''} #{st.index eq 0 ? 'dsp-podio-1' : (st.index eq 1 ? 'dsp-podio-2' : (st.index eq 2 ? 'dsp-podio-3' : ''))}">
+                                                    <td class="dsp-col-pos">
+                                                        <ui:fragment rendered="#{st.index lt 3}">
+                                                            <i class="fas fa-medal dsp-medalha" aria-hidden="true"></i>
+                                                        </ui:fragment>
+                                                        <span>#{st.index + 1}º</span>
+                                                    </td>
+                                                    <th scope="row" class="dsp-col-time">
+                                                        <span class="dsp-time">
+                                                            <span class="dsp-escudo">
+                                                                <ui:fragment rendered="#{not empty t.escudo}">
+                                                                    <h:graphicImage value="#{t.escudo}" alt=""/>
+                                                                </ui:fragment>
+                                                                <ui:fragment rendered="#{empty t.escudo}">
+                                                                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                                                </ui:fragment>
+                                                            </span>
+                                                            <span class="dsp-time-texto">
+                                                                <span class="dsp-time-nome">#{t.nome}</span>
+                                                                <ui:fragment rendered="#{t.id eq sessaoBean.usuarioLogado.idTime}">
+                                                                    <span class="dsp-meu-time">Seu time</span>
+                                                                </ui:fragment>
+                                                            </span>
+                                                        </span>
+                                                    </th>
+                                                    <td class="dsp-col-destaque">#{t.vitorias}</td>
+                                                    <td>#{t.partidasJogadas}</td>
+                                                    <td>#{t.empates}</td>
+                                                    <td class="dsp-num-derrota">#{t.derrotas}</td>
+                                                    <td>#{t.golsPro}</td>
+                                                    <td>#{t.golsContra}</td>
+                                                    <td class="dsp-num-saldo">#{t.saldoGols}</td>
+                                                </tr>
+                                            </ui:repeat>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <details class="dsp-legenda">
+                                    <summary>O que significa cada coluna</summary>
+                                    <dl>
+                                        <div><dt>V</dt><dd>Vitórias</dd></div>
+                                        <div><dt>J</dt><dd>Jogos</dd></div>
+                                        <div><dt>E</dt><dd>Empates</dd></div>
+                                        <div><dt>D</dt><dd>Derrotas</dd></div>
+                                        <div><dt>GP</dt><dd>Gols pró</dd></div>
+                                        <div><dt>GS</dt><dd>Gols sofridos</dd></div>
+                                        <div><dt>SG</dt><dd>Saldo de gols</dd></div>
+                                    </dl>
+                                </details>
+                            </ui:fragment>
+                        </section>
+                    </ui:fragment>
+
+                    <!-- ===================== Meu scout ===================== -->
+                    <ui:fragment rendered="#{rankingBean.scoutAtivo}">
+                        <ui:fragment rendered="#{not sessaoBean.possuiTime}">
+                            <div class="am-empty">
+                                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                <p class="dsp-vazio-titulo">Nenhum time vinculado a esta conta</p>
+                                <p>O scout mostra os números do time do representante.</p>
+                            </div>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{sessaoBean.possuiTime and empty rankingBean.scout and not rankingBean.erroCarga}">
+                            <div class="am-empty">
+                                <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                                <p class="dsp-vazio-titulo">Ainda não há números do seu time</p>
+                                <p>O scout aparece depois dos primeiros jogos com placar confirmado nesta modalidade.</p>
+                            </div>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{sessaoBean.possuiTime and not empty rankingBean.scout}">
+                            <section class="am-card dsp-secao" aria-labelledby="dspTituloScout">
+                                <div class="dsp-secao-cabecalho">
+                                    <h2 id="dspTituloScout" class="dsp-secao-titulo">Meu scout</h2>
+                                    <span class="am-chip am-chip--info">#{rankingBean.modalidade.descricao}</span>
+                                </div>
+                                <div class="dsp-time dsp-time--resumo">
+                                    <span class="dsp-escudo">
+                                        <ui:fragment rendered="#{not empty rankingBean.scout.escudo}">
+                                            <h:graphicImage value="#{rankingBean.scout.escudo}" alt=""/>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{empty rankingBean.scout.escudo}">
+                                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                        </ui:fragment>
+                                    </span>
+                                    <span class="dsp-time-nome">#{rankingBean.scout.nome}</span>
+                                </div>
+                                <dl class="dsp-metricas dsp-metricas--7">
+                                    <div class="dsp-metrica"><dt>Jogos</dt><dd>#{rankingBean.scout.partidasJogadas}</dd></div>
+                                    <div class="dsp-metrica dsp-metrica--v"><dt>Vitórias</dt><dd>#{rankingBean.scout.vitorias}</dd></div>
+                                    <div class="dsp-metrica dsp-metrica--e"><dt>Empates</dt><dd>#{rankingBean.scout.empates}</dd></div>
+                                    <div class="dsp-metrica dsp-metrica--d"><dt>Derrotas</dt><dd>#{rankingBean.scout.derrotas}</dd></div>
+                                    <div class="dsp-metrica"><dt>Gols pró</dt><dd>#{rankingBean.scout.golsPro}</dd></div>
+                                    <div class="dsp-metrica"><dt>Gols sofridos</dt><dd>#{rankingBean.scout.golsContra}</dd></div>
+                                    <div class="dsp-metrica"><dt>Saldo</dt><dd>#{rankingBean.scout.saldoGols}</dd></div>
+                                </dl>
+                            </section>
+
+                            <section class="am-card dsp-secao dsp-secao--jogos" aria-labelledby="dspTituloJogos">
+                                <h2 id="dspTituloJogos" class="dsp-secao-titulo">Jogos realizados</h2>
+                                <h:panelGroup id="jogosRealizados" layout="block">
+                                    <ui:fragment rendered="#{empty rankingBean.jogosRealizados}">
+                                        <div class="am-empty">
+                                            <i class="far fa-calendar-check" aria-hidden="true"></i>
+                                            <p>Nenhum jogo com placar confirmado nesta modalidade.</p>
+                                        </div>
+                                    </ui:fragment>
+
+                                    <ui:fragment rendered="#{not empty rankingBean.jogosRealizados}">
+                                        <ol class="dsp-jogos">
+                                            <ui:repeat value="#{rankingBean.jogosRealizados}" var="jogo">
+                                                <li class="dsp-jogo" tabindex="-1">
+                                                    <div class="dsp-jogo-topo">
+                                                        <span class="dsp-resultado dsp-resultado--#{jogo.golsMeuTime gt jogo.golsAdversario ? 'V' : (jogo.golsMeuTime eq jogo.golsAdversario ? 'E' : 'D')}">
+                                                            <span aria-hidden="true">#{jogo.golsMeuTime gt jogo.golsAdversario ? 'V' : (jogo.golsMeuTime eq jogo.golsAdversario ? 'E' : 'D')}</span>
+                                                            <span class="am-sr-only">#{jogo.golsMeuTime gt jogo.golsAdversario ? 'Vitória' : (jogo.golsMeuTime eq jogo.golsAdversario ? 'Empate' : 'Derrota')}</span>
+                                                        </span>
+                                                        <span class="dsp-jogo-data">
+                                                            <h:outputText value="#{jogo.dataHora}">
+                                                                <f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/>
+                                                            </h:outputText>
+                                                            <span aria-hidden="true"> · </span>
+                                                            <span class="am-sr-only"> às </span>
+                                                            <h:outputText value="#{jogo.dataHora}">
+                                                                <f:convertDateTime pattern="HH:mm" type="localDateTime"/>
+                                                            </h:outputText>
+                                                        </span>
+                                                    </div>
+                                                    <div class="dsp-placar">
+                                                        <span class="dsp-placar-gols">#{jogo.golsMeuTime} <span aria-hidden="true">x</span><span class="am-sr-only"> a </span> #{jogo.golsAdversario}</span>
+                                                        <span class="dsp-placar-time dsp-placar-time--adv"><span class="dsp-placar-contra">contra </span>#{jogo.nomeAdversario}</span>
+                                                    </div>
+                                                </li>
+                                            </ui:repeat>
+                                        </ol>
+                                    </ui:fragment>
+
+                                    <ui:fragment rendered="#{rankingBean.temMaisJogos}">
+                                        <div class="dsp-mais">
+                                            <p:commandButton id="carregarMais" value="Carregar mais jogos" icon="fas fa-chevron-down"
+                                                             action="#{rankingBean.carregarMaisJogos}"
+                                                             process="@this" update="jogosRealizados"
+                                                             onclick="dspAntesCarregarMais();"
+                                                             oncomplete="dspAposCarregarMais(status);"
+                                                             styleClass="ui-button-outlined"/>
+                                        </div>
+                                    </ui:fragment>
+                                </h:panelGroup>
+                                <p id="dspStatusJogos" class="am-sr-only" role="status" aria-live="polite"></p>
+                            </section>
+                        </ui:fragment>
+                    </ui:fragment>
+                </h:panelGroup>
+            </h:form>
+        </ui:fragment>
+
+        <script src="#{request.contextPath}/js/desempenho.js?v=95"></script>
+    </ui:define>
 </ui:composition>
