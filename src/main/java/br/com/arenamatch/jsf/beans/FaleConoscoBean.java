@@ -61,7 +61,7 @@ public class FaleConoscoBean implements Serializable {
         try {
             if (isAguardandoConfirmacaoExclusao()) {
                 FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Confirmacao necessaria", "Confirme a orientacao sobre exclusao definitiva para continuar."));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Confirmação necessária", "Confirme a orientação sobre a exclusão definitiva para continuar."));
                 return;
             }
 
@@ -79,7 +79,7 @@ public class FaleConoscoBean implements Serializable {
              emailClient.enviarEmailSuporte("arenamatch.app@gmail.com", "[Arena Match] " + assunto, textoEmail, usuario.getEmail());
 
             FacesContext.getCurrentInstance().addMessage(null, 
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Mensagem enviada com sucesso! Nossa equipe avaliara em breve."));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Mensagem enviada com sucesso! Nossa equipe vai avaliar em breve."));
             
             this.assunto = "";
             this.mensagem = "";

@@ -1,259 +1,122 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
+      lang="pt-BR"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
 
 <h:head>
+    <meta charset="UTF-8"/>
     <title>Arena Match - Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="#{request.contextPath}/css/login-publico.css?v=61"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="theme-color" content="#202b3c"/>
+    <h:outputStylesheet library="css" name="tokens.css"/>
     <h:outputStylesheet library="css" name="styles.css"/>
-    <link href="https://unpkg.com/primeflex@3.1.2/primeflex.css" rel="stylesheet"/>
+    <h:outputStylesheet library="css" name="login-publico.css"/>
+    <h:outputStylesheet library="css" name="acesso.css"/>
+    <link href="https://unpkg.com/primeflex@3.3.1/primeflex.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
-    <style>
-        body {
-            display: block;
-            min-height: 100vh;
-            overflow-y: auto;
-            margin: 0;
-            padding: 0;
-        }
-        .login-form {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-        .login-card {
-            width: 90%;
-            max-width: 520px;
-            padding: 40px;
-            border-radius: 16px;
-            position: relative;
-            overflow: hidden;
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
-        }
-        body .ui-inputfield {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #475569;
-            color: #fff;
-            padding-left: 2.5rem !important;
-        }
-        body .ui-inputfield:focus {
-            border-color: #0ea5e9;
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
-        }
-        .ui-input-icon-left > i {
-            color: #94a3b8;
-        }
-        body .ui-password,
-        body .ui-password input {
-            width: 100%;
-        }
-        .admin-code-input {
-            width: 100%;
-            text-align: center !important;
-            letter-spacing: 12px;
-            font-size: 1.5rem !important;
-            font-weight: 800 !important;
-            padding-left: 12px !important;
-            color: #38bdf8 !important;
-        }
-        .mensagem-app-mobile {
-            display: none;
-        }
-        .login-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 24px 0;
-            color: #94a3b8;
-            font-size: 0.875rem;
-        }
-        .login-divider::before,
-        .login-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(148, 163, 184, 0.25);
-        }
-        .login-signup {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            min-height: 56px;
-            padding: 14px 16px;
-            border: 1px solid #0ea5e9;
-            border-radius: 8px;
-            background: transparent;
-            color: #38bdf8;
-            font-size: 1rem;
-            font-weight: 700;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
-        .login-signup:hover {
-            background: rgba(14, 165, 233, 0.12);
-            border-color: #38bdf8;
-        }
-        .login-signup:focus-visible {
-            outline: 3px solid #38bdf8;
-            outline-offset: 4px;
-        }
-        @media (max-width: 768px) {
-            .mensagem-app-mobile {
-                display: block;
-                margin-top: 20px;
-                text-align: center;
-                font-size: 0.9rem;
-                color: rgba(255, 255, 255, 0.85);
-            }
-        }
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 28px 20px;
-            }
-        }
-    </style>
     <ui:include src="/WEB-INF/template/analytics.xhtml"/>
 </h:head>
 
-<h:body>
-    <header class="login-public-header">
-        <div class="login-public-header-inner">
-            <a href="#{request.contextPath}/login.xhtml" class="login-public-brand" aria-label="Arena Match, login">
-                <img src="#{request.contextPath}/images/logo-arena-match.png" alt="Arena Match" width="348" height="68"/>
-            </a>
-            <nav id="loginPublicNav" class="login-public-nav" aria-label="Conheça o Arena Match">
-                <a href="#{request.contextPath}/index.xhtml#quem-somos">Quem somos</a>
-                <a href="#{request.contextPath}/index.xhtml#funcionalidades">Funcionalidades</a>
-                <a href="#{request.contextPath}/encontrar-times-futebol-amador.xhtml">Encontrar adversários</a>
-                <a href="#{request.contextPath}/como-funciona.xhtml">Passo a passo</a>
-                <a href="#{request.contextPath}/index.xhtml#planos">Planos</a>
-            </nav>
-            <div class="login-public-actions">
-                <h:link outcome="/index" value="Saiba mais" styleClass="login-public-more"/>
-                <button id="loginPublicToggle" class="login-public-toggle" type="button" aria-label="Abrir menu" aria-controls="loginPublicNav" aria-expanded="false">
-                    <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-    </header>
+<h:body styleClass="am-ui">
+    <ui:include src="/WEB-INF/template/cabecalho-acesso.xhtml"/>
+
     <main class="login-public-main">
-    <h:form id="formLogin" styleClass="login-form">
-        <p:growl id="msgs" showDetail="true"/>
+        <div class="acesso-card am-card am-card--elevated am-card--accent">
+            <h:form id="formLogin" styleClass="acesso-form">
 
-        <div class="login-card">
-            <div class="text-center mb-5">
-                <div class="text-3xl font-bold text-neon" style="font-size: 2rem;">
-                    <i class="fas fa-trophy mr-2"></i> ARENA <span class="text-white ml-2">MATCH</span>
+                <div class="acesso-topo">
+                    <h1 class="am-sr-only">Entrar no Arena Match</h1>
+                    <div class="acesso-logo">
+                        <i class="fas fa-trophy mr-2" aria-hidden="true"></i>ARENA<span>MATCH</span>
+                    </div>
+                    <p class="acesso-descricao">
+                        #{loginBean.aguardandoCodigoAdmin ? 'Confirme seu acesso.' : 'Entre e encontre seu próximo desafio.'}
+                    </p>
+                    <div class="acesso-aviso-app">Ou acesse www.arenamatch.app.br</div>
                 </div>
-                <div class="text-gray-400 text-sm mt-2">
-                    #{loginBean.aguardandoCodigoAdmin ? 'Confirme seu acesso.' : 'Entre e encontre seu proximo desafio.'}
-                </div>
-                <div class="mensagem-app-mobile">Ou acesse www.arenamatch.app.br</div>
-            </div>
 
-            <h:panelGroup id="etapaLogin" layout="block" rendered="#{not loginBean.aguardandoCodigoAdmin}">
-                <div class="field mb-4">
-                    <span class="ui-input-icon-left w-full">
-                        <i class="pi pi-user"></i>
-                        <p:inputText value="#{loginBean.email}" placeholder="E-mail" styleClass="w-full"
-                                     required="true" requiredMessage="E-mail obrigatorio."/>
+                <p:messages id="msgs" showDetail="true" closable="true" styleClass="acesso-mensagens"/>
+
+                <h:panelGroup id="etapaLogin" layout="block" styleClass="acesso-form" rendered="#{not loginBean.aguardandoCodigoAdmin}">
+                    <span class="ui-input-icon-left">
+                        <i class="pi pi-user" aria-hidden="true"></i>
+                        <p:inputText id="email" value="#{loginBean.email}" type="email" placeholder="E-mail"
+                                     required="true" requiredMessage="E-mail obrigatorio."
+                                     pt:aria-label="E-mail" pt:autocomplete="username" pt:autocapitalize="none"
+                                     pt:spellcheck="false"/>
                     </span>
-                </div>
 
-                <div class="field mb-4">
-                    <span class="ui-input-icon-left w-full">
-                        <i class="pi pi-lock"></i>
-                        <p:password value="#{loginBean.senha}" placeholder="Senha" styleClass="w-full"
-                                    required="true" requiredMessage="Senha obrigatoria." toggleMask="true"/>
+                    <span class="ui-input-icon-left">
+                        <i class="pi pi-lock" aria-hidden="true"></i>
+                        <p:password id="senha" value="#{loginBean.senha}" placeholder="Senha" toggleMask="true"
+                                    required="true" requiredMessage="Senha obrigatoria."
+                                    pt:aria-label="Senha" pt:autocomplete="current-password"/>
                     </span>
-                </div>
 
-                <div class="flex justify-content-end align-items-center mb-4 text-sm">
-                    <a href="recuperar-senha.xhtml" class="text-neon no-underline hover:text-white font-bold">Esqueci a senha</a>
-                </div>
+                    <div class="acesso-esqueci">
+                        <a href="recuperar-senha.xhtml" class="acesso-link acesso-link--destaque">Esqueci a senha</a>
+                    </div>
 
-                <p:commandButton value="ENTRAR EM CAMPO"
-                                 action="#{loginBean.logar}"
-                                 update="@form"
-                                 icon="pi pi-sign-in"
-                                 styleClass="w-full rounded-btn font-bold border-none shadow-4"
-                                 style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); padding: 12px 0;"/>
+                    <p:commandButton value="ENTRAR EM CAMPO"
+                                     action="#{loginBean.logar}"
+                                     update="@form"
+                                     icon="pi pi-sign-in"
+                                     styleClass="acesso-cta"/>
 
-                <div class="login-divider">ou</div>
-                <a href="cadastro.xhtml" class="login-signup">
-                    <i class="pi pi-user-plus" aria-hidden="true"></i>
-                    <span>Criar nova conta</span>
-                </a>
-            </h:panelGroup>
+                    <div class="acesso-divisor">ou</div>
+                    <a href="cadastro.xhtml" class="acesso-cadastro">
+                        <i class="pi pi-user-plus" aria-hidden="true"></i>
+                        <span>Criar nova conta</span>
+                    </a>
+                </h:panelGroup>
 
-            <h:panelGroup id="etapaCodigoAdmin" layout="block" rendered="#{loginBean.aguardandoCodigoAdmin}">
-                <div class="text-center text-gray-300 line-height-3 mb-4">
-                    Enviamos um codigo de 5 digitos para
-                    <strong class="text-white">#{loginBean.emailAdminMascarado}</strong>.
-                </div>
+                <h:panelGroup id="etapaCodigoAdmin" layout="block" styleClass="acesso-form" rendered="#{loginBean.aguardandoCodigoAdmin}">
+                    <p class="acesso-descricao text-center">
+                        Enviamos um código de 5 dígitos para
+                        <strong>#{loginBean.emailAdminMascarado}</strong>.
+                    </p>
 
-                <div class="field mb-4">
-                    <p:inputMask value="#{loginBean.codigoAdmin}"
+                    <p:inputMask id="codigoAdmin"
+                                 value="#{loginBean.codigoAdmin}"
                                  mask="99999"
                                  placeholder="_ _ _ _ _"
                                  required="true"
-                                 requiredMessage="Informe o codigo enviado por e-mail."
-                                 styleClass="admin-code-input"/>
+                                 requiredMessage="Informe o código enviado por e-mail."
+                                 styleClass="acesso-codigo"
+                                 pt:aria-label="Código de 5 dígitos"
+                                 pt:inputmode="numeric"
+                                 pt:autocomplete="one-time-code"/>
+
+                    <p:commandButton value="CONFIRMAR ACESSO"
+                                     action="#{loginBean.confirmarCodigoAdmin}"
+                                     ajax="false"
+                                     icon="pi pi-lock-open"
+                                     styleClass="acesso-cta"/>
+
+                    <div class="flex justify-content-center flex-wrap column-gap-4">
+                        <p:commandLink value="Reenviar código"
+                                       action="#{loginBean.reenviarCodigoAdmin}"
+                                       process="@this"
+                                       update="@form"
+                                       styleClass="acesso-link acesso-link--destaque"/>
+                        <p:commandLink value="Voltar"
+                                       action="#{loginBean.voltarParaLogin}"
+                                       process="@this"
+                                       update="@form"
+                                       immediate="true"
+                                       styleClass="acesso-link"/>
+                    </div>
+                </h:panelGroup>
+
+                <div class="acesso-rodape">
+                    <div class="acesso-versao">Vers&#227;o: Beta 0.23</div>
+                    <a href="privacidade.xhtml" class="acesso-link">Termos de Uso e Politica de Privacidade</a>
                 </div>
-
-                <p:commandButton value="CONFIRMAR ACESSO"
-                                 action="#{loginBean.confirmarCodigoAdmin}"
-                                 ajax="false"
-                                 icon="pi pi-lock-open"
-                                 styleClass="w-full rounded-btn font-bold border-none shadow-4"
-                                 style="background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); padding: 12px 0;"/>
-
-                <div class="flex justify-content-center gap-4 mt-4 text-sm">
-                    <p:commandLink value="Reenviar codigo"
-                                   action="#{loginBean.reenviarCodigoAdmin}"
-                                   process="@this"
-                                   update="@form"
-                                   styleClass="text-neon no-underline font-bold"/>
-                    <p:commandLink value="Voltar"
-                                   action="#{loginBean.voltarParaLogin}"
-                                   process="@this"
-                                   update="@form"
-                                   immediate="true"
-                                   styleClass="text-gray-400 no-underline"/>
-                </div>
-            </h:panelGroup>
-
-            <div class="text-center mt-4 text-xs text-gray-500 font-bold">
-                Vers&#227;o: Beta 0.22
-            </div>
-
-            <div class="text-center mt-3 text-xs">
-                <a href="privacidade.xhtml" class="text-gray-500 no-underline hover:text-white">
-                    Termos de Uso e Politica de Privacidade
-                </a>
-            </div>
+            </h:form>
         </div>
-    </h:form>
     </main>
-    <script src="#{request.contextPath}/js/login-publico.js"></script>
 </h:body>
 </html>

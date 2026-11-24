@@ -32,7 +32,13 @@ function browser(options = {}) {
         }
         addEventListener(name, callback) { this.events[name] = callback; }
         click() { this.events.click?.(); }
-        focus() { this.focused = true; }
+        focus() { this.focused = true; document.activeElement = this; }
+        contains(node) {
+            for (let atual = node; atual; atual = atual.parent) {
+                if (atual === this) return true;
+            }
+            return false;
+        }
         getBoundingClientRect() { return { height: 180 }; }
         remove() { this.parent.children = this.parent.children.filter(child => child !== this); }
     }
@@ -121,6 +127,26 @@ test('aceite carrega uma tag e omite dados de query e fragmentos das URLs', () =
     assert.equal(page.storage.get(KEY), 'granted');
     assert.equal(page.element('am-analytics-consent').hidden, true);
     assert.equal(page.window['ga-disable-' + ID], false);
+});
+
+test('apos escolher no aviso o foco vai para as preferencias do rodape', () => {
+    const page = browser({ hasFooter: true });
+    const accept = page.element('am-analytics-accept');
+    accept.focus();
+    accept.click();
+    assert.equal(page.document.activeElement, page.element('am-analytics-preferences'));
+    assert.equal(page.element('am-analytics-preferences').hidden, false);
+});
+
+test('Esc fecha o aviso reaberto e mantem a escolha atual', () => {
+    const page = browser({ choice: 'denied', hasFooter: true });
+    page.element('am-analytics-preferences').click();
+    assert.equal(page.element('am-analytics-consent').hidden, false);
+    page.element('am-analytics-consent').events.keydown({ key: 'Escape' });
+    assert.equal(page.element('am-analytics-consent').hidden, true);
+    assert.equal(page.storage.get(KEY), 'denied');
+    assert.equal(page.document.activeElement, page.element('am-analytics-preferences'));
+    assert.equal(page.requests.length, 0);
 });
 
 test('aceitar novamente ou executar o script novamente nao duplica a tag', () => {

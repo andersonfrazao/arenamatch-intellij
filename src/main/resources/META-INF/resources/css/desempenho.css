@@ -1,0 +1,699 @@
+/* =====================================================================
+   Desempenho (ARENA-95): ranking.xhtml e adversario-detalhes.xhtml
+   Prefixo dsp-. Mobile first.
+   - Ranking: tabela de comparação com rolagem própria (am-table-scroll);
+     posição e time ficam fixos à esquerda enquanto as colunas rolam.
+   - Scout e adversário: métricas em grade (4 colunas no celular).
+   - Jogos: cartões com resultado (V/E/D), data e placar em 3 colunas.
+   ===================================================================== */
+
+.dsp {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+/* --- Controles: modalidade e abas --- */
+.dsp-controles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+}
+
+.dsp-modalidade { margin: 0; }
+
+.am-ui .dsp-modalidade .ui-selectonemenu { width: 100%; }
+
+.dsp-abas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--am-space-1);
+    padding: var(--am-space-1);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-md);
+    background: var(--am-color-surface-sunken);
+}
+
+.dsp-aba {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    font-size: var(--am-font-size-sm);
+    min-height: var(--am-touch-target);
+    padding: var(--am-space-2);
+    border: 1px solid transparent;
+    border-radius: var(--am-radius-sm);
+    color: var(--am-color-text-muted);
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    transition: background var(--am-transition), color var(--am-transition);
+}
+
+.dsp-aba:hover {
+    background: var(--am-color-surface-hover);
+    color: var(--am-color-text-strong);
+}
+
+.dsp-aba.is-ativa {
+    border-color: var(--am-color-accent-border);
+    background: var(--am-color-accent-bg);
+    color: var(--am-color-text-strong);
+}
+
+/* Enquanto a troca de aba/modalidade carrega. */
+.dsp-painel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-4);
+    min-width: 0;
+    transition: opacity var(--am-transition);
+}
+
+.dsp-painel[aria-busy="true"] { opacity: 0.55; }
+
+.dsp-erro {
+    flex-wrap: wrap;
+}
+
+.dsp-erro > div { flex: 1 1 12rem; }
+
+.dsp-erro-acao { flex: 1 1 100%; }
+
+/* --- Seções --- */
+.dsp-secao {
+    --am-card-padding: var(--am-space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+}
+
+.dsp-secao-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--am-space-2);
+}
+
+.dsp-secao-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+}
+
+.dsp-secao-sub {
+    margin: calc(-1 * var(--am-space-2)) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.dsp-vazio-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-weight: 800;
+}
+
+.dsp-vazio-compacto { padding: var(--am-space-4); }
+
+.dsp-dica {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    margin: 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.dsp-dica[hidden] { display: none; }
+
+/* --- Bloqueado (sem plano com acesso) --- */
+.dsp-bloqueado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--am-space-2);
+    border-color: var(--am-color-warning-border);
+    text-align: center;
+}
+
+.dsp-bloqueado > i {
+    color: var(--am-color-warning);
+    font-size: 2rem;
+}
+
+.dsp-bloqueado-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-lg);
+    font-weight: 800;
+}
+
+.dsp-bloqueado p { margin: 0 0 var(--am-space-2); color: var(--am-color-text); }
+
+.am-ui .dsp-bloqueado-acao.ui-button { width: 100%; }
+
+/* --- Escudo e nome do time --- */
+.dsp-escudo {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    overflow: hidden;
+    border: 1px solid #475569;
+    border-radius: 50%;
+    background: #1e293b;
+    color: #60a5fa;
+    font-size: 0.8rem;
+}
+
+.dsp-escudo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dsp-escudo--grande {
+    width: 3.5rem;
+    height: 3.5rem;
+    color: #94a3b8;
+    font-size: 1.6rem;
+}
+
+.dsp-time {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    min-width: 0;
+}
+
+.dsp-time-texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.dsp-time-nome {
+    color: var(--am-color-text-strong);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+.dsp-meu-time {
+    margin-top: 0.15rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: var(--am-radius-pill);
+    background: var(--am-color-accent-bg);
+    color: var(--am-color-accent-soft);
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+}
+
+.dsp-time--resumo .dsp-escudo { width: 2.75rem; height: 2.75rem; font-size: 1.1rem; }
+.dsp-time--resumo .dsp-time-nome { font-size: var(--am-font-size-lg); }
+
+/* =====================================================================
+   Tabela do ranking
+   No celular a tabela é mais larga que a tela: o contêiner rola sozinho e
+   as colunas Pos e Time ficam fixas (sticky) para não perder a referência.
+   ===================================================================== */
+.dsp-tabela-scroll {
+    /* As sombras de rolagem do am-table-scroll usam a cor do cartão. */
+    --dsp-fundo: #172033;
+    margin: 0 calc(-1 * var(--am-space-4));
+    width: calc(100% + 2 * var(--am-space-4));
+    background:
+        linear-gradient(90deg, var(--dsp-fundo) 30%, rgba(23, 32, 51, 0)) left center / 2.5rem 100% no-repeat local,
+        linear-gradient(270deg, var(--dsp-fundo) 30%, rgba(23, 32, 51, 0)) right center / 2.5rem 100% no-repeat local,
+        radial-gradient(farthest-side at 100% 50%, rgba(56, 189, 248, 0.45), transparent) right center / 0.9rem 100% no-repeat scroll,
+        var(--dsp-fundo);
+}
+
+.dsp-tabela {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--am-color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.dsp-tabela th,
+.dsp-tabela td {
+    padding: var(--am-space-3) var(--am-space-2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.dsp-tabela thead th {
+    position: sticky;
+    top: 0;
+    padding-top: var(--am-space-2);
+    padding-bottom: var(--am-space-2);
+    border-bottom-color: var(--am-color-border);
+    background: var(--dsp-fundo);
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.dsp-tabela abbr[title] {
+    text-decoration: none;
+    cursor: help;
+}
+
+.dsp-tabela td { min-width: 2.5rem; }
+
+/* Colunas fixas: fundo opaco para o conteúdo rolado passar por baixo. */
+.dsp-col-pos,
+.dsp-col-time {
+    position: sticky;
+    z-index: 1;
+    background: var(--dsp-fundo);
+}
+
+.dsp-tabela thead .dsp-col-pos,
+.dsp-tabela thead .dsp-col-time { z-index: 2; }
+
+.dsp-col-pos {
+    left: 0;
+    width: 3.25rem;
+    min-width: 3.25rem;
+    padding-left: var(--am-space-4);
+    color: var(--am-color-text-muted);
+    font-weight: 800;
+    text-align: left;
+}
+
+.dsp-tabela .dsp-col-time {
+    left: 3.25rem;
+    width: 7.5rem;
+    min-width: 7.5rem;
+    max-width: 7.5rem;
+    text-align: left;
+    white-space: normal;
+}
+
+.dsp-tabela thead .dsp-col-time { text-align: left; }
+
+/* Separação das colunas fixas quando a tabela já foi rolada. */
+.dsp-tabela-scroll.is-rolada .dsp-col-time {
+    box-shadow: 6px 0 8px -4px rgba(0, 0, 0, 0.6);
+}
+
+.dsp-col-pos > span { display: inline-block; }
+
+.dsp-medalha {
+    margin-right: 0.15rem;
+    font-size: 0.85rem;
+}
+
+.dsp-podio-1 .dsp-medalha { color: #eab308; }
+.dsp-podio-2 .dsp-medalha { color: #9ca3af; }
+.dsp-podio-3 .dsp-medalha { color: #fb923c; }
+
+.dsp-podio-1 .dsp-col-pos { color: #fde047; }
+
+.dsp-tabela .dsp-col-destaque {
+    color: #4ade80;
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+}
+
+.dsp-tabela thead .dsp-col-destaque { color: #86efac; font-size: var(--am-font-size-xs); }
+
+.dsp-num-derrota { color: #f87171; }
+.dsp-num-saldo { color: var(--am-color-text-strong); font-weight: 800; }
+
+.dsp-tabela tbody tr:hover > * { background-color: #1d2940; }
+
+.dsp-tabela tbody tr.is-meu-time > * {
+    background-color: #12324a;
+}
+
+.dsp-tabela tbody tr.is-meu-time > .dsp-col-pos {
+    box-shadow: inset 3px 0 0 var(--am-color-accent);
+}
+
+.dsp-tabela tbody tr:last-child > * { border-bottom: 0; }
+
+.dsp-tabela .dsp-time-nome { font-size: var(--am-font-size-sm); overflow-wrap: break-word; hyphens: auto; }
+
+/* Celular: sem escudo na tabela, para o nome caber na coluna fixa. */
+@media (max-width: 575.98px) {
+    .dsp-tabela .dsp-escudo { display: none; }
+}
+
+/* --- Legenda das abreviações --- */
+.dsp-legenda {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.dsp-legenda summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--am-touch-target);
+    color: var(--am-color-accent-soft);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.dsp-legenda dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: var(--am-space-1) var(--am-space-3);
+    margin: var(--am-space-1) 0 0;
+}
+
+.dsp-legenda dl > div { display: flex; gap: var(--am-space-2); }
+.dsp-legenda dt { min-width: 1.75rem; color: var(--am-color-text-strong); font-weight: 800; }
+.dsp-legenda dd { margin: 0; }
+
+/* =====================================================================
+   Métricas (scout, adversário, confronto)
+   ===================================================================== */
+.dsp-metricas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.375rem;
+    margin: 0;
+}
+
+.dsp-metricas--6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.dsp-metrica {
+    display: flex;
+    flex-direction: column-reverse; /* valor em cima, rótulo embaixo; leitor de tela lê rótulo e valor */
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    min-width: 0;
+    padding: var(--am-space-2) 0.125rem;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--am-radius-sm);
+    background: rgba(15, 23, 42, 0.45);
+    text-align: center;
+}
+
+.dsp-metrica dt {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 600;
+    line-height: 1.2;
+    overflow-wrap: normal;
+    hyphens: none;
+}
+
+.dsp-metrica dd {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-lg);
+    font-weight: 800;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.dsp-metrica--v dd { color: #4ade80; }
+.dsp-metrica--e dd { color: #facc15; }
+.dsp-metrica--d dd { color: #f87171; }
+.dsp-metrica--ranking { border-color: var(--am-color-accent-border); }
+.dsp-metrica--ranking dd { color: var(--am-color-accent-soft); }
+
+/* =====================================================================
+   Jogos (scout e últimos resultados do adversário)
+   ===================================================================== */
+.dsp-jogos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dsp-jogo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-2);
+    padding: var(--am-space-3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--am-radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.dsp-jogo:focus { outline: none; }
+.dsp-jogo:focus-visible { outline: var(--am-focus-ring); outline-offset: 2px; }
+
+.dsp-jogo-topo {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+}
+
+.dsp-resultado {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    color: #fff;
+    font-size: var(--am-font-size-xs);
+    font-weight: 900;
+}
+
+.dsp-resultado--V { background: #16a34a; }
+.dsp-resultado--E { background: #a16207; }
+.dsp-resultado--D { background: #dc2626; }
+
+.dsp-jogo-data {
+    color: #bae6fd;
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+}
+
+/* Placar: gols e "contra adversário" (o próprio time já está no título da seção). */
+.dsp-placar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--am-space-2);
+}
+
+.dsp-placar-time {
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.dsp-placar-time--adv { text-align: left; }
+.dsp-placar-contra { color: var(--am-color-text-muted); font-weight: 600; }
+
+.dsp-placar-gols {
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--am-radius-sm);
+    background: rgba(15, 23, 42, 0.7);
+    color: #fff;
+    font-size: var(--am-font-size-md);
+    font-weight: 900;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.dsp-mais { margin-top: var(--am-space-3); }
+
+.am-ui .dsp-mais .ui-button { width: 100%; }
+
+/* =====================================================================
+   Detalhes do adversário
+   ===================================================================== */
+.dsp-voltar {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: var(--am-space-2);
+    min-height: var(--am-touch-target);
+    padding: 0 var(--am-space-1);
+    color: var(--am-color-accent-soft);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.dsp-voltar:hover { color: var(--am-color-text-strong); text-decoration: underline; }
+
+.dsp-perfil {
+    --am-card-padding: var(--am-space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-4);
+}
+
+/* Celular: escudo e nome lado a lado; chips em linha inteira abaixo. */
+.dsp-perfil-topo {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--am-space-3);
+}
+
+.dsp-perfil-texto { display: contents; }
+
+.dsp-perfil-topo .dsp-chips { grid-column: 1 / -1; }
+
+.dsp-perfil-nome {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-lg);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.dsp-chips {
+    display: flex;
+    align-self: start;
+    flex-wrap: wrap;
+    gap: var(--am-space-1) var(--am-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.am-ui .dsp-btn-desafiar.ui-button { width: 100%; }
+
+.dsp-desafio {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-3);
+    padding: var(--am-space-4);
+    border: 1px solid var(--am-color-warning-border);
+    border-radius: var(--am-radius-md);
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.dsp-desafio-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.dsp-desafio-dados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--am-space-2) var(--am-space-5);
+    margin: 0;
+}
+
+.dsp-desafio-dados dt { color: var(--am-color-text-muted); font-size: var(--am-font-size-xs); font-weight: 700; }
+.dsp-desafio-dados dd { margin: 0; color: var(--am-color-text-strong); font-weight: 800; }
+
+.dsp-desafio-acoes {
+    display: flex;
+    flex-direction: column-reverse; /* ação principal em cima, ao alcance do polegar */
+    gap: var(--am-space-2);
+}
+
+.am-ui .dsp-desafio-acoes .ui-button { width: 100%; }
+
+.am-ui .dsp-desafio textarea { width: 100%; }
+
+/* =====================================================================
+   >= 576px
+   ===================================================================== */
+@media (min-width: 576px) {
+    .dsp-controles {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .dsp-modalidade { flex: 0 1 20rem; }
+    .dsp-abas { flex: 0 1 22rem; }
+
+    .am-ui .dsp-bloqueado-acao.ui-button,
+    .am-ui .dsp-mais .ui-button,
+    .am-ui .dsp-btn-desafiar.ui-button { width: auto; }
+
+    .dsp-erro-acao { flex: 0 0 auto; }
+
+    .dsp-tabela .dsp-col-time { width: auto; min-width: 10rem; max-width: 18rem; }
+
+    .dsp-escudo--grande { width: 4.5rem; height: 4.5rem; }
+
+    .dsp-desafio-acoes { flex-direction: row; justify-content: flex-end; }
+    .am-ui .dsp-desafio-acoes .ui-button { width: auto; }
+
+    .dsp-jogo {
+        display: grid;
+        grid-template-columns: 10.5rem minmax(0, 1fr);
+        align-items: center;
+    }
+}
+
+/* =====================================================================
+   >= 768px
+   ===================================================================== */
+@media (min-width: 768px) {
+    .dsp-secao,
+    .dsp-perfil { --am-card-padding: var(--am-space-5); }
+
+    .dsp-tabela-scroll {
+        margin: 0 calc(-1 * var(--am-space-5));
+        width: calc(100% + 2 * var(--am-space-5));
+    }
+
+    .dsp-col-pos { padding-left: var(--am-space-5); }
+
+    .dsp-metricas--7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .dsp-metricas--6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .dsp-metricas--8 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .dsp-perfil-topo { column-gap: var(--am-space-4); row-gap: var(--am-space-2); }
+    .dsp-perfil-topo .dsp-escudo--grande { grid-row: span 2; }
+    .dsp-perfil-topo .dsp-chips { grid-column: 2; }
+    .dsp-perfil-nome { font-size: var(--am-font-size-xl); }
+
+    .dsp-perfil {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+
+    .dsp-desafio-area:has(.dsp-desafio) { grid-column: 1 / -1; }
+}
+
+/* =====================================================================
+   >= 1200px: adversário em duas colunas (perfil e scout | confronto e
+   resultados)
+   ===================================================================== */
+@media (min-width: 1200px) {
+    .dsp-metricas--8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+
+    .dsp-adv {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .dsp-adv > .dsp-voltar,
+    .dsp-adv > .dsp-perfil,
+    .dsp-adv > .dsp-bloqueado,
+    .dsp-adv > .am-empty,
+    .dsp-adv > .dsp-secao:nth-of-type(2) { grid-column: 1 / -1; }
+}

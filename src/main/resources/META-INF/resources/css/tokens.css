@@ -1,0 +1,153 @@
+@charset "UTF-8";
+
+/* =====================================================================
+   Arena Match — tokens de design (ARENA-88)
+
+   Fonte única de cores, tipografia, espaçamentos, raios, sombras,
+   camadas e áreas de toque. Não contém seletores de componentes, então
+   pode ser carregado por qualquer página (app autenticado, acesso e,
+   na ARENA-97, as páginas públicas) antes da folha de estilos da página.
+
+   Valores conforme a paleta oficial (CLAUDE.md, seção "Paleta de cores"):
+   ao precisar de uma cor nova, reutilize um token; não invente tons.
+
+   Convenções completas: docs/frontend-mobile-first.md
+   ===================================================================== */
+
+:root {
+    color-scheme: dark;
+
+    /* --- Cores: superfícies (identidade dark/glass) --- */
+    --am-color-bg: #0f172a;
+    --am-color-bg-overlay-top: rgba(10, 20, 35, 0.85);
+    --am-color-bg-overlay-bottom: rgba(10, 20, 35, 0.95);
+    --am-color-surface: rgba(30, 41, 59, 0.7);
+    --am-color-surface-strong: rgba(30, 41, 59, 0.88);
+    --am-color-surface-sunken: rgba(15, 23, 42, 0.6);
+    --am-color-surface-bar: rgba(15, 23, 42, 0.95);
+    --am-color-surface-hover: rgba(255, 255, 255, 0.05);
+    --am-color-border: rgba(255, 255, 255, 0.1);
+    --am-color-border-strong: #334155;
+    --am-color-border-outline: #42617e;
+
+    /* --- Cores: texto --- */
+    --am-color-text: #e2e8f0;
+    --am-color-text-strong: #ffffff;
+    --am-color-text-muted: #94a3b8;
+    --am-color-text-subtle: #64748b;
+
+    /* --- Cores: marca (ciano) --- */
+    --am-color-accent: #0ea5e9;
+    --am-color-accent-strong: #0284c7;
+    --am-color-accent-soft: #38bdf8;
+    --am-color-accent-bg: rgba(14, 165, 233, 0.15);
+    --am-color-accent-border: rgba(14, 165, 233, 0.4);
+    --am-gradient-accent: linear-gradient(90deg, #0ea5e9, #22d3ee);
+    --am-gradient-cta: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
+
+    /* --- Cores: páginas públicas (institucional.css usa os mesmos valores) --- */
+    --am-public-bg: #0b1220;
+    --am-public-panel: #111d30;
+    --am-public-border: #25364c;
+    --am-public-text: #f3f6fc;
+    --am-public-text-muted: #a8b6cc;
+    --am-public-brand: #19b5ee;
+    --am-public-brand-hover: #64d3fa;
+
+    /* --- Cores: estados --- */
+    --am-color-success: #22c55e;
+    --am-color-success-text: #86efac;
+    --am-color-success-bg: rgba(34, 197, 94, 0.14);
+    --am-color-success-border: rgba(34, 197, 94, 0.35);
+    --am-color-warning: #eab308;
+    --am-color-warning-text: #fde68a;
+    --am-color-warning-bg: rgba(234, 179, 8, 0.14);
+    --am-color-warning-border: rgba(234, 179, 8, 0.35);
+    --am-color-danger: #ef4444;
+    --am-color-danger-text: #ef4444;
+    --am-color-danger-bg: rgba(239, 68, 68, 0.14);
+    --am-color-danger-border: rgba(239, 68, 68, 0.4);
+    --am-color-info: #38bdf8;
+    --am-color-info-text: #38bdf8;
+    --am-color-info-bg: rgba(14, 165, 233, 0.12);
+    --am-color-info-border: rgba(14, 165, 233, 0.35);
+
+    /* --- Cores: domínio --- */
+    --am-color-liga: #a855f7;
+    --am-color-liga-border: rgba(168, 85, 247, 0.45);
+    --am-color-liga-recusada: #f43f5e;
+
+    /* --- Legenda da agenda (não alterar o significado das cores) --- */
+    --am-agenda-game: #25d366;
+    --am-agenda-played: #3b82f6;
+    --am-agenda-score-pending: #a855f7;
+    --am-agenda-invite: #ffcc00;
+    --am-agenda-cancelled: #ef4444;
+    --am-agenda-score-confirmed: #2dd4bf;
+
+    /* --- Tipografia (escala fluida, 320px → 1440px) --- */
+    --am-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --am-font-size-xs: 0.75rem;
+    --am-font-size-sm: 0.875rem;
+    --am-font-size-md: 1rem;
+    --am-font-size-lg: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    --am-font-size-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+    --am-font-size-2xl: clamp(1.375rem, 1.15rem + 1vw, 2rem);
+    --am-line-height: 1.5;
+    --am-line-height-tight: 1.25;
+    /* Campos com no mínimo 16px evitam o zoom automático do iOS/WebView ao focar. */
+    --am-font-size-input: max(16px, 1rem);
+
+    /* --- Espaçamentos --- */
+    --am-space-1: 0.25rem;
+    --am-space-2: 0.5rem;
+    --am-space-3: 0.75rem;
+    --am-space-4: 1rem;
+    --am-space-5: 1.25rem;
+    --am-space-6: 1.5rem;
+    --am-space-8: 2rem;
+    /* Margem lateral da página: 16px no celular, cresce com a viewport. */
+    --am-gutter: clamp(1rem, 0.6rem + 1.8vw, 2rem);
+    --am-container-max: 1400px;
+    --am-container-narrow: 520px;
+    --am-container-reading: 980px;
+
+    /* --- Raios e sombras --- */
+    --am-radius-sm: 8px;    /* botões */
+    --am-radius-md: 12px;   /* cards e painéis */
+    --am-radius-lg: 16px;   /* modais e cards grandes */
+    --am-radius-pill: 999px;
+    --am-shadow-card: 0 20px 50px rgba(0, 0, 0, 0.5);
+    --am-shadow-popover: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --am-blur: blur(12px);
+
+    /* --- Interação e acessibilidade --- */
+    /* Área de toque de referência (WCAG 2.5.5 / Material): 44 CSS px. */
+    --am-touch-target: 44px;
+    /* Altura mínima de botões e campos; reduzida apenas com mouse em telas largas. */
+    --am-control-height: var(--am-touch-target);
+    --am-focus-ring: 3px solid #65d7ff;
+    --am-focus-offset: 3px;
+    --am-transition: 0.2s ease;
+
+    /* --- Áreas seguras (notch, barra de gestos). Valem com viewport-fit=cover. --- */
+    --am-safe-top: env(safe-area-inset-top, 0px);
+    --am-safe-right: env(safe-area-inset-right, 0px);
+    --am-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --am-safe-left: env(safe-area-inset-left, 0px);
+
+    /* --- Camadas (z-index) --- */
+    --am-z-sticky: 90;
+    --am-z-sidebar: 100;
+    --am-z-fixed-nav: 999;
+    /* Diálogos e growl: z-index gerenciado pelo PrimeFaces (a partir de 1000). */
+    --am-z-skip-link: 2000;
+}
+
+/* Exceção registrada: com mouse e tela larga os controles voltam à densidade
+   padrão do tema arya (2.357rem), preservando a distribuição atual do desktop. */
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+    :root {
+        --am-control-height: 2.357rem;
+    }
+}
