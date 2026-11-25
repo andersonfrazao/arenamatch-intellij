@@ -1,10 +1,11 @@
 @charset "UTF-8";
 /* =====================================================================
    Páginas públicas (ARENA-97): index, como-funciona,
-   encontrar-times-futebol-amador e privacidade.
+   encontrar-times-futebol-amador, planos (ARENA-100) e privacidade.
    Mobile first, breakpoints 576/768/992/1200 (os mesmos do app).
    - Cabeçalho: menu recolhido abaixo de 992px (js/menu-publico.js); sem
-     JS, os links quebram em linhas abaixo da marca.
+     JS, os links quebram em linhas abaixo da marca. "Entrar" e "Criar conta"
+     ficam visíveis em todas as larguras (ARENA-100).
    - Âncoras: o deslocamento usa a altura real do cabeçalho
      (--site-header-h, medida pelo menu-publico.js).
    - Safe area: conteúdo e cabeçalho respeitam o recorte da tela.
@@ -84,25 +85,29 @@ main:focus { outline: none; }
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0 12px;
+    gap: 0 8px;
     min-height: 72px;
     padding-block: 10px;
 }
 
-.brand { flex-shrink: 0; }
-.brand img { width: clamp(130px, 38vw, 175px); border-radius: 4px; }
+/* A marca cede espaço para "Entrar", "Criar conta" e o menu, que ficam sempre
+   visíveis (ARENA-100): o logo encolhe até 88px nas telas mais estreitas. */
+.brand { flex: 0 1 auto; min-width: 88px; }
+.brand img { width: 175px; border-radius: 4px; }
 
 .header-actions {
     display: flex;
     flex-shrink: 0;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     white-space: nowrap;
 }
 
 .login-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-width: 44px;
     min-height: 44px;
     color: #c5d0e0;
     font-size: 14px;
@@ -132,7 +137,6 @@ main:focus { outline: none; }
 }
 
 .site-nav a:hover { color: var(--blue); }
-.site-nav .mobile-login-link { display: none; }
 
 .site-nav-toggle {
     display: none;
@@ -165,7 +169,6 @@ main:focus { outline: none; }
 
 /* Com JS (menu-publico.js marca .has-menu-toggle): menu recolhido. */
 .site-header.has-menu-toggle .header-inner { flex-wrap: nowrap; }
-.site-header.has-menu-toggle .header-actions .login-link { display: none; }
 .site-header.has-menu-toggle .site-nav-toggle { display: inline-flex; }
 
 .site-header.has-menu-toggle .site-nav {
@@ -198,13 +201,6 @@ main:focus { outline: none; }
 
 .site-header.has-menu-toggle .site-nav a:hover { background: #192c44; }
 
-.site-header.has-menu-toggle .site-nav .mobile-login-link {
-    display: flex;
-    margin-top: 6px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-}
-
 /* =====================================================================
    Botões e links
    ===================================================================== */
@@ -226,7 +222,8 @@ main:focus { outline: none; }
 }
 
 .button:hover { border-color: #64d3fa; background: #64d3fa; transform: translateY(-2px); }
-.button-small { min-height: 44px; padding: 8px 14px; font-size: 13px; }
+/* Compacto no celular: em 320px cabem logo, Entrar, Criar conta e menu. */
+.button-small { min-height: 44px; padding: 8px 10px; font-size: 13px; }
 .button-outline { border-color: #42617e; background: transparent; color: var(--text); }
 .button-outline:hover { border-color: var(--blue); background: #192c44; color: #fff; }
 
@@ -366,45 +363,22 @@ main:focus { outline: none; }
    ===================================================================== */
 .section { padding-block: 56px; }
 
-h2 { margin: 15px 0 22px; font-size: clamp(28px, 2.2vw + 18px, 44px); line-height: 1.2; letter-spacing: -1px; }
+/* Em planos.xhtml o título da seção é o h1 da página, com o visual dos h2. */
+h2, .section-heading h1 { margin: 15px 0 22px; font-size: clamp(28px, 2.2vw + 18px, 44px); line-height: 1.2; letter-spacing: -1px; }
 h3 { margin: 18px 0 14px; font-size: 21px; line-height: 1.25; letter-spacing: -.5px; }
 
 .section-heading { max-width: 690px; margin-bottom: 32px; }
 .section-heading p { font-size: 16px; }
 
-.about, .faq-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
-.about-copy p { margin: 0 0 20px; font-size: 16px; }
+.faq-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 
-.features-section, .faq-section { border-block: 1px solid #1b2b40; background: #0e1828; }
+.faq-section { border-block: 1px solid #1b2b40; background: #0e1828; }
 
-.modalidades-lista {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.modalidades-lista li {
-    display: grid;
-    place-items: center;
-    margin: 0;
-    padding: 16px 10px;
-    border: 1px solid #284662;
-    border-radius: 12px;
-    background: #112238;
-    color: #e8f4ff;
-    font-size: 15px;
-    font-weight: 700;
-    text-align: center;
-}
-
-.modalidades-lista li::before { content: none; }
-
-/* Cartões de funcionalidades e planos: 1 coluna; 2 no tablet (o terceiro
+/* Cartões dos planos (planos.xhtml): 1 coluna; 2 no tablet (o terceiro
    ocupa a linha inteira); 3 a partir de 992px. */
-.feature-grid, .plan-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.plan-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 
-.feature-card, .plan-card {
+.plan-card {
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -414,9 +388,7 @@ h3 { margin: 18px 0 14px; font-size: 21px; line-height: 1.25; letter-spacing: -.
     background: var(--panel);
 }
 
-.feature-card > p { margin: 0 0 18px; font-size: 15px; }
-.feature-top, .plan-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-.feature-icon { color: var(--blue); font-size: 24px; font-weight: 750; letter-spacing: -1px; }
+.plan-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 
 .availability {
     padding: 4px 9px;
@@ -434,9 +406,6 @@ h3 { margin: 18px 0 14px; font-size: 21px; line-height: 1.25; letter-spacing: -.
 ul { margin: 0; padding: 0; list-style: none; }
 li { position: relative; margin-top: 13px; padding-left: 22px; color: #c4d1e3; font-size: 14px; }
 li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); font-weight: 750; }
-
-.feature-card > .text-link { margin-top: auto; padding-top: 20px; }
-.passos-resumo + .text-link { margin-top: 20px; }
 
 .plan-label { color: #a1b5cd; font-size: 11px; font-weight: 750; letter-spacing: 1.2px; }
 .plan-heading { min-height: 38px; }
@@ -546,6 +515,10 @@ li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); fo
 @media (min-width: 576px) {
     :root { --gutter: 20px; }
 
+    .header-inner { gap: 0 12px; }
+    .header-actions { gap: 8px; }
+    .button-small { padding-inline: 14px; }
+
     .eyebrow { letter-spacing: 1.8px; }
 
     .hero-actions { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 15px 22px; }
@@ -569,14 +542,10 @@ li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); fo
     .promise-strip > .container { justify-content: space-between; gap: 18px; padding-block: 21px; letter-spacing: 2px; }
     .promise-strip span[aria-hidden] { font-size: 19px; }
 
-    .modalidades-lista { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-    .modalidades-lista li { padding: 20px 14px; font-size: 17px; }
-
-    .feature-grid, .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-    .feature-grid > :last-child:nth-child(odd),
+    .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
     .plan-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 
-    .feature-card, .plan-card { padding: 26px; }
+    .plan-card { padding: 26px; }
 
     .contact { flex-direction: row; justify-content: space-between; align-items: center; gap: 45px; }
     .contact-actions { width: auto; align-items: center; }
@@ -616,10 +585,7 @@ li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); fo
     .site-header.has-menu-toggle .site-nav a { padding: 0; font-size: 14px; }
     .site-header.has-menu-toggle .site-nav a:hover { background: transparent; }
     .site-nav a { font-size: 14px; }
-    .site-nav .mobile-login-link,
-    .site-header.has-menu-toggle .site-nav .mobile-login-link,
     .site-header.has-menu-toggle .site-nav-toggle { display: none; }
-    .site-header.has-menu-toggle .header-actions .login-link { display: inline-flex; }
     .header-actions { gap: 16px; }
     .button-small { min-height: 42px; padding: 10px 17px; font-size: 14px; }
 
@@ -632,16 +598,12 @@ li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); fo
     .section-heading { margin-bottom: 42px; }
     .section-heading p { font-size: 17px; }
 
-    .about { grid-template-columns: 1fr 1.25fr; gap: 45px; }
-    .about-copy p { font-size: 17px; }
     .faq-layout { grid-template-columns: 1fr 1.6fr; gap: 75px; }
 
-    .feature-grid, .plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .feature-grid > :last-child:nth-child(odd),
+    .plan-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .plan-grid > :last-child:nth-child(odd) { grid-column: auto; }
 
-    .feature-card, .plan-card { padding: 23px; }
-    .feature-card > p { min-height: 75px; }
+    .plan-card { padding: 23px; }
     .plan-description { min-height: 90px; }
     .price { margin: 25px 0; font-size: 36px; }
     .plan-card ul { margin-bottom: 28px; }
@@ -662,8 +624,7 @@ li::before { content: "✓"; position: absolute; left: 0; color: var(--blue); fo
     .hero h1 { font-size: clamp(54px, 4.9vw, 68px); letter-spacing: -2.7px; }
     .hero-copy > p { font-size: 18px; }
 
-    .about { gap: 90px; }
-    .feature-card, .plan-card { padding: 28px; }
+    .plan-card { padding: 28px; }
     .plan-description { min-height: 67px; }
 }
 

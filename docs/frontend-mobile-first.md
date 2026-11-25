@@ -219,9 +219,9 @@ Assistente de três etapas (ARENA-91):
 
 ## 5.8 Páginas públicas (`css/institucional.css`, `guia-publico.css`, `amistosos.css`, `analytics.css`)
 
-`index`, `como-funciona`, `encontrar-times-futebol-amador` e `privacidade` (ARENA-97) têm CSS próprio, sem PrimeFaces e sem os tokens `--am-*`, mas com os mesmos breakpoints (576/768/992/1200) e escrito mobile first:
+`index`, `como-funciona`, `encontrar-times-futebol-amador`, `planos` (ARENA-100) e `privacidade` (ARENA-97) têm CSS próprio, sem PrimeFaces e sem os tokens `--am-*`, mas com os mesmos breakpoints (576/768/992/1200) e escrito mobile first:
 
-- **Cabeçalho:** abaixo de 992px o menu fica recolhido (`js/menu-publico.js`), que fecha com Esc, ao escolher um link, ao tocar fora, ao sair com Tab e ao ir para o desktop. Sem JS, os links quebram em linhas abaixo da marca.
+- **Cabeçalho:** abaixo de 992px o menu fica recolhido (`js/menu-publico.js`), que fecha com Esc, ao escolher um link, ao tocar fora, ao sair com Tab e ao ir para o desktop. Sem JS, os links quebram em linhas abaixo da marca. "Entrar" e "Criar conta" ficam visíveis em todas as larguras (ARENA-100). Para caberem em 320px, o logo encolhe até 88px e os espaçamentos ficam compactos abaixo de 576px.
 - **Âncoras:** `menu-publico.js` mede o cabeçalho e publica `--site-header-h`; o `scroll-padding-top` e os índices laterais (sticky) usam esse valor, em vez de alturas fixas por breakpoint.
 - **Safe area:** `viewport-fit=cover`, com as laterais do contêiner, o menu, o rodapé e o banner de consentimento respeitando `env(safe-area-inset-*)`.
 - **Grades:** funcionalidades e planos em 1 coluna, 2 a partir de 768px (o terceiro cartão ocupa a linha) e 3 a partir de 992px. Guia e amistosos com índice acima do texto no celular e lateral a partir de 992px.
