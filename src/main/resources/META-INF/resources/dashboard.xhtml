@@ -69,7 +69,7 @@
                             <ui:fragment rendered="#{sessaoBean.planoCssClass eq 'trial'}">
                                 <div class="dsh-plano-linha">
                                     <span class="dsh-plano-rotulo">Período de teste: #{sessaoBean.resumoPlano}</span>
-                                    <h:link outcome="/index" fragment="planos" value="Ver planos" styleClass="dsh-link"/>
+                                    <h:link outcome="/planos" value="Ver planos" styleClass="dsh-link"/>
                                 </div>
                             </ui:fragment>
                             <ui:fragment rendered="#{sessaoBean.planoCssClass ne 'trial'}">

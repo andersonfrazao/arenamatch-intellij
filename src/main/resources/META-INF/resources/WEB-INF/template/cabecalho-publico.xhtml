@@ -3,13 +3,11 @@
         <div class="container header-inner">
             <a href="#{request.contextPath}/index.xhtml" class="brand" aria-label="Arena Match, apresentação"><img src="#{request.contextPath}/images/logo-arena-match.png" alt="Arena Match" width="348" height="68"/></a>
             <nav id="siteNav" aria-label="Navegação principal" class="site-nav">
-                <a href="#{request.contextPath}/index.xhtml#quem-somos">Quem somos</a>
-                <a href="#{request.contextPath}/index.xhtml#funcionalidades">Funcionalidades</a>
                 <a href="#{request.contextPath}/encontrar-times-futebol-amador.xhtml">Encontrar adversários</a>
                 <a href="#{request.contextPath}/como-funciona.xhtml">Passo a passo</a>
-                <a href="#{request.contextPath}/index.xhtml#planos">Planos</a>
-                <a href="#{request.contextPath}/login.xhtml" class="mobile-login-link">Entrar na minha conta</a>
+                <a href="#{request.contextPath}/planos.xhtml">Planos</a>
             </nav>
+            <!-- "Entrar" e "Criar conta" ficam sempre visíveis, também no celular (ARENA-100). -->
             <div class="header-actions">
                 <h:link outcome="/login" value="Entrar" styleClass="login-link"/>
                 <h:link outcome="/cadastro" value="Criar conta" styleClass="button button-small"/>
