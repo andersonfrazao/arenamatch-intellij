@@ -1,0 +1,553 @@
+/* =====================================================================
+   Chat de partidas e ligas (ARENA-94): chat.xhtml + js/chat.js
+   Prefixo chat-. Mobile first.
+   - Celular (< 768px): caixa de entrada OU conversa. A conversa aberta ocupa
+     a área visível (variáveis --chat-vv-* do visualViewport, calculadas por
+     chat.js), então campo e botão de envio ficam acima do teclado.
+   - >= 768px: caixa de entrada e conversa lado a lado, com altura da tela.
+   ===================================================================== */
+
+.chat {
+    min-width: 0;
+}
+
+/* --- Alternância inbox/conversa no celular --- */
+.chat--conversa .chat-inbox,
+.chat--inbox .chat-conversa {
+    display: none;
+}
+
+/* =====================================================================
+   Caixa de entrada
+   ===================================================================== */
+.chat-inbox {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-md);
+    background: rgba(15, 23, 42, 0.9);
+    overflow: hidden;
+}
+
+.chat-inbox-titulo {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    margin: 0;
+    padding: var(--am-space-3) var(--am-space-4);
+    border-bottom: 1px solid var(--am-color-border);
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+}
+
+.chat-inbox-titulo > i { color: #60a5fa; }
+
+.chat-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-3);
+    min-height: 4.5rem;
+    padding: var(--am-space-3) var(--am-space-4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 3px solid transparent;
+    color: var(--am-color-text);
+    text-decoration: none;
+    transition: background var(--am-transition);
+}
+
+.chat-item:hover {
+    background: var(--am-color-surface-hover);
+    color: var(--am-color-text);
+}
+
+.chat-item.is-ativa {
+    border-left-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.16);
+}
+
+.chat-avatar {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    overflow: hidden;
+    border: 1px solid #475569;
+    border-radius: 50%;
+    background: #1e293b;
+    color: #cbd5e1;
+    font-size: 1.25rem;
+}
+
+.chat-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chat-item--liga .chat-avatar,
+.chat-avatar--liga {
+    border-color: rgba(168, 85, 247, 0.5);
+    background: rgba(88, 28, 135, 0.5);
+    color: #d8b4fe;
+}
+
+.chat-item-corpo {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+}
+
+.chat-item-topo,
+.chat-item-rodape {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    min-width: 0;
+}
+
+.chat-item-topo { justify-content: space-between; }
+
+.chat-item-nome,
+.chat-item-contexto,
+.chat-item-previa {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-item-nome {
+    color: var(--am-color-text-strong);
+    font-weight: 800;
+}
+
+.chat-item-hora {
+    flex-shrink: 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+}
+
+.chat-item-contexto {
+    color: #93c5fd;
+    font-size: var(--am-font-size-xs);
+}
+
+.chat-item--liga .chat-item-contexto { color: #d8b4fe; }
+
+.chat-item-previa {
+    flex: 1 1 auto;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.chat-item-previa strong { color: var(--am-color-accent-soft); }
+
+.chat-item--nao-lida .chat-item-previa {
+    color: var(--am-color-text);
+    font-weight: 600;
+}
+
+.chat-item--nao-lida .chat-item-hora { color: var(--am-color-accent-soft); }
+
+.chat-nao-lidas {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    min-width: 1.375rem;
+    height: 1.375rem;
+    padding: 0 0.375rem;
+    border-radius: var(--am-radius-pill);
+    background: var(--am-color-danger);
+    color: #fff;
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+}
+
+.chat-inbox-vazia,
+.chat-sem-conversa {
+    margin: var(--am-space-4);
+}
+
+.chat-vazio-titulo {
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-weight: 800;
+}
+
+.chat-vazio-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--am-touch-target);
+    font-weight: 800;
+}
+
+/* =====================================================================
+   Conversa
+   ===================================================================== */
+.chat-conversa {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: rgba(15, 23, 42, 0.97);
+}
+
+.chat-sem-conversa { align-self: center; margin: auto; }
+
+/* --- Cabeçalho --- */
+.chat-cabecalho {
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--am-space-2) var(--am-space-3);
+    padding: var(--am-space-2) var(--am-space-3);
+    border-bottom: 1px solid var(--am-color-border);
+    background: rgba(15, 23, 42, 0.95);
+}
+
+.chat-voltar {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: var(--am-touch-target);
+    height: var(--am-touch-target);
+    margin-left: calc(-1 * var(--am-space-1));
+    border-radius: var(--am-radius-sm);
+    color: var(--am-color-text-strong);
+    font-size: 1.125rem;
+}
+
+.chat-voltar:hover {
+    background: var(--am-color-surface-hover);
+    color: var(--am-color-text-strong);
+}
+
+.chat-avatar--cabecalho {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.125rem;
+}
+
+.chat-cabecalho-texto {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.chat-cabecalho-nome {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    margin: 0;
+    overflow: hidden;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+    line-height: var(--am-line-height-tight);
+    overflow-wrap: anywhere;
+}
+
+.chat-cabecalho-nome:focus:not(:focus-visible) { outline: none; }
+
+.chat-cabecalho-contexto {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--am-space-1) var(--am-space-2);
+    margin: var(--am-space-1) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+}
+
+.chat-contexto {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--am-radius-pill);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.86);
+    font-weight: 800;
+}
+
+.chat-contexto--negociacao { border-color: var(--am-color-warning-border); background: var(--am-color-warning-bg); color: var(--am-color-warning-text); }
+.chat-contexto--marcado { border-color: var(--am-color-success-border); background: var(--am-color-success-bg); color: var(--am-color-success-text); }
+.chat-contexto--liga { border-color: rgba(168, 85, 247, 0.4); background: rgba(168, 85, 247, 0.12); color: #d8b4fe; }
+
+.chat-cabecalho-data { font-weight: 700; color: var(--am-color-text); }
+
+.chat-conexao {
+    flex-basis: 100%;
+    color: var(--am-color-warning-text);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+}
+
+.chat-conexao:empty,
+.chat-conexao[hidden] { display: none; }
+
+/* --- Mensagens --- */
+.chat-mensagens-area {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.chat-mensagens {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: var(--am-space-3);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.chat-mensagens:focus-visible { outline-offset: -3px; }
+
+/* Poucas mensagens ficam junto ao campo, como nos apps de conversa. */
+.chat-mensagens-lista {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--am-space-2);
+    min-height: 100%;
+}
+
+.chat-mensagens-vazio {
+    margin: auto;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    text-align: center;
+}
+
+.chat-dia {
+    align-self: center;
+    margin: var(--am-space-2) 0;
+}
+
+.chat-dia > span {
+    display: inline-block;
+    padding: 0.2rem 0.75rem;
+    border-radius: var(--am-radius-pill);
+    background: rgba(30, 41, 59, 0.92);
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+}
+
+.chat-msg { display: flex; }
+.chat-msg--minha { justify-content: flex-end; }
+.chat-msg--outro { justify-content: flex-start; }
+
+.chat-balao {
+    max-width: min(85%, 36rem);
+    padding: var(--am-space-2) var(--am-space-3) 0.35rem;
+    border-radius: 16px;
+    color: #fff;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.chat-msg--minha .chat-balao {
+    border-bottom-right-radius: 4px;
+    background: #065f46;
+}
+
+.chat-msg--outro .chat-balao {
+    border-bottom-left-radius: 4px;
+    background: #334155;
+}
+
+.chat-remetente {
+    margin: 0 0 var(--am-space-1);
+    color: #d8b4fe;
+    font-size: var(--am-font-size-xs);
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+/* Texto escapado; quebras de linha digitadas são preservadas. */
+.chat-texto {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.chat-hora {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--am-space-1);
+    margin-top: 0.125rem;
+    font-size: 0.6875rem;
+    opacity: 0.78;
+}
+
+.chat-hora > i { color: #93c5fd; }
+
+.chat-novas {
+    position: absolute;
+    bottom: var(--am-space-3);
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    min-height: var(--am-touch-target);
+    padding: 0 var(--am-space-4);
+    transform: translateX(-50%);
+    border: 0;
+    border-radius: var(--am-radius-pill);
+    background: var(--am-color-accent);
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    box-shadow: var(--am-shadow-popover);
+    cursor: pointer;
+}
+
+.chat-novas[hidden] { display: none; }
+
+/* --- Composição --- */
+.chat-composicao {
+    display: flex;
+    flex: none;
+    align-items: flex-end;
+    gap: var(--am-space-2);
+    padding: var(--am-space-2) var(--am-space-3);
+    border-top: 1px solid var(--am-color-border);
+    background: rgba(15, 23, 42, 0.95);
+}
+
+.am-ui .chat-campo.ui-inputtextarea {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: var(--am-touch-target);
+    max-height: 8rem;
+    padding: 0.6rem var(--am-space-3);
+    border-radius: 1.375rem;
+    font-size: var(--am-font-size-input);
+    line-height: 1.4;
+    overflow-y: auto;
+    resize: none;
+}
+
+.am-ui .chat-enviar.ui-button {
+    flex-shrink: 0;
+    width: var(--am-touch-target);
+    height: var(--am-touch-target);
+    border: 0;
+    border-radius: 50%;
+    background: var(--am-gradient-cta);
+    color: #fff;
+}
+
+.am-ui .chat-enviar.ui-button:enabled:hover { filter: brightness(1.1); }
+
+.chat-composicao--encerrada { display: block; }
+
+/* =====================================================================
+   Celular: conversa em tela cheia, acima da barra inferior e dentro da
+   área visível (teclado incluído). Sem JS, usa a altura dinâmica da tela.
+   ===================================================================== */
+@media (max-width: 767.98px) {
+    .chat--conversa .chat-conversa {
+        position: fixed;
+        top: var(--chat-vv-topo, 0px);
+        left: 0;
+        right: 0;
+        z-index: calc(var(--am-z-fixed-nav) + 1);
+        height: 100vh;
+        height: var(--chat-vv-altura, 100dvh);
+        /* ARENA-99: opaco em tela cheia; com 97% a página de baixo transparecia. */
+        background: var(--am-color-bg);
+    }
+
+    .chat--conversa .chat-cabecalho {
+        padding-top: calc(var(--am-space-2) + var(--am-safe-top));
+        padding-left: max(var(--am-space-3), var(--am-safe-left));
+        padding-right: max(var(--am-space-3), var(--am-safe-right));
+    }
+
+    .chat--conversa .chat-composicao {
+        padding-bottom: calc(var(--am-space-2) + var(--am-safe-bottom));
+        padding-left: max(var(--am-space-3), var(--am-safe-left));
+        padding-right: max(var(--am-space-3), var(--am-safe-right));
+    }
+
+    /* A página por trás não rola enquanto a conversa está aberta. */
+    html.chat-tela-cheia,
+    html.chat-tela-cheia body {
+        overflow: hidden;
+    }
+}
+
+/* =====================================================================
+   >= 768px: os dois painéis lado a lado, com a altura da tela
+   ===================================================================== */
+@media (min-width: 768px) {
+    .chat {
+        display: grid;
+        grid-template-columns: clamp(16rem, 36%, 22rem) minmax(0, 1fr);
+        height: calc(100dvh - var(--am-bottom-nav-height) - var(--am-safe-bottom) - 2 * var(--am-space-4));
+        height: calc(var(--chat-vv-altura, 100dvh) - var(--am-bottom-nav-height) - var(--am-safe-bottom) - 2 * var(--am-space-4));
+        min-height: 26rem;
+        overflow: hidden;
+        border: 1px solid var(--am-color-border);
+        border-radius: var(--am-radius-lg);
+        box-shadow: var(--am-shadow-card);
+    }
+
+    .chat--conversa .chat-inbox,
+    .chat--inbox .chat-conversa {
+        display: flex;
+    }
+
+    .chat-inbox {
+        border: 0;
+        border-right: 1px solid var(--am-color-border);
+        border-radius: 0;
+    }
+
+    .chat-lista {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .chat-voltar { display: none; }
+
+    .chat-cabecalho { padding: var(--am-space-3) var(--am-space-4); }
+    .chat-cabecalho-nome { font-size: var(--am-font-size-lg); }
+    .chat-mensagens { padding: var(--am-space-4) var(--am-space-5); }
+    .chat-composicao { padding: var(--am-space-3) var(--am-space-4); }
+    .chat-balao { max-width: min(75%, 36rem); }
+}
+
+@media (min-width: 992px) {
+    .chat {
+        height: calc(100vh - var(--am-topbar-height) - 2 * var(--am-space-8));
+        height: calc(100dvh - var(--am-topbar-height) - 2 * var(--am-space-8));
+        min-height: 30rem;
+    }
+}

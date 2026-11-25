@@ -4,129 +4,157 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/WEB-INF/template/layout.xhtml">
 
+    <ui:define name="tituloPagina">Início</ui:define>
+    <ui:define name="subtituloPagina">O campo está pronto. O que vamos jogar hoje?</ui:define>
+
     <ui:define name="conteudo">
+        <h:outputStylesheet library="css" name="dashboard.css"/>
 
-        <div class="mb-4">
-            <h1 class="text-white text-3xl font-bold m-0">
-                Olá, <span class="text-neon">#{sessaoBean.usuarioLogado.nome}</span>!
-            </h1>
-            <p class="text-gray-400 text-lg mt-1">O campo está pronto. O que vamos jogar hoje?</p>
-        </div>
+        <div class="dsh">
 
-        <div class="grid">
-            
-            <div class="col-12">
-                <div class="bg-glass p-4 border-round-xl shadow-4 border-top-3 border-green-500 flex flex-column lg:flex-row align-items-center justify-content-between gap-4 relative overflow-hidden">
-                    
-                    <div class="flex align-items-center gap-4 w-full lg:w-auto z-1">
-                        <div class="border-circle bg-gray-800 flex align-items-center justify-content-center border-1 border-gray-600 shadow-3" 
-                             style="width: 80px; height: 80px; flex-shrink: 0;">
-                            <i class="fas fa-shield-alt text-4xl text-white"></i>
+            <!-- Administrador: não tem time; o atalho é a administração. -->
+            <ui:fragment rendered="#{sessaoBean.admin}">
+                <section class="am-card dsh-cartao dsh-cartao--admin" aria-labelledby="dshAdminTitulo">
+                    <div class="dsh-cartao-texto">
+                        <h2 id="dshAdminTitulo" class="dsh-titulo">Olá, #{sessaoBean.usuarioLogado.nome}!</h2>
+                        <p class="dsh-texto">Você entrou como administrador. Usuários, planos e parâmetros ficam na administração.</p>
+                    </div>
+                    <div class="am-actions">
+                        <p:button value="Abrir administração" outcome="/admin" icon="fas fa-user-shield"
+                                  styleClass="ui-button-info font-bold"/>
+                    </div>
+                </section>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{not sessaoBean.admin}">
+
+                <!-- Falha ao carregar o time (o bean registra o erro e segue sem dados). -->
+                <ui:fragment rendered="#{empty dashboardBean.time}">
+                    <div class="am-alert am-alert--warning" role="status">
+                        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                        <div>
+                            <strong>Não conseguimos carregar os dados do seu time agora.</strong>
+                            <div><h:link outcome="/dashboard" value="Tentar novamente" styleClass="dsh-link"/></div>
                         </div>
-                        <div class="flex-grow-1">
-                            <div class="text-white font-bold text-2xl mb-1">#{dashboardBean.time.nome}</div>
-                            <div class="flex align-items-center gap-3">
-                                <span class="text-green-400 text-sm font-bold"><i class="fas fa-check-circle mr-1"></i> Perfil Ativo</span>
-                                <p:link outcome="/cadastro" value="Editar Perfil" styleClass="text-gray-400 text-sm no-underline hover:text-white transition-colors-200">
-                                    <i class="fas fa-pen ml-1"></i>
-                                </p:link>
+                    </div>
+                </ui:fragment>
+
+                <!-- Resumo do time -->
+                <ui:fragment rendered="#{not empty dashboardBean.time}">
+                    <section class="am-card am-card--accent dsh-cartao dsh-time" aria-labelledby="dshTimeNome">
+                        <div class="dsh-time-identidade">
+                            <div class="dsh-escudo" aria-hidden="true">
+                                <h:graphicImage value="#{dashboardBean.time.escudo}" alt=""
+                                                rendered="#{not empty dashboardBean.time.escudo}"/>
+                                <ui:fragment rendered="#{empty dashboardBean.time.escudo}">
+                                    <i class="fas fa-shield-alt"></i>
+                                </ui:fragment>
                             </div>
-                            
-                            <div class="mt-2 pt-2 border-top-1 border-gray-700 w-full" style="max-width: 250px;">
-                                <div class="flex justify-content-between align-items-center mb-1">
-                                    <span class="text-gray-400 text-xs font-bold uppercase">Teste: #{dashboardBean.diasRestantesTrial} dias</span>
-                                    <p:link value="Assinar" styleClass="text-warning text-xs font-bold no-underline hover:text-white"/>
+                            <div class="dsh-cartao-texto">
+                                <p class="dsh-saudacao">Olá, #{sessaoBean.usuarioLogado.nome}!</p>
+                                <h2 id="dshTimeNome" class="dsh-titulo am-text-break">#{dashboardBean.time.nome}</h2>
+                                <div class="dsh-time-status">
+                                    <span class="am-chip am-chip--success"><i class="fas fa-check-circle" aria-hidden="true"></i> Perfil ativo</span>
+                                    <span class="am-chip">#{dashboardBean.time.mandoCampo ? 'Mandante' : 'Visitante'}</span>
+                                    <h:link outcome="/cadastro" styleClass="dsh-link">
+                                        <i class="fas fa-pen" aria-hidden="true"></i> Editar perfil
+                                    </h:link>
                                 </div>
-                                <p:progressBar value="#{dashboardBean.diasRestantesTrial * 6.6}" displayOnly="true" styleClass="h-05rem bg-gray-700"/>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex flex-column sm:flex-row align-items-center gap-3 w-full lg:w-auto z-1">
-                        
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <p:button icon="fas fa-futbol" value="0 Convites" 
-                                      styleClass="ui-button-warning rounded-btn font-bold shadow-2 flex-1 sm:flex-none" title="Convites de Partida" />
-                                      
-                            <p:button icon="fas fa-users" value="0 Ligas" 
-                                      styleClass="ui-button-help rounded-btn font-bold shadow-2 flex-1 sm:flex-none" title="Convites de Ligas" />
+                        <!-- Plano. Sem barra de progresso: a duração do teste é o parâmetro
+                             DIAS_TRIAL (90 por padrão, editável no admin) e não chega a esta tela. -->
+                        <div class="dsh-plano">
+                            <ui:fragment rendered="#{sessaoBean.planoCssClass eq 'trial'}">
+                                <div class="dsh-plano-linha">
+                                    <span class="dsh-plano-rotulo">Período de teste: #{sessaoBean.resumoPlano}</span>
+                                    <h:link outcome="/planos" value="Ver planos" styleClass="dsh-link"/>
+                                </div>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{sessaoBean.planoCssClass ne 'trial'}">
+                                <div class="dsh-plano-linha">
+                                    <span class="dsh-plano-rotulo">Plano #{sessaoBean.planoAssinaturaLabel} · #{sessaoBean.resumoPlano}</span>
+                                </div>
+                            </ui:fragment>
                         </div>
 
-                        <p:button value="Acessar Minha Agenda" outcome="/minha-agenda" icon="far fa-calendar-alt" 
-                                  styleClass="ui-button-success font-bold rounded-btn w-full sm:w-auto shadow-4 text-xl px-4 py-3" />
+                        <div class="am-actions dsh-time-acoes">
+                            <p:button value="Minha agenda" outcome="/minha-agenda" icon="far fa-calendar-alt"
+                                      styleClass="ui-button-success font-bold"/>
+                            <p:button icon="fas fa-futbol" value="0 Convites" title="Convites de partida"
+                                      styleClass="ui-button-warning ui-button-outlined font-bold"/>
+                            <p:button icon="fas fa-users" value="0 Ligas" title="Convites de ligas"
+                                      styleClass="ui-button-help ui-button-outlined font-bold"/>
+                        </div>
+                    </section>
+                </ui:fragment>
+
+                <!-- Buscar adversário -->
+                <section class="am-card dsh-cartao dsh-cartao--busca" aria-labelledby="dshBuscaTitulo">
+                    <div class="dsh-cartao-texto">
+                        <h2 id="dshBuscaTitulo" class="dsh-titulo">
+                            <i class="fas fa-search-location" aria-hidden="true"></i> Buscar adversário
+                        </h2>
+                        <p class="dsh-texto">Encontre adversários disponíveis na sua região. Filtre por data, categoria e proximidade para marcar o próximo jogo do seu time.</p>
                     </div>
-                    
-                    <i class="far fa-calendar-check text-8xl text-white-alpha-10 absolute right-0 mb-n4 mr-n4" style="bottom: -10px;"></i>
+                    <div class="am-actions">
+                        <p:button outcome="/busca-time" value="Procurar jogo agora" icon="fas fa-crosshairs"
+                                  styleClass="ui-button-primary font-bold"/>
+                    </div>
+                </section>
+
+                <div class="dsh-grade">
+                    <!-- Ligas e comunidades -->
+                    <section class="am-card dsh-cartao dsh-cartao--ligas" aria-labelledby="dshLigasTitulo">
+                        <div class="dsh-cartao-texto">
+                            <h2 id="dshLigasTitulo" class="dsh-titulo">
+                                <i class="fas fa-trophy" aria-hidden="true"></i> Ligas e comunidades
+                            </h2>
+                            <p class="dsh-texto">Organize os times parceiros, acompanhe a classificação e mantenha sua panela ativa.</p>
+                        </div>
+                        <div class="am-actions">
+                            <p:button outcome="/minhas-ligas" value="Gerenciar minhas ligas" icon="fas fa-cogs"
+                                      styleClass="ui-button-help font-bold"/>
+                        </div>
+                    </section>
+
+                    <!-- Ligas em alta: lista (antes tabela) para caber em 320px com nomes longos. -->
+                    <section class="am-card dsh-cartao" aria-labelledby="dshAltaTitulo">
+                        <div class="dsh-cabecalho">
+                            <h2 id="dshAltaTitulo" class="dsh-titulo dsh-titulo--sm">
+                                <i class="fas fa-fire" aria-hidden="true"></i> Ligas movimentadas
+                            </h2>
+                            <h:link outcome="/explorar-ligas" value="Ver todas" styleClass="dsh-link"/>
+                        </div>
+
+                        <ui:fragment rendered="#{empty dashboardBean.ligasEmAlta}">
+                            <div class="am-empty">
+                                <i class="fas fa-trophy" aria-hidden="true"></i>
+                                <span>Nenhuma liga em alta.</span>
+                            </div>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{not empty dashboardBean.ligasEmAlta}">
+                            <ol class="dsh-ligas">
+                                <ui:repeat value="#{dashboardBean.ligasEmAlta}" var="liga">
+                                    <li class="dsh-liga">
+                                        <i class="fas fa-trophy dsh-liga-icone" aria-hidden="true"></i>
+                                        <div class="min-w-0">
+                                            <p class="dsh-liga-nome">#{liga.nome}</p>
+                                            <p class="dsh-liga-regiao">#{liga.regiao}</p>
+                                        </div>
+                                        <span class="am-chip dsh-liga-times" title="Equipes">
+                                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                            #{liga.qtdTimes}<span class="am-sr-only"> equipes</span>
+                                        </span>
+                                    </li>
+                                </ui:repeat>
+                            </ol>
+                        </ui:fragment>
+                    </section>
                 </div>
-            </div>
-
-            <div class="col-12">
-                <div class="bg-glass p-5 border-round-xl shadow-4 relative overflow-hidden transition-duration-200 hover:shadow-6 border-left-3 border-blue-500 flex flex-column md:flex-row align-items-center justify-content-between gap-4">
-                    <div class="z-1 relative w-full md:w-8">
-                        <h2 class="text-white m-0 text-3xl font-bold"><i class="fas fa-search-location mr-3 text-blue-400"></i>Buscar Adversário</h2>
-                        <p class="text-gray-300 mt-2 mb-0 text-lg line-height-3">
-                            Encontre os melhores adversários disponíveis na sua região. Filtre por data, categoria e proximidade para marcar o próximo grande jogo do seu time.
-                        </p>
-                    </div>
-                    
-                    <div class="z-1 relative w-full md:w-auto">
-                        <p:button outcome="/busca-time" value="Procurar Jogo Agora" 
-                                  icon="fas fa-crosshairs" 
-                                  styleClass="ui-button-primary font-bold rounded-btn w-full md:w-auto shadow-4 text-xl px-5 py-3"/>
-                    </div>
-                    
-                    <i class="fas fa-map-marked-alt text-8xl text-white-alpha-10 absolute right-0 mb-n4 mr-n4" style="bottom: -20px;"></i>
-                </div>
-            </div>
-
-            <div class="col-12 md:col-6">
-                <div class="bg-glass p-5 border-round-xl shadow-4 h-full relative overflow-hidden transition-duration-200 hover:shadow-6 border-top-3 border-purple-500 flex flex-column justify-content-between">
-                    <div class="z-1 relative mb-4">
-                        <h2 class="text-white m-0 text-2xl"><i class="fas fa-trophy mr-2 text-purple-400"></i> Ligas &amp; Comunidades</h2>
-                        <p class="text-gray-400 mt-2">
-                            Organize os times parceiros, acompanhe a tabela de classificação e mantenha sua panela ativa.
-                        </p>
-                    </div>
-
-                    <div class="z-1 relative mt-auto">
-                        <p:button outcome="/minhas-ligas" value="Gerenciar Minhas Ligas" icon="fas fa-cogs" 
-                                  styleClass="ui-button-help font-bold rounded-btn w-full shadow-3 text-lg py-3"/>
-                    </div>
-                    
-                    <i class="fas fa-users text-8xl text-white-alpha-10 absolute bottom-0 right-0 mb-n4 mr-n4"></i>
-                </div>
-            </div>
-
-            <div class="col-12 md:col-6">
-                <div class="bg-glass p-4 border-round-xl shadow-4 h-full">
-                    <div class="flex justify-content-between align-items-center mb-3">
-                        <h3 class="text-white m-0 text-lg"><i class="fas fa-fire text-orange-500 mr-2"></i> Ligas Movimentadas</h3>
-                        <p:link value="Ver todas" styleClass="text-blue-400 text-sm font-bold no-underline hover:text-white transition-colors-200"/>
-                    </div>
-
-                    <div class="am-table-scroll">
-                        <p:dataTable value="#{dashboardBean.ligasEmAlta}" var="liga"
-                                     styleClass="ui-datatable-sm bg-transparent border-none" emptyMessage="Nenhuma liga em alta.">
-
-                            <p:column headerText="Nome da Liga" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 border-top-none">
-                                <i class="fas fa-trophy text-yellow-500 mr-2"></i> <span class="font-bold text-lg">#{liga.nome}</span>
-                            </p:column>
-
-                            <p:column headerText="Equipes" styleClass="bg-transparent text-white border-bottom-1 border-gray-700 text-center border-top-none" width="100">
-                                <span class="bg-bluegray-800 px-3 py-1 border-round-xl text-sm shadow-1 font-bold text-gray-300">
-                                    <i class="fas fa-shield-alt mr-1"></i>#{liga.qtdTimes}
-                                </span>
-                            </p:column>
-
-                            <p:column width="40" styleClass="bg-transparent border-bottom-1 border-gray-700 text-right border-top-none">
-                                 <p:button icon="fas fa-chevron-right" styleClass="ui-button-flat ui-button-sm text-gray-500 hover:text-white p-0"/>
-                            </p:column>
-                        </p:dataTable>
-                    </div>
-                </div>
-            </div>
-
+            </ui:fragment>
         </div>
-
     </ui:define>
 </ui:composition>

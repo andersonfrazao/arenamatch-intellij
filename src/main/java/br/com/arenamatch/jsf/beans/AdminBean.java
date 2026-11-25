@@ -70,7 +70,7 @@ public class AdminBean implements Serializable {
             usuarios = adminClient.buscarUsuarios(termoBusca.trim());
             usuarioSelecionado = null;
         } catch (Exception e) {
-            adicionarMensagemErro(e, "Falha ao buscar usuarios.");
+            adicionarMensagemErro(e, "Falha ao buscar usuários.");
         }
     }
 
@@ -78,7 +78,7 @@ public class AdminBean implements Serializable {
         try {
             usuarioSelecionado = adminClient.buscarUsuario(usuario.getId());
         } catch (Exception e) {
-            adicionarMensagemErro(e, "Falha ao carregar usuario.");
+            adicionarMensagemErro(e, "Falha ao carregar usuário.");
         }
     }
 
@@ -88,9 +88,9 @@ public class AdminBean implements Serializable {
             if (termoBusca != null && termoBusca.trim().length() >= 3) {
                 usuarios = adminClient.buscarUsuarios(termoBusca.trim());
             }
-            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Usuario atualizado.");
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Usuário atualizado.");
         } catch (Exception e) {
-            adicionarMensagemErro(e, "Falha ao salvar usuario.");
+            adicionarMensagemErro(e, "Falha ao salvar usuário.");
         }
     }
 
@@ -99,7 +99,7 @@ public class AdminBean implements Serializable {
             parametros = adminClient.listarParametros();
         } catch (Exception e) {
             parametros = new ArrayList<>();
-            adicionarMensagemErro(e, "Falha ao carregar parametros.");
+            adicionarMensagemErro(e, "Falha ao carregar parâmetros.");
         }
     }
 
@@ -107,9 +107,9 @@ public class AdminBean implements Serializable {
         try {
             AdminParametroSistemaDTO atualizado = adminClient.atualizarParametro(parametro);
             parametro.setValor(atualizado.getValor());
-            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Parametro atualizado.");
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Parâmetro atualizado.");
         } catch (Exception e) {
-            adicionarMensagemErro(e, "Falha ao salvar parametro.");
+            adicionarMensagemErro(e, "Falha ao salvar parâmetro.");
         }
     }
 

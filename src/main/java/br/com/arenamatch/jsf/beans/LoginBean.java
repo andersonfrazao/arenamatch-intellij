@@ -55,8 +55,8 @@ public class LoginBean implements Serializable {
                 emailAdminMascarado = loginResponse.getEmailMascarado();
                 senha = null;
                 FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Codigo enviado",
-                                "Informe o codigo enviado para " + emailAdminMascarado + "."));
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Código enviado",
+                                "Informe o código enviado para " + emailAdminMascarado + "."));
                 return null;
             }
 
@@ -68,7 +68,7 @@ public class LoginBean implements Serializable {
         } catch (RestClientResponseException e) {
             String mensagem = e.getResponseBodyAsString();
             if (mensagem == null || mensagem.trim().isEmpty()) {
-                mensagem = "Usuario ou senha invalidos.";
+                mensagem = "Usuário ou senha inválidos.";
             }
             if (mensagem.toLowerCase().contains("pendente de ativacao")) {
                 FacesContext.getCurrentInstance().getExternalContext().getFlash().put("emailAtivacao", emailNormalizado);
@@ -90,7 +90,7 @@ public class LoginBean implements Serializable {
         try {
             LoginResponseDTO response = authClient.confirmarAcessoAdmin(desafioAdmin, codigoAdmin);
             if (response == null || response.getUsuario() == null || response.getToken() == null) {
-                adicionarErro("Nao foi possivel concluir o acesso.");
+                adicionarErro("Não foi possível concluir o acesso.");
                 return null;
             }
 
@@ -101,11 +101,11 @@ public class LoginBean implements Serializable {
         } catch (RestClientResponseException e) {
             String mensagem = e.getResponseBodyAsString();
             adicionarErro(mensagem == null || mensagem.isBlank()
-                    ? "Codigo invalido ou expirado."
+                    ? "Código inválido ou expirado."
                     : mensagem);
             return null;
         } catch (Exception e) {
-            adicionarErro("Nao foi possivel confirmar o codigo.");
+            adicionarErro("Não foi possível confirmar o código.");
             return null;
         }
     }
@@ -114,12 +114,12 @@ public class LoginBean implements Serializable {
         try {
             authClient.reenviarCodigoAcessoAdmin(desafioAdmin);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Codigo reenviado",
-                            "Enviamos um novo codigo para " + emailAdminMascarado + "."));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Código reenviado",
+                            "Enviamos um novo código para " + emailAdminMascarado + "."));
         } catch (RestClientResponseException e) {
             String mensagem = e.getResponseBodyAsString();
             adicionarErro(mensagem == null || mensagem.isBlank()
-                    ? "Nao foi possivel reenviar o codigo."
+                    ? "Não foi possível reenviar o código."
                     : mensagem);
         }
     }

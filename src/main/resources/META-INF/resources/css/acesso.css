@@ -1,0 +1,245 @@
+@charset "UTF-8";
+
+/* =====================================================================
+   Páginas de acesso — login, ativação e recuperação de senha (ARENA-90)
+   Prefixo do módulo: acesso-
+   Carregar depois de tokens.css e styles.css. O cartão usa
+   .am-card .am-card--elevated .am-card--accent da base.
+   ===================================================================== */
+
+.acesso-card {
+    width: 100%;
+    max-width: 30rem;
+}
+
+/* --- Cabeçalho do cartão --- */
+.acesso-topo {
+    margin-bottom: var(--am-space-5);
+    text-align: center;
+}
+
+.acesso-logo {
+    color: var(--am-color-accent);
+    font-size: var(--am-font-size-2xl);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: var(--am-line-height-tight);
+}
+
+.acesso-logo span { margin-left: 0.4rem; color: var(--am-color-text-strong); }
+
+.acesso-icone {
+    margin-bottom: var(--am-space-3);
+    color: var(--am-color-accent);
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.acesso-titulo {
+    margin: 0 0 var(--am-space-2);
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-xl);
+    font-weight: 700;
+    line-height: var(--am-line-height-tight);
+}
+
+.acesso-descricao {
+    margin: var(--am-space-2) 0 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    line-height: var(--am-line-height);
+}
+
+.acesso-descricao strong { color: var(--am-color-text-strong); overflow-wrap: anywhere; }
+
+/* Aviso exibido no celular/app para quem prefere o navegador. */
+.acesso-aviso-app {
+    margin-top: var(--am-space-3);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: var(--am-font-size-sm);
+}
+
+/* --- Formulário --- */
+.acesso-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--am-space-4);
+}
+
+.acesso-mensagens:empty { display: none; }
+.am-ui .acesso-card .ui-messages { margin: 0; }
+.am-ui .acesso-card .ui-messages > div { margin: 0; }
+
+/* Campos com ícone à esquerda (padrão ui-input-icon-left do PrimeFaces). */
+.am-ui .acesso-card .ui-input-icon-left,
+.am-ui .acesso-card .ui-password {
+    display: block;
+    width: 100%;
+}
+
+.am-ui .acesso-card .ui-inputfield {
+    width: 100%;
+    background: var(--am-color-surface-sunken);
+    border-color: var(--am-color-border-strong);
+    color: var(--am-color-text-strong);
+    border-radius: var(--am-radius-sm);
+}
+
+.am-ui .acesso-card .ui-inputfield.ui-state-focus {
+    border-color: var(--am-color-accent);
+}
+
+.am-ui .acesso-card .ui-inputfield.ui-state-error {
+    border-color: var(--am-color-danger);
+}
+
+.am-ui .acesso-card .ui-input-icon-left > i:first-of-type {
+    left: 0.9rem;
+    color: var(--am-color-text-muted);
+    pointer-events: none;
+}
+
+.am-ui .acesso-card .ui-input-icon-left .ui-inputfield {
+    padding-left: 2.75rem;
+}
+
+/* Código de 5 dígitos: grande, centralizado e espaçado. O espaçamento em em
+   acompanha a fonte e cabe no cartão de 320px. */
+.am-ui .acesso-card .acesso-codigo.ui-inputfield {
+    padding-left: 0.6em;
+    color: var(--am-color-accent-soft);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.6em;
+    text-align: center;
+}
+
+.acesso-esqueci {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: calc(var(--am-space-2) * -1);
+}
+
+/* --- Ação principal (botão público: 52px de altura) --- */
+.am-ui .acesso-cta.ui-button {
+    width: 100%;
+    min-height: 52px;
+    border: 0;
+    border-radius: var(--am-radius-sm);
+    background: var(--am-gradient-cta);
+    color: var(--am-color-text-strong);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    box-shadow: 0 6px 16px rgba(14, 165, 233, 0.25);
+}
+
+.am-ui .acesso-cta.ui-button:enabled:hover {
+    background: var(--am-gradient-cta);
+    filter: brightness(1.1);
+}
+
+.am-ui .acesso-cta.ui-button .ui-button-text {
+    font-size: 1rem;
+}
+
+/* --- Links secundários (área de toque de 44px) --- */
+.acesso-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--am-space-2);
+    min-height: var(--am-touch-target);
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+    text-decoration: none;
+    transition: color var(--am-transition);
+}
+
+.acesso-link:hover { color: var(--am-color-text-strong); }
+
+.acesso-link--destaque {
+    color: var(--am-color-accent-soft);
+    font-weight: 700;
+}
+
+.acesso-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Divisor e criação de conta --- */
+.acesso-divisor {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-3);
+    margin: var(--am-space-2) 0;
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-sm);
+}
+
+.acesso-divisor::before,
+.acesso-divisor::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(148, 163, 184, 0.25);
+}
+
+.acesso-cadastro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--am-space-3);
+    width: 100%;
+    min-height: 52px;
+    padding: var(--am-space-3) var(--am-space-4);
+    border: 1px solid var(--am-color-accent);
+    border-radius: var(--am-radius-sm);
+    background: transparent;
+    color: var(--am-color-accent-soft);
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color var(--am-transition), border-color var(--am-transition);
+}
+
+.acesso-cadastro:hover {
+    background: rgba(14, 165, 233, 0.12);
+    border-color: var(--am-color-accent-soft);
+    color: var(--am-color-accent-soft);
+}
+
+/* --- Rodapé do cartão --- */
+.acesso-rodape {
+    margin-top: var(--am-space-5);
+    text-align: center;
+    color: var(--am-color-text-subtle);
+    font-size: var(--am-font-size-xs);
+}
+
+.acesso-rodape .acesso-link {
+    font-size: var(--am-font-size-xs);
+    color: var(--am-color-text-subtle);
+}
+
+.acesso-versao { font-weight: 700; }
+
+@media (min-width: 768px) {
+    .acesso-icone { font-size: 3rem; }
+    .acesso-aviso-app { display: none; }
+}
+
+/* Exceção registrada (altura): com o teclado aberto ou o celular na
+   horizontal sobra pouca altura. O topo do cartão encolhe para os campos e
+   a mensagem de erro aparecerem antes. */
+@media (max-height: 520px) {
+    .login-public-main { padding-top: var(--am-space-2); }
+    .acesso-card { --am-card-padding: var(--am-space-4) var(--am-space-5); }
+    .acesso-topo { margin-bottom: var(--am-space-2); }
+    .acesso-logo { font-size: var(--am-font-size-xl); }
+    .acesso-icone { font-size: 1.75rem; margin-bottom: var(--am-space-1); }
+    .acesso-descricao { margin-top: var(--am-space-1); }
+    .acesso-aviso-app { display: none; }
+}
