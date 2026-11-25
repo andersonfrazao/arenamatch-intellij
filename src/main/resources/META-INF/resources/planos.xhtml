@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:ui="jakarta.faces.facelets" lang="pt-BR">
+<h:head>
+    <title>Planos do Arena Match | Básico gratuito, PRO e PREMIUM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="description" content="Compare os planos do Arena Match: Básico gratuito para encontrar adversários, PRO com busca ampliada, ranking e Meu Scout, e PREMIUM para organizar campeonatos."/>
+    <meta name="theme-color" content="#0b1220"/>
+    <link rel="canonical" href="https://www.arenamatch.app.br/planos.xhtml"/>
+    <link rel="stylesheet" href="#{request.contextPath}/css/institucional.css?v=100"/>
+    <ui:include src="/WEB-INF/template/analytics.xhtml"/>
+</h:head>
+<h:body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <ui:include src="/WEB-INF/template/cabecalho-publico.xhtml"/>
+    <!-- Planos e contato saíram da index (ARENA-100); o conteúdo é o mesmo que estava lá. -->
+    <main id="conteudo" tabindex="-1">
+        <section id="planos" class="section container" aria-labelledby="plans-title">
+            <div class="section-heading"><span class="eyebrow">PLANOS</span><h1 id="plans-title">Seu time tem um momento.<br/>Temos um plano para ele.</h1><p>Comece gratuitamente e conheça os próximos recursos do Arena Match.</p></div>
+            <div class="plan-grid">
+                <article class="plan-card"><div class="plan-heading"><span class="plan-label">PARA ENTRAR EM CAMPO</span></div><h3>Básico</h3><p class="plan-description">O essencial para conectar seu time, com limites de uso.</p><p class="price">Gratuito</p><h:link outcome="/cadastro" value="Criar conta grátis" styleClass="button button-outline"/><ul><li>Busca de adversários com raio limitado</li><li>Convites com intervalo entre agendamentos</li><li>Chat entre os times</li><li>Registro de resultados</li></ul><span class="plan-note">Limites definidos pelo sistema e informados durante o uso.</span></article>
+                <article class="plan-card pro-plan"><div class="plan-heading"><span class="plan-label">PARA IR ALÉM DO BÁSICO</span><span class="availability">Recursos atuais</span></div><h3>PRO</h3><p class="plan-description">Busca ampliada e acompanhamento do desempenho. Gestão de elenco em breve.</p><p class="price"><small>R$</small> 19,90 <span>/mês</span></p><a href="#contato" class="button">Conhecer o plano PRO</a><ul><li>Todos os recursos do Básico</li><li>Ajuste de distância na busca</li><li>Histórico de confrontos</li><li>Ranking e Meu Scout por modalidade</li></ul><span class="plan-note">Gestão de elenco em desenvolvimento. Consulte a contratação.</span></article>
+                <article class="plan-card premium-plan"><div class="plan-heading"><span class="plan-label">PARA ORGANIZAR COMPETIÇÕES</span><span class="availability upcoming">Em breve</span></div><h3>PREMIUM</h3><p class="plan-description">Gestão do time e organização dos seus campeonatos.</p><p class="price"><small>R$</small> 59,90 <span>/mês</span></p><a href="#contato" class="button button-outline">Conhecer o plano PREMIUM</a><ul><li>Todos os recursos do PRO</li><li>Organização de campeonatos</li><li>Formatos e regras configuráveis</li><li>Até 3 campeonatos simultâneos por conta</li></ul><span class="plan-note">Módulo de campeonatos em desenvolvimento.</span></article>
+            </div>
+            <div class="plans-info"><span aria-hidden="true">ⓘ</span><p><strong>Participar é diferente de organizar.</strong> Participar de campeonatos e responder a convites não exigirá PREMIUM. Rascunhos e campeonatos abertos ocupam as três vagas; ao finalizar ou cancelar, a vaga é liberada e o histórico é preservado.</p></div>
+            <p class="plans-footnote">Valores mensais planejados. A cobrança automática ainda não está disponível; consulte nossa equipe sobre contratação. O cadastro pode incluir um período de teste conforme a configuração vigente.</p>
+        </section>
+        <section id="contato" class="section container contact" aria-labelledby="contact-title"><div><span class="eyebrow">VAMOS CONVERSAR</span><h2 id="contact-title">O próximo passo<br/>é com o seu time.</h2><p>Tem dúvidas ou quer conhecer os planos? Nossa equipe pode ajudar.</p><a class="contact-email" href="mailto:arenamatch.app@gmail.com">arenamatch.app@gmail.com <span aria-hidden="true">↗</span></a></div><div class="contact-actions"><h:link outcome="/cadastro" value="Criar conta grátis →" styleClass="button"/><h:link outcome="/login" value="Já tenho conta. Entrar" styleClass="text-link"/><a href="mailto:arenamatch.app@gmail.com?subject=Conhecer%20os%20planos%20Arena%20Match" class="text-link">Fale conosco →</a></div></section>
+    </main>
+    <ui:include src="/WEB-INF/template/rodape-publico.xhtml"/>
+</h:body>
+</html>
