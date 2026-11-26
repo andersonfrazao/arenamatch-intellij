@@ -151,10 +151,9 @@ O efeito de vidro usa transparência, bordas claras discretas, sombras e `backdr
 
 - PrimeFlex fornece utilitários de grid, flexbox, largura, espaçamento e alinhamento. Formulários usam reorganização de colunas conforme o espaço disponível.
 - O layout privado atual usa classes `am-*`. Estilos específicos de páginas usam prefixos próprios, como `registro-jogo-*`.
-- Em desktop, a navegação principal fica na sidebar. No template atual, a media query de até 980 px oculta essa sidebar e mostra a barra inferior fixa.
-- A barra mobile apresenta Agenda, Buscar, Ranking, Chat, Dados e Suporte. Admin é exibido para o perfil administrativo. O conteúdo recebe espaçamento inferior para acomodar a barra.
-- Há ajustes adicionais até 420 px no template. O CSS global também contém regras legadas até 991 px. A navegação efetivamente renderizada deve ser conferida junto do template da tela.
-- As páginas públicas usam cabeçalho próprio, navegação responsiva, menu expansível em mobile e destaque para cadastro e login. O CSS institucional possui breakpoints próprios, incluindo 780 px.
+- Desde o épico mobile first (ARENA-87, em produção), todas as telas seguem `docs/frontend-mobile-first.md`: CSS base para o celular e ampliação por `min-width` em 576, 768, 992 e 1200 px.
+- A partir de 992 px a navegação principal fica na sidebar; abaixo disso aparece a barra inferior fixa (Agenda, Buscar, Ranking, Chat, Dados e Suporte, mais Admin para o perfil administrativo). A área de conteúdo já reserva o espaço da barra.
+- As páginas públicas usam cabeçalho próprio, com menu recolhido no celular e "Entrar" e "Criar conta" sempre visíveis (ARENA-100).
 - Componentes `p:messages`, `p:growl` e `p:message` mostram validações e resultados das ações. As atualizações AJAX incluem esses componentes quando há mensagens a apresentar.
 
 ### 2.3. Arquivos de estilo e comportamento
@@ -167,7 +166,7 @@ O efeito de vidro usa transparência, bordas claras discretas, sombras e `backdr
 | `css/login-publico.css` | Apresentação e navegação pública junto ao login |
 | `css/guia-publico.css` | Guia visual de utilização |
 | `css/amistosos.css` | Conteúdo público sobre amistosos |
-| `css/partidas-externas.css` | Formulário e apresentação dos registros manuais |
+| `css/partidas-externas.css` e `js/registro-jogo.js` | Formulário de registro manual (o cartão na agenda usa `css/agenda.css`, e o atalho, `css/busca.css`) |
 | `js/menu-publico.js` e `js/login-publico.js` | Interações dos menus públicos |
 | `js/flyer.js` | Recursos de geração de imagem disponíveis nas telas que o utilizam |
 | `js/analytics.js` e `css/analytics.css` | Comportamento e apresentação relacionados a analytics |
@@ -256,11 +255,12 @@ Pendências de placar podem bloquear busca, novos desafios, aceite e outras oper
 O fluxo permite registrar jogos combinados fora da plataforma, futuros ou retroativos, com adversário externo vinculado ao proprietário. Os registros ficam nas tabelas `adversario_externo` e `partida_externa` e integram a agenda do responsável.
 
 - O serviço resolve o time pelo JWT, exige usuário ativo e restringe leitura à agenda desse time. O registro manual está disponível aos planos atendidos pela autenticação, com validações próprias.
-- O formulário coleta adversário, modalidade, categoria, data, início, fim, campo ou quadra, endereço, taxa e observações.
-- O mando é derivado do cadastro do time no backend. Para mandante, as opções sugerem campo, endereço e taxa cadastrados.
+- Obrigatórios: adversário, modalidade, categoria e data. A data precisa cair num dia da semana da agenda do cadastro (tabela `agenda`) para a modalidade e a categoria escolhidas, como nos desafios. O calendário bloqueia os outros dias (`disabledDays`) e o serviço repete a validação.
+- O mando é derivado do cadastro do time no backend. **Mandante:** horário (da agenda daquele dia), campo, endereço e taxa vêm do cadastro e aparecem só para leitura ("Taxa do visitante"); o que chegar do formulário é ignorado. **Visitante:** informa os dados do mandante, todos opcionais. Sem horário, vale o da agenda do time naquele dia; só com o início, o jogo dura 2 horas. Campo e taxa em branco ficam nulos (V70.2) e aparecem na agenda como "A combinar" e "Não informada".
+- Telas (refeitas no mobile first após o merge da `main`): `registrar-jogo.xhtml` (`css/partidas-externas.css`, `js/registro-jogo.js`), botão "Registrar jogo" na Minha Agenda (também no dia vazio), atalho na busca abaixo dos filtros (com destaque quando não há adversários) e cartão "Registrado por você" na agenda, com as cores da legenda e flyer para jogo futuro.
 - O adversário pode ser digitado ou reaproveitado. Nome normalizado e proprietário identificam o cadastro externo. A partida também conserva o nome informado.
-- A modalidade deve pertencer ao time e permanece imutável. O fim deve ser posterior ao início na mesma data.
-- A taxa usa `BigDecimal`, com até duas casas decimais e valor mínimo zero.
+- A modalidade deve pertencer ao time e permanece imutável. Um fim digitado deve ser posterior ao início na mesma data; um horário da agenda que passa da meia-noite (ex.: 22:00 às 00:00) termina no dia seguinte.
+- A taxa usa `BigDecimal`, opcional, com até duas casas decimais e valor mínimo zero.
 - A chave UUID por time torna o reenvio idempotente. Repetir a chave com os mesmos dados retorna o registro existente. Dados diferentes produzem conflito 409.
 - O lock do time serializa cadastros concorrentes. O serviço verifica sobreposição com jogos externos da mesma modalidade e jogo oficial confirmado da mesma modalidade no dia.
 - O placar opcional aceita os dois valores juntos, de 0 a 99. Empate sem gols exige preenchimento explícito de ambos os zeros. O início da partida deve ter ocorrido para aceitar o placar.
@@ -338,6 +338,7 @@ Os scripts ficam em `src/main/resources/db/migration`. A árvore analisada cont�
 | `V67.0__ARENA_67_adicionar_modalidades_agenda_partida.sql` | `time_modalidade`, backfill para Campo, FKs compostas, índices e trigger de modalidade |
 | `V70.0__ARENA_70_registrar_partidas_externas.sql` | Adversários e partidas externas, sequences, auditoria, idempotência e índices |
 | `V70.1__ARENA_70_placar_partida_externa.sql` | Placar opcional, preenchimento conjunto e limites de 0 a 99, presente nas alterações locais |
+| `V70.2__ARENA_70_campo_taxa_opcionais_partida_externa.sql` | `nome_campo` e `valor_taxa` aceitam nulo (visitante sem dados do mandante; mandante sem campo ou taxa no cadastro) |
 
 ### 4.3. Convenção das próximas migrations
 

@@ -1,41 +1,196 @@
-.registro-jogo-container { max-width: 720px; margin: 0 auto; }
-.registro-jogo-heading { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-.registro-jogo-heading > i { font-size: 1.8rem; }
-.registro-jogo-heading h1 { margin: 0; color: #f8fafc; font-size: 1.6rem; }
-.registro-jogo-heading p { color: #b6c7d8; margin: .4rem 0 0; }
-.registro-jogo-panel { background: rgba(30, 41, 59, .96); border: 1px solid #38485d; border-radius: 14px; padding: 1.5rem; }
-.registro-jogo-panel h2 { margin: 0 0 1.2rem; padding-top: .5rem; color: #67d4f5; font-size: 1.1rem; }
-.registro-jogo-field { display: flex; flex-direction: column; gap: .5rem; min-width: 0; margin-bottom: 1.2rem; }
-.registro-jogo-field > label { color: #eef4fc; font-weight: 600; }
-.registro-jogo-field small, .registro-jogo-ajuda { color: #b6c7d8; font-size: .82rem; line-height: 1.5; }
-.registro-jogo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.registro-jogo-field .ui-autocomplete, .registro-jogo-field .ui-inputnumber, .registro-jogo-field .ui-datepicker { width: 100%; min-width: 0; }
-.registro-jogo-field .ui-autocomplete-input, .registro-jogo-field .ui-inputnumber-input { width: 100%; box-sizing: border-box; }
-.registro-jogo-field .ui-selectonemenu { min-width: 0 !important; max-width: 100%; }
-.registro-jogo-field input[type=time] { min-height: 44px; color-scheme: dark; box-sizing: border-box; font: inherit; }
-.registro-jogo-atalho { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: rgba(14, 64, 82, .5); border: 1px solid #286b80; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
-.registro-jogo-atalho > i { color: #38c9ef; font-size: 1.4rem; }
-.registro-jogo-atalho > div { flex: 1; min-width: 180px; }
-.registro-jogo-atalho h2 { color: #f8fafc; font-size: 1rem; margin: 0 0 .3rem; }
-.registro-jogo-atalho p { color: #bed0df; margin: 0; font-size: .9rem; line-height: 1.5; }
-.jogo-externo-card { border: 1px solid #365b6d; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; background: rgba(24, 46, 60, .95); color: #eef4fc; overflow-wrap: anywhere; }
-.jogo-externo-cabecalho { display: flex; justify-content: space-between; align-items: center; gap: .7rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.jogo-externo-origem { color: #86def7; font-size: .8rem; font-weight: 600; }
-/* Situação do jogo externo: mesmas cores da legenda da agenda (Confirmado, Placar pendente, Realizado). */
-.jogo-externo-status { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #4b7b91; border-radius: 999px; padding: .3rem .65rem; color: #c8edff; font-size: .8rem; font-weight: 700; }
-.jogo-externo-status .dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
-.jogo-externo-status.AGENDADO { color: #86efac; border-color: rgba(37, 211, 102, .45); background: rgba(37, 211, 102, .1); }
-.jogo-externo-status.AGUARDANDO_PLACAR { color: #d8b4fe; border-color: rgba(168, 85, 247, .55); background: rgba(168, 85, 247, .12); }
-.jogo-externo-status.REALIZADO { color: #93c5fd; border-color: rgba(59, 130, 246, .5); background: rgba(59, 130, 246, .12); }
-.jogo-externo-times { text-align: center; font-size: 1.15rem; font-weight: 700; margin: 1rem 0; }
-.jogo-externo-placar { display: inline-block; margin: 0 .6rem; padding: .1rem .6rem; border-radius: 8px; background: rgba(59, 130, 246, .15); color: #fff; font-variant-numeric: tabular-nums; }
+@charset "UTF-8";
+/* =====================================================================
+   Registro de jogos combinados fora do Arena Match (ARENA-70).
+   Mobile first. Prefixo registro-jogo-.
+   - registrar-jogo.xhtml: cartão com largura total no celular e até 48rem
+     a partir de 768px; campos em 1 coluna, 2 a partir de 768px (am-form-grid--2).
+   - Início e fim ficam lado a lado em qualquer largura (campos curtos).
+   - Mandante: horário, local e taxa do cadastro num resumo só leitura
+     (registro-jogo-resumo), em 1 coluna no celular e 3 a partir de 768px.
+   - O cartão do jogo na agenda usa as classes da agenda (css/agenda.css), e o
+     atalho da busca, as da busca (css/busca.css).
+   ===================================================================== */
 
-.jogo-externo-info { color: #bfd0df; font-size: .9rem; margin-top: .7rem; line-height: 1.6; }
-@media (max-width: 600px) {
-    .registro-jogo-panel { padding: 1rem; }
-    .registro-jogo-atalho .ui-button { width: 100%; }
-    .registro-jogo-field input, .registro-jogo-field textarea { font-size: 16px !important; }
+.registro-jogo { min-width: 0; }
+
+.registro-jogo-cartao {
+    display: grid;
+    gap: var(--am-space-5);
+    width: 100%;
+    max-width: 48rem;
+    margin-inline: auto;
 }
-@media (max-width: 380px) {
-    .registro-jogo-grid { grid-template-columns: 1fr; gap: 0; }
+
+.registro-jogo-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--am-space-3);
+}
+
+.registro-jogo-cabecalho > i {
+    flex-shrink: 0;
+    color: var(--am-color-info);
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+.registro-jogo-intro {
+    margin: 0;
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    line-height: var(--am-line-height);
+}
+
+.registro-jogo-secao {
+    display: grid;
+    gap: var(--am-space-4);
+    min-width: 0;
+}
+
+.registro-jogo-secao-titulo {
+    margin: 0;
+    padding-bottom: var(--am-space-2);
+    border-bottom: 1px solid var(--am-color-border);
+    color: var(--am-color-info);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+}
+
+/* Mando definido no cadastro do time: informação, não campo. */
+.registro-jogo-mando {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--am-space-2);
+    margin: 0;
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    line-height: var(--am-line-height);
+    overflow-wrap: anywhere;
+}
+
+.registro-jogo-mando > i {
+    flex-shrink: 0;
+    margin-top: 0.2em;
+    color: var(--am-color-text-muted);
+}
+
+/* Campo do autocomplete com a largura do am-field (o PrimeFaces fixa a do input). */
+.am-ui .registro-jogo .ui-autocomplete-input { width: 100%; }
+
+/* p:datePicker com botão: campo e botão na mesma linha, como na busca (css/busca.css).
+   O contêiner também recebe o painel do calendário, em posição absoluta. */
+.am-ui .registro-jogo .ui-calendar.ui-trigger-calendar {
+    position: relative;
+    display: flex;
+    width: 100%;
+}
+
+.am-ui .registro-jogo .ui-calendar.ui-trigger-calendar > .ui-inputfield {
+    flex: 1 1 auto;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.am-ui .registro-jogo .ui-calendar.ui-trigger-calendar > .ui-datepicker-trigger {
+    flex: 0 0 auto;
+    width: var(--am-control-height);
+    border: 1px solid var(--am-color-border-strong);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background: #334155;
+    color: var(--am-color-text-strong);
+}
+
+.am-ui .registro-jogo .ui-calendar.ui-trigger-calendar > .ui-datepicker-trigger:enabled:hover {
+    border-color: var(--am-color-accent);
+    background: #3b4c63;
+}
+
+/* Painel do calendário nunca maior que a tela. */
+.am-ui .registro-jogo-calendario {
+    max-width: calc(100vw - 2 * var(--am-space-3));
+    overflow-x: auto;
+}
+
+.registro-jogo-horarios {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--am-space-3);
+    min-width: 0;
+}
+
+.registro-jogo-horarios > .am-field-hint { grid-column: 1 / -1; }
+
+/* Data fora da agenda do time (ex.: vinda da busca): aviso em amarelo. */
+.registro-jogo-aviso { color: var(--am-color-warning-text); }
+.registro-jogo-aviso > i { margin-right: var(--am-space-1); }
+
+/* Mandante: horário, local e taxa do cadastro, só para leitura. */
+.registro-jogo-resumo {
+    display: grid;
+    gap: var(--am-space-3);
+    min-width: 0;
+    padding: var(--am-space-4);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-md);
+    background: rgba(15, 23, 42, .55);
+}
+
+.registro-jogo-resumo-titulo {
+    display: flex;
+    align-items: center;
+    gap: var(--am-space-2);
+    margin: 0;
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-sm);
+    font-weight: 700;
+}
+
+.registro-jogo-resumo-titulo > i { color: var(--am-color-info); }
+
+.registro-jogo-resumo-dados {
+    display: grid;
+    gap: var(--am-space-3);
+    margin: 0;
+}
+
+.registro-jogo-resumo-dados dt {
+    color: var(--am-color-text-muted);
+    font-size: var(--am-font-size-xs);
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.registro-jogo-resumo-dados dd {
+    display: grid;
+    gap: 2px;
+    margin: 2px 0 0;
+    color: var(--am-color-text);
+    overflow-wrap: anywhere;
+}
+
+.registro-jogo-resumo-dados strong { color: var(--am-color-text-strong); }
+
+.registro-jogo-resumo .am-field-hint a { color: var(--am-color-accent); }
+
+.am-ui .registro-jogo .ui-inputtextarea { width: 100%; }
+
+.registro-jogo-erro {
+    display: grid;
+    gap: var(--am-space-3);
+    min-width: 0;
+}
+
+/* Salvar é a ação principal: no celular vem primeiro (mais perto do polegar
+   depois de preencher) e Cancelar fica abaixo. */
+.registro-jogo-acoes { flex-direction: column-reverse; }
+
+@media (min-width: 576px) {
+    .registro-jogo-acoes { flex-direction: row; }
+}
+
+/* Horário, local e taxa lado a lado quando há espaço. */
+@media (min-width: 768px) {
+    .registro-jogo-resumo-dados { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); }
 }

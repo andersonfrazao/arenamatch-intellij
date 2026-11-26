@@ -12,6 +12,9 @@ import lombok.Data;
 /**
  * Dados enviados para registrar uma partida externa.
  * O mando não é enviado: ele vem do cadastro do time (o adversário é sempre o oposto).
+ * Obrigatórios: adversário, modalidade, categoria e data. Quando o time é mandante, horário,
+ * campo, endereço e taxa vêm do cadastro e os valores enviados são ignorados. Quando é
+ * visitante, eles são opcionais; sem horário, vale o horário da agenda do time naquele dia.
  */
 @Data
 public class RegistroPartidaExternaDTO implements Serializable {

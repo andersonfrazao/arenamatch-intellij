@@ -56,7 +56,7 @@ class PartidaExternaRepositoryTest {
 
     @Test
     void persisteRegistroPrivadoSemPontuarERespeitaLimitesDoHorario() {
-        Time time = criarTime();
+        Time time = criarTimeComAgenda();
         autenticar(time.getResponsavel().getEmail());
         var dto = dados();
         var evento = service.registrar(dto);
@@ -80,7 +80,7 @@ class PartidaExternaRepositoryTest {
 
     @Test
     void agendaMostraJogosExternosFuturosERetroativosDoProprietario() {
-        Time time = criarTime();
+        Time time = criarTimeComAgenda();
         autenticar(time.getResponsavel().getEmail());
         var futuro = dados();
         service.registrar(futuro);
@@ -150,7 +150,7 @@ class PartidaExternaRepositoryTest {
 
     @Test
     void bancoRejeitaPlacarIncompleto() {
-        Time time = criarTime();
+        Time time = criarTimeComAgenda();
         autenticar(time.getResponsavel().getEmail());
         var passado = dados();
         passado.setData(LocalDate.now().minusDays(3));
@@ -163,7 +163,7 @@ class PartidaExternaRepositoryTest {
 
     @Test
     void rejeitaAdversarioPertencenteAOutroTimeNoBanco() {
-        Time dono = criarTime();
+        Time dono = criarTimeComAgenda();
         Time outro = criarTime();
         autenticar(dono.getResponsavel().getEmail());
         var evento = service.registrar(dados());
@@ -176,7 +176,7 @@ class PartidaExternaRepositoryTest {
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void requisicoesConcorrentesComMesmaChaveCriamUmaUnicaPartidaEAdversario() throws Exception {
-        Time time = new TransactionTemplate(transactionManager).execute(status -> criarTime());
+        Time time = new TransactionTemplate(transactionManager).execute(status -> criarTimeComAgenda());
         String email = time.getResponsavel().getEmail();
         UUID chave = UUID.randomUUID();
         try (var executor = Executors.newFixedThreadPool(2)) {
@@ -197,6 +197,74 @@ class PartidaExternaRepositoryTest {
         assertEquals(1, adversarios.findByTimeIdOrderByNomeAsc(time.getId()).size());
         assertEquals(1, partidas.findByTimeIdAndDataHoraInicioBetweenOrderByDataHoraInicioAsc(
                 time.getId(), LocalDate.now().atStartOfDay(), LocalDate.now().plusDays(30).atStartOfDay()).size());
+    }
+
+    @Test
+    void mandanteGravaHorarioLocalETaxaDoCadastroEVisitantePodeDeixarEmBranco() {
+        Time mandante = criarTime();
+        mandante.setMandoCampo(true);
+        mandante.setNomeCampo("Arena de teste");
+        mandante.setLogradouro("Rua A");
+        mandante.setCidade("Campinas");
+        mandante.setUf("SP");
+        mandante.setValorTaxa(80.0);
+        LocalDate sexta = LocalDate.now().plusDays(1).with(java.time.temporal.TemporalAdjusters.nextOrSame(java.time.DayOfWeek.FRIDAY));
+        agendar(mandante, "Sexta", "20:00", "22:00");
+        autenticar(mandante.getResponsavel().getEmail());
+        var dto = dados();
+        dto.setData(sexta);
+        dto.setHoraInicio(null);
+        dto.setHoraFim(null);
+        dto.setNomeCampo(null);
+        dto.setValorTaxa(null);
+        var evento = service.registrar(dto);
+        em.flush();
+        em.clear();
+        PartidaExterna partida = partidas.findById(evento.getIdPartidaExterna()).orElseThrow();
+        assertEquals(sexta.atTime(20, 0), partida.getDataHoraInicio());
+        assertEquals(sexta.atTime(22, 0), partida.getDataHoraFim());
+        assertEquals("Arena de teste", partida.getNomeCampo());
+        assertEquals("Rua A, Campinas/SP", partida.getEndereco());
+        assertEquals(new BigDecimal("80.00"), partida.getValorTaxa());
+
+        Time visitante = criarTime();
+        agendar(visitante, "Sexta", "19:00", "23:00");
+        autenticar(visitante.getResponsavel().getEmail());
+        var semDados = dados();
+        semDados.setData(sexta);
+        semDados.setHoraInicio(null);
+        semDados.setHoraFim(null);
+        semDados.setNomeCampo(null);
+        semDados.setValorTaxa(null);
+        PartidaExterna semCampo = partidas.findById(service.registrar(semDados).getIdPartidaExterna()).orElseThrow();
+        em.flush();
+        assertNull(semCampo.getNomeCampo());
+        assertNull(semCampo.getValorTaxa());
+        assertEquals(sexta.atTime(19, 0), semCampo.getDataHoraInicio());
+        var sabado = dados();
+        sabado.setData(sexta.plusDays(1));
+        assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST, assertThrows(
+                org.springframework.web.server.ResponseStatusException.class, () -> service.registrar(sabado)).getStatusCode());
+    }
+
+    /** Time que joga Futebol de Campo, categoria Esporte, todos os dias das 12:00 às 14:00. */
+    private Time criarTimeComAgenda() {
+        Time time = criarTime();
+        for (String dia : List.of("Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo")) {
+            agendar(time, dia, "12:00", "14:00");
+        }
+        return time;
+    }
+
+    private void agendar(Time time, String dia, String inicio, String fim) {
+        Agenda agenda = new Agenda();
+        agenda.setTime(time);
+        agenda.setModalidade(Modalidade.FUTEBOL_CAMPO);
+        agenda.setCategoria(Categoria.ESPORTE);
+        agenda.setDiaSemana(dia);
+        agenda.setHoraInicio(inicio);
+        agenda.setHoraFim(fim);
+        em.persist(agenda);
     }
 
     private Time criarTime() {

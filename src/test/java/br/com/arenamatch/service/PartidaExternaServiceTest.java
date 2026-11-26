@@ -1,13 +1,17 @@
 package br.com.arenamatch.service;
 
+import br.com.arenamatch.dto.HorarioAgendaTimeDTO;
 import br.com.arenamatch.dto.RegistroPartidaExternaDTO;
 import br.com.arenamatch.entity.*;
 import br.com.arenamatch.enums.*;
 import br.com.arenamatch.repository.*;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +38,7 @@ class PartidaExternaServiceTest {
     @Mock private TimeRepository times;
     @Mock private UsuarioRepository usuarios;
     @Mock private PartidaRepository partidasOficiais;
+    @Mock private AgendaRepository agendas;
     @Mock private EntityManager entityManager;
     @InjectMocks private PartidaExternaService service;
 
@@ -52,6 +57,12 @@ class PartidaExternaServiceTest {
         time.setNome("Mocidade FC");
         time.setResponsavel(usuario);
         time.getModalidades().add(Modalidade.FUTEBOL_CAMPO);
+        // Por padrão o time joga todos os dias, para os testes que não tratam do dia da semana.
+        time.setAgendas(new ArrayList<>());
+        lenient().when(agendas.findByTimeId(10L)).thenAnswer(invocacao -> time.getAgendas());
+        for (DayOfWeek dia : DayOfWeek.values()) {
+            time.getAgendas().add(agenda(dia, Categoria.ESPORTE, "12:00", "14:00"));
+        }
         dto = new RegistroPartidaExternaDTO();
         dto.setChaveSolicitacao(UUID.randomUUID());
         dto.setNomeAdversario("União da Vila");
@@ -67,6 +78,125 @@ class PartidaExternaServiceTest {
     @AfterEach
     void limparAutenticacao() {
         SecurityContextHolder.clearContext();
+    }
+
+    private Agenda agenda(DayOfWeek dia, Categoria categoria, String inicio, String fim) {
+        Agenda agenda = new Agenda();
+        agenda.setTime(time);
+        agenda.setDiaSemana(PartidaHorarioService.nomeDia(dia));
+        agenda.setModalidade(Modalidade.FUTEBOL_CAMPO);
+        agenda.setCategoria(categoria);
+        agenda.setHoraInicio(inicio);
+        agenda.setHoraFim(fim);
+        return agenda;
+    }
+
+    private static LocalDate proximo(DayOfWeek dia) {
+        return LocalDate.now().plusDays(1).with(TemporalAdjusters.nextOrSame(dia));
+    }
+
+    private PartidaExterna partidaSalva() {
+        var captor = ArgumentCaptor.forClass(PartidaExterna.class);
+        verify(partidas).save(captor.capture());
+        return captor.getValue();
+    }
+
+    @Test
+    void recusaDiaDaSemanaForaDaAgendaDoTime() {
+        autenticar();
+        time.setAgendas(new ArrayList<>(List.of(agenda(DayOfWeek.FRIDAY, Categoria.ESPORTE, "20:00", "22:00"))));
+        dto.setData(proximo(DayOfWeek.SATURDAY));
+        var erro = assertThrows(ResponseStatusException.class, () -> service.registrar(dto));
+        assertEquals(HttpStatus.BAD_REQUEST, erro.getStatusCode());
+        assertTrue(erro.getReason().contains("não joga de sábado"), erro.getReason());
+        assertTrue(erro.getReason().contains("Escolha uma data de sexta"), erro.getReason());
+        dto.setData(proximo(DayOfWeek.FRIDAY).minusWeeks(2));
+        dto.setCategoria(Categoria.MASTER);
+        erro = assertThrows(ResponseStatusException.class, () -> service.registrar(dto));
+        assertTrue(erro.getReason().contains("não tem dia de jogo cadastrado"), erro.getReason());
+        verify(partidas, never()).save(any());
+    }
+
+    @Test
+    void mandanteUsaHorarioLocalETaxaDoCadastroEIgnoraOFormulario() {
+        autenticar();
+        permitirPersistencia();
+        time.setMandoCampo(true);
+        time.setNomeCampo("Arena Mocidade");
+        time.setLogradouro("Rua das Flores");
+        time.setNumero("10");
+        time.setBairro("Centro");
+        time.setCidade("Campinas");
+        time.setUf("SP");
+        time.setValorTaxa(150.0);
+        time.setAgendas(new ArrayList<>(List.of(agenda(DayOfWeek.FRIDAY, Categoria.ESPORTE, "20:00", "22:00"))));
+        dto.setData(proximo(DayOfWeek.FRIDAY));
+        dto.setHoraInicio(LocalTime.of(9, 0));
+        dto.setHoraFim(LocalTime.of(10, 0));
+        dto.setNomeCampo("Outro campo");
+        dto.setValorTaxa(BigDecimal.ONE);
+        service.registrar(dto);
+        PartidaExterna partida = partidaSalva();
+        assertEquals(dto.getData().atTime(20, 0), partida.getDataHoraInicio());
+        assertEquals(dto.getData().atTime(22, 0), partida.getDataHoraFim());
+        assertEquals("Arena Mocidade", partida.getNomeCampo());
+        assertEquals("Rua das Flores, 10, Centro, Campinas/SP", partida.getEndereco());
+        assertEquals(new BigDecimal("150.00"), partida.getValorTaxa());
+    }
+
+    @Test
+    void visitanteSemHorarioCampoETaxaUsaHorarioDaAgenda() {
+        autenticar();
+        permitirPersistencia();
+        time.setAgendas(new ArrayList<>(List.of(agenda(DayOfWeek.SUNDAY, Categoria.ESPORTE, "22:00", "00:00"))));
+        dto.setData(proximo(DayOfWeek.SUNDAY));
+        dto.setHoraInicio(null);
+        dto.setHoraFim(null);
+        dto.setNomeCampo("   ");
+        dto.setValorTaxa(null);
+        service.registrar(dto);
+        PartidaExterna partida = partidaSalva();
+        assertEquals(dto.getData().atTime(22, 0), partida.getDataHoraInicio());
+        assertEquals(dto.getData().plusDays(1).atStartOfDay(), partida.getDataHoraFim());
+        assertNull(partida.getNomeCampo());
+        assertNull(partida.getValorTaxa());
+    }
+
+    @Test
+    void visitanteComSoInicioFicaComDuasHorasEFimSemInicioERecusado() {
+        autenticar();
+        permitirPersistencia();
+        dto.setHoraInicio(LocalTime.of(18, 0));
+        dto.setHoraFim(null);
+        service.registrar(dto);
+        assertEquals(dto.getData().atTime(20, 0), partidaSalva().getDataHoraFim());
+        RegistroPartidaExternaDTO outro = new RegistroPartidaExternaDTO();
+        outro.setChaveSolicitacao(UUID.randomUUID());
+        outro.setNomeAdversario("Vila Nova");
+        outro.setModalidade(Modalidade.FUTEBOL_CAMPO);
+        outro.setCategoria(Categoria.ESPORTE);
+        outro.setData(dto.getData());
+        outro.setHoraFim(LocalTime.of(20, 0));
+        assertEquals(HttpStatus.BAD_REQUEST, assertThrows(ResponseStatusException.class,
+                () -> service.registrar(outro)).getStatusCode());
+    }
+
+    @Test
+    void opcoesTrazemAgendaDoTimeELocalDoMandante() {
+        autenticar();
+        time.setMandoCampo(true);
+        time.setNomeCampo("Arena Mocidade");
+        time.setCidade("Campinas");
+        time.setAgendas(new ArrayList<>(List.of(
+                agenda(DayOfWeek.SUNDAY, Categoria.ESPORTE, "09:00", "11:00"),
+                agenda(DayOfWeek.FRIDAY, Categoria.ESPORTE, "20:00", "22:00"),
+                agenda(DayOfWeek.MONDAY, Categoria.ESPORTE, "hora", "22:00"))));
+        var opcoes = service.buscarOpcoes();
+        assertEquals(List.of(DayOfWeek.FRIDAY, DayOfWeek.SUNDAY),
+                opcoes.getHorarios().stream().map(HorarioAgendaTimeDTO::getDia).toList());
+        assertEquals(LocalTime.of(20, 0), opcoes.getHorarios().getFirst().getHoraInicio());
+        assertEquals("Arena Mocidade", opcoes.getNomeCampo());
+        assertEquals("Campinas", opcoes.getEndereco());
     }
 
     private void autenticar() {

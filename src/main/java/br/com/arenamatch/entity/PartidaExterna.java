@@ -50,13 +50,13 @@ public class PartidaExterna {
     @Column(name = "data_hora_fim", nullable = false)
     private LocalDateTime dataHoraFim;
 
-    @Column(name = "nome_campo", nullable = false, length = 160)
+    @Column(name = "nome_campo", length = 160)
     private String nomeCampo;
 
     @Column(length = 300)
     private String endereco;
 
-    @Column(name = "valor_taxa", nullable = false, precision = 12, scale = 2)
+    @Column(name = "valor_taxa", precision = 12, scale = 2)
     private BigDecimal valorTaxa;
 
     @Column(length = 1000)

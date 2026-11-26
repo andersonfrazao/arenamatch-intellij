@@ -76,7 +76,8 @@ O plano pertence ao `Usuario` (`planoAssinatura` + `statusPagamento` + `dataExpi
 - **PrimeFaces** com tema **Arya** (escuro) — `joinfaces.primefaces.theme=arya`. Use componentes `p:` antes de criar HTML/CSS próprio.
 - **PrimeFlex 3.3.1** para layout e utilitários (`grid`, `col-12 md:col-6`, `flex`, `gap-3`, `p-3`...). É o "framework de CSS" do projeto — não adicionar Bootstrap, Tailwind ou similares.
 - **Font Awesome 6.4.0** para ícones (`<i class="fas fa-...">`). Não misturar com outra biblioteca de ícones.
-- CSS próprio: classes com prefixo `am-` (ex.: `am-sidebar`, `am-plan-card`). Estilo global em `css/styles.css`; páginas públicas em `css/institucional.css`.
+- CSS próprio: classes compartilhadas com prefixo `am-` em `css/styles.css` (variáveis `--am-*` em `css/tokens.css`); cada tela tem um CSS com o prefixo do módulo (ex.: `css/agenda.css` com `agenda-*`); páginas públicas em `css/institucional.css`.
+- **Convenções mobile first (ARENA-87): `docs/frontend-mobile-first.md`.** Breakpoints, tokens, classes `am-*`, escopo `.am-ui`, mensagens e o checklist de validação estão lá e valem sobre qualquer regra de layout deste arquivo.
 - Evite `style="..."` inline e `!important` em código novo; prefira classe em arquivo CSS.
 
 ## Paleta de cores
@@ -121,13 +122,13 @@ Logo: "ARENA" em ciano, "MATCH" em branco.
 | Placar confirmado | `#2dd4bf` | Agenda — placar confirmado |
 
 ### Legenda da agenda (não alterar o significado das cores)
-| Situação | Cor | Classe |
+| Situação | Cor | Classe (`css/agenda.css`) |
 |---|---|---|
-| Jogo confirmado (futuro) | `#25d366` verde | `.dot.game` |
-| Realizado (placar informado/confirmado) | `#3b82f6` azul | `.dot.played` |
-| Placar pendente (já começou, sem resultado) | `#a855f7` roxo | `.dot.score-pending` |
-| Amistoso pendente (convite) | `#ffcc00` amarelo | `.dot.invite` |
-| Cancelado / recusado / expirado | `#ef4444` vermelho | `.dot.cancelled` |
+| Jogo confirmado (futuro) | `#25d366` verde | `.agenda-marca--jogo` |
+| Realizado (placar informado/confirmado) | `#3b82f6` azul | `.agenda-marca--realizado` |
+| Placar pendente (já começou, sem resultado) | `#a855f7` roxo | `.agenda-marca--placar` |
+| Amistoso pendente (convite) | `#ffcc00` amarelo | `.agenda-marca--convite` |
+| Cancelado / recusado / expirado | `#ef4444` vermelho | `.agenda-marca--cancelado` |
 
 O "jogo já aconteceu" é contado a partir do **horário de início**, tanto para partidas oficiais quanto para as externas. Todo evento novo da agenda deve se encaixar nesta legenda.
 
@@ -143,15 +144,10 @@ Ao precisar de uma cor nova, reutilize uma desta tabela; não invente tons novos
 
 ## Regras de layout e componentes
 
-1. **Mobile first.** A maioria dos usuários acessa pelo celular. Em CSS novo, escreva o estilo base para telas pequenas e amplie com `@media (min-width: ...)`. No PrimeFlex, use `col-12` como padrão e acrescente `md:`/`lg:`. (O CSS legado usa `max-width`; ao mexer nele, não precisa reescrever tudo, mas não piore o mobile.)
-2. Breakpoints de referência: 420px, 768px e **980px**. No `layout.xhtml`, até 980px a sidebar some e aparece a barra inferior fixa (Agenda, Buscar, Ranking, Chat, Dados, Suporte e Admin para o perfil ADMIN). O `styles.css` legado ainda usa 991px. Conteúdo novo precisa reservar espaço para a barra inferior e respeitar a safe area.
-3. **Larguras de validação.** Toda tela nova ou alterada deve ser conferida, sem rolagem horizontal, sobreposição ou texto cortado, em:
-   - **320px** — menor smartphone suportado (ponto de partida do layout);
-   - **360px**, **390px** e **430px** — smartphones comuns;
-   - **768px** — tablet;
-   - **acima de 980px** — desktop (com sidebar).
-   Lembre que o app Android abre o site em WebView: o que funciona em 320–430px no navegador precisa funcionar no app.
-4. **Botões com cantos arredondados de 8px** — `border-radius: 8px`. Em `p:commandButton`/`p:button` use `styleClass="rounded-btn"`.
+1. **Mobile first.** A maioria dos usuários acessa pelo celular. O CSS fora de media query é o do celular (a partir de 320px) e as telas maiores são ampliadas com `@media (min-width: ...)`. No PrimeFlex, use `col-12` como padrão e acrescente `sm:`/`md:`/`lg:`.
+2. Breakpoints: **576, 768, 992 e 1200px** (os mesmos do PrimeFlex). Abaixo de 992px a sidebar some e aparece a barra inferior fixa; a área de conteúdo já reserva o espaço dela (`--am-bottom-nav-space`), então a página não soma `padding-bottom` próprio. Detalhes em `docs/frontend-mobile-first.md`.
+3. **Larguras de validação.** Toda tela nova ou alterada deve ser conferida, sem rolagem horizontal, sobreposição ou texto cortado, em 320, 360, 390/430, 768, 1024 e 1440px, mais um celular na horizontal. Teste na aplicação real (banco e backend), não só em prévia estática. Lembre que o app Android abre o site em WebView: o que funciona em 320–430px no navegador precisa funcionar no app.
+4. **Botões com cantos arredondados de 8px** (`--am-radius-sm`). Nas páginas `.am-ui` os botões do PrimeFaces já saem assim; `rounded-btn` é legado.
 5. Outros raios: cards/painéis 12px, modais/cards grandes 16px, badges/pílulas 999px, avatares/escudos 50%.
 6. Alvos de toque com no mínimo 44×44px. Botão primário público tem `min-height: 52px` (pequeno: 42px).
 7. Sem rolagem horizontal da página. Tabelas largas vão dentro de `.am-table-scroll`.
@@ -159,8 +155,9 @@ Ao precisar de uma cor nova, reutilize uma desta tabela; não invente tons novos
 9. Hover: transição curta (`.15s`–`.2s`), clareando a cor ou `translateY(-2px)`. Respeite `prefers-reduced-motion`.
 10. Acessibilidade: foco visível (`outline: 3px solid #65d7ff`), `alt` em imagens, contraste de texto claro sobre fundo escuro.
 11. Textos da interface em português do Brasil.
-12. Feedback com `p:messages`/`p:message`/`p:growl`. Toda ação Ajax deve atualizar a área de mensagens, e um erro de validação nunca pode apagar o que o usuário digitou.
+12. Feedback com `p:messages`/`p:message`/`p:growl`. Toda ação Ajax deve atualizar a área de mensagens, e um erro de validação nunca pode apagar o que o usuário digitou. O usuário prefere **aviso flutuante** (`p:growl`) a mensagem no meio da página, que obriga a rolar ("leigo acha que travou").
 13. Estilos de uma tela nova vão num CSS próprio com prefixo do módulo (ex.: `css/partidas-externas.css` com `registro-jogo-*`), carregado por `h:outputStylesheet` na página.
+14. **Versão exibida no login** (`login.xhtml`, "Versão: Beta 0.NN"): cada funcionalidade nova sobe um número em relação à produção (ARENA-70: 0.24).
 
 ## Fluxo de trabalho
 

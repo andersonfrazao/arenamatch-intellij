@@ -19,6 +19,11 @@ public class PartidaHorarioService {
     }
 
     public String traduzirDia(DayOfWeek dia) {
+        return nomeDia(dia);
+    }
+
+    /** Nome do dia como é gravado em agenda.dia_semana ("Segunda" ... "Domingo"). */
+    public static String nomeDia(DayOfWeek dia) {
         return switch (dia) {
             case MONDAY -> "Segunda";
             case TUESDAY -> "Terça";

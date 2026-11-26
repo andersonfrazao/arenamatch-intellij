@@ -19,11 +19,18 @@
 
             <!-- Erros da carga inicial: o growl global já foi desenhado antes de o bean
                  existir. Avaliar minhaAgendaBean aqui cria o bean e registra as mensagens. -->
-            <p:messages id="avisosCarga" showDetail="true" closable="true"
+            <!-- Só avisos e erros: mensagens de sucesso que chegam pelo flash (ex.: "Jogo
+                 registrado", ARENA-70) já aparecem no growl global e ficariam em dobro. -->
+            <p:messages id="avisosCarga" showDetail="true" closable="true" severity="warn,error,fatal"
                         rendered="#{minhaAgendaBean ne null and not facesContext.postback}"
                         styleClass="agenda-avisos"/>
 
             <div class="agenda-barra">
+                <!-- ARENA-70: abre o registro já com o dia selecionado no calendário.
+                     Sem AJAX e com immediate: navega sem validar os campos de placar da página. -->
+                <p:commandButton value="Registrar jogo" icon="fas fa-calendar-plus"
+                                 action="#{minhaAgendaBean.registrarJogo}" ajax="false" immediate="true"
+                                 styleClass="agenda-registrar-btn"/>
                 <button type="button" id="agendaTodosBtn" class="agenda-todos-btn"
                         aria-expanded="false" aria-controls="agendaTodosPainel">
                     <i class="fas fa-list-ul" aria-hidden="true"></i>
@@ -61,8 +68,8 @@
                                     </span>
                                     <span class="agenda-lista-jogo">
                                         <span class="agenda-lista-times">#{jogo.nomeTimeMandante} <span class="agenda-lista-x" aria-hidden="true">x</span><span class="am-sr-only">contra</span> #{jogo.nomeTimeVisitante}</span>
-                                        <ui:fragment rendered="#{not empty jogo.modalidade}">
-                                            <span class="agenda-lista-modalidade">#{jogo.modalidade.descricao}</span>
+                                        <ui:fragment rendered="#{not empty jogo.modalidade or jogo.registroManual}">
+                                            <span class="agenda-lista-modalidade">#{jogo.modalidade.descricao}#{not empty jogo.modalidade and jogo.registroManual ? ' · ' : ''}#{jogo.registroManual ? 'Registrado por você' : ''}</span>
                                         </ui:fragment>
                                     </span>
                                     <i class="fas fa-chevron-right agenda-lista-seta" aria-hidden="true"></i>
@@ -166,12 +173,124 @@
                             <i class="fas fa-calendar-day" aria-hidden="true"></i>
                             <p class="agenda-vazio-titulo">Nada marcado para este dia</p>
                             <p>Escolha outro dia no calendário ou abra Jogos marcados.</p>
+                            <p>Combinou um jogo fora do Arena Match? Registre neste dia.</p>
+                            <p:commandButton value="Registrar jogo neste dia" icon="fas fa-calendar-plus"
+                                             action="#{minhaAgendaBean.registrarJogo}" ajax="false" immediate="true"
+                                             styleClass="ui-button-outlined agenda-vazio-acao"/>
                         </div>
                     </ui:fragment>
 
                     <ui:fragment rendered="#{not empty minhaAgendaBean.eventosDoDia}">
                     <ul class="agenda-eventos">
                     <ui:repeat value="#{minhaAgendaBean.eventosDoDia}" var="evento">
+                        <!-- ARENA-70: jogo combinado fora do Arena Match e registrado pelo próprio time.
+                             A situação (Agendado, Aguardando placar, Realizado) é calculada no servidor
+                             pelo horário e pelo placar; as cores seguem a legenda do calendário. -->
+                        <ui:fragment rendered="#{evento.registroManual}">
+                        <li class="agenda-evento agenda-evento--manual agenda-evento--#{evento.situacaoRegistroManual eq 'AGENDADO' ? 'jogo'
+                                    : (evento.situacaoRegistroManual eq 'REALIZADO' ? 'placar-confirmado' : 'placar-pendente')}">
+                            <div class="agenda-evento-topo">
+                                <p class="agenda-evento-status">
+                                    <i class="fas #{evento.situacaoRegistroManual eq 'AGENDADO' ? 'fa-check-circle'
+                                                  : (evento.situacaoRegistroManual eq 'REALIZADO' ? 'fa-flag-checkered' : 'fa-clipboard-list')}" aria-hidden="true"></i>
+                                    #{evento.situacaoRegistroManual.descricao}
+                                </p>
+                                <span class="agenda-evento-origem"><i class="fas fa-user-pen" aria-hidden="true"></i> Registrado por você</span>
+                            </div>
+
+                            <h3 class="agenda-confronto">
+                                <span class="agenda-confronto-times">
+                                    <span class="agenda-confronto-time">
+                                        <h:graphicImage value="#{evento.escudoTimeMandante}" rendered="#{not empty evento.escudoTimeMandante}" styleClass="agenda-escudo flyer-shield-home" alt=""/>
+                                        <ui:fragment rendered="#{empty evento.escudoTimeMandante}"><span class="agenda-escudo agenda-escudo--vazio" aria-hidden="true"><i class="fas fa-shield-alt"></i></span></ui:fragment>
+                                        <span class="agenda-confronto-nome">#{evento.nomeTimeMandante}</span>
+                                    </span>
+                                    <span class="agenda-confronto-vs"><span aria-hidden="true">x</span><span class="am-sr-only">contra</span></span>
+                                    <span class="agenda-confronto-time">
+                                        <h:graphicImage value="#{evento.escudoTimeVisitante}" rendered="#{not empty evento.escudoTimeVisitante}" styleClass="agenda-escudo flyer-shield-away" alt=""/>
+                                        <ui:fragment rendered="#{empty evento.escudoTimeVisitante}"><span class="agenda-escudo agenda-escudo--vazio" aria-hidden="true"><i class="fas fa-shield-alt"></i></span></ui:fragment>
+                                        <span class="agenda-confronto-nome">#{evento.nomeTimeVisitante}</span>
+                                    </span>
+                                </span>
+                            </h3>
+
+                            <div class="flyer-match-data" hidden="hidden">
+                                <span class="flyer-home-name"><h:outputText value="#{evento.nomeTimeMandante}"/></span>
+                                <span class="flyer-away-name"><h:outputText value="#{evento.nomeTimeVisitante}"/></span>
+                                <span class="flyer-weekday"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="EEEE" locale="pt_BR" type="localDateTime"/></h:outputText></span>
+                                <span class="flyer-date"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="dd/MM/yyyy" type="localDateTime"/></h:outputText></span>
+                                <span class="flyer-time"><h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText></span>
+                                <span class="flyer-field-name"><h:outputText value="#{evento.nomeCampo}"/></span>
+                                <span class="flyer-address"><h:outputText value="#{evento.endereco}"/></span>
+                            </div>
+
+                            <div class="agenda-evento-chips">
+                                <ui:fragment rendered="#{not empty evento.modalidade}"><span class="am-chip am-chip--info">#{evento.modalidade.descricao}</span></ui:fragment>
+                                <ui:fragment rendered="#{not empty evento.categoria}"><span class="am-chip">#{evento.categoria.descricao}</span></ui:fragment>
+                                <span class="am-chip"><i class="fas #{evento.posicaoMeuTime eq 'Mandante' ? 'fa-house' : 'fa-bus'}" aria-hidden="true"></i> Seu time: #{evento.posicaoMeuTime}</span>
+                            </div>
+
+                            <ui:fragment rendered="#{evento.situacaoRegistroManual eq 'REALIZADO'}">
+                                <div class="agenda-placar agenda-placar--final">
+                                    <p class="agenda-placar-titulo"><i class="fas fa-trophy" aria-hidden="true"></i> Placar final</p>
+                                    <div class="agenda-placar-resultado">
+                                        <span class="agenda-placar-nome">#{evento.nomeTimeMandante}</span>
+                                        <span class="agenda-placar-gols">
+                                            <strong>#{evento.golsMandante}</strong>
+                                            <span aria-hidden="true">x</span><span class="am-sr-only">a</span>
+                                            <strong>#{evento.golsVisitante}</strong>
+                                        </span>
+                                        <span class="agenda-placar-nome">#{evento.nomeTimeVisitante}</span>
+                                    </div>
+                                </div>
+                            </ui:fragment>
+
+                            <dl class="agenda-dados">
+                                <div>
+                                    <dt>Horário</dt>
+                                    <dd class="agenda-dados-destaque">
+                                        <h:outputText value="#{evento.dataHora}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText>
+                                        às <h:outputText value="#{evento.dataHoraFim}"><f:convertDateTime pattern="HH:mm" type="localDateTime"/></h:outputText>
+                                    </dd>
+                                </div>
+                                <div class="agenda-dados-local">
+                                    <dt>Local</dt>
+                                    <dd>
+                                        <ui:fragment rendered="#{not empty evento.nomeCampo}"><strong>#{evento.nomeCampo}</strong></ui:fragment>
+                                        <ui:fragment rendered="#{not empty evento.endereco}"><span>#{evento.endereco}</span></ui:fragment>
+                                        <ui:fragment rendered="#{empty evento.nomeCampo and empty evento.endereco}"><span>A combinar</span></ui:fragment>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>#{evento.posicaoMeuTime eq 'Visitante' ? 'Taxa a pagar' : 'Taxa do visitante'}</dt>
+                                    <dd>
+                                        <h:outputText value="#{evento.taxaRegistroManual}" rendered="#{evento.taxaRegistroManual gt 0}"><f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/></h:outputText>
+                                        <h:outputText value="Sem cobrança" rendered="#{not empty evento.taxaRegistroManual and not (evento.taxaRegistroManual gt 0)}"/>
+                                        <h:outputText value="Não informada" rendered="#{empty evento.taxaRegistroManual}"/>
+                                    </dd>
+                                </div>
+                            </dl>
+
+                            <ui:fragment rendered="#{not empty evento.mensagem}">
+                                <blockquote class="agenda-recado">
+                                    <i class="fas fa-quote-left" aria-hidden="true"></i>
+                                    <p>#{evento.mensagem}</p>
+                                </blockquote>
+                            </ui:fragment>
+
+                            <ui:fragment rendered="#{evento.situacaoRegistroManual eq 'AGENDADO'}">
+                                <div class="agenda-acoes">
+                                    <p:commandButton type="button" value="Gerar flyer" icon="fas fa-image"
+                                                     onclick="ArenaMatchFlyer.gerar(this); return false;"
+                                                     pt:data-flyer-background="#{resource['images:flyer-login-bg.jpg']}&amp;v=20260821-2"
+                                                     pt:data-flyer-logo="#{resource['images:logo-arena-match.png']}&amp;v=20260821-2"
+                                                     styleClass="ui-button-outlined agenda-btn-flyer"/>
+                                </div>
+                            </ui:fragment>
+                        </li>
+                        </ui:fragment>
+
+                        <ui:fragment rendered="#{not evento.registroManual}">
                         <li class="agenda-evento agenda-evento--#{evento.tipo eq 'GAME'
                                     ? (not evento.passouDaHora ? 'jogo'
                                         : (evento.statusPlacar eq 'AGUARDANDO_CONFIRMACAO' ? 'placar-aguardando'
@@ -439,6 +558,7 @@
                                 </div>
                             </ui:fragment>
                         </li>
+                        </ui:fragment>
                     </ui:repeat>
                     </ul>
                     </ui:fragment>

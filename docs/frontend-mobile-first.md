@@ -254,6 +254,19 @@ Homologação com a aplicação real, em todas as larguras e com fluxos de ponta
 - **Cadastro:** mensagens de regra sem o status HTTP.
 - **Login:** `h1` e acentos da etapa do código de administrador.
 
+## 5.11 Registro de jogo combinado fora do Arena Match (ARENA-70)
+
+`registrar-jogo.xhtml` (`css/partidas-externas.css`, prefixo `registro-jogo-`, e `js/registro-jogo.js`). A ARENA-70 começou antes do mobile first. As telas foram refeitas neste padrão depois do merge da `main`.
+
+- **Formulário:** um `am-card` com até 48rem, `am-form-grid--2` (uma coluna no celular, duas a partir de 768px). Início e fim ficam lado a lado em qualquer largura. A data usa `p:datePicker` só leitura com botão, como na busca. Os horários usam `p:inputMask` 99:99 com teclado numérico; a taxa abre o teclado decimal.
+- **Mando:** vem do cadastro do time e aparece como texto ("joga como visitante"), não como campo. O rótulo do adversário mostra o mando dele.
+- **Obrigatórios e dia da semana:** só adversário, modalidade, categoria e data. O `p:datePicker` bloqueia os dias fora da agenda do cadastro (`disabledDays`, recalculado por Ajax ao trocar modalidade ou categoria) e a dica abaixo dele lista os dias do time, em amarelo (`registro-jogo-aviso`) quando a data recebida (ex.: da busca) não serve. O `required` dos campos usa `#{not empty param['formRegistroJogo:salvar']}`, para valer só no botão Salvar e não nas trocas por Ajax.
+- **Mandante:** horário, local e taxa do cadastro num resumo só leitura (`registro-jogo-resumo`, um `dl` em uma coluna no celular e três a partir de 768px), com link para Meus Dados. **Visitante:** início, fim, campo, endereço e taxa opcionais; as atualizações por Ajax nunca redesenham esses campos, para não perder o que foi digitado.
+- **Mensagens:** `p:growl` da página, só com o resumo (as mensagens de campo obrigatório têm resumo igual ao detalhe). Depois de "Salvar na agenda", `registroJogoMostrarErro()` traz o primeiro campo com erro para a tela, sem focar. Uma falha ao abrir o formulário aparece num `am-alert` com "Tentar novamente".
+- **Ações:** "Salvar na agenda" fica acima de "Cancelar" no celular (`column-reverse`) e à direita a partir de 576px.
+- **Agenda:** "Registrar jogo" na barra do topo e no dia vazio ("Registrar jogo neste dia"). Os dois usam `ajax="false"` e `immediate`, para navegar sem validar os campos de placar da página, e levam o dia selecionado. O cartão do jogo registrado usa a estrutura dos jogos (`agenda-evento`, `agenda-confronto`, `agenda-dados`). A cor vem da situação (Agendado → `--jogo`, Aguardando placar → `--placar-pendente`, Realizado → `--placar-confirmado`). Tem o selo "Registrado por você" (`agenda-evento-origem`) e "Gerar flyer" para jogo futuro. O `p:messages` da carga mostra só avisos e erros: o "Jogo registrado" (flash) já vai para o growl global.
+- **Busca:** o atalho `busca-registro` fica dentro de `dataView`, acima dos resultados, e por isso acompanha cada busca. Sem adversários, ganha destaque (borda ciano e botão cheio); com resultados, fica discreto (botão contornado). Envia só data, modalidade e categoria (`process`).
+
 ## 6. Tabelas
 
 1. **Padrão: cartões ou reflow** quando cada linha é lida sozinha (agenda, notificações, convites).

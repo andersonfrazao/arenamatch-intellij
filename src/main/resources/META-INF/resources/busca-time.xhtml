@@ -89,6 +89,22 @@
 
             <!-- Resultados: contêiner fixo (id dataView) para os updates de filtros e cartões. -->
             <h:panelGroup id="dataView" layout="block" styleClass="busca-resultados-area">
+                <!-- ARENA-70: registrar um jogo combinado fora do Arena Match, abaixo dos filtros e
+                     antes dos resultados. Sem adversários na lista, o atalho ganha destaque.
+                     Leva a data, a modalidade e a categoria escolhidas nos filtros. -->
+                <section class="busca-registro #{empty buscaBean.resultados ? 'busca-registro--destaque' : ''}"
+                         aria-labelledby="buscaRegistroTitulo">
+                    <i class="fas fa-calendar-plus busca-registro-icone" aria-hidden="true"></i>
+                    <div class="busca-registro-texto">
+                        <h2 id="buscaRegistroTitulo" class="busca-registro-titulo">Já combinou um jogo?</h2>
+                        <p>Registre na sua agenda, mesmo que o adversário ainda não tenha cadastro no Arena Match.</p>
+                    </div>
+                    <p:commandButton id="botaoRegistrarJogo" value="Registrar jogo" icon="fas fa-plus"
+                                     action="#{buscaBean.registrarJogo}"
+                                     process="@this dataJogo filtroModalidade filtroCategoria" update="messages"
+                                     styleClass="busca-registro-btn #{empty buscaBean.resultados ? '' : 'ui-button-outlined'}"/>
+                </section>
+
                 <h:panelGroup rendered="#{empty buscaBean.resultados}" layout="block" styleClass="am-empty busca-vazio">
                     <i class="fas fa-people-group" aria-hidden="true"></i>
                     <strong class="busca-vazio-titulo">Nenhum adversário na lista</strong>

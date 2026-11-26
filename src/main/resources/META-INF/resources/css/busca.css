@@ -135,6 +135,55 @@
     filter: brightness(1.1);
 }
 
+/* --- Registrar jogo combinado fora do Arena Match (ARENA-70) ---
+   Faixa discreta quando há adversários; com destaque (borda e botão cheio)
+   quando a lista está vazia. Texto e botão empilhados no celular, em linha a
+   partir de 576px. */
+.busca-registro {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--am-space-2) var(--am-space-3);
+    margin-bottom: var(--am-space-4);
+    padding: var(--am-space-3) var(--am-space-4);
+    border: 1px solid var(--am-color-border);
+    border-radius: var(--am-radius-md);
+    background: var(--am-color-surface);
+}
+
+.busca-registro--destaque {
+    border-color: var(--am-color-accent-border);
+    background: var(--am-color-accent-bg);
+}
+
+.busca-registro-icone {
+    margin-top: 0.15em;
+    color: var(--am-color-info);
+    font-size: 1.25rem;
+}
+
+.busca-registro-texto { min-width: 0; }
+
+.busca-registro-titulo {
+    margin: 0 0 var(--am-space-1);
+    color: var(--am-color-text-strong);
+    font-size: var(--am-font-size-md);
+    font-weight: 800;
+}
+
+.busca-registro-texto p {
+    margin: 0;
+    color: var(--am-color-text);
+    font-size: var(--am-font-size-sm);
+    line-height: var(--am-line-height);
+}
+
+.am-ui .busca-registro-btn.ui-button {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+}
+
 /* --- Resultados --- */
 .busca-contagem {
     margin: 0 0 var(--am-space-3);
@@ -506,6 +555,15 @@
     .busca-raio,
     .busca-filtros-acao { grid-column: 1 / -1; }
 
+    .busca-registro {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+    }
+
+    .am-ui .busca-registro-btn.ui-button {
+        grid-column: auto;
+        width: auto;
+    }
 
     .am-ui .busca-resultados .ui-dataview-content > .ui-dataview-row {
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));

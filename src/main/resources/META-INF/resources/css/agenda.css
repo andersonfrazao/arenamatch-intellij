@@ -32,8 +32,13 @@
    ===================================================================== */
 .agenda-barra {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
+    gap: var(--am-space-2);
 }
+
+/* ARENA-70: "Registrar jogo" (combinado fora do Arena Match) ao lado de "Jogos marcados". */
+.am-ui .agenda-registrar-btn { width: 100%; }
 
 .agenda-todos-btn {
     display: inline-flex;
@@ -508,6 +513,8 @@
     font-weight: 800;
 }
 
+.am-ui .agenda-vazio-acao { margin-top: var(--am-space-2); }
+
 .agenda-eventos {
     display: flex;
     flex-direction: column;
@@ -545,6 +552,25 @@
 .agenda-evento--cancelamento-enviado { --agenda-tom: #fdba74; --agenda-tom-borda: rgba(251, 146, 60, 0.42); --agenda-tom-fundo: rgba(251, 146, 60, 0.06); }
 .agenda-evento--liga { --agenda-tom: #d8b4fe; --agenda-tom-borda: var(--am-color-liga-border); --agenda-tom-fundo: rgba(168, 85, 247, 0.08); }
 .agenda-evento--liga-recusada { --agenda-tom: #fda4af; --agenda-tom-borda: rgba(244, 63, 94, 0.42); --agenda-tom-fundo: rgba(15, 23, 42, 0.6); }
+
+/* Status e origem na mesma linha; a origem desce quando não cabe. */
+.agenda-evento-topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--am-space-1) var(--am-space-3);
+}
+
+/* ARENA-70: jogo registrado pelo próprio time (fora do Arena Match). */
+.agenda-evento-origem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--am-color-info);
+    font-size: var(--am-font-size-xs);
+    font-weight: 700;
+}
 
 .agenda-evento-status {
     display: flex;
@@ -884,6 +910,7 @@
    ===================================================================== */
 @media (min-width: 576px) {
     .agenda-todos-btn { width: auto; }
+    .am-ui .agenda-registrar-btn { width: auto; }
 
     .agenda-lista-item { padding: var(--am-space-3) var(--am-space-4); }
 
